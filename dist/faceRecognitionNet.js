@@ -2,53 +2,51 @@ import * as tf from '@tensorflow/tfjs-core';
 function scale(x, params) {
     return tf.add(tf.mul(x, params.weights), params.biases);
 }
-function createConvLayer(stride, withRelu) {
-    return function (x, params, useValidPadding) {
-        if (useValidPadding === void 0) { useValidPadding = false; }
-        var _a = params.conv, filters = _a.filters, biases = _a.biases;
-        var out = tf.conv2d(x, filters, [stride, stride], useValidPadding ? 'valid' : 'same');
-        out = tf.add(out, biases);
-        out = scale(out, params.scale);
-        return withRelu ? tf.relu(out) : out;
-    };
+function convLayer(x, params, stride, withRelu, padding) {
+    if (padding === void 0) { padding = 'same'; }
+    var _a = params.conv, filters = _a.filters, biases = _a.biases;
+    var out = tf.conv2d(x, filters, [stride, stride], padding);
+    out = tf.add(out, biases);
+    out = scale(out, params.scale);
+    return withRelu ? tf.relu(out) : out;
 }
-function createResBlock() {
-    var conv = createConvLayer(1, true);
-    var convNoRelu = createConvLayer(1, false);
-    return function (x, params) {
-        var out = conv(x, params.conv1);
-        out = convNoRelu(out, params.conv2);
-        out = tf.add(out, x);
-        out = tf.relu(out);
-        return out;
-    };
+function conv(x, params) {
+    return convLayer(x, params, 1, true);
 }
-function createReduceDimsBlock() {
-    var convReduceDims = createConvLayer(2, true);
-    var convNoRelu = createConvLayer(1, false);
-    return function (x, params, useValidPadding) {
-        if (useValidPadding === void 0) { useValidPadding = false; }
-        var out = convReduceDims(x, params.conv1, useValidPadding);
-        out = convNoRelu(out, params.conv2);
-        var pooled = tf.avgPool(x, 2, 2, useValidPadding ? 'valid' : 'same');
-        var zeros = tf.zeros(pooled.shape);
-        var isPad = pooled.shape[3] !== out.shape[3];
-        var isAdjustShape = pooled.shape[1] !== out.shape[1] || pooled.shape[2] !== out.shape[2];
-        if (isAdjustShape) {
-            var padShapeX = out.shape.slice();
-            padShapeX[1] = 1;
-            var zerosW = tf.zeros(padShapeX);
-            out = tf.concat([out, zerosW], 1);
-            var padShapeY = out.shape.slice();
-            padShapeY[2] = 1;
-            var zerosH = tf.zeros(padShapeY);
-            out = tf.concat([out, zerosH], 2);
-        }
-        pooled = isPad ? tf.concat([pooled, zeros], 3) : pooled;
-        out = tf.add(pooled, out);
-        out = tf.relu(out);
-        return out;
-    };
+function convNoRelu(x, params) {
+    return convLayer(x, params, 1, false);
+}
+function convDown(x, params) {
+    return convLayer(x, params, 2, true, 'valid');
+}
+function res(x, params) {
+    var out = conv(x, params.conv1);
+    out = convNoRelu(out, params.conv2);
+    out = tf.add(out, x);
+    out = tf.relu(out);
+    return out;
+}
+function resDown(x, params) {
+    var out = convDown(x, params.conv1);
+    out = convNoRelu(out, params.conv2);
+    var pooled = tf.avgPool(x, 2, 2, 'valid');
+    var zeros = tf.zeros(pooled.shape);
+    var isPad = pooled.shape[3] !== out.shape[3];
+    var isAdjustShape = pooled.shape[1] !== out.shape[1] || pooled.shape[2] !== out.shape[2];
+    if (isAdjustShape) {
+        var padShapeX = out.shape.slice();
+        padShapeX[1] = 1;
+        var zerosW = tf.zeros(padShapeX);
+        out = tf.concat([out, zerosW], 1);
+        var padShapeY = out.shape.slice();
+        padShapeY[2] = 1;
+        var zerosH = tf.zeros(padShapeY);
+        out = tf.concat([out, zerosH], 2);
+    }
+    pooled = isPad ? tf.concat([pooled, zeros], 3) : pooled;
+    out = tf.add(pooled, out);
+    out = tf.relu(out);
+    return out;
 }
 function normalize(arr) {
     var avg_r = 122.782;
@@ -61,31 +59,23 @@ function normalize(arr) {
     });
 }
 function computeFaceDescriptor(input, params) {
-    var conv32_in = createConvLayer(2, true);
-    var res32 = createResBlock();
-    var reduceDims64 = createReduceDimsBlock();
-    var reduceDims128 = createReduceDimsBlock();
-    var reduceDims256 = createReduceDimsBlock();
-    var res64 = createResBlock();
-    var res128 = createResBlock();
-    var res256 = createResBlock();
     var x = tf.tensor4d(normalize(input), [1, 150, 150, 3]);
-    var out = conv32_in(x, params.conv32_in, true);
+    var out = convDown(x, params.conv32_in);
     out = tf.maxPool(out, 3, 2, 'valid');
-    out = res32(out, params.conv32_1);
-    out = res32(out, params.conv32_2);
-    out = res32(out, params.conv32_3);
-    out = reduceDims64(out, params.conv64_in, true);
-    out = res64(out, params.conv64_1);
-    out = res64(out, params.conv64_2);
-    out = res64(out, params.conv64_3);
-    out = reduceDims128(out, params.conv128_in, true);
-    out = res128(out, params.conv128_1);
-    out = res128(out, params.conv128_2);
-    out = reduceDims256(out, params.conv256_in, true);
-    out = res256(out, params.conv256_1);
-    out = res256(out, params.conv256_2);
-    out = reduceDims256(out, params.conv256_3, true);
+    out = res(out, params.conv32_1);
+    out = res(out, params.conv32_2);
+    out = res(out, params.conv32_3);
+    out = resDown(out, params.conv64_in);
+    out = res(out, params.conv64_1);
+    out = res(out, params.conv64_2);
+    out = res(out, params.conv64_3);
+    out = resDown(out, params.conv128_in);
+    out = res(out, params.conv128_1);
+    out = res(out, params.conv128_2);
+    out = resDown(out, params.conv256_in);
+    out = res(out, params.conv256_1);
+    out = res(out, params.conv256_2);
+    out = resDown(out, params.conv256_3);
     // global average pooling of each of the 256 filters -> retrieve 256 entry vector
     var global_avg = out.mean([1, 2]);
     // fully connected
