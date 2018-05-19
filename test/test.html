@@ -18,10 +18,10 @@
   <input type="file" onchange="onWeightsSelected(event)"/>
   <script>
     function onWeightsSelected(e) {
-      var selectedFile = e.target.files[0]
-      var reader = new FileReader()
+      const selectedFile = e.target.files[0]
+      const reader = new FileReader()
       reader.onload = function(re) {
-        var weights = new Float32Array(re.target.result)
+        const weights = new Float32Array(re.target.result)
         runTests(weights)
       }
       reader.readAsArrayBuffer(selectedFile)
@@ -29,7 +29,7 @@
 
     async function runTests(weights) {
       console.log('running...')
-      var net = facerecognition.faceRecognitionNet(weights)
+      const net = facerecognition.faceRecognitionNet(weights)
       await run(imgdataHoward, descriptorHoward, net, 'howard')
       await run(imgdataLeonard, descriptorLeonard, net, 'leonard')
       await run(imgdataPenny, descriptorPenny, net, 'penny')
@@ -39,11 +39,11 @@
     }
 
     async function run(data, refDescriptor, net, name) {
-      var input = flatten(flatten(data))
+      const input = flatten(flatten(data))
       console.time('computeFaceDescriptor')
-      var desc = await net.computeFaceDescriptor(input)
+      const desc = await net.computeFaceDescriptor(input)
       console.timeEnd('computeFaceDescriptor')
-      var distance = facerecognition.euclideanDistance(desc, refDescriptor)
+      const distance = facerecognition.euclideanDistance(desc, refDescriptor)
 
       if (distance > 1e-6)
         console.error('failed for descriptor %s with distance %s', name, distance)

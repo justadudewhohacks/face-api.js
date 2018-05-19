@@ -33,7 +33,8 @@ export function faceRecognitionNet(weights) {
     var computeFaceDescriptorSync = function (input) { return forward(input).dataSync(); };
     return {
         computeFaceDescriptor: computeFaceDescriptor,
-        computeFaceDescriptorSync: computeFaceDescriptorSync
+        computeFaceDescriptorSync: computeFaceDescriptorSync,
+        forward: forward
     };
 }
 //# sourceMappingURL=index.js.map

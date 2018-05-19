@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-recognition.min.js"></script>
+  <script src="axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+</head>
+<style>
+  .center-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+</style>
+<body>
+  <div class="center-content col s12">
+    <div>
+      <div class="row center-content">
+        <label id="status"></label>
+      </div>
+      <div class="row center-content">
+        <img id="face" src=""/>
+      </div>
+      <div class="row">
+        <label for="prediction">Prediction:</label>
+        <input disabled value="-" id="prediction" type="text" class="bold">
+      </div>
+      <div class="row">
+        <label for="time">Time:</label>
+        <input disabled value="-" id="time" type="text" class="bold">
+      </div>
+      <div class="row">
+        <label for="fps">Estimated Fps:</label>
+        <input disabled value="-" id="fps" type="text" class="bold">
+      </div>
+      <div class="row">
+        <button
+          class="waves-effect waves-light btn"
+          id="stop"
+          onclick="onToggleStop()"
+        >
+          Stop
+        </button>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onSlower()"
+        >
+        <i class="material-icons left">-</i> Slower
+        </button>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onFaster()"
+        >
+          <i class="material-icons left">+</i> Faster
+        </button>
+      </div>
+      <div class="row">
+        <label for="interval">Interval:</label>
+        <input disabled value="2000" id="interval" type="text" class="bold">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const classes = ['amy', 'bernadette', 'howard', 'leonard', 'penny', 'raj', 'sheldon', 'stuart']
+    // for 150 x 150 sized face images 0.6 is a good threshold to
+    // judge whether two face descriptors are similar or not
+    const threshold = 0.6
+    let interval = 2000
+
+    let isStop = false
+    let trainDescriptorsByClass = []
+    let net = {}
+    let currImageIdx = 2, currClassIdx = 0
+    let to = null
+
+    function onSlower() {
+      interval = Math.max(interval + 100, 0)
+      document.getElementById('interval').value = interval
+    }
+
+    function onFaster() {
+      interval = Math.min(interval - 100, 2000)
+      document.getElementById('interval').value = interval
+    }
+
+    function onToggleStop() {
+      clearTimeout(to)
+      isStop = !isStop
+      document.getElementById('stop').innerHTML = isStop ? 'Continue' : 'Stop'
+      setStatusText(isStop ? 'stopped' : 'running face recognition:')
+      if (!isStop) {
+        runFaceRecognition()
+      }
+    }
+
+    function round(num) {
+      return Math.floor(num * 100) / 100
+    }
+
+
+    function getImageUri(className, idx) {
+      return `/${className}/${className}${idx}.png`
+    }
+
+    function setStatusText(text) {
+      document.getElementById('status').value = text
+    }
+
+    function setPrediction(result) {
+      document.getElementById('prediction').value = result
+    }
+
+    function displayTimeStats(timeInMs) {
+      document.getElementById('time').value = `${timeInMs} ms`
+      document.getElementById('fps').value = `${round(1000 / timeInMs)}`
+    }
+
+    function getImg() {
+      return document.getElementById('face')
+    }
+
+    function displayImage(src) {
+      getImg().src = src
+    }
+
+    function bufferToImgSrc(buf) {
+      return new Promise((resolve, reject) => {
+        const reader = new window.FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(buf)
+      })
+    }
+
+    function imgSrcToData(src) {
+      return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 150
+        canvas.height = 150
+        const ctx = canvas.getContext('2d')
+        const img = new Image()
+        img.onload = function() {
+          ctx.drawImage(img, 0, 0)
+          resolve(ctx.getImageData(0, 0, 150, 150))
+        }
+        img.onerror = reject
+        img.src = src
+      })
+    }
+
+    async function bufferToImageData(buf) {
+      return imgSrcToData(await bufferToImgSrc(buf))
+    }
+
+    async function fetchModelWeights() {
+      const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
+      return new Float32Array(res.data)
+    }
+
+    async function fetchImage(uri) {
+      return (await axios.get(uri, { responseType: 'blob' })).data
+    }
+
+    async function loadTrainingData(cb) {
+      return await Promise.all(classes.map(
+        async className => ({
+          imgData: await bufferToImageData(
+            await fetchImage(getImageUri(className, 1))
+          ),
+          className
+        })
+      ))
+    }
+
+    function getBestMatch(queryDescriptor) {
+      return trainDescriptorsByClass
+        .map(
+          ({ descriptor, className }) => ({
+            distance: round(facerecognition.euclideanDistance(descriptor, queryDescriptor)),
+            className
+          })
+        )
+        .reduce((best, curr) => best.distance < curr.distance ? best : curr)
+    }
+
+    async function runFaceRecognition() {
+      async function next() {
+        const imgBuf = await fetchImage(getImageUri(classes[currClassIdx], currImageIdx))
+        displayImage(await bufferToImgSrc(imgBuf))
+
+        const imageData = await imgSrcToData(getImg().src)
+
+        const ts = Date.now()
+        const result = await net.forward(imageData)
+        displayTimeStats(Date.now() - ts)
+
+        const descriptor = await result.data()
+        const bestMatch = getBestMatch(descriptor)
+        setPrediction(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
+
+        currImageIdx = currClassIdx === (classes.length - 1)
+          ? currImageIdx + 1
+          : currImageIdx
+        currClassIdx = (currClassIdx + 1) % classes.length
+
+        currImageIdx = (currImageIdx % 6) || 2
+        to = setTimeout(next, interval)
+      }
+      await next(0, 0)
+    }
+
+    async function run() {
+      try {
+        setStatusText('loading model file...')
+
+        const weights = await fetchModelWeights()
+        net = facerecognition.faceRecognitionNet(weights)
+        setStatusText('computing initial descriptors...')
+
+        const trainImgDatas = await loadTrainingData()
+        trainDescriptorsByClass = await Promise.all(trainImgDatas.map(
+          async ({ className, imgData }) => ({
+            descriptor: await net.computeFaceDescriptor(imgData),
+            className
+          })
+        ))
+
+        setStatusText('running face recognition:')
+        runFaceRecognition()
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    run()
+  </script>
+
+</body>
+</html>

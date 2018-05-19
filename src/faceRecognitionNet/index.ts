@@ -8,7 +8,7 @@ import { residual, residualDown } from './residualLayer';
 export function faceRecognitionNet(weights: Float32Array) {
   const params = extractParams(weights)
 
-  function forward(input: number[]) {
+  function forward(input: number[] | ImageData) {
 
     return tf.tidy(() => {
 
@@ -42,11 +42,12 @@ export function faceRecognitionNet(weights: Float32Array) {
     })
   }
 
-  const computeFaceDescriptor = (input: number[]) => forward(input).data()
-  const computeFaceDescriptorSync = (input: number[]) => forward(input).dataSync()
+  const computeFaceDescriptor = (input: number[] | ImageData) => forward(input).data()
+  const computeFaceDescriptorSync = (input: number[] | ImageData) => forward(input).dataSync()
 
   return {
     computeFaceDescriptor,
-    computeFaceDescriptorSync
+    computeFaceDescriptorSync,
+    forward
   }
 }
