@@ -8,11 +8,13 @@ import { residual, residualDown } from './residualLayer';
 export function faceRecognitionNet(weights: Float32Array) {
   const params = extractParams(weights)
 
-  return function (input: number[]) {
+  function forward(input: number[]) {
 
     return tf.tidy(() => {
 
-      const x = tf.tensor4d(normalize(input), [1, 150, 150, 3])
+      const norm = normalize(input)
+
+      const x = tf.tensor4d(norm, [1, 150, 150, 3])
 
       let out = convDown(x, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')
@@ -38,7 +40,15 @@ export function faceRecognitionNet(weights: Float32Array) {
       const globalAvg = out.mean([1, 2]) as tf.Tensor2D
       const fullyConnected = tf.matMul(globalAvg, params.fc)
 
-      return Array.from(fullyConnected.dataSync())
+      return fullyConnected
     })
+  }
+
+  const computeFaceDescriptor = (input: number[]) => forward(input).data()
+  const computeFaceDescriptorSync = (input: number[]) => forward(input).dataSync()
+
+  return {
+    computeFaceDescriptor,
+    computeFaceDescriptorSync
   }
 }
