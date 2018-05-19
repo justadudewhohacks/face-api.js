@@ -27,21 +27,21 @@
       reader.readAsArrayBuffer(selectedFile)
     }
 
-    function runTests(weights) {
+    async function runTests(weights) {
       console.log('running...')
-      var computeFaceDescriptor = facerecognition.faceRecognitionNet(weights)
-      run(imgdataHoward, descriptorHoward, computeFaceDescriptor, 'howard')
-      run(imgdataLeonard, descriptorLeonard, computeFaceDescriptor, 'leonard')
-      run(imgdataPenny, descriptorPenny, computeFaceDescriptor, 'penny')
-      run(imgdataRaj, descriptorRaj, computeFaceDescriptor, 'raj')
-      run(imgdataSheldon, descriptorSheldon, computeFaceDescriptor, 'howard')
+      var net = facerecognition.faceRecognitionNet(weights)
+      await run(imgdataHoward, descriptorHoward, net, 'howard')
+      await run(imgdataLeonard, descriptorLeonard, net, 'leonard')
+      await run(imgdataPenny, descriptorPenny, net, 'penny')
+      await run(imgdataRaj, descriptorRaj, net, 'raj')
+      await run(imgdataSheldon, descriptorSheldon, net, 'howard')
       console.log('done')
     }
 
-    function run(data, refDescriptor, computeFaceDescriptor, name) {
+    async function run(data, refDescriptor, net, name) {
       var input = flatten(flatten(data))
       console.time('computeFaceDescriptor')
-      var desc = computeFaceDescriptor(input)
+      var desc = await net.computeFaceDescriptor(input)
       console.timeEnd('computeFaceDescriptor')
       var distance = facerecognition.euclideanDistance(desc, refDescriptor)
 
