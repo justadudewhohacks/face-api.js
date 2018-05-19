@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="./imgdata/howard.json"></script>
+  <script src="./imgdata/leonard.json"></script>
+  <script src="./imgdata/penny.json"></script>
+  <script src="./imgdata/raj.json"></script>
+  <script src="./imgdata/sheldon.json"></script>
+  <script src="./descriptors/howard.json"></script>
+  <script src="./descriptors/leonard.json"></script>
+  <script src="./descriptors/penny.json"></script>
+  <script src="./descriptors/raj.json"></script>
+  <script src="./descriptors/sheldon.json"></script>
+  <script src="../dist/face-recognition.min.js"></script>
+</head>
+<body>
+  <label for="file">Load Weights File: </label>
+  <input type="file" onchange="onWeightsSelected(event)"/>
+  <script>
+    function onWeightsSelected(e) {
+      var selectedFile = e.target.files[0]
+      var reader = new FileReader()
+      reader.onload = function(re) {
+        var weights = new Float32Array(re.target.result)
+        runTests(weights)
+      }
+      reader.readAsArrayBuffer(selectedFile)
+    }
+
+    function runTests(weights) {
+      console.log('running...')
+      var computeFaceDescriptor = facerecognition.faceRecognitionNet(weights)
+      run(imgdataHoward, descriptorHoward, computeFaceDescriptor, 'howard')
+      run(imgdataLeonard, descriptorLeonard, computeFaceDescriptor, 'leonard')
+      run(imgdataPenny, descriptorPenny, computeFaceDescriptor, 'penny')
+      run(imgdataRaj, descriptorRaj, computeFaceDescriptor, 'raj')
+      run(imgdataSheldon, descriptorSheldon, computeFaceDescriptor, 'howard')
+      console.log('done')
+    }
+
+    function run(data, refDescriptor, computeFaceDescriptor, name) {
+      var input = flatten(flatten(data))
+      console.time('computeFaceDescriptor')
+      var desc = computeFaceDescriptor(input)
+      console.timeEnd('computeFaceDescriptor')
+      var distance = facerecognition.euclideanDistance(desc, refDescriptor)
+
+      if (distance > 1e-6)
+        console.error('failed for descriptor %s with distance %s', name, distance)
+    }
+
+    function flatten(arr) {
+      return arr.reduce((res, curr) => res.concat(curr), [])
+    }
+  </script>
+
+</body>
+</html>

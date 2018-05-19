@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "declaration": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "strictNullChecks": true,
+    "importHelpers": true,
+    "module": "ES2015",
+    "moduleResolution": "node",
+    "target": "es5",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "lib": ["es2015", "dom"],
+    "typeRoots": [
+      "typings",
+      "node_modules/@types"
+    ]
+  },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2
+  },
+  "include": [
+    "src"
+  ]
+}
