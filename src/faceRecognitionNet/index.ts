@@ -10,32 +10,35 @@ export function faceRecognitionNet(weights: Float32Array) {
 
   return function (input: number[]) {
 
-    const x = tf.tensor4d(normalize(input), [1, 150, 150, 3])
+    return tf.tidy(() => {
 
-    let out = convDown(x, params.conv32_down)
-    out = tf.maxPool(out, 3, 2, 'valid')
+      const x = tf.tensor4d(normalize(input), [1, 150, 150, 3])
 
-    out = residual(out, params.conv32_1)
-    out = residual(out, params.conv32_2)
-    out = residual(out, params.conv32_3)
+      let out = convDown(x, params.conv32_down)
+      out = tf.maxPool(out, 3, 2, 'valid')
 
-    out = residualDown(out, params.conv64_down)
-    out = residual(out, params.conv64_1)
-    out = residual(out, params.conv64_2)
-    out = residual(out, params.conv64_3)
+      out = residual(out, params.conv32_1)
+      out = residual(out, params.conv32_2)
+      out = residual(out, params.conv32_3)
 
-    out = residualDown(out, params.conv128_down)
-    out = residual(out, params.conv128_1)
-    out = residual(out, params.conv128_2)
+      out = residualDown(out, params.conv64_down)
+      out = residual(out, params.conv64_1)
+      out = residual(out, params.conv64_2)
+      out = residual(out, params.conv64_3)
 
-    out = residualDown(out, params.conv256_down)
-    out = residual(out, params.conv256_1)
-    out = residual(out, params.conv256_2)
-    out = residualDown(out, params.conv256_down_out)
+      out = residualDown(out, params.conv128_down)
+      out = residual(out, params.conv128_1)
+      out = residual(out, params.conv128_2)
 
-    const globalAvg = out.mean([1, 2]) as tf.Tensor2D
-    const fullyConnected = tf.matMul(globalAvg, params.fc)
+      out = residualDown(out, params.conv256_down)
+      out = residual(out, params.conv256_1)
+      out = residual(out, params.conv256_2)
+      out = residualDown(out, params.conv256_down_out)
 
-    return Array.from(fullyConnected.dataSync())
+      const globalAvg = out.mean([1, 2]) as tf.Tensor2D
+      const fullyConnected = tf.matMul(globalAvg, params.fc)
+
+      return Array.from(fullyConnected.dataSync())
+    })
   }
 }
