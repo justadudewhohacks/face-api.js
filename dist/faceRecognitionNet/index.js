@@ -7,8 +7,7 @@ export function faceRecognitionNet(weights) {
     var params = extractParams(weights);
     function forward(input) {
         return tf.tidy(function () {
-            var norm = normalize(input);
-            var x = tf.tensor4d(norm, [1, 150, 150, 3]);
+            var x = normalize(input);
             var out = convDown(x, params.conv32_down);
             out = tf.maxPool(out, 3, 2, 'valid');
             out = residual(out, params.conv32_1);

@@ -12,9 +12,7 @@ export function faceRecognitionNet(weights: Float32Array) {
 
     return tf.tidy(() => {
 
-      const norm = normalize(input)
-
-      const x = tf.tensor4d(norm, [1, 150, 150, 3])
+      const x = normalize(input)
 
       let out = convDown(x, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')
