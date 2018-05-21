@@ -3,25 +3,28 @@
 <head>
   <script src="face-recognition.min.js"></script>
   <script src="axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
-<style>
-  .center-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .bold {
-    font-weight: bold;
-  }
-</style>
 <body>
-  <div class="center-content col s12">
+  <div class="center-content page-container">
+    <div class="row">
+      <a
+        class="waves-effect waves-light btn"
+        href="faceSimilarity.html"
+      >
+        Go To Face Similarity Example
+      </a>
+    </div>
     <div>
-      <div class="row center-content">
-          <input disabled value="" id="status" type="text" class="bold">
+      <div class="row center-content" id="loader">
+        <input disabled value="" id="status" type="text" class="bold">
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
       </div>
       <div class="row center-content">
         <img id="face" src=""/>
@@ -67,7 +70,6 @@
   </div>
 
   <script>
-    const classes = ['amy', 'bernadette', 'howard', 'leonard', 'penny', 'raj', 'sheldon', 'stuart']
     // for 150 x 150 sized face images 0.6 is a good threshold to
     // judge whether two face descriptors are similar or not
     const threshold = 0.6
@@ -81,12 +83,12 @@
 
     function onSlower() {
       interval = Math.max(interval + 100, 0)
-      document.getElementById('interval').value = interval
+      $('#interval').val(interval)
     }
 
     function onFaster() {
       interval = Math.min(interval - 100, 2000)
-      document.getElementById('interval').value = interval
+      $('#interval').val(interval)
     }
 
     function onToggleStop() {
@@ -99,72 +101,17 @@
       }
     }
 
-    function round(num) {
-      return Math.floor(num * 100) / 100
-    }
-
-
-    function getImageUri(className, idx) {
-      return `/${className}/${className}${idx}.png`
-    }
-
     function setStatusText(text) {
-      document.getElementById('status').value = text
-    }
-
-    function setPrediction(result) {
-      document.getElementById('prediction').value = result
+      $('#status').val(text)
     }
 
     function displayTimeStats(timeInMs) {
-      document.getElementById('time').value = `${timeInMs} ms`
-      document.getElementById('fps').value = `${round(1000 / timeInMs)}`
-    }
-
-    function getImg() {
-      return document.getElementById('face')
+      $('#time').val(`${timeInMs} ms`)
+      $('#fps').val(`${round(1000 / timeInMs)}`)
     }
 
     function displayImage(src) {
       getImg().src = src
-    }
-
-    function bufferToImgSrc(buf) {
-      return new Promise((resolve, reject) => {
-        const reader = new window.FileReader()
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = reject
-        reader.readAsDataURL(buf)
-      })
-    }
-
-    function imgSrcToData(src) {
-      return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas')
-        canvas.width = 150
-        canvas.height = 150
-        const ctx = canvas.getContext('2d')
-        const img = new Image()
-        img.onload = function() {
-          ctx.drawImage(img, 0, 0)
-          resolve(ctx.getImageData(0, 0, 150, 150))
-        }
-        img.onerror = reject
-        img.src = src
-      })
-    }
-
-    async function bufferToImageData(buf) {
-      return imgSrcToData(await bufferToImgSrc(buf))
-    }
-
-    async function fetchModelWeights() {
-      const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
-      return new Float32Array(res.data)
-    }
-
-    async function fetchImage(uri) {
-      return (await axios.get(uri, { responseType: 'blob' })).data
     }
 
     async function loadTrainingData(cb) {
@@ -192,9 +139,10 @@
     async function runFaceRecognition() {
       async function next() {
         const imgBuf = await fetchImage(getImageUri(classes[currClassIdx], currImageIdx))
-        displayImage(await bufferToImgSrc(imgBuf))
+        const imgEl = $('#face').get(0)
+        imgEl.src = await bufferToImgSrc(imgBuf)
 
-        const imageData = await imgSrcToData(getImg().src)
+        const imageData = await imgSrcToData(imgEl.src)
 
         const ts = Date.now()
         const result = await net.forward(imageData)
@@ -202,7 +150,7 @@
 
         const descriptor = await result.data()
         const bestMatch = getBestMatch(descriptor)
-        setPrediction(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
+        $('#prediction').val(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
 
         currImageIdx = currClassIdx === (classes.length - 1)
           ? currImageIdx + 1
@@ -219,8 +167,7 @@
       try {
         setStatusText('loading model file...')
 
-        const weights = await fetchModelWeights()
-        net = facerecognition.faceRecognitionNet(weights)
+        net = await initNet()
         setStatusText('computing initial descriptors...')
 
         const trainImgDatas = await loadTrainingData()
@@ -230,8 +177,8 @@
             className
           })
         ))
+        $('#loader').hide()
 
-        setStatusText('running face recognition:')
         runFaceRecognition()
       } catch (err) {
         console.error(err)

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-recognition.min.js"></script>
+  <script src="axios.min.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div class="center-content page-container">
+    <div class="row">
+      <a
+        class="waves-effect waves-light btn"
+        href="faceRecognition"
+      >
+        Go To Face Recognition Example
+      </a>
+    </div>
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+      <div class="row side-by-side">
+        <div class="center-content">
+          <img id="face1" src="" class="margin"/>
+          <div id="selectList1" class="input-field"></div>
+        </div>
+        <div class="center-content">
+          <img id="face2" src="" class="margin"/>
+          <div id="selectList2" class="input-field"></div>
+        </div>
+      </div>
+      <div class="row">
+        <label for="distance">Distance:</label>
+        <input disabled value="-" id="distance" type="text" class="bold">
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const threshold = 0.6
+    let net, descriptors = { desc1: null, desc2: null }
+
+    function renderSelectList(parent) {
+      const select = document.createElement('select')
+      parent.appendChild(select)
+
+      classes.forEach((className) => {
+        const optgroup = document.createElement('optgroup')
+        optgroup.label = className
+        select.appendChild(optgroup)
+
+        const indices = [1, 2, 3, 4, 5]
+        indices.forEach((imageIdx) => {
+          const option = document.createElement('option')
+          option.innerHTML = `${className} ${imageIdx}`
+          option.value = getImageUri(className, imageIdx)
+          optgroup.appendChild(option)
+        })
+      })
+    }
+
+    function updateResult() {
+      const distance = round(facerecognition.euclideanDistance(descriptors.desc1, descriptors.desc2))
+      let text = distance
+      let bgColor = '#ffffff'
+      if (distance > threshold) {
+        text += ' (no match)'
+        bgColor = '#ce7575'
+      }
+      $('#distance').val(text)
+      $('#distance').css('background-color', bgColor)
+    }
+
+    async function computeDescriptorFromSrc(imgEl) {
+      return net.computeFaceDescriptor(await imgSrcToData(imgEl.src))
+    }
+
+    async function onSelectionChanged(which) {
+      const selectElSelector = `#selectList${which} select`
+      const imgElSelector = `#face${which}`
+      const whichDesc = `desc${which}`
+
+      const uri = $(selectElSelector).val()
+      const imgEl = $(imgElSelector).get(0)
+
+      const imgBuf = await fetchImage(uri)
+      imgEl.src = await bufferToImgSrc(imgBuf)
+      descriptors[whichDesc] = await computeDescriptorFromSrc($(imgElSelector).get(0))
+    }
+
+    async function run() {
+      $('#selectList1 select').val(getImageUri('sheldon', 1))
+      $('#selectList1 select').material_select()
+      $('#selectList2 select').val(getImageUri('howard', 1))
+      $('#selectList2 select').material_select()
+      net = await initNet()
+      $('#loader').hide()
+      await onSelectionChanged(1)
+      await onSelectionChanged(2)
+      updateResult()
+    }
+
+    $(document).ready(function() {
+      renderSelectList($('#selectList1').get(0))
+      renderSelectList($('#selectList2').get(0))
+      $('select').material_select()
+      $('#selectList1 select').on('change', async () => {
+        await onSelectionChanged(1)
+        updateResult()
+      })
+      $('#selectList2 select').on('change', async () => {
+        await onSelectionChanged(2)
+        updateResult()
+      })
+
+      run()
+    })
+
+  </script>
+
+</body>
+</html>
