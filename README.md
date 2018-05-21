@@ -10,7 +10,7 @@ This project implements a ResNet-34 like architecture using the tensorflow.js co
 
 ## Face Similarity
 
-![preview_face-similarity](https://user-images.githubusercontent.com/31125521/40313983-6bade070-5d17-11e8-894c-6b4b52a2d61d.gif)
+![preview_face-similarity](https://user-images.githubusercontent.com/31125521/40316573-0a1190c0-5d1f-11e8-8797-f6deaa344523.gif)
 
 ## Usage
 
@@ -36,7 +36,6 @@ Compute and compare two 150 x 150 sized face images:
 // also have a look at the examples how to get the image data from a base64 string, from an <img>, from a <canvas> ...
 const imgData1 = ...
 const imgData2 = ...
-
 
 const descriptor1 = await net.computeFaceDescriptor(imgData1)
 const descriptor2 = await net.computeFaceDescriptor(imgData2)
