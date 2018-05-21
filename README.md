@@ -2,7 +2,11 @@
 
 **face recognition API for the browser with tensorflow.js**
 
-This project implements a ResNet-34 like architecture using the tensorflow.js core API ([@tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core)) for realtime face recognition in the browser. The neural net is equivalent to the *FaceRecognizerNet* used in [face-recognition.js](https://github.com/justadudewhohacks/face-recognition.js) and the net used in the [dlib](https://github.com/davisking/dlib/blob/master/examples/dnn_face_recognition_ex.cpp) face recognition example. The weights have been trained by [davisking](https://github.com/davisking) and the model achieves a prediction accuracy of 99.38% on the LFW (Labeled Faces in the Wild) benchmark for face recognition.
+This project implements a ResNet-34 like architecture using the tensorflow.js core API ([@tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core)) for realtime face recognition in the browser. The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognition.js](https://github.com/justadudewhohacks/face-recognition.js) and the net used in the [dlib](https://github.com/davisking/dlib/blob/master/examples/dnn_face_recognition_ex.cpp) face recognition example. The weights have been trained by [davisking](https://github.com/davisking) and the model achieves a prediction accuracy of 99.38% on the LFW (Labeled Faces in the Wild) benchmark for face recognition.
+
+## What does it do?
+
+The neural net computes a vector with 128 values (face descriptor) from any given face image, which is **not** limited to the set of faces used for training the model. You can determine the similarity of two arbitrary faces by comparing their face descriptors, for example by computing the euclidean distance or using any other classifier of your choice.
 
 ## Face Recognition
 
