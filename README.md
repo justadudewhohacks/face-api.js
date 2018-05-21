@@ -43,7 +43,7 @@ const imgData2 = ...
 
 const descriptor1 = await net.computeFaceDescriptor(imgData1)
 const descriptor2 = await net.computeFaceDescriptor(imgData2)
-const distance = facerecognition.computeFaceDescriptor(descriptor1, descriptor2)
+const distance = facerecognition.euclidianDistance(descriptor1, descriptor2)
 
 if (distance < 0.6)
   console.log('match')
