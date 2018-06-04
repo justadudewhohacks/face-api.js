@@ -1,8 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { resizeLayer } from './resizeLayer';
+import { extractParams } from './extractParams';
+import { mobileNetV1 } from './mobileNetV1';
 
-export function faceDetectionNet() {
+export function faceDetectionNet(weights: Float32Array) {
+  const params = extractParams(weights)
 
   async function forward(input: ImageData|ImageData[]) {
 
@@ -12,12 +15,11 @@ export function faceDetectionNet() {
 
     const imgTensor = tf.cast(tf.concat(imgTensors, 0), 'float32')
 
-    const resized = resizeLayer(imgTensor)
+    let out = resizeLayer(imgTensor) as tf.Tensor4D
 
+    out = mobileNetV1(out, params.mobilenetv1_params)
 
-
-
-    return resized
+    return out
   }
 
   return {
