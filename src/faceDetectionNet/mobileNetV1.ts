@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { pointwiseConvLayer } from './pointwiseConvLayer';
 import { FaceDetectionNet } from './types';
 
 const epsilon = 0.0010000000474974513
@@ -25,19 +26,7 @@ function depthwiseConvLayer(
   })
 }
 
-function pointwiseConvLayer(
-  x: tf.Tensor4D,
-  params: FaceDetectionNet.MobileNetV1.PointwiseConvParams,
-  strides: [number, number]
-) {
-  return tf.tidy(() => {
 
-    let out = tf.conv2d(x, params.filters, strides, 'same')
-    out = tf.add(out, params.batch_norm_offset)
-    return tf.relu(out)
-
-  })
-}
 
 function getStridesForLayerIdx(layerIdx: number): [number, number] {
   return [2, 4, 6, 12].some(idx => idx === layerIdx) ? [2, 2] : [1, 1]
