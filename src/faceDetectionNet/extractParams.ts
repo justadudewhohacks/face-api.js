@@ -5,27 +5,27 @@ import { FaceDetectionNet } from './types';
 function mobilenetV1WeightsExtractorsFactory(extractWeights: (numWeights: number) => Float32Array) {
 
   function extractDepthwiseConvParams(numChannels: number): FaceDetectionNet.MobileNetV1.DepthwiseConvParams {
-    const weights = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1])
-    const batch_norm_gamma = tf.tensor1d(extractWeights(numChannels))
-    const batch_norm_beta = tf.tensor1d(extractWeights(numChannels))
+    const filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1])
+    const batch_norm_scale = tf.tensor1d(extractWeights(numChannels))
+    const batch_norm_offset = tf.tensor1d(extractWeights(numChannels))
     const batch_norm_mean = tf.tensor1d(extractWeights(numChannels))
     const batch_norm_variance = tf.tensor1d(extractWeights(numChannels))
 
     return {
-      weights,
-      batch_norm_gamma,
-      batch_norm_beta,
+      filters,
+      batch_norm_scale,
+      batch_norm_offset,
       batch_norm_mean,
       batch_norm_variance
     }
   }
 
   function extractPointwiseConvParams(channelsIn: number, channelsOut: number): FaceDetectionNet.MobileNetV1.PointwiseConvParams {
-    const weights = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut])
+    const filters = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut])
     const batch_norm_offset = tf.tensor1d(extractWeights(channelsOut))
 
     return {
-      weights,
+      filters,
       batch_norm_offset
     }
   }
@@ -59,7 +59,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
   function extractMobilenetV1Params(): FaceDetectionNet.MobileNetV1.Params {
 
     const conv_0_params = {
-      weights: tf.tensor4d(extractWeights(3 * 3 * 3 * 32), [3, 3, 3, 32]),
+      filters: tf.tensor4d(extractWeights(3 * 3 * 3 * 32), [3, 3, 3, 32]),
       batch_norm_offset: tf.tensor1d(extractWeights(32))
 
     }

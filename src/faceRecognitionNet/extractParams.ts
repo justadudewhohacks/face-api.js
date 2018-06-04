@@ -1,10 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { isFloat } from '../utils';
 import { FaceRecognitionNet } from './types';
-
-function isFloat(num: number) {
-  return num % 1 !== 0
-}
 
 function extractorsFactory(extractWeights: (numWeights: number) => Float32Array) {
 
