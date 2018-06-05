@@ -26,8 +26,6 @@ function depthwiseConvLayer(
   })
 }
 
-
-
 function getStridesForLayerIdx(layerIdx: number): [number, number] {
   return [2, 4, 6, 12].some(idx => idx === layerIdx) ? [2, 2] : [1, 1]
 }
@@ -35,13 +33,26 @@ function getStridesForLayerIdx(layerIdx: number): [number, number] {
 export function mobileNetV1(x: tf.Tensor4D, params: FaceDetectionNet.MobileNetV1.Params) {
   return tf.tidy(() => {
 
+    let conv11 = null
     let out = pointwiseConvLayer(x, params.conv_0_params, [2, 2])
     params.conv_pair_params.forEach((param, i) => {
-      const depthwiseConvStrides = getStridesForLayerIdx(i + 1)
+      const layerIdx = i + 1
+      const depthwiseConvStrides = getStridesForLayerIdx(layerIdx)
       out = depthwiseConvLayer(out, param.depthwise_conv_params, depthwiseConvStrides)
       out = pointwiseConvLayer(out, param.pointwise_conv_params, [1, 1])
+      if (layerIdx === 11) {
+        conv11 = out
+      }
     })
-    return out
+
+    if (conv11 === null) {
+      throw new Error('mobileNetV1 - output of conv layer 11 is null')
+    }
+
+    return {
+      out,
+      conv11: conv11 as any
+    }
 
   })
 }

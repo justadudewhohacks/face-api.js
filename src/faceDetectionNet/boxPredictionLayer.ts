@@ -2,28 +2,16 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { FaceDetectionNet } from './types';
 
-function boxEncodingPredictionLayer(
+function convWithBias(
   x: tf.Tensor4D,
   params: FaceDetectionNet.ConvWithBiasParams
 ) {
-  return tf.tidy(() => {
-
-    // TODO
-    return x
-
-  })
-}
-
-function classPredictionLayer(
-  x: tf.Tensor4D,
-  params: FaceDetectionNet.ConvWithBiasParams
-) {
-  return tf.tidy(() => {
-
-    // TODO
-    return x
-
-  })
+  return tf.tidy(() =>
+    tf.add(
+      tf.conv2d(x, params.filters, [1, 1], 'same'),
+      params.bias
+    )
+  )
 }
 
 export function boxPredictionLayer(
@@ -33,13 +21,15 @@ export function boxPredictionLayer(
 ) {
   return tf.tidy(() => {
 
+    const batchSize = x.shape[0]
+
     const boxPredictionEncoding = tf.reshape(
-      boxEncodingPredictionLayer(x, params.box_encoding_predictor_params),
-      [x.shape[0], size, 1, 4]
+      convWithBias(x, params.box_encoding_predictor_params),
+      [batchSize, size, 1, 4]
     )
     const classPrediction = tf.reshape(
-      classPredictionLayer(x, params.class_predictor_params),
-      [x.shape[0], size, 3]
+      convWithBias(x, params.class_predictor_params),
+      [batchSize, size, 3]
     )
 
     return {

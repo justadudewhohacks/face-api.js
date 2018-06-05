@@ -35,8 +35,8 @@ export namespace FaceDetectionNet {
   }
 
   export type BoxPredictionParams = {
-    class_predictor_params: ConvWithBiasParams
     box_encoding_predictor_params: ConvWithBiasParams
+    class_predictor_params: ConvWithBiasParams
   }
 
   export type PredictionParams = {
@@ -46,6 +46,8 @@ export namespace FaceDetectionNet {
     conv_3_params: PointwiseConvParams
     conv_4_params: PointwiseConvParams
     conv_5_params: PointwiseConvParams
+    conv_6_params: PointwiseConvParams
+    conv_7_params: PointwiseConvParams
     box_predictor_0_params: BoxPredictionParams
     box_predictor_1_params: BoxPredictionParams
     box_predictor_2_params: BoxPredictionParams
@@ -55,7 +57,8 @@ export namespace FaceDetectionNet {
   }
 
   export type NetParams = {
-    mobilenetv1_params: MobileNetV1.Params
+    mobilenetv1_params: MobileNetV1.Params,
+    prediction_layer_params: PredictionParams
   }
 
 }
