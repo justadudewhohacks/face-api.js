@@ -39,7 +39,7 @@ export namespace FaceDetectionNet {
     class_predictor_params: ConvWithBiasParams
   }
 
-  export type PredictionParams = {
+  export type PredictionLayerParams = {
     conv_0_params: PointwiseConvParams
     conv_1_params: PointwiseConvParams
     conv_2_params: PointwiseConvParams
@@ -56,9 +56,14 @@ export namespace FaceDetectionNet {
     box_predictor_5_params: BoxPredictionParams
   }
 
+  export type OutputLayerParams = {
+    extra_dim: tf.Tensor3D
+  }
+
   export type NetParams = {
     mobilenetv1_params: MobileNetV1.Params,
-    prediction_layer_params: PredictionParams
+    prediction_layer_params: PredictionLayerParams,
+    output_layer_params: OutputLayerParams
   }
 
 }

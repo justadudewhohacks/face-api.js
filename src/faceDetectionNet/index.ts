@@ -5,6 +5,7 @@ import { extractParams } from './extractParams';
 import { mobileNetV1 } from './mobileNetV1';
 import { resizeLayer } from './resizeLayer';
 import { predictionLayer } from './predictionLayer';
+import { outputLayer } from './outputLayer';
 
 function fromData(input: number[]): tf.Tensor4D {
   const pxPerChannel = input.length / 3
@@ -56,10 +57,9 @@ export function faceDetectionNet(weights: Float32Array) {
         classPredictions
       } = predictionLayer(features.out, features.conv11, params.prediction_layer_params)
 
-      return {
-        boxPredictions,
-        classPredictions
-      }
+      const decoded = outputLayer(boxPredictions, classPredictions, params.output_layer_params)
+
+      return decoded
 
     })
   }

@@ -94,7 +94,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
 
   }
 
-  function extractPredictionLayerParams(): FaceDetectionNet.PredictionParams {
+  function extractPredictionLayerParams(): FaceDetectionNet.PredictionLayerParams {
     const conv_0_params = extractPointwiseConvParams(1024, 256, 1)
     const conv_1_params = extractPointwiseConvParams(256, 512, 3)
     const conv_2_params = extractPointwiseConvParams(512, 128, 1)
@@ -182,6 +182,13 @@ export function extractParams(weights: Float32Array): FaceDetectionNet.NetParams
 
   const mobilenetv1_params = extractMobilenetV1Params()
   const prediction_layer_params = extractPredictionLayerParams()
+  const extra_dim = tf.tensor3d(
+    extractWeights(5118 * 4),
+    [1, 5118, 4]
+  )
+  const output_layer_params = {
+    extra_dim
+  }
 
   if (weights.length !== 0) {
     throw new Error(`weights remaing after extract: ${weights.length}`)
@@ -189,6 +196,7 @@ export function extractParams(weights: Float32Array): FaceDetectionNet.NetParams
 
   return {
     mobilenetv1_params,
-    prediction_layer_params
+    prediction_layer_params,
+    output_layer_params
   }
 }

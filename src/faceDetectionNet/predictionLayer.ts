@@ -4,7 +4,7 @@ import { boxPredictionLayer } from './boxPredictionLayer';
 import { pointwiseConvLayer } from './pointwiseConvLayer';
 import { FaceDetectionNet } from './types';
 
-export function predictionLayer(x: tf.Tensor4D, conv11: tf.Tensor4D, params: FaceDetectionNet.PredictionParams) {
+export function predictionLayer(x: tf.Tensor4D, conv11: tf.Tensor4D, params: FaceDetectionNet.PredictionLayerParams) {
   return tf.tidy(() => {
 
     const conv0 = pointwiseConvLayer(x, params.conv_0_params, [1, 1])
@@ -30,7 +30,7 @@ export function predictionLayer(x: tf.Tensor4D, conv11: tf.Tensor4D, params: Fac
       boxPrediction3.boxPredictionEncoding,
       boxPrediction4.boxPredictionEncoding,
       boxPrediction5.boxPredictionEncoding
-    ], 1)
+    ], 1) as tf.Tensor4D
 
     const classPredictions = tf.concat([
       boxPrediction0.classPrediction,
@@ -39,7 +39,7 @@ export function predictionLayer(x: tf.Tensor4D, conv11: tf.Tensor4D, params: Fac
       boxPrediction3.classPrediction,
       boxPrediction4.classPrediction,
       boxPrediction5.classPrediction
-    ], 1)
+    ], 1) as tf.Tensor4D
 
     return {
       boxPredictions,
