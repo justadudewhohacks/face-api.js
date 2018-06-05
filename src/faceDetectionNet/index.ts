@@ -15,7 +15,7 @@ function fromData(input: number[]): tf.Tensor4D {
     throw new Error(`invalid input size: ${dim}x${dim}x3 (array length: ${input.length})`)
   }
 
-  return tf.tensor4d(input as number[], [1, 580, 580, 3])
+  return tf.tensor4d(input as number[], [1, dim, dim, 3])
 }
 
 function fromImageData(input: ImageData[]) {
@@ -31,23 +31,29 @@ function fromImageData(input: ImageData[]) {
   return tf.cast(tf.concat(imgTensors, 0), 'float32')
 }
 
+function getImgTensor(input: ImageData|ImageData[]|number[]) {
+  return tf.tidy(() => {
+
+    const imgDataArray = input instanceof ImageData
+      ? [input]
+      : (
+        input[0] instanceof ImageData
+          ? input as ImageData[]
+          : null
+      )
+
+    return imgDataArray !== null
+      ? fromImageData(imgDataArray)
+      : fromData(input as number[])
+
+  })
+}
+
 export function faceDetectionNet(weights: Float32Array) {
   const params = extractParams(weights)
 
-  async function forward(input: ImageData|ImageData[]|number[]) {
+  function forwardTensor(imgTensor: tf.Tensor4D) {
     return tf.tidy(() => {
-
-      const imgDataArray = input instanceof ImageData
-        ? [input]
-        : (
-          input[0] instanceof ImageData
-            ? input as ImageData[]
-            : null
-        )
-
-      const imgTensor = imgDataArray !== null
-        ? fromImageData(imgDataArray)
-        : fromData(input as number[])
 
       const resized = resizeLayer(imgTensor) as tf.Tensor4D
       const features = mobileNetV1(resized, params.mobilenetv1_params)
@@ -57,14 +63,54 @@ export function faceDetectionNet(weights: Float32Array) {
         classPredictions
       } = predictionLayer(features.out, features.conv11, params.prediction_layer_params)
 
-      const decoded = outputLayer(boxPredictions, classPredictions, params.output_layer_params)
-
-      return decoded
-
+      return outputLayer(boxPredictions, classPredictions, params.output_layer_params)
     })
   }
 
+  // TODO debug output
+  function forward(input: ImageData|ImageData[]|number[]) {
+    return tf.tidy(
+      () => forwardTensor(getImgTensor(input))
+    )
+  }
+
+  async function locateFaces(
+    input: ImageData|ImageData[]|number[],
+    minConfidence: number = 0.8
+  ) {
+    const imgTensor = getImgTensor(input)
+
+    const [_, height, width] = imgTensor.shape
+
+    const {
+      boxes: _boxes,
+      scores: _scores
+    } = forwardTensor(imgTensor)
+
+    // TODO batches
+    const boxes = _boxes[0]
+    const scores = _scores[0]
+
+    // TODO find a better way to filter by minConfidence
+    const data = await scores.data()
+
+    return Array.from(data)
+      .map((score, idx) => ({ score, idx }))
+      .filter(({ score }) => minConfidence < score)
+      .map(({ score, idx }) => ({
+        score,
+        box: {
+          left: Math.max(0, width * boxes.get(idx, 0)),
+          right: Math.min(width, width * boxes.get(idx, 1)),
+          top: Math.max(0, height * boxes.get(idx, 2)),
+          bottom: Math.min(height, height * boxes.get(idx, 3))
+        }
+      }))
+
+  }
+
   return {
-    forward
+    forward,
+    locateFaces
   }
 }
