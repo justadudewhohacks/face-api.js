@@ -1,5 +1,4 @@
 .page-container {
-  position: fixed;
   left: 0;
   right: 0;
   margin: auto;
@@ -29,9 +28,4 @@
 
 .margin {
   margin: 20px;
-}
-
-img {
-  width: 150px;
-  height: 150px;
 }

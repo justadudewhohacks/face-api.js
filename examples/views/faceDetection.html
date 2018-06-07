@@ -12,21 +12,70 @@
 <body>
   <div class="center-content page-container">
     <div id="navbar"></div>
-    <div class="center-content">
-      <img id="img" src="" class="margin"/>
-      <div id="selectList" class="input-field"></div>
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <img id="img" src="" />
+      <canvas id="overlay" style="position: absolute; top: 0; left: 0;" />
+    </div>
+    <div class="row side-by-side">
+      <div id="selectList"></div>
+      <div class="row">
+        <label for="minConfidence">Min Confidence:</label>
+        <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onDecreaseThreshold()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onIncreaseThreshold()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
     </div>
   </div>
 
   <script>
+    let minConfidence = 0.7
+    let net, result
+
+    function onIncreaseThreshold() {
+      minConfidence = Math.min(round(minConfidence + 0.1), 1.0)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    function onDecreaseThreshold() {
+      minConfidence = Math.max(round(minConfidence - 0.1), 0.1)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    async function updateResults() {
+      result = await net.locateFaces(await imgSrcToImageData($(`#img`).get(0).src), minConfidence)
+      drawImgToCanvas('overlay', 'img')
+      drawDetection('overlay', result)
+    }
+
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      const imgEl = $(`#img`).get(0)
-      imgEl.src = await bufferToImgSrc(imgBuf)
+      $(`#img`).get(0).src = await bufferToImgSrc(imgBuf)
+      updateResults()
+    }
+
+    async function run() {
+      net = await initFaceDetectionNet()
+      $('#loader').hide()
+      onSelectionChanged($('#selectList select').val())
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar')
+      renderNavBar('#navbar', 'face_detection')
       renderImageSelectList(
         '#selectList',
         async (uri) => {
@@ -34,7 +83,7 @@
         },
         1
       )
-      onSelectionChanged($('#selectList select').val())
+      run()
     })
   </script>
 </body>

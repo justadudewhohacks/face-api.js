@@ -20,11 +20,11 @@
       <div class="row side-by-side">
         <div class="center-content">
           <img id="face1" src="" class="margin"/>
-          <div id="selectList1" class="input-field"></div>
+          <div id="selectList1"></div>
         </div>
         <div class="center-content">
           <img id="face2" src="" class="margin"/>
-          <div id="selectList2" class="input-field"></div>
+          <div id="selectList2"></div>
         </div>
       </div>
       <div class="row">
@@ -52,7 +52,7 @@
     }
 
     async function computeDescriptorFromSrc(imgEl) {
-      return net.computeFaceDescriptor(await imgSrcToData(imgEl.src))
+      return net.computeFaceDescriptor(await imgSrcToImageData(imgEl.src))
     }
 
     async function onSelectionChanged(which, uri) {
@@ -63,7 +63,7 @@
     }
 
     async function run() {
-      net = await initNet()
+      net = await initFaceRecognitionNet()
       $('#loader').hide()
       await onSelectionChanged(1, $('#selectList1 select').val())
       await onSelectionChanged(2, $('#selectList2 select').val())

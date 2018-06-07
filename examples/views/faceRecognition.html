@@ -47,7 +47,7 @@
           class="waves-effect waves-light btn"
           onclick="onSlower()"
         >
-        <i class="material-icons left">-</i> Slower
+          <i class="material-icons left">-</i> Slower
         </button>
         <button
           class="waves-effect waves-light btn"
@@ -71,17 +71,17 @@
 
     let isStop = false
     let trainDescriptorsByClass = []
-    let net = {}
+    let net
     let currImageIdx = 2, currClassIdx = 0
     let to = null
 
     function onSlower() {
-      interval = Math.max(interval + 100, 0)
+      interval = Math.min(interval + 100, 2000)
       $('#interval').val(interval)
     }
 
     function onFaster() {
-      interval = Math.min(interval - 100, 2000)
+      interval = Math.max(interval - 100, 0)
       $('#interval').val(interval)
     }
 
@@ -136,7 +136,7 @@
         const imgEl = $('#face').get(0)
         imgEl.src = await bufferToImgSrc(imgBuf)
 
-        const imageData = await imgSrcToData(imgEl.src)
+        const imageData = await imgSrcToImageData(imgEl.src)
 
         const ts = Date.now()
         const result = await net.forward(imageData)
@@ -161,7 +161,7 @@
       try {
         setStatusText('loading model file...')
 
-        net = await initNet()
+        net = await initFaceRecognitionNet()
         setStatusText('computing initial descriptors...')
 
         const trainImgDatas = await loadTrainingData()
