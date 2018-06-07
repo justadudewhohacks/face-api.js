@@ -23,9 +23,15 @@ export function round(num: number) {
   return Math.floor(num * 100) / 100
 }
 
+export type Dimensions = {
+  width: number
+  height: number
+}
+
 export function drawMediaToCanvas(
   canvasArg: string | HTMLCanvasElement,
-  mediaArg: string | HTMLImageElement | HTMLVideoElement
+  mediaArg: string | HTMLImageElement | HTMLVideoElement,
+  dims?: Dimensions
 ): CanvasRenderingContext2D {
   const canvas = getElement(canvasArg)
   const media = getElement(mediaArg)
@@ -37,21 +43,24 @@ export function drawMediaToCanvas(
     throw new Error('drawMediaToCanvas - expected media to be of type: HTMLImageElement | HTMLVideoElement')
   }
 
-  canvas.width = media.width
-  canvas.height = media.height
+  const { width, height } = dims || media
+  canvas.width = width
+  canvas.height = height
 
   const ctx = getContext2dOrThrow(canvas)
-  ctx.drawImage(media, 0, 0, media.width, media.height)
+  ctx.drawImage(media, 0, 0, width, height)
   return ctx
 }
 
-export function mediaToImageData(media: HTMLImageElement | HTMLVideoElement): ImageData {
+export function mediaToImageData(media: HTMLImageElement | HTMLVideoElement, dims?: Dimensions): ImageData {
   if (!(media instanceof HTMLImageElement || media instanceof HTMLVideoElement)) {
     throw new Error('mediaToImageData - expected media to be of type: HTMLImageElement | HTMLVideoElement')
   }
 
   const ctx = drawMediaToCanvas(document.createElement('canvas'), media)
-  return ctx.getImageData(0, 0, media.width, media.height)
+
+  const { width, height } = dims || media
+  return ctx.getImageData(0, 0, width, height)
 }
 
 export function mediaSrcToImageData(

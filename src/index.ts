@@ -1,3 +1,5 @@
+import * as tf from '@tensorflow/tfjs-core';
+
 import { euclideanDistance } from './euclideanDistance';
 import { faceDetectionNet } from './faceDetectionNet';
 import { faceRecognitionNet } from './faceRecognitionNet';
@@ -7,7 +9,8 @@ export {
   euclideanDistance,
   faceDetectionNet,
   faceRecognitionNet,
-  normalize
+  normalize,
+  tf
 }
 
 export * from './utils'

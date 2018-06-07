@@ -33,6 +33,20 @@ function fromImageData(input: ImageData[]) {
   return tf.cast(tf.concat(imgTensors, 0), 'float32')
 }
 
+function padToSquare(imgTensor: tf.Tensor4D): tf.Tensor4D {
+  const [_, height, width] = imgTensor.shape
+  if (height === width) {
+    return imgTensor
+  }
+
+  if (height > width) {
+    const pad = tf.fill([1, height, height - width, 3], 0) as tf.Tensor4D
+    return tf.concat([imgTensor, pad], 2)
+  }
+  const pad = tf.fill([1, width - height, width, 3], 0) as tf.Tensor4D
+  return tf.concat([imgTensor, pad], 1)
+}
+
 function getImgTensor(input: ImageData|ImageData[]|number[]) {
   return tf.tidy(() => {
 
@@ -44,9 +58,11 @@ function getImgTensor(input: ImageData|ImageData[]|number[]) {
           : null
       )
 
-    return imgDataArray !== null
-      ? fromImageData(imgDataArray)
-      : fromData(input as number[])
+    return padToSquare(
+      imgDataArray !== null
+        ? fromImageData(imgDataArray)
+        : fromData(input as number[])
+    )
 
   })
 }
@@ -71,7 +87,7 @@ export function faceDetectionNet(weights: Float32Array) {
 
   function forward(input: ImageData|ImageData[]|number[]) {
     return tf.tidy(
-      () => forwardTensor(getImgTensor(input))
+      () => forwardTensor(padToSquare(getImgTensor(input)))
     )
   }
 
@@ -81,7 +97,6 @@ export function faceDetectionNet(weights: Float32Array) {
     maxResults: number = 100,
   ): Promise<FaceDetectionNet.Detection[]> {
     const imgTensor = getImgTensor(input)
-
     const [_, height, width] = imgTensor.shape
 
     const {
