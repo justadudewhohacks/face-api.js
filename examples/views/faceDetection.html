@@ -45,26 +45,29 @@
     let net, result
 
     function onIncreaseThreshold() {
-      minConfidence = Math.min(round(minConfidence + 0.1), 1.0)
+      minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
 
     function onDecreaseThreshold() {
-      minConfidence = Math.max(round(minConfidence - 0.1), 0.1)
+      minConfidence = Math.max(facerecognition.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
 
     async function updateResults() {
-      result = await net.locateFaces(await imgSrcToImageData($(`#img`).get(0).src), minConfidence)
-      drawImgToCanvas('overlay', 'img')
-      drawDetection('overlay', result)
+      result = await net.locateFaces(
+        await facerecognition.mediaSrcToImageData($(`#img`).get(0).src),
+        minConfidence
+      )
+      facerecognition.drawMediaToCanvas('overlay', 'img')
+      facerecognition.drawDetection('overlay', result)
     }
 
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      $(`#img`).get(0).src = await bufferToImgSrc(imgBuf)
+      $(`#img`).get(0).src = await facerecognition.bufferToImgSrc(imgBuf)
       updateResults()
     }
 

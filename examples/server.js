@@ -12,6 +12,7 @@ app.use(express.static(path.join(__dirname, './node_modules/axios/dist')))
 
 app.get('/', (req, res) => res.redirect('/face_detection'))
 app.get('/face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetection.html')))
+app.get('/face_detection_video', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetectionVideo.html')))
 app.get('/face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'faceRecognition.html')))
 app.get('/face_similarity', (req, res) => res.sendFile(path.join(viewsDir, 'faceSimilarity.html')))
 

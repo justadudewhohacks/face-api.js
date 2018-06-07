@@ -66,4 +66,14 @@ export namespace FaceDetectionNet {
     output_layer_params: OutputLayerParams
   }
 
+  export type Detection = {
+    score: number
+    box: {
+      top: number,
+      left: number,
+      right: number,
+      bottom: number
+    }
+  }
+
 }

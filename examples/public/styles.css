@@ -17,6 +17,9 @@
   justify-content: center;
   align-items: center;
 }
+.side-by-side >* {
+  margin: 0 5px;
+}
 
 .bold {
   font-weight: bold;

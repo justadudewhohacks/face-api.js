@@ -7,6 +7,7 @@ import { resizeLayer } from './resizeLayer';
 import { predictionLayer } from './predictionLayer';
 import { outputLayer } from './outputLayer';
 import { nonMaxSuppression } from './nonMaxSuppression';
+import { FaceDetectionNet } from './types';
 
 function fromData(input: number[]): tf.Tensor4D {
   const pxPerChannel = input.length / 3
@@ -78,7 +79,7 @@ export function faceDetectionNet(weights: Float32Array) {
     input: ImageData|ImageData[]|number[],
     minConfidence: number = 0.8,
     maxResults: number = 100,
-  ) {
+  ): Promise<FaceDetectionNet.Detection[]> {
     const imgTensor = getImgTensor(input)
 
     const [_, height, width] = imgTensor.shape

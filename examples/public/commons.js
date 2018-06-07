@@ -12,17 +12,6 @@ async function fetchImage(uri) {
   return (await axios.get(uri, { responseType: 'blob' })).data
 }
 
-function round(num) {
-  return Math.floor(num * 100) / 100
-}
-
-function getElement(arg) {
-  if (typeof arg === 'string') {
-    return document.getElementById(arg)
-  }
-  return arg
-}
-
 async function initFaceDetectionNet() {
   const res = await axios.get('face_detection_model.weights', { responseType: 'arraybuffer' })
   const weights = new Float32Array(res.data)
@@ -35,114 +24,15 @@ async function initFaceRecognitionNet() {
   return facerecognition.faceRecognitionNet(weights)
 }
 
-function drawImgToCanvas(canvasArg, imgArg) {
-  const canvas = getElement(canvasArg)
-  const img = getElement(imgArg)
-  canvas.width = img.width
-  canvas.height = img.height
-  const ctx = canvas.getContext('2d')
-  ctx.drawImage(img, 0, 0, img.width, img.height)
-  return ctx
-}
-
-function imgSrcToImageData(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = function() {
-      const ctx = drawImgToCanvas(document.createElement('canvas'), img)
-      resolve(ctx.getImageData(0, 0, img.width, img.height))
-    }
-    img.onerror = reject
-    img.src = src
-  })
-}
-
-function bufferToImgSrc(buf) {
-  return new Promise((resolve, reject) => {
-    const reader = new window.FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsDataURL(buf)
-  })
-}
-
-async function bufferToImageData(buf) {
-  return imgSrcToImageData(await bufferToImgSrc(buf))
-}
-
-function drawBox(canvasArg, x, y, w, h, lineWidth = 2, color = 'blue') {
-  const canvas = getElement(canvasArg)
-  const ctx = canvas.getContext('2d')
-  ctx.strokeStyle = color
-  ctx.lineWidth = lineWidth
-  ctx.strokeRect(x, y, w, h)
-}
-
-function drawText(canvasArg, x, y, text, fontSize = 20, fontStyle = 'Georgia', color = 'blue') {
-  const canvas = getElement(canvasArg)
-  const ctx = canvas.getContext('2d')
-  ctx.fillStyle = color
-  ctx.font = fontSize + 'px ' + fontStyle
-  ctx.fillText(text, x, y)
-}
-
-function drawDetection(canvasArg, detection, options = {}) {
-  const canvas = getElement(canvasArg)
-  const detectionArray = Array.isArray(detection)
-    ? detection
-    : [detection]
-
-  detectionArray.forEach((det) => {
-    const {
-      score,
-      box
-    } = det
-
-    const {
-      left,
-      right,
-      top,
-      bottom
-    } = box
-
-    const {
-      color,
-      lineWidth = 2,
-      fontSize = 20,
-      fontStyle,
-      withScore = true
-    } = options
-
-    const padText = 2 + lineWidth
-
-    drawBox(
-      canvas,
-      left,
-      top,
-      right - left,
-      bottom - top,
-      lineWidth,
-      color
-    )
-    if (withScore) {
-      drawText(
-        canvas,
-        left + padText,
-        top + (fontSize * 0.6) + padText,
-        round(score),
-        fontSize,
-        fontStyle,
-        color
-      )
-    }
-  })
-}
-
 function renderNavBar(navbarId, exampleUri) {
   const examples = [
     {
       uri: 'face_detection',
       name: 'Face Detection'
+    },
+    {
+      uri: 'face_detection_video',
+      name: 'Face Detection Video'
     },
     {
       uri: 'face_recognition',

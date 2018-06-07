@@ -101,7 +101,7 @@
 
     function displayTimeStats(timeInMs) {
       $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${round(1000 / timeInMs)}`)
+      $('#fps').val(`${facerecognition.round(1000 / timeInMs)}`)
     }
 
     function displayImage(src) {
@@ -111,7 +111,7 @@
     async function loadTrainingData(cb) {
       return await Promise.all(classes.map(
         async className => ({
-          imgData: await bufferToImageData(
+          imgData: await facerecognition.bufferToImageData(
             await fetchImage(getFaceImageUri(className, 1))
           ),
           className
@@ -123,7 +123,9 @@
       return trainDescriptorsByClass
         .map(
           ({ descriptor, className }) => ({
-            distance: round(facerecognition.euclideanDistance(descriptor, queryDescriptor)),
+            distance: facerecognition.round(
+              facerecognition.euclideanDistance(descriptor, queryDescriptor)
+            ),
             className
           })
         )
@@ -134,9 +136,9 @@
       async function next() {
         const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
         const imgEl = $('#face').get(0)
-        imgEl.src = await bufferToImgSrc(imgBuf)
+        imgEl.src = await facerecognition.bufferToImgSrc(imgBuf)
 
-        const imageData = await imgSrcToImageData(imgEl.src)
+        const imageData = await facerecognition.mediaSrcToImageData(imgEl.src)
 
         const ts = Date.now()
         const result = await net.forward(imageData)
