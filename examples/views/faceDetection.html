@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-recognition.min.js"></script>
+  <script src="axios.min.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div class="center-content page-container">
+    <div id="navbar"></div>
+    <div class="center-content">
+      <img id="img" src="" class="margin"/>
+      <div id="selectList" class="input-field"></div>
+    </div>
+  </div>
+
+  <script>
+    async function onSelectionChanged(uri) {
+      const imgBuf = await fetchImage(uri)
+      const imgEl = $(`#img`).get(0)
+      imgEl.src = await bufferToImgSrc(imgBuf)
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar')
+      renderImageSelectList(
+        '#selectList',
+        async (uri) => {
+          await onSelectionChanged(uri)
+        },
+        1
+      )
+      onSelectionChanged($('#selectList select').val())
+    })
+  </script>
+</body>
+</html>

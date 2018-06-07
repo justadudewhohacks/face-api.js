@@ -11,14 +11,8 @@
 </head>
 <body>
   <div class="center-content page-container">
-    <div class="row">
-      <a
-        class="waves-effect waves-light btn"
-        href="faceSimilarity.html"
-      >
-        Go To Face Similarity Example
-      </a>
-    </div>
+    <div id="navbar"></div>
+
     <div>
       <div class="row center-content" id="loader">
         <input disabled value="" id="status" type="text" class="bold">
@@ -118,7 +112,7 @@
       return await Promise.all(classes.map(
         async className => ({
           imgData: await bufferToImageData(
-            await fetchImage(getImageUri(className, 1))
+            await fetchImage(getFaceImageUri(className, 1))
           ),
           className
         })
@@ -138,7 +132,7 @@
 
     async function runFaceRecognition() {
       async function next() {
-        const imgBuf = await fetchImage(getImageUri(classes[currClassIdx], currImageIdx))
+        const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
         const imgEl = $('#face').get(0)
         imgEl.src = await bufferToImgSrc(imgBuf)
 
@@ -185,7 +179,11 @@
       }
     }
 
-    run()
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'face_recognition')
+      run()
+    })
+
   </script>
 
 </body>

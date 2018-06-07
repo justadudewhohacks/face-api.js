@@ -23,6 +23,10 @@
   font-weight: bold;
 }
 
+.margin-sm {
+  margin: 5px;
+}
+
 .margin {
   margin: 20px;
 }

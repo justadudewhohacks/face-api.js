@@ -11,14 +11,8 @@
 </head>
 <body>
   <div class="center-content page-container">
-    <div class="row">
-      <a
-        class="waves-effect waves-light btn"
-        href="faceRecognition"
-      >
-        Go To Face Recognition Example
-      </a>
-    </div>
+    <div id="navbar"></div>
+
     <div>
       <div class="progress" id="loader">
         <div class="indeterminate"></div>
@@ -45,25 +39,6 @@
     const threshold = 0.6
     let net, descriptors = { desc1: null, desc2: null }
 
-    function renderSelectList(parent) {
-      const select = document.createElement('select')
-      parent.appendChild(select)
-
-      classes.forEach((className) => {
-        const optgroup = document.createElement('optgroup')
-        optgroup.label = className
-        select.appendChild(optgroup)
-
-        const indices = [1, 2, 3, 4, 5]
-        indices.forEach((imageIdx) => {
-          const option = document.createElement('option')
-          option.innerHTML = `${className} ${imageIdx}`
-          option.value = getImageUri(className, imageIdx)
-          optgroup.appendChild(option)
-        })
-      })
-    }
-
     function updateResult() {
       const distance = round(facerecognition.euclideanDistance(descriptors.desc1, descriptors.desc2))
       let text = distance
@@ -80,44 +55,40 @@
       return net.computeFaceDescriptor(await imgSrcToData(imgEl.src))
     }
 
-    async function onSelectionChanged(which) {
-      const selectElSelector = `#selectList${which} select`
-      const imgElSelector = `#face${which}`
-      const whichDesc = `desc${which}`
-
-      const uri = $(selectElSelector).val()
-      const imgEl = $(imgElSelector).get(0)
-
+    async function onSelectionChanged(which, uri) {
       const imgBuf = await fetchImage(uri)
+      const imgEl = $(`#face${which}`).get(0)
       imgEl.src = await bufferToImgSrc(imgBuf)
-      descriptors[whichDesc] = await computeDescriptorFromSrc($(imgElSelector).get(0))
+      descriptors[`desc${which}`] = await computeDescriptorFromSrc(imgEl)
     }
 
     async function run() {
-      $('#selectList1 select').val(getImageUri('sheldon', 1))
-      $('#selectList1 select').material_select()
-      $('#selectList2 select').val(getImageUri('howard', 1))
-      $('#selectList2 select').material_select()
       net = await initNet()
       $('#loader').hide()
-      await onSelectionChanged(1)
-      await onSelectionChanged(2)
+      await onSelectionChanged(1, $('#selectList1 select').val())
+      await onSelectionChanged(2, $('#selectList2 select').val())
       updateResult()
     }
 
     $(document).ready(function() {
-      renderSelectList($('#selectList1').get(0))
-      renderSelectList($('#selectList2').get(0))
-      $('select').material_select()
-      $('#selectList1 select').on('change', async () => {
-        await onSelectionChanged(1)
-        updateResult()
-      })
-      $('#selectList2 select').on('change', async () => {
-        await onSelectionChanged(2)
-        updateResult()
-      })
+      renderNavBar('#navbar', 'face_similarity')
+      renderFaceImageSelectList(
+        '#selectList1',
+        async (uri) => {
+          await onSelectionChanged(1, uri)
+          updateResult()
+        },
+        { className: 'sheldon', imageIdx: 1 }
+      )
 
+      renderFaceImageSelectList(
+        '#selectList2',
+        async (uri) => {
+          await onSelectionChanged(2, uri)
+          updateResult()
+        },
+        { className: 'howard', imageIdx: 1 }
+      )
       run()
     })
 
