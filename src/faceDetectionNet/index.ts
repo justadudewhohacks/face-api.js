@@ -6,6 +6,7 @@ import { mobileNetV1 } from './mobileNetV1';
 import { resizeLayer } from './resizeLayer';
 import { predictionLayer } from './predictionLayer';
 import { outputLayer } from './outputLayer';
+import { nonMaxSuppression } from './nonMaxSuppression';
 
 function fromData(input: number[]): tf.Tensor4D {
   const pxPerChannel = input.length / 3
@@ -75,7 +76,8 @@ export function faceDetectionNet(weights: Float32Array) {
 
   async function locateFaces(
     input: ImageData|ImageData[]|number[],
-    minConfidence: number = 0.8
+    minConfidence: number = 0.8,
+    maxResults: number = 100,
   ) {
     const imgTensor = getImgTensor(input)
 
@@ -91,13 +93,20 @@ export function faceDetectionNet(weights: Float32Array) {
     const scores = _scores[0]
 
     // TODO find a better way to filter by minConfidence
-    const data = await scores.data()
+    const scoresData = Array.from(await scores.data())
 
-    return Array.from(data)
-      .map((score, idx) => ({ score, idx }))
-      .filter(({ score }) => minConfidence < score)
-      .map(({ score, idx }) => ({
-        score,
+    const iouThreshold = 0.5
+    const indices = nonMaxSuppression(
+      boxes,
+      scoresData,
+      maxResults,
+      iouThreshold,
+      minConfidence
+    )
+
+    return indices
+      .map(idx => ({
+        score: scoresData[idx],
         box: {
           top: Math.max(0, height * boxes.get(idx, 0)),
           left: Math.max(0, width * boxes.get(idx, 1)),
