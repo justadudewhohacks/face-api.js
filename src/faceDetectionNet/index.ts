@@ -67,7 +67,6 @@ export function faceDetectionNet(weights: Float32Array) {
     })
   }
 
-  // TODO debug output
   function forward(input: ImageData|ImageData[]|number[]) {
     return tf.tidy(
       () => forwardTensor(getImgTensor(input))
@@ -100,10 +99,10 @@ export function faceDetectionNet(weights: Float32Array) {
       .map(({ score, idx }) => ({
         score,
         box: {
-          left: Math.max(0, width * boxes.get(idx, 0)),
-          right: Math.min(width, width * boxes.get(idx, 1)),
-          top: Math.max(0, height * boxes.get(idx, 2)),
-          bottom: Math.min(height, height * boxes.get(idx, 3))
+          top: Math.max(0, height * boxes.get(idx, 0)),
+          left: Math.max(0, width * boxes.get(idx, 1)),
+          bottom: Math.min(height, height * boxes.get(idx, 2)),
+          right: Math.min(width, width * boxes.get(idx, 3))
         }
       }))
 

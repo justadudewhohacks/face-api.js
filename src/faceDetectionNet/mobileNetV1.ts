@@ -21,7 +21,7 @@ function depthwiseConvLayer(
       params.batch_norm_scale,
       params.batch_norm_offset
     )
-    return tf.relu(out)
+    return tf.clipByValue(out, 0, 6)
 
   })
 }
@@ -35,6 +35,7 @@ export function mobileNetV1(x: tf.Tensor4D, params: FaceDetectionNet.MobileNetV1
 
     let conv11 = null
     let out = pointwiseConvLayer(x, params.conv_0_params, [2, 2])
+
     params.conv_pair_params.forEach((param, i) => {
       const layerIdx = i + 1
       const depthwiseConvStrides = getStridesForLayerIdx(layerIdx)

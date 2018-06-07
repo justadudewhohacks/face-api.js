@@ -30,17 +30,17 @@ function decodeBoxesLayer(x0: tf.Tensor2D, x1: tf.Tensor2D) {
   const vec = tf.unstack(tf.transpose(x1, [1, 0]))
 
   const div0_out = tf.div(tf.mul(tf.exp(tf.div(vec[2], tf.scalar(5))), sizes[0]), tf.scalar(2))
-  const add0_out = tf.add(tf.mul(tf.exp(tf.div(vec[0], tf.scalar(10))), sizes[0]), centers[0])
+  const add0_out = tf.add(tf.mul(tf.div(vec[0], tf.scalar(10)), sizes[0]), centers[0])
 
   const div1_out = tf.div(tf.mul(tf.exp(tf.div(vec[3], tf.scalar(5))), sizes[1]), tf.scalar(2))
-  const add1_out = tf.add(tf.mul(tf.exp(tf.div(vec[1], tf.scalar(10))), sizes[1]), centers[1])
+  const add1_out = tf.add(tf.mul(tf.div(vec[1], tf.scalar(10)), sizes[1]), centers[1])
 
   return tf.transpose(
     tf.stack([
-      tf.sub(div0_out, add0_out),
-      tf.sub(div1_out, add1_out),
-      tf.add(div0_out, add0_out),
-      tf.add(div1_out, add1_out)
+      tf.sub(add0_out, div0_out),
+      tf.sub(add1_out, div1_out),
+      tf.add(add0_out, div0_out),
+      tf.add(add1_out, div1_out)
     ]),
     [1, 0]
   )

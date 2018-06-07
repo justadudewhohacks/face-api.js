@@ -11,7 +11,7 @@ export function pointwiseConvLayer(
 
     let out = tf.conv2d(x, params.filters, strides, 'same')
     out = tf.add(out, params.batch_norm_offset)
-    return tf.relu(out)
+    return tf.clipByValue(out, 0, 6)
 
   })
 }
