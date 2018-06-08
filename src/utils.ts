@@ -15,6 +15,13 @@ function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2
   return ctx
 }
 
+function getMediaDimensions(media: HTMLImageElement | HTMLVideoElement) {
+  if (media instanceof HTMLVideoElement) {
+    return { width: media.videoWidth, height: media.videoHeight }
+  }
+  return media
+}
+
 export function isFloat(num: number) {
   return num % 1 !== 0
 }
@@ -43,7 +50,7 @@ export function drawMediaToCanvas(
     throw new Error('drawMediaToCanvas - expected media to be of type: HTMLImageElement | HTMLVideoElement')
   }
 
-  const { width, height } = dims || media
+  const { width, height } = dims || getMediaDimensions(media)
   canvas.width = width
   canvas.height = height
 
@@ -59,7 +66,7 @@ export function mediaToImageData(media: HTMLImageElement | HTMLVideoElement, dim
 
   const ctx = drawMediaToCanvas(document.createElement('canvas'), media)
 
-  const { width, height } = dims || media
+  const { width, height } = dims || getMediaDimensions(media)
   return ctx.getImageData(0, 0, width, height)
 }
 
