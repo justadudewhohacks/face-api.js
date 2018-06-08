@@ -100,13 +100,13 @@ function renderFaceImageSelectList(selectListId, onChange, initialValue) {
 }
 
 function renderImageSelectList(selectListId, onChange, initialValue) {
-  const images = [1, 2, 3, 4, 5]
+  const images = [1, 2, 3, 4, 5].map(idx => `bbt${idx}.jpg`)
   function renderChildren(select) {
     images.forEach(imageName =>
       renderOption(
         select,
-        `${imageName}.jpg`,
-        getImageUri(`${imageName}.jpg`)
+        imageName,
+        getImageUri(imageName)
       )
     )
   }
@@ -114,7 +114,7 @@ function renderImageSelectList(selectListId, onChange, initialValue) {
   renderSelectList(
     selectListId,
     onChange,
-    getImageUri(`${initialValue}.jpg`),
+    getImageUri(initialValue),
     renderChildren
   )
 }

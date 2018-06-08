@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-recognition.min.js"></script>
+  <script src="axios.min.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div class="center-content page-container">
+    <div id="navbar"></div>
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <video src="media/bbt.mp4" onplay="onPlay(this)" autoplay muted></video>
+      <canvas id="overlay" />
+    </div>
+    <div class="row side-by-side">
+      <div id="selectList"></div>
+      <div class="row">
+        <label for="minConfidence">Min Confidence:</label>
+        <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onDecreaseThreshold()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onIncreaseThreshold()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let minConfidence = 0.7
+    let net, result
+
+    function onIncreaseThreshold() {
+      minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    function onDecreaseThreshold() {
+      minConfidence = Math.max(facerecognition.round(minConfidence - 0.1), 0.1)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    async function onPlay(videoEl) {
+      if(videoEl.paused || videoEl.ended)
+        return false
+
+      console.time('frame')
+      const width = $(videoEl).innerWidth()
+      const height = $(videoEl).innerHeight()
+      videoEl.width = width
+      videoEl.height = height
+      const canvas = $('#overlay').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      const fromPixelsCanvas = document.createElement('canvas')
+      fromPixelsCanvas.width = videoEl.width
+      fromPixelsCanvas.height = videoEl.height
+      fromPixelsCanvas.getContext('2d').drawImage(
+        videoEl, 0, 0, videoEl.width, videoEl.height)
+
+      result = await net.locateFaces(fromPixelsCanvas, minConfidence)
+      console.timeEnd('frame')
+      console.log(facerecognition.tf.memory())
+      facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
+      setTimeout(() => onPlay(videoEl))
+    }
+
+    async function run() {
+      net = await initFaceDetectionNet()
+      $('#loader').hide()
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'face_detection_video')
+      run()
+    })
+  </script>
+</body>
+</html>

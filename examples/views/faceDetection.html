@@ -16,8 +16,8 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <img id="img" src="" />
-      <canvas id="overlay" style="position: absolute; top: 0; left: 0;" />
+      <img id="img" src="" style="max-width: 800px;" />
+      <canvas id="overlay" />
     </div>
     <div class="row side-by-side">
       <div id="selectList"></div>
@@ -57,12 +57,17 @@
     }
 
     async function updateResults() {
+      const imgEl = $(`#img`).get(0)
       result = await net.locateFaces(
-        await facerecognition.mediaSrcToImageData($(`#img`).get(0).src),
+        await facerecognition.mediaSrcToImageData(imgEl.src),
         minConfidence
       )
-      facerecognition.drawMediaToCanvas('overlay', 'img')
-      facerecognition.drawDetection('overlay', result)
+      const canvas = $('#overlay').get(0)
+      const width = $(`#img`).width()
+      const height = $(`#img`).height()
+      canvas.width = width
+      canvas.height = height
+      facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
     }
 
     async function onSelectionChanged(uri) {
@@ -84,7 +89,7 @@
         async (uri) => {
           await onSelectionChanged(uri)
         },
-        1
+        'bbt1.jpg'
       )
       run()
     })
