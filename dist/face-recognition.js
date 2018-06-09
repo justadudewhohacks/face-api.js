@@ -105,11 +105,31 @@
           _loop_1(argName);
       }
   }
+  function shuffle(array) {
+      var counter = array.length;
+      var temp = 0;
+      var index = 0;
+      while (counter > 0) {
+          index = (Math.random() * counter) | 0;
+          counter--;
+          temp = array[counter];
+          array[counter] = array[index];
+          array[index] = temp;
+      }
+  }
   function clamp(min, x, max) {
       return Math.max(min, Math.min(x, max));
   }
   function randUniform(a, b) {
       return Math.random() * (b - a) + a;
+  }
+  function distSquared(a, b) {
+      var result = 0;
+      for (var i = 0; i < a.length; i++) {
+          var diff = Number(a[i]) - Number(b[i]);
+          result += diff * diff;
+      }
+      return result;
   }
   function assert(expr, msg) {
       if (!expr) {
@@ -160,6 +180,9 @@
       }
       return size;
   }
+  function isScalarShape(shape) {
+      return shape.length === 0;
+  }
   function arraysEqual(n1, n2) {
       if (n1.length !== n2.length) {
           return false;
@@ -196,6 +219,14 @@
           }
       }
       return [1, size];
+  }
+  function createShuffledIndices(n) {
+      var shuffledIndices = new Uint32Array(n);
+      for (var i = 0; i < n; ++i) {
+          shuffledIndices[i] = i;
+      }
+      shuffle(shuffledIndices);
+      return shuffledIndices;
   }
   function rightPad(a, size) {
       if (size <= a.length) {
@@ -328,6 +359,29 @@
           }
       }
   }
+  function flattenNameArrayMap(nameArrayMap, keys) {
+      var xs = [];
+      if (nameArrayMap instanceof Tensor) {
+          xs.push(nameArrayMap);
+      }
+      else {
+          var xMap = nameArrayMap;
+          for (var i = 0; i < keys.length; i++) {
+              xs.push(xMap[keys[i]]);
+          }
+      }
+      return xs;
+  }
+  function unflattenToNameArrayMap(keys, flatArrays) {
+      if (keys.length !== flatArrays.length) {
+          throw new Error("Cannot unflatten Tensor[], keys and arrays are not of same length.");
+      }
+      var result = {};
+      for (var i = 0; i < keys.length; i++) {
+          result[keys[i]] = flatArrays[i];
+      }
+      return result;
+  }
   function hasEncodingLoss(oldType, newType) {
       if (newType === 'float32') {
           return false;
@@ -402,6 +456,43 @@
   function isIterable(obj) {
       return Array.isArray(obj) || typeof obj === 'object';
   }
+
+  var util = /*#__PURE__*/Object.freeze({
+    assertArgumentsAreTensors: assertArgumentsAreTensors,
+    shuffle: shuffle,
+    clamp: clamp,
+    randUniform: randUniform,
+    distSquared: distSquared,
+    assert: assert,
+    assertShapesMatch: assertShapesMatch,
+    assertTypesMatch: assertTypesMatch,
+    flatten: flatten,
+    inferShape: inferShape,
+    sizeFromShape: sizeFromShape,
+    isScalarShape: isScalarShape,
+    arraysEqual: arraysEqual,
+    isInt: isInt,
+    tanh: tanh,
+    sizeToSquarishShape: sizeToSquarishShape,
+    createShuffledIndices: createShuffledIndices,
+    rightPad: rightPad,
+    repeatedTry: repeatedTry,
+    getQueryParams: getQueryParams,
+    inferFromImplicitShape: inferFromImplicitShape,
+    squeezeShape: squeezeShape,
+    getTypedArrayFromDType: getTypedArrayFromDType,
+    isTensorInList: isTensorInList,
+    checkForNaN: checkForNaN,
+    flattenNameArrayMap: flattenNameArrayMap,
+    unflattenToNameArrayMap: unflattenToNameArrayMap,
+    hasEncodingLoss: hasEncodingLoss,
+    copyTypedArray: copyTypedArray,
+    isTypedArray: isTypedArray,
+    bytesPerElement: bytesPerElement,
+    isFunction: isFunction,
+    extractTensorsFromContainer: extractTensorsFromContainer,
+    extractTensorsFromAny: extractTensorsFromAny
+  });
 
   var FORMAT_LIMIT_NUM_VALS = 20;
   var FORMAT_NUM_FIRST_LAST_VALS = 3;
@@ -5419,23 +5510,44 @@
   }());
 
   var batchNormalization = BatchNormOps.batchNormalization;
+  var batchNormalization2d = BatchNormOps.batchNormalization2d;
+  var batchNormalization3d = BatchNormOps.batchNormalization3d;
+  var batchNormalization4d = BatchNormOps.batchNormalization4d;
   var concat = ConcatOps.concat;
+  var concat1d = ConcatOps.concat1d;
+  var concat2d = ConcatOps.concat2d;
+  var concat3d = ConcatOps.concat3d;
+  var concat4d = ConcatOps.concat4d;
   var conv1d = ConvOps.conv1d;
   var conv2d = ConvOps.conv2d;
   var conv2dTranspose = ConvOps.conv2dTranspose;
   var depthwiseConv2d = ConvOps.depthwiseConv2d;
+  var separableConv2d = ConvOps.separableConv2d;
   var matMul = MatmulOps.matMul;
+  var matrixTimesVector = MatmulOps.matrixTimesVector;
+  var outerProduct = MatmulOps.outerProduct;
+  var vectorTimesMatrix = MatmulOps.vectorTimesMatrix;
   var avgPool = PoolOps.avgPool;
   var maxPool = PoolOps.maxPool;
   var transpose = TransposeOps.transpose;
   var reverse = ReverseOps.reverse;
+  var reverse1d = ReverseOps.reverse1d;
+  var reverse2d = ReverseOps.reverse2d;
+  var reverse3d = ReverseOps.reverse3d;
+  var reverse4d = ReverseOps.reverse4d;
   var slice = SliceOps.slice;
+  var slice1d = SliceOps.slice1d;
+  var slice2d = SliceOps.slice2d;
+  var slice3d = SliceOps.slice3d;
+  var slice4d = SliceOps.slice4d;
+  var stridedSlice = StridedSliceOps.stridedSlice;
   var argMax = ReductionOps.argMax;
   var argMin = ReductionOps.argMin;
   var logSumExp = ReductionOps.logSumExp;
   var max = ReductionOps.max;
   var mean = ReductionOps.mean;
   var min = ReductionOps.min;
+  var moments = ReductionOps.moments;
   var sum = ReductionOps.sum;
   var unsortedSegmentSum = ReductionOps.unsortedSegmentSum;
   var equal = CompareOps.equal;
@@ -5494,6 +5606,7 @@
   var erf = UnaryOps.erf;
   var add = BinaryOps.add;
   var addStrict = BinaryOps.addStrict;
+  var atan2 = BinaryOps.atan2;
   var div = BinaryOps.div;
   var divStrict = BinaryOps.divStrict;
   var maximum = BinaryOps.maximum;
@@ -5514,13 +5627,24 @@
   var cast = ArrayOps.cast;
   var clone = ArrayOps.clone;
   var fromPixels = ArrayOps.fromPixels;
+  var toPixels = ArrayOps.toPixels;
   var ones = ArrayOps.ones;
+  var onesLike = ArrayOps.onesLike;
   var zeros = ArrayOps.zeros;
   var zerosLike = ArrayOps.zerosLike;
+  var eye = ArrayOps.eye;
+  var rand = ArrayOps.rand;
+  var randomNormal = ArrayOps.randomNormal;
+  var truncatedNormal = ArrayOps.truncatedNormal;
+  var randomUniform = ArrayOps.randomUniform;
+  var multinomial = ArrayOps.multinomial;
   var reshape = ArrayOps.reshape;
   var squeeze = ArrayOps.squeeze;
   var tile = ArrayOps.tile;
   var gather = ArrayOps.gather;
+  var oneHot = ArrayOps.oneHot;
+  var linspace = ArrayOps.linspace;
+  var range = ArrayOps.range;
   var buffer = ArrayOps.buffer;
   var fill = ArrayOps.fill;
   var tensor = ArrayOps.tensor;
@@ -5536,8 +5660,25 @@
   var split = ArrayOps.split;
   var cumsum = ArrayOps.cumsum;
   var pad = ArrayOps.pad;
+  var pad1d = ArrayOps.pad1d;
+  var pad2d = ArrayOps.pad2d;
+  var pad3d = ArrayOps.pad3d;
+  var pad4d = ArrayOps.pad4d;
+  var movingAverage = MovingAverageOps.movingAverage;
+  var basicLSTMCell = LSTMOps.basicLSTMCell;
+  var multiRNNCell = LSTMOps.multiRNNCell;
   var softmax = SoftmaxOps.softmax;
   var localResponseNormalization = LRNOps.localResponseNormalization;
+  var linalg = LinalgOps;
+  var losses = {
+      absoluteDifference: LossOps.absoluteDifference,
+      computeWeightedLoss: LossOps.computeWeightedLoss,
+      cosineDistance: LossOps.cosineDistance,
+      hingeLoss: LossOps.hingeLoss,
+      logLoss: LossOps.logLoss,
+      meanSquaredError: LossOps.meanSquaredError,
+      softmaxCrossEntropy: SoftmaxOps.softmaxCrossEntropy
+  };
   var image = {
       resizeBilinear: ImageOps.resizeBilinear,
       resizeNearestNeighbor: ImageOps.resizeNearestNeighbor,
@@ -6551,6 +6692,12 @@
 
   var tidy = Tracking.tidy;
   var keep = Tracking.keep;
+  var dispose = Tracking.dispose;
+  var time = Tracking.time;
+  var grad = Gradients.grad;
+  var valueAndGrad = Gradients.valueAndGrad;
+  var grads = Gradients.grads;
+  var valueAndGrads = Gradients.valueAndGrads;
   var variableGrads = Gradients.variableGrads;
   var customGrad = Gradients.customGrad;
 
@@ -7338,6 +7485,13 @@
   }
   var ENV = getOrMakeEnvironment();
 
+  var environment = /*#__PURE__*/Object.freeze({
+    get Type () { return Type; },
+    URL_PROPERTIES: URL_PROPERTIES,
+    Environment: Environment,
+    ENV: ENV
+  });
+
   var PARALLELIZE_THRESHOLD = 30;
   function computeOptimalWindowSize(inSize) {
       if (inSize <= PARALLELIZE_THRESHOLD) {
@@ -7543,6 +7697,9 @@
   }
   function getUnpackedArraySizeFromMatrixSize(matrixSize, channelsPerTexture) {
       return matrixSize * channelsPerTexture;
+  }
+  function getColorMatrixTextureShapeWidthHeight(rows, columns) {
+      return [columns * 4, rows];
   }
   function getMatrixSizeFromUnpackedArraySize(unpackedSize, channelsPerTexture) {
       if (unpackedSize % channelsPerTexture !== 0) {
@@ -8355,6 +8512,11 @@
       callAndCheck(gl, function () { return gl.activeTexture(gl.TEXTURE0 + textureUnit); });
       callAndCheck(gl, function () { return gl.bindTexture(gl.TEXTURE_2D, texture); });
   }
+  function unbindTextureUnit(gl, textureUnit) {
+      validateTextureUnit(gl, textureUnit);
+      callAndCheck(gl, function () { return gl.activeTexture(gl.TEXTURE0 + textureUnit); });
+      callAndCheck(gl, function () { return gl.bindTexture(gl.TEXTURE_2D, null); });
+  }
   function getProgramUniformLocationOrThrow(gl, program, uniformName) {
       return throwIfNull(gl, function () { return gl.getUniformLocation(program, uniformName); }, 'uniform "' + uniformName + '" not present in program.');
   }
@@ -8364,6 +8526,11 @@
   function bindTextureToProgramUniformSampler(gl, program, texture, uniformSamplerLocation, textureUnit) {
       callAndCheck(gl, function () { return bindTextureUnit(gl, texture, textureUnit); });
       callAndCheck(gl, function () { return gl.uniform1i(uniformSamplerLocation, textureUnit); });
+  }
+  function bindCanvasToFramebuffer(gl) {
+      callAndCheck(gl, function () { return gl.bindFramebuffer(gl.FRAMEBUFFER, null); });
+      callAndCheck(gl, function () { return gl.viewport(0, 0, gl.canvas.width, gl.canvas.height); });
+      callAndCheck(gl, function () { return gl.scissor(0, 0, gl.canvas.width, gl.canvas.height); });
   }
   function bindColorTextureToFramebuffer(gl, texture, framebuffer) {
       callAndCheck(gl, function () { return gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer); });
@@ -8434,6 +8601,40 @@
           return sizeToSquarishShape(size);
       }
   }
+
+  var webgl_util = /*#__PURE__*/Object.freeze({
+    createWebGLRenderingContext: createWebGLRenderingContext,
+    createWebGLRenderingContextFromCanvas: createWebGLRenderingContextFromCanvas,
+    callAndCheck: callAndCheck,
+    enableDebugWebGLErrorChecking: enableDebugWebGLErrorChecking,
+    checkWebGLError: checkWebGLError,
+    getWebGLErrorMessage: getWebGLErrorMessage,
+    getExtensionOrThrow: getExtensionOrThrow,
+    createVertexShader: createVertexShader,
+    createFragmentShader: createFragmentShader,
+    createProgram: createProgram,
+    linkProgram: linkProgram,
+    validateProgram: validateProgram,
+    createStaticVertexBuffer: createStaticVertexBuffer,
+    createStaticIndexBuffer: createStaticIndexBuffer,
+    queryMaxTextureSize: queryMaxTextureSize,
+    getChannelsPerTexture: getChannelsPerTexture,
+    createTexture: createTexture,
+    validateTextureSize: validateTextureSize,
+    createFramebuffer: createFramebuffer,
+    bindVertexBufferToProgramAttribute: bindVertexBufferToProgramAttribute,
+    bindTextureUnit: bindTextureUnit,
+    unbindTextureUnit: unbindTextureUnit,
+    getProgramUniformLocationOrThrow: getProgramUniformLocationOrThrow,
+    getProgramUniformLocation: getProgramUniformLocation,
+    bindTextureToProgramUniformSampler: bindTextureToProgramUniformSampler,
+    bindCanvasToFramebuffer: bindCanvasToFramebuffer,
+    bindColorTextureToFramebuffer: bindColorTextureToFramebuffer,
+    unbindColorTextureFromFramebuffer: unbindColorTextureFromFramebuffer,
+    validateFramebuffer: validateFramebuffer,
+    getFramebufferErrorMessage: getFramebufferErrorMessage,
+    getTextureShapeFromLogicalShape: getTextureShapeFromLogicalShape
+  });
 
   var __awaiter$4 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
       return new (P || (P = Promise))(function (resolve, reject) {
@@ -8563,6 +8764,11 @@
       var numChannels = 1;
       return createAndConfigureTexture(gl, width, height, numChannels);
   }
+  function createColorMatrixTexture(gl, rows, columns) {
+      var _a = getColorMatrixTextureShapeWidthHeight(rows, columns), width = _a[0], height = _a[1];
+      var numChannels = 4;
+      return createAndConfigureTexture(gl, width, height, numChannels);
+  }
   function createPackedMatrixTexture(gl, rows, columns) {
       var _a = getPackedMatrixTextureShapeWidthHeight(rows, columns), width = _a[0], height = _a[1];
       var numChannels = 4;
@@ -8690,6 +8896,25 @@
       var matrix = new Float32Array(rows * columns);
       return decodeMatrixFromPackedRGBA(packedRGBA, rows, columns, matrix);
   }
+
+  var gpgpu_util = /*#__PURE__*/Object.freeze({
+    getWebGLContextAttributes: getWebGLContextAttributes,
+    createWebGLContext: createWebGLContext,
+    createVertexShader: createVertexShader$1,
+    createVertexBuffer: createVertexBuffer,
+    createIndexBuffer: createIndexBuffer,
+    createMatrixTexture: createMatrixTexture,
+    createColorMatrixTexture: createColorMatrixTexture,
+    createPackedMatrixTexture: createPackedMatrixTexture,
+    bindVertexProgramAttributeStreams: bindVertexProgramAttributeStreams,
+    uploadPixelDataToTexture: uploadPixelDataToTexture,
+    uploadMatrixToTexture: uploadMatrixToTexture,
+    uploadMatrixToPackedTexture: uploadMatrixToPackedTexture,
+    downloadMatrixFromOutputTextureAsync: downloadMatrixFromOutputTextureAsync,
+    downloadMatrixFromOutputTexture: downloadMatrixFromOutputTexture,
+    downloadMatrixFromRGBAColorTexture: downloadMatrixFromRGBAColorTexture,
+    downloadMatrixFromPackedOutputTexture: downloadMatrixFromPackedOutputTexture
+  });
 
   var __awaiter$5 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
       return new (P || (P = Promise))(function (resolve, reject) {
@@ -12107,6 +12332,14 @@
       return BrowserUtil;
   }());
 
+  var DTYPE_VALUE_SIZE_MAP = {
+      'float32': 4,
+      'int32': 4,
+      'uint16': 2,
+      'uint8': 1,
+      'bool': 1,
+  };
+
   var __awaiter$8 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
       return new (P || (P = Promise))(function (resolve, reject) {
           function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -12142,6 +12375,92 @@
           if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
       }
   };
+  function encodeWeights(tensors) {
+      return __awaiter$8(this, void 0, void 0, function () {
+          var specs, dataPromises, name_1, t, tensorValues;
+          return __generator$8(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      specs = [];
+                      dataPromises = [];
+                      for (name_1 in tensors) {
+                          t = tensors[name_1];
+                          if (t.dtype !== 'float32' && t.dtype !== 'int32' && t.dtype !== 'bool') {
+                              throw new Error("Unsupported dtype in weight '" + name_1 + "': " + t.dtype);
+                          }
+                          specs.push({ name: name_1, shape: t.shape, dtype: t.dtype });
+                          dataPromises.push(t.data());
+                      }
+                      return [4, Promise.all(dataPromises)];
+                  case 1:
+                      tensorValues = _a.sent();
+                      return [2, { data: concatenateTypedArrays(tensorValues), specs: specs }];
+              }
+          });
+      });
+  }
+  function decodeWeights(buffer, specs) {
+      var out = {};
+      var offset = 0;
+      for (var _i = 0, specs_1 = specs; _i < specs_1.length; _i++) {
+          var spec = specs_1[_i];
+          var name_2 = spec.name;
+          var dtype = spec.dtype;
+          var shape = spec.shape;
+          if (spec.quantization != null) {
+              throw new Error("decodeWeights does not support quantization yet, but encountered " +
+                  ("weight '" + name_2 + " with quantization.'"));
+          }
+          var size = sizeFromShape(shape);
+          var value = void 0;
+          if (dtype === 'float32') {
+              value = ArrayOps.tensor(new Float32Array(buffer, offset, size), shape, 'float32');
+          }
+          else if (dtype === 'int32') {
+              value =
+                  ArrayOps.tensor(new Int32Array(buffer, offset, size), shape, 'int32');
+          }
+          else if (dtype === 'bool') {
+              value =
+                  ArrayOps.tensor(new Uint8Array(buffer, offset, size), shape, 'bool');
+          }
+          else {
+              throw new Error("Unsupported dtype in weight '" + name_2 + "': " + dtype);
+          }
+          out[name_2] = value;
+          offset += size * DTYPE_VALUE_SIZE_MAP[dtype];
+      }
+      return out;
+  }
+  function concatenateTypedArrays(xs) {
+      if (xs === null) {
+          throw new Error("Invalid input value: " + JSON.stringify(xs));
+      }
+      var totalByteLength = 0;
+      xs.forEach(function (x) {
+          if (x instanceof Float32Array || x instanceof Int32Array) {
+              totalByteLength += x.length * 4;
+          }
+          else if (x instanceof Uint8Array) {
+              totalByteLength += x.length;
+          }
+          else {
+              throw new Error("Unsupported TypedArray subtype: " + x.constructor.name);
+          }
+      });
+      var y = new Uint8Array(totalByteLength);
+      var offset = 0;
+      xs.forEach(function (x) {
+          y.set(new Uint8Array(x.buffer), offset);
+          if (x instanceof Float32Array || x instanceof Int32Array) {
+              offset += x.length * 4;
+          }
+          else {
+              offset += x.length;
+          }
+      });
+      return y.buffer;
+  }
   function stringByteLength(str) {
       return new Blob([str]).size;
   }
@@ -12155,6 +12474,28 @@
           buffer.set([s.charCodeAt(i)], i);
       }
       return buffer.buffer;
+  }
+  function concatenateArrayBuffers(buffers) {
+      var totalByteLength = 0;
+      buffers.forEach(function (buffer) {
+          totalByteLength += buffer.byteLength;
+      });
+      var temp = new Uint8Array(totalByteLength);
+      var offset = 0;
+      buffers.forEach(function (buffer) {
+          temp.set(new Uint8Array(buffer), offset);
+          offset += buffer.byteLength;
+      });
+      return temp.buffer;
+  }
+  function basename(path) {
+      var SEPARATOR = '/';
+      path = path.trim();
+      while (path.endsWith(SEPARATOR)) {
+          path = path.slice(0, path.length - 1);
+      }
+      var items = path.split(SEPARATOR);
+      return items[items.length - 1];
   }
   function getModelArtifactsInfoForJSON(modelArtifacts) {
       if (modelArtifacts.modelTopology instanceof ArrayBuffer) {
@@ -12281,6 +12622,131 @@
       };
       return ModelStoreManagerRegistry;
   }());
+  function parseURL(url) {
+      if (url.indexOf(URL_SCHEME_SUFFIX) === -1) {
+          throw new Error("The url string provided does not contain a scheme. " +
+              "Supported schemes are: " +
+              ("" + ModelStoreManagerRegistry.getSchemes().join(',')));
+      }
+      return {
+          scheme: url.split(URL_SCHEME_SUFFIX)[0],
+          path: url.split(URL_SCHEME_SUFFIX)[1],
+      };
+  }
+  function listModels() {
+      return __awaiter$9(this, void 0, void 0, function () {
+          var schemes, out, _i, schemes_1, scheme, schemeOut, path, url;
+          return __generator$9(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      schemes = ModelStoreManagerRegistry.getSchemes();
+                      out = {};
+                      _i = 0, schemes_1 = schemes;
+                      _a.label = 1;
+                  case 1:
+                      if (!(_i < schemes_1.length)) return [3, 4];
+                      scheme = schemes_1[_i];
+                      return [4, ModelStoreManagerRegistry.getManager(scheme).listModels()];
+                  case 2:
+                      schemeOut = _a.sent();
+                      for (path in schemeOut) {
+                          url = scheme + URL_SCHEME_SUFFIX + path;
+                          out[url] = schemeOut[path];
+                      }
+                      _a.label = 3;
+                  case 3:
+                      _i++;
+                      return [3, 1];
+                  case 4: return [2, out];
+              }
+          });
+      });
+  }
+  function removeModel(url) {
+      return __awaiter$9(this, void 0, void 0, function () {
+          var schemeAndPath, manager;
+          return __generator$9(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      schemeAndPath = parseURL(url);
+                      manager = ModelStoreManagerRegistry.getManager(schemeAndPath.scheme);
+                      return [4, manager.removeModel(schemeAndPath.path)];
+                  case 1: return [2, _a.sent()];
+              }
+          });
+      });
+  }
+  function cloneModelInternal(sourceURL, destURL, deleteSource) {
+      if (deleteSource === void 0) { deleteSource = false; }
+      return __awaiter$9(this, void 0, void 0, function () {
+          var loadHandlers, loadHandler, saveHandlers, saveHandler, sourceScheme, sourcePath, sameMedium, modelArtifacts, saveResult;
+          return __generator$9(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      assert(sourceURL !== destURL, "Old path and new path are the same: '" + sourceURL + "'");
+                      loadHandlers = IORouterRegistry.getLoadHandlers(sourceURL);
+                      assert(loadHandlers.length > 0, "Copying failed because no load handler is found for source URL " + sourceURL + ".");
+                      assert(loadHandlers.length < 2, "Copying failed because more than one (" + loadHandlers.length + ") " +
+                          ("load handlers for source URL " + sourceURL + "."));
+                      loadHandler = loadHandlers[0];
+                      saveHandlers = IORouterRegistry.getSaveHandlers(destURL);
+                      assert(saveHandlers.length > 0, "Copying failed because no save handler is found for destination URL " +
+                          (destURL + "."));
+                      assert(saveHandlers.length < 2, "Copying failed because more than one (" + loadHandlers.length + ") " +
+                          ("save handlers for destination URL " + destURL + "."));
+                      saveHandler = saveHandlers[0];
+                      sourceScheme = parseURL(sourceURL).scheme;
+                      sourcePath = parseURL(sourceURL).path;
+                      sameMedium = sourceScheme === parseURL(sourceURL).scheme;
+                      return [4, loadHandler.load()];
+                  case 1:
+                      modelArtifacts = _a.sent();
+                      if (!(deleteSource && sameMedium)) return [3, 3];
+                      return [4, ModelStoreManagerRegistry.getManager(sourceScheme)
+                              .removeModel(sourcePath)];
+                  case 2:
+                      _a.sent();
+                      _a.label = 3;
+                  case 3: return [4, saveHandler.save(modelArtifacts)];
+                  case 4:
+                      saveResult = _a.sent();
+                      if (!(deleteSource && !sameMedium)) return [3, 6];
+                      return [4, ModelStoreManagerRegistry.getManager(sourceScheme)
+                              .removeModel(sourcePath)];
+                  case 5:
+                      _a.sent();
+                      _a.label = 6;
+                  case 6: return [2, saveResult.modelArtifactsInfo];
+              }
+          });
+      });
+  }
+  function copyModel(sourceURL, destURL) {
+      return __awaiter$9(this, void 0, void 0, function () {
+          var deleteSource;
+          return __generator$9(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      deleteSource = false;
+                      return [4, cloneModelInternal(sourceURL, destURL, deleteSource)];
+                  case 1: return [2, _a.sent()];
+              }
+          });
+      });
+  }
+  function moveModel(sourceURL, destURL) {
+      return __awaiter$9(this, void 0, void 0, function () {
+          var deleteSource;
+          return __generator$9(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      deleteSource = true;
+                      return [4, cloneModelInternal(sourceURL, destURL, deleteSource)];
+                  case 1: return [2, _a.sent()];
+              }
+          });
+      });
+  }
 
   var __awaiter$a = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
       return new (P || (P = Promise))(function (resolve, reject) {
@@ -12878,6 +13344,121 @@
       BrowserDownloads.URL_SCHEME = 'downloads://';
       return BrowserDownloads;
   }());
+  var BrowserFiles = (function () {
+      function BrowserFiles(files) {
+          if (files == null || files.length < 1) {
+              throw new Error("When calling browserFiles, at least 1 file is required, " +
+                  ("but received " + files));
+          }
+          this.files = files;
+      }
+      BrowserFiles.prototype.load = function () {
+          return __awaiter$c(this, void 0, void 0, function () {
+              var _this = this;
+              var jsonFile, weightFiles;
+              return __generator$c(this, function (_a) {
+                  jsonFile = this.files[0];
+                  weightFiles = this.files.slice(1);
+                  return [2, new Promise(function (resolve, reject) {
+                          var jsonReader = new FileReader();
+                          jsonReader.onload = function (event) {
+                              var modelJSON = JSON.parse(event.target.result);
+                              var modelTopology = modelJSON.modelTopology;
+                              if (modelTopology == null) {
+                                  reject(new Error("modelTopology field is missing from file " + jsonFile.name));
+                                  return;
+                              }
+                              if (weightFiles.length === 0) {
+                                  resolve({ modelTopology: modelTopology });
+                              }
+                              var weightsManifest = modelJSON.weightsManifest;
+                              if (weightsManifest == null) {
+                                  reject(new Error("weightManifest field is missing from file " + jsonFile.name));
+                                  return;
+                              }
+                              var pathToFile;
+                              try {
+                                  pathToFile =
+                                      _this.checkManifestAndWeightFiles(weightsManifest, weightFiles);
+                              }
+                              catch (err) {
+                                  reject(err);
+                                  return;
+                              }
+                              var weightSpecs = [];
+                              var paths = [];
+                              var perFileBuffers = [];
+                              weightsManifest.forEach(function (weightsGroup) {
+                                  weightsGroup.paths.forEach(function (path) {
+                                      paths.push(path);
+                                      perFileBuffers.push(null);
+                                  });
+                                  weightSpecs.push.apply(weightSpecs, weightsGroup.weights);
+                              });
+                              weightsManifest.forEach(function (weightsGroup) {
+                                  weightsGroup.paths.forEach(function (path) {
+                                      var weightFileReader = new FileReader();
+                                      weightFileReader.onload = function (event) {
+                                          var weightData = event.target.result;
+                                          var index = paths.indexOf(path);
+                                          perFileBuffers[index] = weightData;
+                                          if (perFileBuffers.indexOf(null) === -1) {
+                                              resolve({
+                                                  modelTopology: modelTopology,
+                                                  weightSpecs: weightSpecs,
+                                                  weightData: concatenateArrayBuffers(perFileBuffers),
+                                              });
+                                          }
+                                      };
+                                      weightFileReader.onerror = function (error) {
+                                          reject("Failed to weights data from file of path '" + path + "'.");
+                                          return;
+                                      };
+                                      weightFileReader.readAsArrayBuffer(pathToFile[path]);
+                                  });
+                              });
+                          };
+                          jsonReader.onerror = function (error) {
+                              reject("Failed to read model topology and weights manifest JSON " +
+                                  ("from file '" + jsonFile.name + "'. BrowserFiles supports loading ") +
+                                  "Keras-style tf.Model artifacts only.");
+                              return;
+                          };
+                          jsonReader.readAsText(jsonFile);
+                      })];
+              });
+          });
+      };
+      BrowserFiles.prototype.checkManifestAndWeightFiles = function (manifest, files) {
+          var basenames = [];
+          var fileNames = files.map(function (file) { return basename(file.name); });
+          var pathToFile = {};
+          for (var _i = 0, manifest_1 = manifest; _i < manifest_1.length; _i++) {
+              var group = manifest_1[_i];
+              group.paths.forEach(function (path) {
+                  var pathBasename = basename(path);
+                  if (basenames.indexOf(pathBasename) !== -1) {
+                      throw new Error("Duplicate file basename found in weights manifest: " +
+                          ("'" + pathBasename + "'"));
+                  }
+                  basenames.push(pathBasename);
+                  if (fileNames.indexOf(pathBasename) === -1) {
+                      throw new Error("Weight file with basename '" + pathBasename + "' is not provided.");
+                  }
+                  else {
+                      pathToFile[path] = files[fileNames.indexOf(pathBasename)];
+                  }
+              });
+          }
+          if (basenames.length !== files.length) {
+              throw new Error("Mismatch in the number of files in weights manifest " +
+                  ("(" + basenames.length + ") and the number of weight files provided ") +
+                  ("(" + files.length + ")."));
+          }
+          return pathToFile;
+      };
+      return BrowserFiles;
+  }());
   var browserDownloadsRouter = function (url) {
       if (!ENV.get('IS_BROWSER')) {
           return null;
@@ -12895,6 +13476,9 @@
   function browserDownloads(fileNamePrefix) {
       if (fileNamePrefix === void 0) { fileNamePrefix = 'model'; }
       return new BrowserDownloads(fileNamePrefix);
+  }
+  function browserFiles(files) {
+      return new BrowserFiles(files);
   }
 
   var __awaiter$d = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -13045,6 +13629,166 @@
           if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
       }
   };
+  function loadWeights(manifest, filePathPrefix, weightNames, requestOptions) {
+      if (filePathPrefix === void 0) { filePathPrefix = ''; }
+      return __awaiter$e(this, void 0, void 0, function () {
+          var groupIndicesToFetchMap, groupWeightsToFetch, weightsFound, allManifestWeightNames, weightsNotFound, groupIndicesToFetch, requests, responses, buffers, weightsTensorMap, bufferIndexOffset;
+          return __generator$e(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      groupIndicesToFetchMap = manifest.map(function () { return false; });
+                      groupWeightsToFetch = {};
+                      weightsFound = weightNames != null ? weightNames.map(function () { return false; }) : [];
+                      allManifestWeightNames = [];
+                      manifest.forEach(function (manifestGroupConfig, groupIndex) {
+                          var groupOffset = 0;
+                          manifestGroupConfig.weights.forEach(function (weightsEntry) {
+                              var rawDtype = ('quantization' in weightsEntry) ?
+                                  weightsEntry.quantization.dtype :
+                                  weightsEntry.dtype;
+                              var weightsBytes = DTYPE_VALUE_SIZE_MAP[rawDtype] *
+                                  sizeFromShape(weightsEntry.shape);
+                              var enqueueWeightsForFetchingFn = function () {
+                                  groupIndicesToFetchMap[groupIndex] = true;
+                                  if (groupWeightsToFetch[groupIndex] == null) {
+                                      groupWeightsToFetch[groupIndex] = [];
+                                  }
+                                  groupWeightsToFetch[groupIndex].push({
+                                      manifestEntry: weightsEntry,
+                                      groupOffset: groupOffset,
+                                      sizeBytes: weightsBytes
+                                  });
+                              };
+                              if (weightNames != null) {
+                                  weightNames.forEach(function (weightName, weightIndex) {
+                                      if (weightName === weightsEntry.name) {
+                                          enqueueWeightsForFetchingFn();
+                                          weightsFound[weightIndex] = true;
+                                      }
+                                  });
+                              }
+                              else {
+                                  enqueueWeightsForFetchingFn();
+                              }
+                              allManifestWeightNames.push(weightsEntry.name);
+                              groupOffset += weightsBytes;
+                          });
+                      });
+                      if (!weightsFound.every(function (found) { return found; })) {
+                          weightsNotFound = weightNames.filter(function (weight, i) { return !weightsFound[i]; });
+                          throw new Error("Could not find weights in manifest with names: " +
+                              (weightsNotFound.join(', ') + ". \n") +
+                              "Manifest JSON has weights with names: " +
+                              (allManifestWeightNames.join(', ') + "."));
+                      }
+                      groupIndicesToFetch = groupIndicesToFetchMap.reduce(function (accumulator, shouldFetch, i) {
+                          if (shouldFetch) {
+                              accumulator.push(i);
+                          }
+                          return accumulator;
+                      }, []);
+                      requests = [];
+                      groupIndicesToFetch.forEach(function (i) {
+                          manifest[i].paths.forEach(function (filepath) {
+                              var fetchUrl = filePathPrefix +
+                                  (!filePathPrefix.endsWith('/') ? '/' : '') + filepath;
+                              requests.push(fetch(fetchUrl, requestOptions));
+                          });
+                      });
+                      return [4, Promise.all(requests)];
+                  case 1:
+                      responses = _a.sent();
+                      return [4, Promise.all(responses.map(function (response) { return response.arrayBuffer(); }))];
+                  case 2:
+                      buffers = _a.sent();
+                      weightsTensorMap = {};
+                      bufferIndexOffset = 0;
+                      groupIndicesToFetch.forEach(function (i) {
+                          var numBuffers = manifest[i].paths.length;
+                          var groupBytes = 0;
+                          for (var i_1 = 0; i_1 < numBuffers; i_1++) {
+                              groupBytes += buffers[bufferIndexOffset + i_1].byteLength;
+                          }
+                          var groupBuffer = new ArrayBuffer(groupBytes);
+                          var groupByteBuffer = new Uint8Array(groupBuffer);
+                          var groupBufferOffset = 0;
+                          for (var i_2 = 0; i_2 < numBuffers; i_2++) {
+                              var buffer$$1 = new Uint8Array(buffers[bufferIndexOffset + i_2]);
+                              groupByteBuffer.set(buffer$$1, groupBufferOffset);
+                              groupBufferOffset += buffer$$1.byteLength;
+                          }
+                          var weightsEntries = groupWeightsToFetch[i];
+                          weightsEntries.forEach(function (weightsEntry) {
+                              var byteBuffer = groupBuffer.slice(weightsEntry.groupOffset, weightsEntry.groupOffset + weightsEntry.sizeBytes);
+                              var typedArray;
+                              var dtype = weightsEntry.manifestEntry.dtype;
+                              if ('quantization' in weightsEntry.manifestEntry) {
+                                  var quantization_1 = weightsEntry.manifestEntry.quantization;
+                                  if (quantization_1.dtype !== 'uint8' && quantization_1.dtype !== 'uint16') {
+                                      throw new Error("Weight " + weightsEntry.manifestEntry.name + " has unknown " +
+                                          ("quantization dtype " + quantization_1.dtype + "."));
+                                  }
+                                  var quantizedArray = (quantization_1.dtype === 'uint8') ?
+                                      new Uint8Array(byteBuffer) :
+                                      new Uint16Array(byteBuffer);
+                                  if (dtype === 'float32') {
+                                      typedArray = Float32Array.from(quantizedArray, function (v) { return v * quantization_1.scale + quantization_1.min; });
+                                  }
+                                  else if (dtype === 'int32') {
+                                      typedArray = Int32Array.from(quantizedArray, function (v) { return Math.round(v * quantization_1.scale + quantization_1.min); });
+                                  }
+                                  else {
+                                      throw new Error("Weight " + weightsEntry.manifestEntry.name + " has a dtype not " +
+                                          ("supported by quantization: " + dtype));
+                                  }
+                              }
+                              else {
+                                  if (dtype === 'float32') {
+                                      typedArray = new Float32Array(byteBuffer);
+                                  }
+                                  else if (dtype === 'int32') {
+                                      typedArray = new Int32Array(byteBuffer);
+                                  }
+                                  else {
+                                      throw new Error("Weight " + weightsEntry.manifestEntry.name + " has unknown dtype " +
+                                          (dtype + "."));
+                                  }
+                              }
+                              var weightName = weightsEntry.manifestEntry.name;
+                              if (weightsTensorMap[weightName] != null) {
+                                  throw new Error("Duplicate weight with name " + weightName + ". " +
+                                      "Please make sure weights names are unique in the manifest JSON.");
+                              }
+                              weightsTensorMap[weightName] = tensor(typedArray, weightsEntry.manifestEntry.shape, weightsEntry.manifestEntry.dtype);
+                          });
+                          bufferIndexOffset += numBuffers;
+                      });
+                      return [2, weightsTensorMap];
+              }
+          });
+      });
+  }
+
+  var registerSaveRouter = IORouterRegistry.registerSaveRouter;
+  var registerLoadRouter = IORouterRegistry.registerLoadRouter;
+  var getSaveHandlers = IORouterRegistry.getSaveHandlers;
+  var getLoadHandlers = IORouterRegistry.getLoadHandlers;
+
+  var io = /*#__PURE__*/Object.freeze({
+    browserFiles: browserFiles,
+    browserHTTPRequest: browserHTTPRequest,
+    copyModel: copyModel,
+    decodeWeights: decodeWeights,
+    encodeWeights: encodeWeights,
+    getLoadHandlers: getLoadHandlers,
+    getSaveHandlers: getSaveHandlers,
+    listModels: listModels,
+    loadWeights: loadWeights,
+    moveModel: moveModel,
+    registerLoadRouter: registerLoadRouter,
+    registerSaveRouter: registerSaveRouter,
+    removeModel: removeModel
+  });
 
   var Serializable = (function () {
       function Serializable() {
@@ -13073,6 +13817,128 @@
       };
       return SerializationMap;
   }());
+
+  var serialization = /*#__PURE__*/Object.freeze({
+    Serializable: Serializable,
+    SerializationMap: SerializationMap
+  });
+
+  var WEBGL_ENVS = {
+      'BACKEND': 'test-webgl'
+  };
+  var CPU_ENVS = {
+      'BACKEND': 'test-cpu'
+  };
+  var ALL_ENVS = {};
+  var TEST_EPSILON = 1e-3;
+  function expectArraysClose(actual, expected, epsilon) {
+      if (epsilon === void 0) { epsilon = TEST_EPSILON; }
+      if (!(actual instanceof Tensor) && !(expected instanceof Tensor)) {
+          var aType = actual.constructor.name;
+          var bType = expected.constructor.name;
+          if (aType !== bType) {
+              throw new Error("Arrays are of different type actual: " + aType + " " +
+                  ("vs expected: " + bType));
+          }
+      }
+      else if (actual instanceof Tensor && expected instanceof Tensor) {
+          if (actual.dtype !== expected.dtype) {
+              throw new Error("Arrays are of different type actual: " + actual.dtype + " " +
+                  ("vs expected: " + expected.dtype + "."));
+          }
+          if (!arraysEqual(actual.shape, expected.shape)) {
+              throw new Error("Arrays are of different shape actual: " + actual.shape + " " +
+                  ("vs expected: " + expected.shape + "."));
+          }
+      }
+      var actualValues;
+      var expectedValues;
+      if (actual instanceof Tensor) {
+          actualValues = actual.dataSync();
+      }
+      else {
+          actualValues = actual;
+      }
+      if (expected instanceof Tensor) {
+          expectedValues = expected.dataSync();
+      }
+      else {
+          expectedValues = expected;
+      }
+      if (actualValues.length !== expectedValues.length) {
+          throw new Error("Arrays have different lengths actual: " + actualValues.length + " vs " +
+              ("expected: " + expectedValues.length + ".\n") +
+              ("Actual:   " + actualValues + ".\n") +
+              ("Expected: " + expectedValues + "."));
+      }
+      for (var i = 0; i < expectedValues.length; ++i) {
+          var a = actualValues[i];
+          var e = expectedValues[i];
+          if (!areClose(a, Number(e), epsilon)) {
+              throw new Error("Arrays differ: actual[" + i + "] = " + a + ", expected[" + i + "] = " + e + ".\n" +
+                  ("Actual:   " + actualValues + ".\n") +
+                  ("Expected: " + expectedValues + "."));
+          }
+      }
+  }
+  function expectPromiseToFail(fn, done) {
+      fn().then(function () { return done.fail(); }, function () { return done(); });
+  }
+  function expectArraysEqual(actual, expected) {
+      return expectArraysClose(actual, expected, 0);
+  }
+  function expectNumbersClose(a, e, epsilon) {
+      if (epsilon === void 0) { epsilon = TEST_EPSILON; }
+      if (!areClose(a, e, epsilon)) {
+          throw new Error("Numbers differ: actual === " + a + ", expected === " + e);
+      }
+  }
+  function areClose(a, e, epsilon) {
+      if (isNaN(a) && isNaN(e)) {
+          return true;
+      }
+      if (isNaN(a) || isNaN(e) || Math.abs(a - e) > epsilon) {
+          return false;
+      }
+      return true;
+  }
+  function expectValuesInRange(actual, low, high) {
+      var actualVals;
+      if (actual instanceof Tensor) {
+          actualVals = actual.dataSync();
+      }
+      else {
+          actualVals = actual;
+      }
+      for (var i = 0; i < actualVals.length; i++) {
+          if (actualVals[i] < low || actualVals[i] > high) {
+              throw new Error("Value out of range:" + actualVals[i] + " low: " + low + ", high: " + high);
+          }
+      }
+  }
+
+  var test_util = /*#__PURE__*/Object.freeze({
+    WEBGL_ENVS: WEBGL_ENVS,
+    CPU_ENVS: CPU_ENVS,
+    ALL_ENVS: ALL_ENVS,
+    TEST_EPSILON: TEST_EPSILON,
+    expectArraysClose: expectArraysClose,
+    expectPromiseToFail: expectPromiseToFail,
+    expectArraysEqual: expectArraysEqual,
+    expectNumbersClose: expectNumbersClose,
+    expectValuesInRange: expectValuesInRange
+  });
+
+  var version = '0.11.0';
+
+
+
+  var webgl = /*#__PURE__*/Object.freeze({
+    gpgpu_util: gpgpu_util,
+    webgl_util: webgl_util,
+    MathBackendWebGL: MathBackendWebGL,
+    GPGPUContext: GPGPUContext
+  });
 
   var __extends$2 = (undefined && undefined.__extends) || (function () {
       var extendStatics = Object.setPrototypeOf ||
@@ -13841,6 +14707,229 @@
       return OptimizerConstructors;
   }());
 
+  var train = {
+      sgd: OptimizerConstructors.sgd,
+      momentum: OptimizerConstructors.momentum,
+      adadelta: OptimizerConstructors.adadelta,
+      adagrad: OptimizerConstructors.adagrad,
+      rmsprop: OptimizerConstructors.rmsprop,
+      adamax: OptimizerConstructors.adamax,
+      adam: OptimizerConstructors.adam
+  };
+
+  var setBackend = Environment.setBackend;
+  var getBackend = Environment.getBackend;
+  var disposeVariables = Environment.disposeVariables;
+  var memory = Environment.memory;
+  var nextFrame = BrowserUtil.nextFrame;
+
+  var index = /*#__PURE__*/Object.freeze({
+    setBackend: setBackend,
+    getBackend: getBackend,
+    disposeVariables: disposeVariables,
+    memory: memory,
+    version_core: version,
+    nextFrame: nextFrame,
+    environment: environment,
+    io: io,
+    serialization: serialization,
+    test_util: test_util,
+    util: util,
+    webgl: webgl,
+    AdadeltaOptimizer: AdadeltaOptimizer,
+    AdagradOptimizer: AdagradOptimizer,
+    AdamOptimizer: AdamOptimizer,
+    AdamaxOptimizer: AdamaxOptimizer,
+    MomentumOptimizer: MomentumOptimizer,
+    Optimizer: Optimizer,
+    RMSPropOptimizer: RMSPropOptimizer,
+    SGDOptimizer: SGDOptimizer,
+    Tensor: Tensor,
+    TensorBuffer: TensorBuffer,
+    variable: variable,
+    Variable: Variable,
+    get Rank () { return Rank; },
+    get Reduction () { return Reduction; },
+    ENV: ENV,
+    Environment: Environment,
+    doc: doc,
+    batchNormalization: batchNormalization,
+    batchNormalization2d: batchNormalization2d,
+    batchNormalization3d: batchNormalization3d,
+    batchNormalization4d: batchNormalization4d,
+    concat: concat,
+    concat1d: concat1d,
+    concat2d: concat2d,
+    concat3d: concat3d,
+    concat4d: concat4d,
+    conv1d: conv1d,
+    conv2d: conv2d,
+    conv2dTranspose: conv2dTranspose,
+    depthwiseConv2d: depthwiseConv2d,
+    separableConv2d: separableConv2d,
+    matMul: matMul,
+    matrixTimesVector: matrixTimesVector,
+    outerProduct: outerProduct,
+    vectorTimesMatrix: vectorTimesMatrix,
+    avgPool: avgPool,
+    maxPool: maxPool,
+    transpose: transpose,
+    reverse: reverse,
+    reverse1d: reverse1d,
+    reverse2d: reverse2d,
+    reverse3d: reverse3d,
+    reverse4d: reverse4d,
+    slice: slice,
+    slice1d: slice1d,
+    slice2d: slice2d,
+    slice3d: slice3d,
+    slice4d: slice4d,
+    stridedSlice: stridedSlice,
+    argMax: argMax,
+    argMin: argMin,
+    logSumExp: logSumExp,
+    max: max,
+    mean: mean,
+    min: min,
+    moments: moments,
+    sum: sum,
+    unsortedSegmentSum: unsortedSegmentSum,
+    equal: equal,
+    equalStrict: equalStrict,
+    greater: greater,
+    greaterStrict: greaterStrict,
+    greaterEqual: greaterEqual,
+    greaterEqualStrict: greaterEqualStrict,
+    less: less,
+    lessStrict: lessStrict,
+    lessEqual: lessEqual,
+    lessEqualStrict: lessEqualStrict,
+    notEqual: notEqual,
+    notEqualStrict: notEqualStrict,
+    logicalNot: logicalNot,
+    logicalAnd: logicalAnd,
+    logicalOr: logicalOr,
+    logicalXor: logicalXor,
+    where: where,
+    abs: abs,
+    acos: acos,
+    acosh: acosh,
+    asin: asin,
+    asinh: asinh,
+    atan: atan,
+    atanh: atanh,
+    ceil: ceil,
+    clipByValue: clipByValue,
+    cos: cos,
+    cosh: cosh,
+    elu: elu,
+    exp: exp,
+    expm1: expm1,
+    floor: floor,
+    sign: sign,
+    leakyRelu: leakyRelu,
+    log: log,
+    log1p: log1p,
+    logSigmoid: logSigmoid,
+    neg: neg,
+    prelu: prelu,
+    relu: relu,
+    reciprocal: reciprocal,
+    round: round,
+    selu: selu,
+    sigmoid: sigmoid,
+    sin: sin,
+    sinh: sinh,
+    softplus: softplus,
+    sqrt: sqrt,
+    rsqrt: rsqrt,
+    square: square,
+    step: step,
+    tan: tan,
+    tanh: tanh$1,
+    erf: erf,
+    add: add,
+    addStrict: addStrict,
+    atan2: atan2,
+    div: div,
+    divStrict: divStrict,
+    maximum: maximum,
+    maximumStrict: maximumStrict,
+    minimum: minimum,
+    minimumStrict: minimumStrict,
+    mod: mod,
+    modStrict: modStrict,
+    mul: mul,
+    mulStrict: mulStrict,
+    pow: pow,
+    powStrict: powStrict,
+    sub: sub,
+    subStrict: subStrict,
+    squaredDifference: squaredDifference,
+    squaredDifferenceStrict: squaredDifferenceStrict,
+    norm: norm,
+    cast: cast,
+    clone: clone,
+    fromPixels: fromPixels,
+    toPixels: toPixels,
+    ones: ones,
+    onesLike: onesLike,
+    zeros: zeros,
+    zerosLike: zerosLike,
+    eye: eye,
+    rand: rand,
+    randomNormal: randomNormal,
+    truncatedNormal: truncatedNormal,
+    randomUniform: randomUniform,
+    multinomial: multinomial,
+    reshape: reshape,
+    squeeze: squeeze,
+    tile: tile,
+    gather: gather,
+    oneHot: oneHot,
+    linspace: linspace,
+    range: range,
+    buffer: buffer,
+    fill: fill,
+    tensor: tensor,
+    scalar: scalar,
+    tensor1d: tensor1d,
+    tensor2d: tensor2d,
+    tensor3d: tensor3d,
+    tensor4d: tensor4d,
+    print: print,
+    expandDims: expandDims,
+    stack: stack,
+    unstack: unstack,
+    split: split,
+    cumsum: cumsum,
+    pad: pad,
+    pad1d: pad1d,
+    pad2d: pad2d,
+    pad3d: pad3d,
+    pad4d: pad4d,
+    movingAverage: movingAverage,
+    basicLSTMCell: basicLSTMCell,
+    multiRNNCell: multiRNNCell,
+    softmax: softmax,
+    localResponseNormalization: localResponseNormalization,
+    linalg: linalg,
+    losses: losses,
+    image: image,
+    operation: operation,
+    train: train,
+    tidy: tidy,
+    keep: keep,
+    dispose: dispose,
+    time: time,
+    grad: grad,
+    valueAndGrad: valueAndGrad,
+    grads: grads,
+    valueAndGrads: valueAndGrads,
+    variableGrads: variableGrads,
+    customGrad: customGrad
+  });
+
   function isFloat(num) {
       return num % 1 !== 0;
   }
@@ -13860,7 +14949,23 @@
       }
       return ctx;
   }
+  function createCanvas(_a) {
+      var width = _a.width, height = _a.height;
+      var canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+  }
+  function createCanvasWithImageData(_a, buf) {
+      var width = _a.width, height = _a.height;
+      var canvas = createCanvas({ width: width, height: height });
+      getContext2dOrThrow(canvas).putImageData(new ImageData(buf, width, height), 0, 0);
+      return canvas;
+  }
   function getMediaDimensions(media) {
+      if (media instanceof HTMLImageElement) {
+          return { width: media.naturalWidth, height: media.naturalHeight };
+      }
       if (media instanceof HTMLVideoElement) {
           return { width: media.videoWidth, height: media.videoHeight };
       }
@@ -13882,15 +14987,24 @@
           reader.readAsDataURL(buf);
       });
   }
+  function getDefaultDrawOptions() {
+      return {
+          color: 'blue',
+          lineWidth: 2,
+          fontSize: 20,
+          fontStyle: 'Georgia'
+      };
+  }
   function drawBox(ctx, x, y, w, h, options) {
       ctx.strokeStyle = options.color;
       ctx.lineWidth = options.lineWidth;
       ctx.strokeRect(x, y, w, h);
   }
   function drawText(ctx, x, y, text, options) {
+      var padText = 2 + options.lineWidth;
       ctx.fillStyle = options.color;
       ctx.font = options.fontSize + "px " + options.fontStyle;
-      ctx.fillText(text, x, y);
+      ctx.fillText(text, x + padText, y + padText + (options.fontSize * 0.6));
   }
   function drawDetection(canvasArg, detection, options) {
       var canvas = getElement(canvasArg);
@@ -13902,13 +15016,13 @@
           : [detection];
       detectionArray.forEach(function (det) {
           var score = det.score, box = det.box;
-          var left = box.left, right = box.right, top = box.top, bottom = box.bottom;
-          var _a = (options || {}), _b = _a.color, color = _b === void 0 ? 'blue' : _b, _c = _a.lineWidth, lineWidth = _c === void 0 ? 2 : _c, _d = _a.fontSize, fontSize = _d === void 0 ? 20 : _d, _e = _a.fontStyle, fontStyle = _e === void 0 ? 'Georgia' : _e, _f = _a.withScore, withScore = _f === void 0 ? true : _f;
-          var padText = 2 + lineWidth;
+          var x = box.x, y = box.y, width = box.width, height = box.height;
+          var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+          var withScore = Object.assign({ withScore: true }, (options || {})).withScore;
           var ctx = getContext2dOrThrow(canvas);
-          drawBox(ctx, left, top, right - left, bottom - top, { lineWidth: lineWidth, color: color });
+          drawBox(ctx, x, y, width, height, drawOptions);
           if (withScore) {
-              drawText(ctx, left + padText, top + (fontSize * 0.6) + padText, "" + round$1(score), { fontSize: fontSize, fontStyle: fontStyle, color: color });
+              drawText(ctx, x, y, "" + round$1(score), drawOptions);
           }
       });
   }
@@ -13942,9 +15056,7 @@
           }
           // if input is batch type, make sure every canvas has the same dimensions
           var _a = this.dims || dims || getMediaDimensions(media), width = _a.width, height = _a.height;
-          var canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
+          var canvas = createCanvas({ width: width, height: height });
           getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
           this._canvases.push(canvas);
       };
@@ -14165,21 +15277,23 @@
   }
 
   var FaceDetectionResult = /** @class */ (function () {
-      function FaceDetectionResult(score, top, left, bottom, right) {
-          this.score = score;
-          this.top = Math.max(0, top),
-              this.left = Math.max(0, left),
-              this.bottom = Math.min(1.0, bottom),
-              this.right = Math.min(1.0, right);
+      function FaceDetectionResult(score, topRelative, leftRelative, bottomRelative, rightRelative) {
+          this._score = score;
+          this._topRelative = Math.max(0, topRelative),
+              this._leftRelative = Math.max(0, leftRelative),
+              this._bottomRelative = Math.min(1.0, bottomRelative),
+              this._rightRelative = Math.min(1.0, rightRelative);
       }
       FaceDetectionResult.prototype.forSize = function (width, height) {
+          var x = Math.floor(this._leftRelative * width);
+          var y = Math.floor(this._topRelative * height);
           return {
-              score: this.score,
+              score: this._score,
               box: {
-                  top: this.top * height,
-                  left: this.left * width,
-                  bottom: this.bottom * height,
-                  right: this.right * width
+                  x: x,
+                  y: y,
+                  width: Math.floor(this._rightRelative * width) - x,
+                  height: Math.floor(this._bottomRelative * height) - y
               }
           };
       };
@@ -14606,7 +15720,13 @@
       var params = extractParams$1(weights);
       function forward(input) {
           return tidy(function () {
-              var x = normalize(padToSquare(getImageTensor(input)));
+              // TODO pad on both sides, to keep face centered
+              var x = padToSquare(getImageTensor(input));
+              // work with 150 x 150 sized face images
+              if (x.shape[1] !== 150 || x.shape[2] !== 150) {
+                  x = image.resizeBilinear(x, [150, 150]);
+              }
+              x = normalize(x);
               var out = convDown(x, params.conv32_down);
               out = maxPool(out, 3, 2, 'valid');
               out = residual(out, params.conv32_1);
@@ -14655,16 +15775,64 @@
       };
   }
 
+  /**
+   * Extracts the image regions containing the detected faces.
+   *
+   * @param input The image that face detection has been performed on.
+   * @param detections The face detection results for that image.
+   * @returns The Canvases of the corresponding image region for each detected face.
+   */
+  function extractFaces(image, detections) {
+      var ctx = getContext2dOrThrow(image);
+      return detections.map(function (det) {
+          var _a = det.forSize(image.width, image.height).box, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+          var faceImg = createCanvas({ width: width, height: height });
+          getContext2dOrThrow(faceImg)
+              .putImageData(ctx.getImageData(x, y, width, height), 0, 0);
+          return faceImg;
+      });
+  }
+
+  /**
+   * Extracts the tensors of the image regions containing the detected faces.
+   * Returned tensors have to be disposed manually once you don't need them anymore!
+   * Useful if you want to compute the face descriptors for the face
+   * images. Using this method is faster then extracting a canvas for each face and
+   * converting them to tensors individually.
+   *
+   * @param input The image that face detection has been performed on.
+   * @param detections The face detection results for that image.
+   * @returns Tensors of the corresponding image region for each detected face.
+   */
+  function extractFaceTensors(image$$1, detections) {
+      return tidy(function () {
+          var imgTensor = getImageTensor(image$$1);
+          // TODO handle batches
+          var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
+          var faceTensors = detections.map(function (det) {
+              var _a = det.forSize(imgWidth, imgHeight).box, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+              return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
+          });
+          return faceTensors;
+      });
+  }
+
   exports.euclideanDistance = euclideanDistance;
   exports.faceDetectionNet = faceDetectionNet;
   exports.faceRecognitionNet = faceRecognitionNet;
   exports.NetInput = NetInput;
+  exports.tf = index;
+  exports.extractFaces = extractFaces;
+  exports.extractFaceTensors = extractFaceTensors;
   exports.isFloat = isFloat;
   exports.round = round$1;
   exports.getElement = getElement;
   exports.getContext2dOrThrow = getContext2dOrThrow;
+  exports.createCanvas = createCanvas;
+  exports.createCanvasWithImageData = createCanvasWithImageData;
   exports.getMediaDimensions = getMediaDimensions;
   exports.bufferToImage = bufferToImage;
+  exports.getDefaultDrawOptions = getDefaultDrawOptions;
   exports.drawBox = drawBox;
   exports.drawText = drawText;
   exports.drawDetection = drawDetection;

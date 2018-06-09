@@ -1,19 +1,21 @@
 var FaceDetectionResult = /** @class */ (function () {
-    function FaceDetectionResult(score, top, left, bottom, right) {
-        this.score = score;
-        this.top = Math.max(0, top),
-            this.left = Math.max(0, left),
-            this.bottom = Math.min(1.0, bottom),
-            this.right = Math.min(1.0, right);
+    function FaceDetectionResult(score, topRelative, leftRelative, bottomRelative, rightRelative) {
+        this._score = score;
+        this._topRelative = Math.max(0, topRelative),
+            this._leftRelative = Math.max(0, leftRelative),
+            this._bottomRelative = Math.min(1.0, bottomRelative),
+            this._rightRelative = Math.min(1.0, rightRelative);
     }
     FaceDetectionResult.prototype.forSize = function (width, height) {
+        var x = Math.floor(this._leftRelative * width);
+        var y = Math.floor(this._topRelative * height);
         return {
-            score: this.score,
+            score: this._score,
             box: {
-                top: this.top * height,
-                left: this.left * width,
-                bottom: this.bottom * height,
-                right: this.right * width
+                x: x,
+                y: y,
+                width: Math.floor(this._rightRelative * width) - x,
+                height: Math.floor(this._bottomRelative * height) - y
             }
         };
     };

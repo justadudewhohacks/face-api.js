@@ -1,4 +1,4 @@
-import { getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
+import { createCanvas, getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
 var NetInput = /** @class */ (function () {
     function NetInput(mediaArg, dims) {
         var _this = this;
@@ -28,9 +28,7 @@ var NetInput = /** @class */ (function () {
         }
         // if input is batch type, make sure every canvas has the same dimensions
         var _a = this.dims || dims || getMediaDimensions(media), width = _a.width, height = _a.height;
-        var canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        var canvas = createCanvas({ width: width, height: height });
         getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
         this._canvases.push(canvas);
     };
