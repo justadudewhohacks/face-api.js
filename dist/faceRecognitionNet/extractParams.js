@@ -1,7 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-function isFloat(num) {
-    return num % 1 !== 0;
-}
+import { isFloat } from '../utils';
 function extractorsFactory(extractWeights) {
     function extractFilterValues(numFilterValues, numFilters, filterSize) {
         var weights = extractWeights(numFilterValues);

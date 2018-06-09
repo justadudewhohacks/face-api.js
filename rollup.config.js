@@ -4,17 +4,18 @@ import typescript from 'rollup-plugin-typescript2';
 import uglify from 'rollup-plugin-uglify';
 import path from 'path';
 
+const { minify } = process.env
+
 export default {
   input: 'src/index.ts',
   plugins: [
     typescript(),
     node(),
-    uglify(),
-    commonjs(),
-  ],
+    commonjs()
+  ].concat(minify ? uglify() : []),
   output: {
     extend: true,
-    file: 'dist/face-recognition.min.js',
+    file: `dist/face-recognition${minify ? '.min' : ''}.js`,
     format: 'umd',
     name: 'facerecognition',
     globals: {

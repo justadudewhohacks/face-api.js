@@ -1,13 +1,16 @@
+import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { normalize } from '../normalize';
+import { getImageTensor, padToSquare } from '../transformInputs';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
+import { normalize } from './normalize';
 import { residual, residualDown } from './residualLayer';
 export function faceRecognitionNet(weights) {
+    var _this = this;
     var params = extractParams(weights);
     function forward(input) {
         return tf.tidy(function () {
-            var x = normalize(input);
+            var x = normalize(padToSquare(getImageTensor(input)));
             var out = convDown(x, params.conv32_down);
             out = tf.maxPool(out, 3, 2, 'valid');
             out = residual(out, params.conv32_1);
@@ -29,8 +32,26 @@ export function faceRecognitionNet(weights) {
             return fullyConnected;
         });
     }
-    var computeFaceDescriptor = function (input) { return forward(input).data(); };
-    var computeFaceDescriptorSync = function (input) { return forward(input).dataSync(); };
+    var computeFaceDescriptor = function (input) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+        var result, data;
+        return tslib_1.__generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    result = forward(input);
+                    return [4 /*yield*/, result.data()];
+                case 1:
+                    data = _a.sent();
+                    result.dispose();
+                    return [2 /*return*/, data];
+            }
+        });
+    }); };
+    var computeFaceDescriptorSync = function (input) {
+        var result = forward(input);
+        var data = result.dataSync();
+        result.dispose();
+        return data;
+    };
     return {
         computeFaceDescriptor: computeFaceDescriptor,
         computeFaceDescriptorSync: computeFaceDescriptorSync,

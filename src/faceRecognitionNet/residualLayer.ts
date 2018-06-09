@@ -1,13 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { conv, convNoRelu, ConvLayerParams, convDown } from './convLayer';
+import { conv, convDown, convNoRelu } from './convLayer';
+import { FaceRecognitionNet } from './types';
 
-export type ResidualLayerParams = {
-  conv1: ConvLayerParams
-  conv2: ConvLayerParams
-}
-
-export function residual(x: tf.Tensor4D, params: ResidualLayerParams): tf.Tensor4D {
+export function residual(x: tf.Tensor4D, params: FaceRecognitionNet.ResidualLayerParams): tf.Tensor4D {
   let out = conv(x, params.conv1)
   out = convNoRelu(out, params.conv2)
   out = tf.add(out, x)
@@ -15,7 +11,7 @@ export function residual(x: tf.Tensor4D, params: ResidualLayerParams): tf.Tensor
   return out
 }
 
-export function residualDown(x: tf.Tensor4D, params: ResidualLayerParams): tf.Tensor4D {
+export function residualDown(x: tf.Tensor4D, params: FaceRecognitionNet.ResidualLayerParams): tf.Tensor4D {
   let out = convDown(x, params.conv1)
   out = convNoRelu(out, params.conv2)
 

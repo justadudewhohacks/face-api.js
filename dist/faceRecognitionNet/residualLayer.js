@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { conv, convNoRelu, convDown } from './convLayer';
+import { conv, convDown, convNoRelu } from './convLayer';
 export function residual(x, params) {
     var out = conv(x, params.conv1);
     out = convNoRelu(out, params.conv2);

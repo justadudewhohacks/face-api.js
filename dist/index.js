@@ -1,5 +1,7 @@
 import { euclideanDistance } from './euclideanDistance';
+import { faceDetectionNet } from './faceDetectionNet';
 import { faceRecognitionNet } from './faceRecognitionNet';
-import { normalize } from './normalize';
-export { euclideanDistance, faceRecognitionNet, normalize };
+import { NetInput } from './NetInput';
+export { euclideanDistance, faceDetectionNet, faceRecognitionNet, NetInput };
+export * from './utils';
 //# sourceMappingURL=index.js.map
