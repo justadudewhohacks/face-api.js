@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.min.js"></script>
+  <script src="face-recognition.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -16,7 +16,7 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <img id="img" src="" style="max-width: 800px;" />
+      <img id="inputImg" src="" style="max-width: 800px;" />
       <canvas id="overlay" />
     </div>
     <div class="row side-by-side">
@@ -57,22 +57,19 @@
     }
 
     async function updateResults() {
-      const imgEl = $(`#img`).get(0)
-      result = await net.locateFaces(
-        await facerecognition.mediaSrcToImageData(imgEl.src),
-        minConfidence
-      )
+      const input = new facerecognition.NetInput('inputImg')
+      const { width, height } = input
       const canvas = $('#overlay').get(0)
-      const width = $(`#img`).width()
-      const height = $(`#img`).height()
       canvas.width = width
       canvas.height = height
+
+      result = await net.locateFaces(input, minConfidence)
       facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
     }
 
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      $(`#img`).get(0).src = await facerecognition.bufferToImgSrc(imgBuf)
+      $(`#inputImg`).get(0).src = (await facerecognition.bufferToImage(imgBuf)).src
       updateResults()
     }
 

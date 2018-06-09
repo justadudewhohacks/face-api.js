@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.min.js"></script>
+  <script src="face-recognition.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -108,10 +108,10 @@
       getImg().src = src
     }
 
-    async function loadTrainingData(cb) {
+    async function loadTrainingImages() {
       return await Promise.all(classes.map(
         async className => ({
-          imgData: await facerecognition.bufferToImageData(
+          img: await facerecognition.bufferToImage(
             await fetchImage(getFaceImageUri(className, 1))
           ),
           className
@@ -135,16 +135,14 @@
     async function runFaceRecognition() {
       async function next() {
         const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
+        const input = await facerecognition.bufferToImage(imgBuf)
         const imgEl = $('#face').get(0)
-        imgEl.src = await facerecognition.bufferToImgSrc(imgBuf)
-
-        const imageData = await facerecognition.mediaSrcToImageData(imgEl.src)
+        imgEl.src = input.src
 
         const ts = Date.now()
-        const result = await net.forward(imageData)
+        const descriptor = await net.computeFaceDescriptor(input)
         displayTimeStats(Date.now() - ts)
 
-        const descriptor = await result.data()
         const bestMatch = getBestMatch(descriptor)
         $('#prediction').val(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
 
@@ -166,10 +164,10 @@
         net = await initFaceRecognitionNet()
         setStatusText('computing initial descriptors...')
 
-        const trainImgDatas = await loadTrainingData()
-        trainDescriptorsByClass = await Promise.all(trainImgDatas.map(
-          async ({ className, imgData }) => ({
-            descriptor: await net.computeFaceDescriptor(imgData),
+        const trainImgs = await loadTrainingImages()
+        trainDescriptorsByClass = await Promise.all(trainImgs.map(
+          async ({ className, img }) => ({
+            descriptor: await net.computeFaceDescriptor(img),
             className
           })
         ))

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.min.js"></script>
+  <script src="face-recognition.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -53,17 +53,12 @@
       $('#distance').css('background-color', bgColor)
     }
 
-    async function computeDescriptorFromSrc(imgEl) {
-      return net.computeFaceDescriptor(
-        await facerecognition.mediaSrcToImageData(imgEl.src)
-      )
-    }
-
     async function onSelectionChanged(which, uri) {
       const imgBuf = await fetchImage(uri)
+      const input = await facerecognition.bufferToImage(imgBuf)
       const imgEl = $(`#face${which}`).get(0)
-      imgEl.src = await facerecognition.bufferToImgSrc(imgBuf)
-      descriptors[`desc${which}`] = await computeDescriptorFromSrc(imgEl)
+      imgEl.src = input.src
+      descriptors[`desc${which}`] = await net.computeFaceDescriptor(input)
     }
 
     async function run() {
