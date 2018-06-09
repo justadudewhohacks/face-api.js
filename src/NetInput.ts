@@ -1,5 +1,5 @@
-import { TMediaElement, TNetInput } from './types';
-import { Dimensions, getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
+import { Dimensions, TMediaElement, TNetInput } from './types';
+import { getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
 
 export class NetInput {
   private _canvases: HTMLCanvasElement[]
