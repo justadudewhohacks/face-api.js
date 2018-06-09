@@ -5,7 +5,9 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.config.js && tsc"
+    "rollup-min": "rollup -c rollup.config.js --environment minify:true",
+    "rollup": "rollup -c rollup.config.js",
+    "build": "npm run rollup && npm run rollup-min && tsc"
   },
   "keywords": [
     "face",
