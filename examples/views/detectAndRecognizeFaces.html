@@ -41,8 +41,10 @@
   </div>
 
   <script>
+    const threshold = 0.6
     let minConfidence = 0.7
-    let net, result
+    let detectionNet, recognitionNet
+    let trainDescriptorsByClass = []
 
     function onIncreaseThreshold() {
       minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
@@ -64,8 +66,23 @@
       canvas.height = height
 
       const input = new facerecognition.NetInput(inputImgEl)
-      result = await net.locateFaces(input, minConfidence)
-      facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
+      const detections = await detectionNet.locateFaces(input, minConfidence)
+
+      const detectionsForSize = detections.map(det => det.forSize(width, height))
+      facerecognition.drawDetection('overlay', detectionsForSize, { withScore: false })
+
+      const faceTensors = await facerecognition.extractFaceTensors(input, detections)
+      const descriptors = await Promise.all(faceTensors.map(t => recognitionNet.computeFaceDescriptor(t)))
+
+      // free memory for face image tensors after we computed their descriptors
+      faceTensors.forEach(t => t.dispose())
+
+      descriptors.forEach((descriptor, i) => {
+        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+        const text = `${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
+        const { x, y } = detectionsForSize[i].box
+        facerecognition.drawText(canvas.getContext('2d'), x, y, text, facerecognition.getDefaultDrawOptions())
+      })
     }
 
     async function onSelectionChanged(uri) {
@@ -75,13 +92,15 @@
     }
 
     async function run() {
-      net = await initFaceDetectionNet()
+      detectionNet = await initFaceDetectionNet()
+      recognitionNet = await initFaceRecognitionNet()
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_detection')
+      renderNavBar('#navbar', 'detect_and_recognize_faces')
       renderImageSelectList(
         '#selectList',
         async (uri) => {

@@ -24,6 +24,35 @@ async function initFaceRecognitionNet() {
   return facerecognition.faceRecognitionNet(weights)
 }
 
+// fetch first image of each class and compute their descriptors
+async function initTrainDescriptorsByClass(net) {
+  return Promise.all(classes.map(
+    async className => {
+      const img = await facerecognition.bufferToImage(
+        await fetchImage(getFaceImageUri(className, 1))
+      )
+      const descriptor = await net.computeFaceDescriptor(img)
+      return {
+        descriptor,
+        className
+      }
+    }
+  ))
+}
+
+function getBestMatch(allDescriptors, queryDescriptor) {
+  return allDescriptors
+    .map(
+      ({ descriptor, className }) => ({
+        distance: facerecognition.round(
+          facerecognition.euclideanDistance(descriptor, queryDescriptor)
+        ),
+        className
+      })
+    )
+    .reduce((best, curr) => best.distance < curr.distance ? best : curr)
+}
+
 function renderNavBar(navbarId, exampleUri) {
   const examples = [
     {
@@ -41,6 +70,14 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'face_similarity',
       name: 'Face Similarity'
+    },
+    {
+      uri: 'detect_and_draw_faces',
+      name: 'Detect and Draw Faces'
+    },
+    {
+      uri: 'detect_and_recognize_faces',
+      name: 'Detect and Recognize Faces'
     }
   ]
 

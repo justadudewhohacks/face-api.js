@@ -108,30 +108,6 @@
       getImg().src = src
     }
 
-    async function loadTrainingImages() {
-      return await Promise.all(classes.map(
-        async className => ({
-          img: await facerecognition.bufferToImage(
-            await fetchImage(getFaceImageUri(className, 1))
-          ),
-          className
-        })
-      ))
-    }
-
-    function getBestMatch(queryDescriptor) {
-      return trainDescriptorsByClass
-        .map(
-          ({ descriptor, className }) => ({
-            distance: facerecognition.round(
-              facerecognition.euclideanDistance(descriptor, queryDescriptor)
-            ),
-            className
-          })
-        )
-        .reduce((best, curr) => best.distance < curr.distance ? best : curr)
-    }
-
     async function runFaceRecognition() {
       async function next() {
         const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
@@ -143,7 +119,7 @@
         const descriptor = await net.computeFaceDescriptor(input)
         displayTimeStats(Date.now() - ts)
 
-        const bestMatch = getBestMatch(descriptor)
+        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
         $('#prediction').val(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
 
         currImageIdx = currClassIdx === (classes.length - 1)
@@ -164,13 +140,7 @@
         net = await initFaceRecognitionNet()
         setStatusText('computing initial descriptors...')
 
-        const trainImgs = await loadTrainingImages()
-        trainDescriptorsByClass = await Promise.all(trainImgs.map(
-          async ({ className, img }) => ({
-            descriptor: await net.computeFaceDescriptor(img),
-            className
-          })
-        ))
+        trainDescriptorsByClass = await initTrainDescriptorsByClass(net)
         $('#loader').hide()
 
         runFaceRecognition()
