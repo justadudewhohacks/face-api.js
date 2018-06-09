@@ -16,8 +16,7 @@ function convWithBias(
 
 export function boxPredictionLayer(
   x: tf.Tensor4D,
-  params: FaceDetectionNet.BoxPredictionParams,
-  size: number
+  params: FaceDetectionNet.BoxPredictionParams
 ) {
   return tf.tidy(() => {
 
@@ -25,11 +24,11 @@ export function boxPredictionLayer(
 
     const boxPredictionEncoding = tf.reshape(
       convWithBias(x, params.box_encoding_predictor_params),
-      [batchSize, size, 1, 4]
+      [batchSize, -1, 1, 4]
     )
     const classPrediction = tf.reshape(
       convWithBias(x, params.class_predictor_params),
-      [batchSize, size, 3]
+      [batchSize, -1, 3]
     )
 
     return {

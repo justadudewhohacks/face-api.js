@@ -1,18 +1,20 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { normalize } from '../normalize';
+import { NetInput } from '../NetInput';
+import { getImageTensor, padToSquare } from '../transformInputs';
+import { TNetInput } from '../types';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
+import { normalize } from './normalize';
 import { residual, residualDown } from './residualLayer';
 
 export function faceRecognitionNet(weights: Float32Array) {
   const params = extractParams(weights)
 
-  function forward(input: number[] | ImageData) {
-
+  function forward(input: tf.Tensor | NetInput | TNetInput) {
     return tf.tidy(() => {
 
-      const x = normalize(input)
+      const x = normalize(padToSquare(getImageTensor(input)))
 
       let out = convDown(x, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')
@@ -42,14 +44,14 @@ export function faceRecognitionNet(weights: Float32Array) {
     })
   }
 
-  const computeFaceDescriptor = async (input: number[] | ImageData) => {
+  const computeFaceDescriptor = async (input: tf.Tensor | NetInput | TNetInput) => {
     const result = forward(input)
     const data = await result.data()
     result.dispose()
     return data
   }
 
-  const computeFaceDescriptorSync = (input: number[] | ImageData) => {
+  const computeFaceDescriptorSync = (input: tf.Tensor | NetInput | TNetInput) => {
     const result = forward(input)
     const data = result.dataSync()
     result.dispose()

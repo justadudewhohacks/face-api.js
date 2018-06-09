@@ -1,13 +1,13 @@
 import { FaceDetectionNet } from './faceDetectionNet/types';
 
-function getElement(arg: string | any) {
+export function getElement(arg: string | any) {
   if (typeof arg === 'string') {
     return document.getElementById(arg)
   }
   return arg
 }
 
-function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+export function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d')
   if (!ctx) {
     throw new Error('canvas 2d context is null')
@@ -15,7 +15,7 @@ function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2
   return ctx
 }
 
-function getMediaDimensions(media: HTMLImageElement | HTMLVideoElement) {
+export function getMediaDimensions(media: HTMLImageElement | HTMLVideoElement) {
   if (media instanceof HTMLVideoElement) {
     return { width: media.videoWidth, height: media.videoHeight }
   }
@@ -35,11 +35,11 @@ export type Dimensions = {
   height: number
 }
 
-export function drawMediaToCanvas(
+export function toNetInput(
   canvasArg: string | HTMLCanvasElement,
   mediaArg: string | HTMLImageElement | HTMLVideoElement,
   dims?: Dimensions
-): CanvasRenderingContext2D {
+): HTMLCanvasElement {
   const canvas = getElement(canvasArg)
   const media = getElement(mediaArg)
 
@@ -56,7 +56,7 @@ export function drawMediaToCanvas(
 
   const ctx = getContext2dOrThrow(canvas)
   ctx.drawImage(media, 0, 0, width, height)
-  return ctx
+  return canvas
 }
 
 export function mediaToImageData(media: HTMLImageElement | HTMLVideoElement, dims?: Dimensions): ImageData {
@@ -64,7 +64,8 @@ export function mediaToImageData(media: HTMLImageElement | HTMLVideoElement, dim
     throw new Error('mediaToImageData - expected media to be of type: HTMLImageElement | HTMLVideoElement')
   }
 
-  const ctx = drawMediaToCanvas(document.createElement('canvas'), media)
+  const canvas = toNetInput(document.createElement('canvas'), media)
+  const ctx = getContext2dOrThrow(canvas)
 
   const { width, height } = dims || getMediaDimensions(media)
   return ctx.getImageData(0, 0, width, height)
@@ -106,6 +107,24 @@ export async function bufferToImageData(buf: Blob): Promise<ImageData> {
     throw new Error('bufferToImageData - expected buf to be of type: Blob')
   }
   return mediaSrcToImageData(await bufferToImgSrc(buf))
+}
+
+export function bufferToImage(buf: Blob): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    if (!(buf instanceof Blob)) {
+      return reject('bufferToImage - expected buf to be of type: Blob')
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = reader.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(buf)
+  })
 }
 
 export type DrawBoxOptions = {
