@@ -42,8 +42,19 @@ export function faceRecognitionNet(weights: Float32Array) {
     })
   }
 
-  const computeFaceDescriptor = (input: number[] | ImageData) => forward(input).data()
-  const computeFaceDescriptorSync = (input: number[] | ImageData) => forward(input).dataSync()
+  const computeFaceDescriptor = async (input: number[] | ImageData) => {
+    const result = forward(input)
+    const data = await result.data()
+    result.dispose()
+    return data
+  }
+
+  const computeFaceDescriptorSync = (input: number[] | ImageData) => {
+    const result = forward(input)
+    const data = result.dataSync()
+    result.dispose()
+    return data
+  }
 
   return {
     computeFaceDescriptor,
