@@ -10,7 +10,9 @@ export declare type DrawBoxOptions = {
     color: string;
 };
 export declare type DrawTextOptions = {
+    lineWidth: number;
     fontSize: number;
     fontStyle: string;
     color: string;
 };
+export declare type DrawOptions = DrawBoxOptions & DrawTextOptions;

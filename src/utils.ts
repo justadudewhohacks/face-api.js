@@ -1,5 +1,5 @@
 import { FaceDetectionNet } from './faceDetectionNet/types';
-import { DrawBoxOptions, DrawTextOptions } from './types';
+import { Dimensions, DrawBoxOptions, DrawOptions, DrawTextOptions } from './types';
 
 export function isFloat(num: number) {
   return num % 1 !== 0
@@ -24,7 +24,23 @@ export function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingC
   return ctx
 }
 
+export function createCanvas({ width, height}: Dimensions): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  return canvas
+}
+
+export function createCanvasWithImageData({ width, height}: Dimensions, buf: Uint8ClampedArray): HTMLCanvasElement {
+  const canvas = createCanvas({ width, height })
+  getContext2dOrThrow(canvas).putImageData(new ImageData(buf, width, height), 0, 0)
+  return canvas
+}
+
 export function getMediaDimensions(media: HTMLImageElement | HTMLVideoElement) {
+  if (media instanceof HTMLImageElement) {
+    return { width: media.naturalWidth, height: media.naturalHeight }
+  }
   if (media instanceof HTMLVideoElement) {
     return { width: media.videoWidth, height: media.videoHeight }
   }
@@ -49,6 +65,15 @@ export function bufferToImage(buf: Blob): Promise<HTMLImageElement> {
   })
 }
 
+export function getDefaultDrawOptions(): DrawOptions {
+  return {
+    color: 'blue',
+    lineWidth: 2,
+    fontSize: 20,
+    fontStyle: 'Georgia'
+  }
+}
+
 export function drawBox(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -69,9 +94,11 @@ export function drawText(
   text: string,
   options: DrawTextOptions
 ) {
+  const padText = 2 + options.lineWidth
+
   ctx.fillStyle = options.color
   ctx.font = `${options.fontSize}px ${options.fontStyle}`
-  ctx.fillText(text, x, y)
+  ctx.fillText(text, x + padText, y + padText + (options.fontSize * 0.6))
 }
 
 export function drawDetection(
@@ -95,38 +122,35 @@ export function drawDetection(
     } = det
 
     const {
-      left,
-      right,
-      top,
-      bottom
+      x,
+      y,
+      width,
+      height
     } = box
 
-    const {
-      color = 'blue',
-      lineWidth = 2,
-      fontSize = 20,
-      fontStyle = 'Georgia',
-      withScore = true
-    } = (options || {})
+    const drawOptions = Object.assign(
+      getDefaultDrawOptions(),
+      (options || {})
+    )
 
-    const padText = 2 + lineWidth
+    const { withScore } = Object.assign({ withScore: true }, (options || {}))
 
     const ctx = getContext2dOrThrow(canvas)
     drawBox(
       ctx,
-      left,
-      top,
-      right - left,
-      bottom - top,
-      { lineWidth, color }
+      x,
+      y,
+      width,
+      height,
+      drawOptions
     )
     if (withScore) {
       drawText(
         ctx,
-        left + padText,
-        top + (fontSize * 0.6) + padText,
+        x,
+        y,
         `${round(score)}`,
-        { fontSize, fontStyle, color }
+        drawOptions
       )
     }
   })

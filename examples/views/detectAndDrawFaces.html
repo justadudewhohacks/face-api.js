@@ -19,6 +19,7 @@
       <img id="inputImg" src="" style="max-width: 800px;" />
       <canvas id="overlay" />
     </div>
+    <div id="facesContainer"></div>
     <div class="row side-by-side">
       <div id="selectList"></div>
       <div class="row">
@@ -42,7 +43,7 @@
 
   <script>
     let minConfidence = 0.7
-    let net, result
+    let net
 
     function onIncreaseThreshold() {
       minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
@@ -64,8 +65,12 @@
       canvas.height = height
 
       const input = new facerecognition.NetInput(inputImgEl)
-      result = await net.locateFaces(input, minConfidence)
-      facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
+      const detections = await net.locateFaces(input, minConfidence)
+      facerecognition.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
+
+      const faceImages = await facerecognition.extractFaces(input.canvases[0], detections)
+      $('#facesContainer').empty()
+      faceImages.forEach(canvas => $('#facesContainer').append(canvas))
     }
 
     async function onSelectionChanged(uri) {
@@ -81,7 +86,7 @@
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_detection')
+      renderNavBar('#navbar', 'detect_and_draw_faces')
       renderImageSelectList(
         '#selectList',
         async (uri) => {

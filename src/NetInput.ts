@@ -1,5 +1,5 @@
 import { Dimensions, TMediaElement, TNetInput } from './types';
-import { getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
+import { createCanvas, getContext2dOrThrow, getElement, getMediaDimensions } from './utils';
 
 export class NetInput {
   private _canvases: HTMLCanvasElement[]
@@ -42,10 +42,7 @@ export class NetInput {
     // if input is batch type, make sure every canvas has the same dimensions
     const { width, height } = this.dims || dims || getMediaDimensions(media)
 
-    const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
-
+    const canvas = createCanvas({ width, height })
     getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height)
     this._canvases.push(canvas)
   }

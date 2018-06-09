@@ -17,7 +17,23 @@ export function getContext2dOrThrow(canvas) {
     }
     return ctx;
 }
+export function createCanvas(_a) {
+    var width = _a.width, height = _a.height;
+    var canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+}
+export function createCanvasWithImageData(_a, buf) {
+    var width = _a.width, height = _a.height;
+    var canvas = createCanvas({ width: width, height: height });
+    getContext2dOrThrow(canvas).putImageData(new ImageData(buf, width, height), 0, 0);
+    return canvas;
+}
 export function getMediaDimensions(media) {
+    if (media instanceof HTMLImageElement) {
+        return { width: media.naturalWidth, height: media.naturalHeight };
+    }
     if (media instanceof HTMLVideoElement) {
         return { width: media.videoWidth, height: media.videoHeight };
     }
@@ -39,15 +55,24 @@ export function bufferToImage(buf) {
         reader.readAsDataURL(buf);
     });
 }
+export function getDefaultDrawOptions() {
+    return {
+        color: 'blue',
+        lineWidth: 2,
+        fontSize: 20,
+        fontStyle: 'Georgia'
+    };
+}
 export function drawBox(ctx, x, y, w, h, options) {
     ctx.strokeStyle = options.color;
     ctx.lineWidth = options.lineWidth;
     ctx.strokeRect(x, y, w, h);
 }
 export function drawText(ctx, x, y, text, options) {
+    var padText = 2 + options.lineWidth;
     ctx.fillStyle = options.color;
     ctx.font = options.fontSize + "px " + options.fontStyle;
-    ctx.fillText(text, x, y);
+    ctx.fillText(text, x + padText, y + padText + (options.fontSize * 0.6));
 }
 export function drawDetection(canvasArg, detection, options) {
     var canvas = getElement(canvasArg);
@@ -59,13 +84,13 @@ export function drawDetection(canvasArg, detection, options) {
         : [detection];
     detectionArray.forEach(function (det) {
         var score = det.score, box = det.box;
-        var left = box.left, right = box.right, top = box.top, bottom = box.bottom;
-        var _a = (options || {}), _b = _a.color, color = _b === void 0 ? 'blue' : _b, _c = _a.lineWidth, lineWidth = _c === void 0 ? 2 : _c, _d = _a.fontSize, fontSize = _d === void 0 ? 20 : _d, _e = _a.fontStyle, fontStyle = _e === void 0 ? 'Georgia' : _e, _f = _a.withScore, withScore = _f === void 0 ? true : _f;
-        var padText = 2 + lineWidth;
+        var x = box.x, y = box.y, width = box.width, height = box.height;
+        var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+        var withScore = Object.assign({ withScore: true }, (options || {})).withScore;
         var ctx = getContext2dOrThrow(canvas);
-        drawBox(ctx, left, top, right - left, bottom - top, { lineWidth: lineWidth, color: color });
+        drawBox(ctx, x, y, width, height, drawOptions);
         if (withScore) {
-            drawText(ctx, left + padText, top + (fontSize * 0.6) + padText, "" + round(score), { fontSize: fontSize, fontStyle: fontStyle, color: color });
+            drawText(ctx, x, y, "" + round(score), drawOptions);
         }
     });
 }

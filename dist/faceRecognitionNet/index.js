@@ -10,7 +10,13 @@ export function faceRecognitionNet(weights) {
     var params = extractParams(weights);
     function forward(input) {
         return tf.tidy(function () {
-            var x = normalize(padToSquare(getImageTensor(input)));
+            // TODO pad on both sides, to keep face centered
+            var x = padToSquare(getImageTensor(input));
+            // work with 150 x 150 sized face images
+            if (x.shape[1] !== 150 || x.shape[2] !== 150) {
+                x = tf.image.resizeBilinear(x, [150, 150]);
+            }
+            x = normalize(x);
             var out = convDown(x, params.conv32_down);
             out = tf.maxPool(out, 3, 2, 'valid');
             out = residual(out, params.conv32_1);

@@ -69,10 +69,10 @@ export namespace FaceDetectionNet {
   export type Detection = {
     score: number
     box: {
-      top: number,
-      left: number,
-      right: number,
-      bottom: number
+      x: number,
+      y: number,
+      width: number,
+      height: number
     }
   }
 
