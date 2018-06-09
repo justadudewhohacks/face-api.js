@@ -14,7 +14,13 @@ export function faceRecognitionNet(weights: Float32Array) {
   function forward(input: tf.Tensor | NetInput | TNetInput) {
     return tf.tidy(() => {
 
-      const x = normalize(padToSquare(getImageTensor(input)))
+      // TODO pad on both sides, to keep face centered
+      let x = padToSquare(getImageTensor(input))
+      // work with 150 x 150 sized face images
+      if (x.shape[1] !== 150 || x.shape[2] !== 150) {
+        x = tf.image.resizeBilinear(x, [150, 150])
+      }
+      x = normalize(x)
 
       let out = convDown(x, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')

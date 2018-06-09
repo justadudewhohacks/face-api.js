@@ -15,7 +15,10 @@ export type DrawBoxOptions = {
 }
 
 export type DrawTextOptions = {
+  lineWidth: number
   fontSize: number
   fontStyle: string
   color: string
 }
+
+export type DrawOptions = DrawBoxOptions & DrawTextOptions
