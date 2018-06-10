@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { getImageTensor } from './transformInputs';
+import { getImageTensor } from './getImageTensor';
 /**
  * Extracts the tensors of the image regions containing the detected faces.
  * Returned tensors have to be disposed manually once you don't need them anymore!

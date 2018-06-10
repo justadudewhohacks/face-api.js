@@ -1,6 +1,7 @@
 import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { getImageTensor, padToSquare } from '../transformInputs';
+import { getImageTensor } from '../getImageTensor';
+import { padToSquare } from '../padToSquare';
 import { extractParams } from './extractParams';
 import { FaceDetectionResult } from './FaceDetectionResult';
 import { mobileNetV1 } from './mobileNetV1';
@@ -32,7 +33,7 @@ export function faceDetectionNet(weights) {
                         paddedHeightRelative = 1, paddedWidthRelative = 1;
                         _a = tf.tidy(function () {
                             var imgTensor = getImageTensor(input);
-                            var _a = imgTensor.shape, _ = _a[0], height = _a[1], width = _a[2];
+                            var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
                             imgTensor = padToSquare(imgTensor);
                             paddedHeightRelative = imgTensor.shape[1] / height;
                             paddedWidthRelative = imgTensor.shape[2] / width;

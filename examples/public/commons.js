@@ -25,28 +25,39 @@ async function initFaceRecognitionNet() {
 }
 
 // fetch first image of each class and compute their descriptors
-async function initTrainDescriptorsByClass(net) {
+async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
+  const maxAvailableImagesPerClass = 5
+  numImagesForTraining = Math.min(numImagesForTraining, maxAvailableImagesPerClass)
   return Promise.all(classes.map(
     async className => {
-      const img = await facerecognition.bufferToImage(
-        await fetchImage(getFaceImageUri(className, 1))
-      )
-      const descriptor = await net.computeFaceDescriptor(img)
+      const descriptors = []
+      for (let i = 1; i < (numImagesForTraining + 1); i++) {
+        const img = await facerecognition.bufferToImage(
+          await fetchImage(getFaceImageUri(className, i))
+        )
+        descriptors.push(await net.computeFaceDescriptor(img))
+      }
       return {
-        descriptor,
+        descriptors,
         className
       }
     }
   ))
 }
 
-function getBestMatch(allDescriptors, queryDescriptor) {
-  return allDescriptors
+function getBestMatch(descriptorsByClass, queryDescriptor) {
+  function computeMeanDistance(descriptorsOfClass) {
+    return facerecognition.round(
+      descriptorsOfClass
+        .map(d => facerecognition.euclideanDistance(d, queryDescriptor))
+        .reduce((d1, d2) => d1 + d2, 0)
+          / (descriptorsOfClass.length || 1)
+      )
+  }
+  return descriptorsByClass
     .map(
-      ({ descriptor, className }) => ({
-        distance: facerecognition.round(
-          facerecognition.euclideanDistance(descriptor, queryDescriptor)
-        ),
+      ({ descriptors, className }) => ({
+        distance: computeMeanDistance(descriptors),
         className
       })
     )

@@ -1,7 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
-import { getImageTensor, padToSquare } from '../transformInputs';
+import { padToSquare } from '../padToSquare';
 import { TNetInput } from '../types';
 import { extractParams } from './extractParams';
 import { FaceDetectionResult } from './FaceDetectionResult';
@@ -49,7 +50,7 @@ export function faceDetectionNet(weights: Float32Array) {
     } = tf.tidy(() => {
 
       let imgTensor = getImageTensor(input)
-      const [_, height, width] = imgTensor.shape
+      const [height, width] = imgTensor.shape.slice(1)
 
       imgTensor = padToSquare(imgTensor)
       paddedHeightRelative = imgTensor.shape[1] / height
