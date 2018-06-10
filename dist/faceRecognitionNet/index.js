@@ -1,6 +1,7 @@
 import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { getImageTensor, padToSquare } from '../transformInputs';
+import { getImageTensor } from '../getImageTensor';
+import { padToSquare } from '../padToSquare';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
 import { normalize } from './normalize';
@@ -10,8 +11,7 @@ export function faceRecognitionNet(weights) {
     var params = extractParams(weights);
     function forward(input) {
         return tf.tidy(function () {
-            // TODO pad on both sides, to keep face centered
-            var x = padToSquare(getImageTensor(input));
+            var x = padToSquare(getImageTensor(input), true);
             // work with 150 x 150 sized face images
             if (x.shape[1] !== 150 || x.shape[2] !== 150) {
                 x = tf.image.resizeBilinear(x, [150, 150]);
