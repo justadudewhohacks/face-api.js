@@ -1,7 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
-import { getImageTensor, padToSquare } from '../transformInputs';
+import { padToSquare } from '../padToSquare';
 import { TNetInput } from '../types';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
@@ -14,8 +15,7 @@ export function faceRecognitionNet(weights: Float32Array) {
   function forward(input: tf.Tensor | NetInput | TNetInput) {
     return tf.tidy(() => {
 
-      // TODO pad on both sides, to keep face centered
-      let x = padToSquare(getImageTensor(input))
+      let x = padToSquare(getImageTensor(input), true)
       // work with 150 x 150 sized face images
       if (x.shape[1] !== 150 || x.shape[2] !== 150) {
         x = tf.image.resizeBilinear(x, [150, 150])

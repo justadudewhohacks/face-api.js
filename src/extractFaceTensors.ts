@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { FaceDetectionResult } from './faceDetectionNet/FaceDetectionResult';
 import { NetInput } from './NetInput';
-import { getImageTensor } from './transformInputs';
+import { getImageTensor } from './getImageTensor';
 import { TNetInput } from './types';
 
 /**
