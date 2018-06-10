@@ -41,7 +41,7 @@
   </div>
 
   <script>
-    const threshold = 0.6
+    const threshold = 0.8
     let minConfidence = 0.7
     let detectionNet, recognitionNet
     let trainDescriptorsByClass = []
@@ -71,7 +71,7 @@
       const detectionsForSize = detections.map(det => det.forSize(width, height))
       facerecognition.drawDetection('overlay', detectionsForSize, { withScore: false })
 
-      const faceTensors = await facerecognition.extractFaceTensors(input, detections)
+      const faceTensors = (await facerecognition.extractFaceTensors(input, detections))
       const descriptors = await Promise.all(faceTensors.map(t => recognitionNet.computeFaceDescriptor(t)))
 
       // free memory for face image tensors after we computed their descriptors
@@ -94,7 +94,7 @@
     async function run() {
       detectionNet = await initFaceDetectionNet()
       recognitionNet = await initFaceRecognitionNet()
-      trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet)
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet, 1)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
