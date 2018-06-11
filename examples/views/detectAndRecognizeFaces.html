@@ -27,13 +27,29 @@
       </div>
       <button
         class="waves-effect waves-light btn"
-        onclick="onDecreaseThreshold()"
+        onclick="onDecreaseMinConfidence()"
       >
         <i class="material-icons left">-</i>
       </button>
       <button
         class="waves-effect waves-light btn"
-        onclick="onIncreaseThreshold()"
+        onclick="onIncreaseMinConfidence()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
+      <div class="row">
+        <label for="maxDistance">Max Descriptor Distance:</label>
+        <input disabled value="0.8" id="maxDistance" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onDecreaseMaxDistance()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onIncreaseMaxDistance()"
       >
         <i class="material-icons left">+</i>
       </button>
@@ -41,20 +57,32 @@
   </div>
 
   <script>
-    const threshold = 0.8
+    let maxDistance = 0.8
     let minConfidence = 0.7
     let detectionNet, recognitionNet
     let trainDescriptorsByClass = []
 
-    function onIncreaseThreshold() {
+    function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
 
-    function onDecreaseThreshold() {
+    function onDecreaseMinConfidence() {
       minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    function onIncreaseMaxDistance() {
+      maxDistance = Math.min(faceapi.round(maxDistance + 0.1), 1.0)
+      $('#maxDistance').val(maxDistance)
+      updateResults()
+    }
+
+    function onDecreaseMaxDistance() {
+      maxDistance = Math.max(faceapi.round(maxDistance - 0.1), 0.1)
+      $('#maxDistance').val(maxDistance)
       updateResults()
     }
 
@@ -79,9 +107,15 @@
 
       descriptors.forEach((descriptor, i) => {
         const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-        const text = `${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-        const { x, y } = detectionsForSize[i].box
-        faceapi.drawText(canvas.getContext('2d'), x, y, text, faceapi.getDefaultDrawOptions())
+        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
+        const { x, y, height: boxHeight } = detectionsForSize[i].box
+        faceapi.drawText(
+          canvas.getContext('2d'),
+          x,
+          y + boxHeight,
+          text,
+          Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
+        )
       })
     }
 
