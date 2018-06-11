@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.js"></script>
+  <script src="face-api.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -47,13 +47,13 @@
     let trainDescriptorsByClass = []
 
     function onIncreaseThreshold() {
-      minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
+      minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
 
     function onDecreaseThreshold() {
-      minConfidence = Math.max(facerecognition.round(minConfidence - 0.1), 0.1)
+      minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
@@ -65,13 +65,13 @@
       canvas.width = width
       canvas.height = height
 
-      const input = new facerecognition.NetInput(inputImgEl)
+      const input = new faceapi.NetInput(inputImgEl)
       const detections = await detectionNet.locateFaces(input, minConfidence)
 
       const detectionsForSize = detections.map(det => det.forSize(width, height))
-      facerecognition.drawDetection('overlay', detectionsForSize, { withScore: false })
+      faceapi.drawDetection('overlay', detectionsForSize, { withScore: false })
 
-      const faceTensors = (await facerecognition.extractFaceTensors(input, detections))
+      const faceTensors = (await faceapi.extractFaceTensors(input, detections))
       const descriptors = await Promise.all(faceTensors.map(t => recognitionNet.computeFaceDescriptor(t)))
 
       // free memory for face image tensors after we computed their descriptors
@@ -81,13 +81,13 @@
         const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
         const text = `${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
         const { x, y } = detectionsForSize[i].box
-        facerecognition.drawText(canvas.getContext('2d'), x, y, text, facerecognition.getDefaultDrawOptions())
+        faceapi.drawText(canvas.getContext('2d'), x, y, text, faceapi.getDefaultDrawOptions())
       })
     }
 
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      $(`#inputImg`).get(0).src = (await facerecognition.bufferToImage(imgBuf)).src
+      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
       updateResults()
     }
 

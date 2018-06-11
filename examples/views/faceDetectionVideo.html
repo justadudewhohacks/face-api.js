@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.js"></script>
+  <script src="face-api.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -55,25 +55,25 @@
     let net, result
 
     function onIncreaseThreshold() {
-      minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
+      minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
     }
 
     function onDecreaseThreshold() {
-      minConfidence = Math.max(facerecognition.round(minConfidence - 0.1), 0.1)
+      minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
     }
 
     function displayTimeStats(timeInMs) {
       $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${facerecognition.round(1000 / timeInMs)}`)
+      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
     }
 
     async function onPlay(videoEl) {
       if(videoEl.paused || videoEl.ended)
         return false
 
-      const input = new facerecognition.NetInput(videoEl)
+      const input = new faceapi.NetInput(videoEl)
       const { width, height } = input
       const canvas = $('#overlay').get(0)
       canvas.width = width
@@ -83,7 +83,7 @@
       result = await net.locateFaces(input, minConfidence)
       displayTimeStats(Date.now() - ts)
 
-      facerecognition.drawDetection('overlay', result.map(det => det.forSize(width, height)))
+      faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))
       setTimeout(() => onPlay(videoEl))
     }
 

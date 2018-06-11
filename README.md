@@ -1,6 +1,6 @@
-# face-recognition.min.js
+# face-api.js
 
-**face recognition API for the browser with tensorflow.js**
+**JavaScript API for face detection and face recognition in the browser with tensorflow.js**
 
 This project implements a ResNet-34 like architecture using the tensorflow.js core API ([@tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core)) for realtime face recognition in the browser. The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognition.js](https://github.com/justadudewhohacks/face-recognition.js) and the net used in the [dlib](https://github.com/davisking/dlib/blob/master/examples/dnn_face_recognition_ex.cpp) face recognition example. The weights have been trained by [davisking](https://github.com/davisking) and the model achieves a prediction accuracy of 99.38% on the LFW (Labeled Faces in the Wild) benchmark for face recognition.
 
@@ -29,7 +29,7 @@ Download the weights file from your server and initialize the net (note, that yo
 ``` javascript
 const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
 const weights = new Float32Array(res.data)
-const net = facerecognition.faceRecognitionNet(weights)
+const net = faceapi.faceRecognitionNet(weights)
 ```
 
 Compute and compare two 150 x 150 sized face images:
@@ -43,7 +43,7 @@ const imgData2 = ...
 
 const descriptor1 = await net.computeFaceDescriptor(imgData1)
 const descriptor2 = await net.computeFaceDescriptor(imgData2)
-const distance = facerecognition.euclidianDistance(descriptor1, descriptor2)
+const distance = faceapi.euclidianDistance(descriptor1, descriptor2)
 
 if (distance < 0.6)
   console.log('match')

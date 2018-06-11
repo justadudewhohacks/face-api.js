@@ -15,13 +15,13 @@ async function fetchImage(uri) {
 async function initFaceDetectionNet() {
   const res = await axios.get('face_detection_model.weights', { responseType: 'arraybuffer' })
   const weights = new Float32Array(res.data)
-  return facerecognition.faceDetectionNet(weights)
+  return faceapi.faceDetectionNet(weights)
 }
 
 async function initFaceRecognitionNet() {
   const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
   const weights = new Float32Array(res.data)
-  return facerecognition.faceRecognitionNet(weights)
+  return faceapi.faceRecognitionNet(weights)
 }
 
 // fetch first image of each class and compute their descriptors
@@ -32,7 +32,7 @@ async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
     async className => {
       const descriptors = []
       for (let i = 1; i < (numImagesForTraining + 1); i++) {
-        const img = await facerecognition.bufferToImage(
+        const img = await faceapi.bufferToImage(
           await fetchImage(getFaceImageUri(className, i))
         )
         descriptors.push(await net.computeFaceDescriptor(img))
@@ -47,9 +47,9 @@ async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
 
 function getBestMatch(descriptorsByClass, queryDescriptor) {
   function computeMeanDistance(descriptorsOfClass) {
-    return facerecognition.round(
+    return faceapi.round(
       descriptorsOfClass
-        .map(d => facerecognition.euclideanDistance(d, queryDescriptor))
+        .map(d => faceapi.euclideanDistance(d, queryDescriptor))
         .reduce((d1, d2) => d1 + d2, 0)
           / (descriptorsOfClass.length || 1)
       )

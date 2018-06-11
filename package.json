@@ -1,7 +1,7 @@
 {
-  "name": "face-recognition.min",
+  "name": "face-api",
   "version": "0.0.0",
-  "description": "face recognition API for the browser with tensorflow.js",
+  "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {

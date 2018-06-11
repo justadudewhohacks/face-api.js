@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.js"></script>
+  <script src="face-api.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -101,7 +101,7 @@
 
     function displayTimeStats(timeInMs) {
       $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${facerecognition.round(1000 / timeInMs)}`)
+      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
     }
 
     function displayImage(src) {
@@ -111,7 +111,7 @@
     async function runFaceRecognition() {
       async function next() {
         const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
-        const input = await facerecognition.bufferToImage(imgBuf)
+        const input = await faceapi.bufferToImage(imgBuf)
         const imgEl = $('#face').get(0)
         imgEl.src = input.src
 

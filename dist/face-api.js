@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto')) :
     typeof define === 'function' && define.amd ? define(['exports', 'crypto'], factory) :
-    (factory((global.facerecognition = global.facerecognition || {}),global.crypto));
+    (factory((global.faceapi = global.faceapi || {}),global.crypto));
 }(this, (function (exports,crypto) { 'use strict';
 
     crypto = crypto && crypto.hasOwnProperty('default') ? crypto['default'] : crypto;
@@ -1650,11 +1650,11 @@
     seedrandom.xor4096 = xor4096;
     seedrandom.tychei = tychei;
 
-    var C__Users_user_dev_faceRecognition_min_js_node_modules_seedrandom = seedrandom;
+    var C__Users_user_dev_faceApi_js_node_modules_seedrandom = seedrandom;
 
     var seedrandom$1 = /*#__PURE__*/Object.freeze({
-        default: C__Users_user_dev_faceRecognition_min_js_node_modules_seedrandom,
-        __moduleExports: C__Users_user_dev_faceRecognition_min_js_node_modules_seedrandom
+        default: C__Users_user_dev_faceApi_js_node_modules_seedrandom,
+        __moduleExports: C__Users_user_dev_faceApi_js_node_modules_seedrandom
     });
 
     var MPRandGauss = (function () {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.js"></script>
+  <script src="face-api.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -40,8 +40,8 @@
     let net, descriptors = { desc1: null, desc2: null }
 
     function updateResult() {
-      const distance = facerecognition.round(
-        facerecognition.euclideanDistance(descriptors.desc1, descriptors.desc2)
+      const distance = faceapi.round(
+        faceapi.euclideanDistance(descriptors.desc1, descriptors.desc2)
       )
       let text = distance
       let bgColor = '#ffffff'
@@ -55,7 +55,7 @@
 
     async function onSelectionChanged(which, uri) {
       const imgBuf = await fetchImage(uri)
-      const input = await facerecognition.bufferToImage(imgBuf)
+      const input = await faceapi.bufferToImage(imgBuf)
       const imgEl = $(`#face${which}`).get(0)
       imgEl.src = input.src
       descriptors[`desc${which}`] = await net.computeFaceDescriptor(input)

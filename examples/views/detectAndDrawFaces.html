@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-recognition.js"></script>
+  <script src="face-api.js"></script>
   <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -46,13 +46,13 @@
     let net
 
     function onIncreaseThreshold() {
-      minConfidence = Math.min(facerecognition.round(minConfidence + 0.1), 1.0)
+      minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
 
     function onDecreaseThreshold() {
-      minConfidence = Math.max(facerecognition.round(minConfidence - 0.1), 0.1)
+      minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
       updateResults()
     }
@@ -64,18 +64,18 @@
       canvas.width = width
       canvas.height = height
 
-      const input = new facerecognition.NetInput(inputImgEl)
+      const input = new faceapi.NetInput(inputImgEl)
       const detections = await net.locateFaces(input, minConfidence)
-      facerecognition.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
+      faceapi.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
 
-      const faceImages = await facerecognition.extractFaces(input.canvases[0], detections)
+      const faceImages = await faceapi.extractFaces(input.canvases[0], detections)
       $('#facesContainer').empty()
       faceImages.forEach(canvas => $('#facesContainer').append(canvas))
     }
 
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      $(`#inputImg`).get(0).src = (await facerecognition.bufferToImage(imgBuf)).src
+      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
       updateResults()
     }
 

@@ -15,9 +15,9 @@ export default {
   ].concat(minify ? uglify() : []),
   output: {
     extend: true,
-    file: `dist/face-recognition${minify ? '.min' : ''}.js`,
+    file: `dist/face-api${minify ? '.min' : ''}.js`,
     format: 'umd',
-    name: 'facerecognition',
+    name: 'faceapi',
     globals: {
       'crypto': 'crypto'
     }
