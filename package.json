@@ -1,5 +1,5 @@
 {
-  "name": "face-api",
+  "name": "face-api.js",
   "version": "0.0.0",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
   "main": "./dist/index.js",

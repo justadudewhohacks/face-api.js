@@ -72,7 +72,7 @@ Get the latest build from dist/face-api.js or dist/face-api.min.js and include t
 Or install the package:
 
 ``` bash
-npm i face-api
+npm i face-api.js
 ```
 
 ### Face Detection
