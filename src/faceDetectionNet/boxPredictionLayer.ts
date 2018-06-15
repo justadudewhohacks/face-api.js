@@ -1,10 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { ConvParams } from '../commons/types';
 import { FaceDetectionNet } from './types';
 
 function convWithBias(
   x: tf.Tensor4D,
-  params: FaceDetectionNet.ConvWithBiasParams
+  params: ConvParams
 ) {
   return tf.tidy(() =>
     tf.add(

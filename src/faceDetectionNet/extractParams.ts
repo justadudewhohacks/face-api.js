@@ -1,5 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { extractWeightsFactory } from '../commons/extractWeightsFactory';
+import { ConvParams } from '../commons/types';
 import { FaceDetectionNet } from './types';
 
 function extractorsFactory(extractWeights: (numWeights: number) => Float32Array) {
@@ -20,11 +22,11 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     }
   }
 
-  function extractConvWithBiasParams(
+  function extractConvParams(
     channelsIn: number,
     channelsOut: number,
     filterSize: number
-  ): FaceDetectionNet.ConvWithBiasParams {
+  ): ConvParams {
     const filters = tf.tensor4d(
       extractWeights(channelsIn * channelsOut * filterSize * filterSize),
       [filterSize, filterSize, channelsIn, channelsOut]
@@ -45,7 +47,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     const {
       filters,
       bias
-    } = extractConvWithBiasParams(channelsIn, channelsOut, filterSize)
+    } = extractConvParams(channelsIn, channelsOut, filterSize)
 
     return {
       filters,
@@ -104,18 +106,18 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     const conv_6_params = extractPointwiseConvParams(256, 64, 1)
     const conv_7_params = extractPointwiseConvParams(64, 128, 3)
 
-    const box_encoding_0_predictor_params = extractConvWithBiasParams(512, 12, 1)
-    const class_predictor_0_params = extractConvWithBiasParams(512, 9, 1)
-    const box_encoding_1_predictor_params = extractConvWithBiasParams(1024, 24, 1)
-    const class_predictor_1_params = extractConvWithBiasParams(1024, 18, 1)
-    const box_encoding_2_predictor_params = extractConvWithBiasParams(512, 24, 1)
-    const class_predictor_2_params = extractConvWithBiasParams(512, 18, 1)
-    const box_encoding_3_predictor_params = extractConvWithBiasParams(256, 24, 1)
-    const class_predictor_3_params = extractConvWithBiasParams(256, 18, 1)
-    const box_encoding_4_predictor_params = extractConvWithBiasParams(256, 24, 1)
-    const class_predictor_4_params = extractConvWithBiasParams(256, 18, 1)
-    const box_encoding_5_predictor_params = extractConvWithBiasParams(128, 24, 1)
-    const class_predictor_5_params = extractConvWithBiasParams(128, 18, 1)
+    const box_encoding_0_predictor_params = extractConvParams(512, 12, 1)
+    const class_predictor_0_params = extractConvParams(512, 9, 1)
+    const box_encoding_1_predictor_params = extractConvParams(1024, 24, 1)
+    const class_predictor_1_params = extractConvParams(1024, 18, 1)
+    const box_encoding_2_predictor_params = extractConvParams(512, 24, 1)
+    const class_predictor_2_params = extractConvParams(512, 18, 1)
+    const box_encoding_3_predictor_params = extractConvParams(256, 24, 1)
+    const class_predictor_3_params = extractConvParams(256, 18, 1)
+    const box_encoding_4_predictor_params = extractConvParams(256, 24, 1)
+    const class_predictor_4_params = extractConvParams(256, 18, 1)
+    const box_encoding_5_predictor_params = extractConvParams(128, 24, 1)
+    const class_predictor_5_params = extractConvParams(128, 18, 1)
 
     const box_predictor_0_params = {
       box_encoding_predictor_params: box_encoding_0_predictor_params,
@@ -169,11 +171,10 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
 }
 
 export function extractParams(weights: Float32Array): FaceDetectionNet.NetParams {
-  const extractWeights = (numWeights: number): Float32Array => {
-    const ret = weights.slice(0, numWeights)
-    weights = weights.slice(numWeights)
-    return ret
-  }
+  const {
+    extractWeights,
+    getRemainingWeights
+  } = extractWeightsFactory(weights)
 
   const {
     extractMobilenetV1Params,
@@ -190,8 +191,8 @@ export function extractParams(weights: Float32Array): FaceDetectionNet.NetParams
     extra_dim
   }
 
-  if (weights.length !== 0) {
-    throw new Error(`weights remaing after extract: ${weights.length}`)
+  if (getRemainingWeights().length !== 0) {
+    throw new Error(`weights remaing after extract: ${getRemainingWeights().length}`)
   }
 
   return {

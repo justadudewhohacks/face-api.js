@@ -11,10 +11,10 @@ function convLayer(
   withRelu: boolean,
   padding: 'valid' | 'same' = 'same'
 ): tf.Tensor4D {
-  const { filters, biases } = params.conv
+  const { filters, bias } = params.conv
 
   let out = tf.conv2d(x, filters, [stride, stride], padding)
-  out = tf.add(out, biases)
+  out = tf.add(out, bias)
   out = scale(out, params.scale)
   return withRelu ? tf.relu(out) : out
 }
