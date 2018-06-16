@@ -1,4 +1,4 @@
-import { FaceDetectionResult } from './faceDetectionNet/FaceDetectionResult';
+import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { createCanvas, getContext2dOrThrow } from './utils';
 
 /**
@@ -10,12 +10,12 @@ import { createCanvas, getContext2dOrThrow } from './utils';
  */
 export function extractFaces(
   image: HTMLCanvasElement,
-  detections: FaceDetectionResult[]
+  detections: FaceDetection[]
 ): HTMLCanvasElement[] {
   const ctx = getContext2dOrThrow(image)
 
   return detections.map(det => {
-    const { x, y, width, height } = det.forSize(image.width, image.height).box
+    const { x, y, width, height } = det.forSize(image.width, image.height).getBox()
 
     const faceImg = createCanvas({ width, height })
     getContext2dOrThrow(faceImg)

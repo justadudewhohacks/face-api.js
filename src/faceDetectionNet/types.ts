@@ -62,15 +62,4 @@ export namespace FaceDetectionNet {
     prediction_layer_params: PredictionLayerParams,
     output_layer_params: OutputLayerParams
   }
-
-  export type Detection = {
-    score: number
-    box: {
-      x: number,
-      y: number,
-      width: number,
-      height: number
-    }
-  }
-
 }

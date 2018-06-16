@@ -1,4 +1,4 @@
-import { FaceDetectionNet } from './faceDetectionNet/types';
+import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 
@@ -115,7 +115,7 @@ export function drawText(
 
 export function drawDetection(
   canvasArg: string | HTMLCanvasElement,
-  detection: FaceDetectionNet.Detection | FaceDetectionNet.Detection[],
+  detection: FaceDetection | FaceDetection[],
   options?: DrawBoxOptions & DrawTextOptions & { withScore: boolean }
 ) {
   const canvas = getElement(canvasArg)
@@ -129,16 +129,11 @@ export function drawDetection(
 
   detectionArray.forEach((det) => {
     const {
-      score,
-      box
-    } = det
-
-    const {
       x,
       y,
       width,
       height
-    } = box
+    } = det.getBox()
 
     const drawOptions = Object.assign(
       getDefaultDrawOptions(),
@@ -161,7 +156,7 @@ export function drawDetection(
         ctx,
         x,
         y,
-        `${round(score)}`,
+        `${round(det.getScore())}`,
         drawOptions
       )
     }
