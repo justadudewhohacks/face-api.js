@@ -1,6 +1,7 @@
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
+import { Point } from './Point';
 
 export function isFloat(num: number) {
   return num % 1 !== 0
@@ -163,6 +164,33 @@ export function drawDetection(
   })
 }
 
+function drawContour(
+  ctx: CanvasRenderingContext2D,
+  points: Point[],
+  isClosed: boolean = false
+) {
+  ctx.beginPath()
+
+  points.slice(1).forEach(({ x, y }, prevIdx) => {
+    const from = points[prevIdx]
+    ctx.moveTo(from.x, from.y)
+    ctx.lineTo(x, y)
+  })
+
+  if (isClosed) {
+    const from = points[points.length - 1]
+    const to = points[0]
+    if (!from || !to) {
+      return
+    }
+
+    ctx.moveTo(from.x, from.y)
+    ctx.lineTo(to.x, to.y)
+  }
+
+  ctx.stroke()
+}
+
 export function drawLandmarks(
   canvasArg: string | HTMLCanvasElement,
   faceLandmarks: FaceLandmarks,
@@ -181,8 +209,23 @@ export function drawLandmarks(
     const { drawLines } = Object.assign({ drawLines: false }, (options || {}))
 
     const ctx = getContext2dOrThrow(canvas)
-    const { lineWidth,color } = drawOptions
-    ctx.fillStyle = color
+    const { lineWidth, color } = drawOptions
+
+    if (drawLines) {
+      ctx.strokeStyle = color
+      ctx.lineWidth = lineWidth
+      drawContour(ctx, faceLandmarks.getJawOutline())
+      drawContour(ctx, faceLandmarks.getLeftEyeBrow())
+      drawContour(ctx, faceLandmarks.getRightEyeBrow())
+      drawContour(ctx, faceLandmarks.getNose())
+      drawContour(ctx, faceLandmarks.getLeftEye(), true)
+      drawContour(ctx, faceLandmarks.getRightEye(), true)
+      drawContour(ctx, faceLandmarks.getMouth(), true)
+      return
+    }
+
+    // else draw points
     const ptOffset = lineWidth / 2
+    ctx.fillStyle = color
     faceLandmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
 }

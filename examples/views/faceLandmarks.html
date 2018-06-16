@@ -23,21 +23,36 @@
           <div id="selectList"></div>
         </div>
       </div>
+      <p>
+        <input type="checkbox" id="drawLinesCheckbox" checked="checked" onchange="onChangeDrawLines(event)" />
+        <label for="drawLinesCheckbox">Draw Lines</label>
+      </p>
     </div>
   </div>
 
   <script>
     let net
+    let drawLines = true
+    let landmarks
+    let currentImg
+
+    function onChangeDrawLines(e) {
+      drawLines = $(e.target).prop('checked')
+      redraw()
+    }
+
+    function redraw() {
+      const canvas = faceapi.createCanvasFromMedia(currentImg)
+      $('#faceContainer').empty()
+      $('#faceContainer').append(canvas)
+      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: drawLines ? 2 : 4, drawLines })
+    }
 
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
-      const img = await faceapi.bufferToImage(imgBuf)
-      const canvas = faceapi.createCanvasFromMedia(img)
-      $('#faceContainer').empty()
-      $('#faceContainer').append(canvas)
-
-      const landmarks = await net.detectLandmarks(canvas)
-      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: 4 })
+      currentImg = await faceapi.bufferToImage(imgBuf)
+      landmarks = await net.detectLandmarks(currentImg)
+      redraw()
     }
 
     async function run() {

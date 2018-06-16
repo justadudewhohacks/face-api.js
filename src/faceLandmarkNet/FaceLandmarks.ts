@@ -28,6 +28,34 @@ export class FaceLandmarks {
     )
   }
 
+  public getJawOutline() {
+    return this._faceLandmarks.slice(0, 17)
+  }
+
+  public getLeftEyeBrow() {
+    return this._faceLandmarks.slice(17, 22)
+  }
+
+  public getRightEyeBrow() {
+    return this._faceLandmarks.slice(22, 27)
+  }
+
+  public getNose() {
+    return this._faceLandmarks.slice(27, 36)
+  }
+
+  public getLeftEye() {
+    return this._faceLandmarks.slice(36, 42)
+  }
+
+  public getRightEye() {
+    return this._faceLandmarks.slice(42, 48)
+  }
+
+  public getMouth() {
+    return this._faceLandmarks.slice(48, 68)
+  }
+
   public forSize(width: number, height: number): FaceLandmarks {
     return new FaceLandmarks(this.getRelativePositions(), { width, height })
   }
