@@ -5,6 +5,8 @@ import { NetInput } from '../NetInput';
 import { padToSquare } from '../padToSquare';
 import { TNetInput } from '../types';
 import { extractParams } from './extractParams';
+import { convLayer } from '../commons/convLayer';
+import { fullyConnectedLayer } from './fullyConnectedLayer';
 
 export function faceLandmarkNet(weights: Float32Array) {
   const params = extractParams(weights)
@@ -18,17 +20,22 @@ export function faceLandmarkNet(weights: Float32Array) {
         x = tf.image.resizeBilinear(x, [128, 128])
       }
 
-      // pool 1
-      tf.maxPool(x, [2, 2], [2, 2], 'valid')
-      // pool 2
-      tf.maxPool(x, [2, 2], [2, 2], 'valid')
-      // pool 3
-      tf.maxPool(x, [2, 2], [2, 2], 'valid')
-      // pool 4
-      tf.maxPool(x, [2, 2], [1, 1], 'valid')
-      // TODO
+      let out = convLayer(x, params.conv0_params, 'valid')
+      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
+      out = convLayer(out, params.conv1_params, 'valid')
+      out = convLayer(out, params.conv2_params, 'valid')
+      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
+      out = convLayer(out, params.conv3_params, 'valid')
+      out = convLayer(out, params.conv4_params, 'valid')
+      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
+      out = convLayer(out, params.conv5_params, 'valid')
+      out = convLayer(out, params.conv6_params, 'valid')
+      out = tf.maxPool(out, [2, 2], [1, 1], 'valid')
+      out = convLayer(out, params.conv7_params, 'valid')
+      const fc0 = fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params)
+      const fc1 = fullyConnectedLayer(fc0, params.fc1_params)
 
-      return x
+      return fc1
     })
   }
 
