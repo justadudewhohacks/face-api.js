@@ -3,12 +3,13 @@ import * as tf from '@tensorflow/tfjs-core';
 import { getImageTensor } from '../getImageTensor';
 import { padToSquare } from '../padToSquare';
 import { extractParams } from './extractParams';
-import { FaceDetectionResult } from './FaceDetectionResult';
+import { FaceDetection } from './FaceDetection';
 import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
 import { resizeLayer } from './resizeLayer';
+import { Rect } from '../Rect';
 export function faceDetectionNet(weights) {
     var params = extractParams(weights);
     function forwardTensor(imgTensor) {
@@ -26,7 +27,7 @@ export function faceDetectionNet(weights) {
         if (minConfidence === void 0) { minConfidence = 0.8; }
         if (maxResults === void 0) { maxResults = 100; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var paddedHeightRelative, paddedWidthRelative, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, results;
+            var paddedHeightRelative, paddedWidthRelative, imageDimensions, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, results;
             return tslib_1.__generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
@@ -34,6 +35,7 @@ export function faceDetectionNet(weights) {
                         _a = tf.tidy(function () {
                             var imgTensor = getImageTensor(input);
                             var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
+                            imageDimensions = { width: width, height: height };
                             imgTensor = padToSquare(imgTensor);
                             paddedHeightRelative = imgTensor.shape[1] / height;
                             paddedWidthRelative = imgTensor.shape[2] / width;
@@ -52,7 +54,17 @@ export function faceDetectionNet(weights) {
                         iouThreshold = 0.5;
                         indices = nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
                         results = indices
-                            .map(function (idx) { return new FaceDetectionResult(scoresData[idx], boxes.get(idx, 0) * paddedHeightRelative, boxes.get(idx, 1) * paddedWidthRelative, boxes.get(idx, 2) * paddedHeightRelative, boxes.get(idx, 3) * paddedWidthRelative); });
+                            .map(function (idx) {
+                            var _a = [
+                                Math.max(0, boxes.get(idx, 0)),
+                                Math.min(1.0, boxes.get(idx, 2))
+                            ].map(function (val) { return val * paddedHeightRelative; }), top = _a[0], bottom = _a[1];
+                            var _b = [
+                                Math.max(0, boxes.get(idx, 1)),
+                                Math.min(1.0, boxes.get(idx, 3))
+                            ].map(function (val) { return val * paddedWidthRelative; }), left = _b[0], right = _b[1];
+                            return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), imageDimensions);
+                        });
                         boxes.dispose();
                         scores.dispose();
                         return [2 /*return*/, results];

@@ -9,7 +9,7 @@ import { createCanvas, getContext2dOrThrow } from './utils';
 export function extractFaces(image, detections) {
     var ctx = getContext2dOrThrow(image);
     return detections.map(function (det) {
-        var _a = det.forSize(image.width, image.height).box, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+        var _a = det.forSize(image.width, image.height).getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
         var faceImg = createCanvas({ width: width, height: height });
         getContext2dOrThrow(faceImg)
             .putImageData(ctx.getImageData(x, y, width, height), 0, 0);

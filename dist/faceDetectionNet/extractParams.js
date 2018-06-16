@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { extractWeightsFactory } from '../commons/extractWeightsFactory';
 function extractorsFactory(extractWeights) {
     function extractDepthwiseConvParams(numChannels) {
         var filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
@@ -14,7 +15,7 @@ function extractorsFactory(extractWeights) {
             batch_norm_variance: batch_norm_variance
         };
     }
-    function extractConvWithBiasParams(channelsIn, channelsOut, filterSize) {
+    function extractConvParams(channelsIn, channelsOut, filterSize) {
         var filters = tf.tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
         var bias = tf.tensor1d(extractWeights(channelsOut));
         return {
@@ -23,7 +24,7 @@ function extractorsFactory(extractWeights) {
         };
     }
     function extractPointwiseConvParams(channelsIn, channelsOut, filterSize) {
-        var _a = extractConvWithBiasParams(channelsIn, channelsOut, filterSize), filters = _a.filters, bias = _a.bias;
+        var _a = extractConvParams(channelsIn, channelsOut, filterSize), filters = _a.filters, bias = _a.bias;
         return {
             filters: filters,
             batch_norm_offset: bias
@@ -72,18 +73,18 @@ function extractorsFactory(extractWeights) {
         var conv_5_params = extractPointwiseConvParams(128, 256, 3);
         var conv_6_params = extractPointwiseConvParams(256, 64, 1);
         var conv_7_params = extractPointwiseConvParams(64, 128, 3);
-        var box_encoding_0_predictor_params = extractConvWithBiasParams(512, 12, 1);
-        var class_predictor_0_params = extractConvWithBiasParams(512, 9, 1);
-        var box_encoding_1_predictor_params = extractConvWithBiasParams(1024, 24, 1);
-        var class_predictor_1_params = extractConvWithBiasParams(1024, 18, 1);
-        var box_encoding_2_predictor_params = extractConvWithBiasParams(512, 24, 1);
-        var class_predictor_2_params = extractConvWithBiasParams(512, 18, 1);
-        var box_encoding_3_predictor_params = extractConvWithBiasParams(256, 24, 1);
-        var class_predictor_3_params = extractConvWithBiasParams(256, 18, 1);
-        var box_encoding_4_predictor_params = extractConvWithBiasParams(256, 24, 1);
-        var class_predictor_4_params = extractConvWithBiasParams(256, 18, 1);
-        var box_encoding_5_predictor_params = extractConvWithBiasParams(128, 24, 1);
-        var class_predictor_5_params = extractConvWithBiasParams(128, 18, 1);
+        var box_encoding_0_predictor_params = extractConvParams(512, 12, 1);
+        var class_predictor_0_params = extractConvParams(512, 9, 1);
+        var box_encoding_1_predictor_params = extractConvParams(1024, 24, 1);
+        var class_predictor_1_params = extractConvParams(1024, 18, 1);
+        var box_encoding_2_predictor_params = extractConvParams(512, 24, 1);
+        var class_predictor_2_params = extractConvParams(512, 18, 1);
+        var box_encoding_3_predictor_params = extractConvParams(256, 24, 1);
+        var class_predictor_3_params = extractConvParams(256, 18, 1);
+        var box_encoding_4_predictor_params = extractConvParams(256, 24, 1);
+        var class_predictor_4_params = extractConvParams(256, 18, 1);
+        var box_encoding_5_predictor_params = extractConvParams(128, 24, 1);
+        var class_predictor_5_params = extractConvParams(128, 18, 1);
         var box_predictor_0_params = {
             box_encoding_predictor_params: box_encoding_0_predictor_params,
             class_predictor_params: class_predictor_0_params
@@ -131,20 +132,16 @@ function extractorsFactory(extractWeights) {
     };
 }
 export function extractParams(weights) {
-    var extractWeights = function (numWeights) {
-        var ret = weights.slice(0, numWeights);
-        weights = weights.slice(numWeights);
-        return ret;
-    };
-    var _a = extractorsFactory(extractWeights), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
+    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _b = extractorsFactory(extractWeights), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
     var mobilenetv1_params = extractMobilenetV1Params();
     var prediction_layer_params = extractPredictionLayerParams();
     var extra_dim = tf.tensor3d(extractWeights(5118 * 4), [1, 5118, 4]);
     var output_layer_params = {
         extra_dim: extra_dim
     };
-    if (weights.length !== 0) {
-        throw new Error("weights remaing after extract: " + weights.length);
+    if (getRemainingWeights().length !== 0) {
+        throw new Error("weights remaing after extract: " + getRemainingWeights().length);
     }
     return {
         mobilenetv1_params: mobilenetv1_params,

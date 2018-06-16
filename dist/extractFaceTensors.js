@@ -17,7 +17,7 @@ export function extractFaceTensors(image, detections) {
         // TODO handle batches
         var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
         var faceTensors = detections.map(function (det) {
-            var _a = det.forSize(imgWidth, imgHeight).box, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+            var _a = det.forSize(imgWidth, imgHeight).getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
             return tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
         });
         return faceTensors;

@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { extractWeightsFactory } from '../commons/extractWeightsFactory';
 import { isFloat } from '../utils';
 function extractorsFactory(extractWeights) {
     function extractFilterValues(numFilterValues, numFilters, filterSize) {
@@ -19,12 +20,12 @@ function extractorsFactory(extractWeights) {
     }
     function extractConvLayerParams(numFilterValues, numFilters, filterSize) {
         var conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize);
-        var conv_biases = tf.tensor1d(extractWeights(numFilters));
+        var conv_bias = tf.tensor1d(extractWeights(numFilters));
         var scale = extractScaleLayerParams(numFilters);
         return {
             conv: {
                 filters: conv_filters,
-                biases: conv_biases
+                bias: conv_bias
             },
             scale: scale
         };
@@ -44,12 +45,8 @@ function extractorsFactory(extractWeights) {
     };
 }
 export function extractParams(weights) {
-    var extractWeights = function (numWeights) {
-        var ret = weights.slice(0, numWeights);
-        weights = weights.slice(numWeights);
-        return ret;
-    };
-    var _a = extractorsFactory(extractWeights), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
+    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _b = extractorsFactory(extractWeights), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
     var conv32_down = extractConvLayerParams(4704, 32, 7);
     var conv32_1 = extractResidualLayerParams(9216, 32, 3);
     var conv32_2 = extractResidualLayerParams(9216, 32, 3);
@@ -66,8 +63,8 @@ export function extractParams(weights) {
     var conv256_2 = extractResidualLayerParams(589824, 256, 3);
     var conv256_down_out = extractResidualLayerParams(589824, 256, 3);
     var fc = tf.transpose(tf.tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0]);
-    if (weights.length !== 0) {
-        throw new Error("weights remaing after extract: " + weights.length);
+    if (getRemainingWeights().length !== 0) {
+        throw new Error("weights remaing after extract: " + getRemainingWeights().length);
     }
     return {
         conv32_down: conv32_down,

@@ -1,4 +1,4 @@
-import { FaceDetectionResult } from './faceDetectionNet/FaceDetectionResult';
+import { FaceDetection } from './faceDetectionNet/FaceDetection';
 /**
  * Extracts the image regions containing the detected faces.
  *
@@ -6,4 +6,4 @@ import { FaceDetectionResult } from './faceDetectionNet/FaceDetectionResult';
  * @param detections The face detection results for that image.
  * @returns The Canvases of the corresponding image region for each detected face.
  */
-export declare function extractFaces(image: HTMLCanvasElement, detections: FaceDetectionResult[]): HTMLCanvasElement[];
+export declare function extractFaces(image: HTMLCanvasElement, detections: FaceDetection[]): HTMLCanvasElement[];
