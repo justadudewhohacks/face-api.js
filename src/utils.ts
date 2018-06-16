@@ -1,5 +1,6 @@
 import { FaceDetectionNet } from './faceDetectionNet/types';
-import { Dimensions, DrawBoxOptions, DrawOptions, DrawTextOptions } from './types';
+import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
+import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 
 export function isFloat(num: number) {
   return num % 1 !== 0
@@ -24,16 +25,17 @@ export function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingC
   return ctx
 }
 
-export function createCanvas({ width, height}: Dimensions): HTMLCanvasElement {
+export function createCanvas({ width, height }: Dimensions): HTMLCanvasElement {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   return canvas
 }
 
-export function createCanvasWithImageData({ width, height}: Dimensions, buf: Uint8ClampedArray): HTMLCanvasElement {
+export function createCanvasFromMedia(media: HTMLImageElement | HTMLVideoElement, dims?: Dimensions): HTMLCanvasElement {
+  const { width, height } = dims || getMediaDimensions(media)
   const canvas = createCanvas({ width, height })
-  getContext2dOrThrow(canvas).putImageData(new ImageData(buf, width, height), 0, 0)
+  getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height)
   return canvas
 }
 
@@ -82,8 +84,13 @@ export function drawBox(
   h: number,
   options: DrawBoxOptions
 ) {
-  ctx.strokeStyle = options.color
-  ctx.lineWidth = options.lineWidth
+  const drawOptions = Object.assign(
+    getDefaultDrawOptions(),
+    (options || {})
+  )
+
+  ctx.strokeStyle = drawOptions.color
+  ctx.lineWidth = drawOptions.lineWidth
   ctx.strokeRect(x, y, w, h)
 }
 
@@ -94,11 +101,16 @@ export function drawText(
   text: string,
   options: DrawTextOptions
 ) {
-  const padText = 2 + options.lineWidth
+  const drawOptions = Object.assign(
+    getDefaultDrawOptions(),
+    (options || {})
+  )
 
-  ctx.fillStyle = options.color
-  ctx.font = `${options.fontSize}px ${options.fontStyle}`
-  ctx.fillText(text, x + padText, y + padText + (options.fontSize * 0.6))
+  const padText = 2 + drawOptions.lineWidth
+
+  ctx.fillStyle = drawOptions.color
+  ctx.font = `${drawOptions.fontSize}px ${drawOptions.fontStyle}`
+  ctx.fillText(text, x + padText, y + padText + (drawOptions.fontSize * 0.6))
 }
 
 export function drawDetection(
@@ -154,4 +166,28 @@ export function drawDetection(
       )
     }
   })
+}
+
+export function drawLandmarks(
+  canvasArg: string | HTMLCanvasElement,
+  faceLandmarks: FaceLandmarks,
+  options?: DrawLandmarksOptions & { drawLines: boolean }
+) {
+  const canvas = getElement(canvasArg)
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement')
+  }
+
+    const drawOptions = Object.assign(
+      getDefaultDrawOptions(),
+      (options || {})
+    )
+
+    const { drawLines } = Object.assign({ drawLines: false }, (options || {}))
+
+    const ctx = getContext2dOrThrow(canvas)
+    const { lineWidth,color } = drawOptions
+    ctx.fillStyle = color
+    const ptOffset = lineWidth / 2
+    faceLandmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
 }

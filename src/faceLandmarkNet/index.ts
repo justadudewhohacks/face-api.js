@@ -1,45 +1,75 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { convLayer } from '../commons/convLayer';
+import { ConvParams } from '../commons/types';
 import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
 import { padToSquare } from '../padToSquare';
-import { TNetInput } from '../types';
+import { Dimensions, TNetInput } from '../types';
 import { extractParams } from './extractParams';
-import { convLayer } from '../commons/convLayer';
+import { FaceLandmarks } from './FaceLandmarks';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
+
+function conv(x: tf.Tensor4D, params: ConvParams): tf.Tensor4D {
+  return convLayer(x, params, 'valid', true)
+}
+
+function maxPool(x: tf.Tensor4D, strides: [number, number] = [2, 2]): tf.Tensor4D {
+  return tf.maxPool(x, [2, 2], strides, 'valid')
+}
 
 export function faceLandmarkNet(weights: Float32Array) {
   const params = extractParams(weights)
 
-  function forward(input: tf.Tensor | NetInput | TNetInput) {
-    return tf.tidy(() => {
+  async function detectLandmarks(input: tf.Tensor | NetInput | TNetInput) {
+    let adjustRelativeX = 0
+    let adjustRelativeY = 0
+    let imageDimensions: Dimensions | undefined
 
-      let x = padToSquare(getImageTensor(input), true)
+    const outTensor = tf.tidy(() => {
+      let imgTensor = getImageTensor(input)
+      const [height, width] = imgTensor.shape.slice(1)
+      imageDimensions = { width, height }
+
+      imgTensor = padToSquare(imgTensor, true)
+      adjustRelativeX = (height > width) ? imgTensor.shape[2] / (2 * width) : 0
+      adjustRelativeY = (width > height) ? imgTensor.shape[1] / (2 * height) : 0
+
       // work with 128 x 128 sized face images
-      if (x.shape[1] !== 128 || x.shape[2] !== 128) {
-        x = tf.image.resizeBilinear(x, [128, 128])
+      if (imgTensor.shape[1] !== 128 || imgTensor.shape[2] !== 128) {
+        imgTensor = tf.image.resizeBilinear(imgTensor, [128, 128])
       }
 
-      let out = convLayer(x, params.conv0_params, 'valid')
-      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
-      out = convLayer(out, params.conv1_params, 'valid')
-      out = convLayer(out, params.conv2_params, 'valid')
-      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
-      out = convLayer(out, params.conv3_params, 'valid')
-      out = convLayer(out, params.conv4_params, 'valid')
-      out = tf.maxPool(out, [2, 2], [2, 2], 'valid')
-      out = convLayer(out, params.conv5_params, 'valid')
-      out = convLayer(out, params.conv6_params, 'valid')
-      out = tf.maxPool(out, [2, 2], [1, 1], 'valid')
-      out = convLayer(out, params.conv7_params, 'valid')
-      const fc0 = fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params)
+      let out = conv(imgTensor, params.conv0_params)
+      out = maxPool(out)
+      out = conv(out, params.conv1_params)
+      out = conv(out, params.conv2_params)
+      out = maxPool(out)
+      out = conv(out, params.conv3_params)
+      out = conv(out, params.conv4_params)
+      out = maxPool(out)
+      out = conv(out, params.conv5_params)
+      out = conv(out, params.conv6_params)
+      out = maxPool(out, [1, 1])
+      out = conv(out, params.conv7_params)
+      const fc0 = tf.relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params))
       const fc1 = fullyConnectedLayer(fc0, params.fc1_params)
 
       return fc1
     })
+
+    const faceLandmarksArray = Array.from(await outTensor.data())
+    const xCoords = faceLandmarksArray.filter((c, i) => (i - 1) % 2).map(x => x + adjustRelativeX)
+    const yCoords = faceLandmarksArray.filter((c, i) => i % 2).map(y => y + adjustRelativeY)
+    outTensor.dispose()
+
+    return new FaceLandmarks(
+      Array(68).fill(0).map((_, i) => ({ x: xCoords[i], y: yCoords[i] })),
+      imageDimensions as Dimensions
+    )
   }
 
   return {
-    forward
+    detectLandmarks
   }
 }
