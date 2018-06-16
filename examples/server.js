@@ -15,6 +15,7 @@ app.get('/face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceD
 app.get('/face_detection_video', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetectionVideo.html')))
 app.get('/face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'faceRecognition.html')))
 app.get('/face_similarity', (req, res) => res.sendFile(path.join(viewsDir, 'faceSimilarity.html')))
+app.get('/face_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'faceLandmarks.html')))
 app.get('/detect_and_draw_faces', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndDrawFaces.html')))
 app.get('/detect_and_recognize_faces', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndRecognizeFaces.html')))
 
