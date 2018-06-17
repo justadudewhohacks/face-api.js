@@ -108,7 +108,7 @@
       descriptors.forEach((descriptor, i) => {
         const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
         const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-        const { x, y, height: boxHeight } = detectionsForSize[i].box
+        const { x, y, height: boxHeight } = detectionsForSize[i].getBox()
         faceapi.drawText(
           canvas.getContext('2d'),
           x,

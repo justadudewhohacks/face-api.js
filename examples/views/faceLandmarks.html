@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="axios.min.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div class="center-content page-container">
+    <div id="navbar"></div>
+
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+      <div class="row side-by-side">
+        <div class="center-content">
+          <div id="faceContainer"></div>
+          <div id="selectList"></div>
+        </div>
+      </div>
+      <p>
+        <input type="checkbox" id="drawLinesCheckbox" checked="checked" onchange="onChangeDrawLines(event)" />
+        <label for="drawLinesCheckbox">Draw Lines</label>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    let net
+    let drawLines = true
+    let landmarks
+    let currentImg
+
+    function onChangeDrawLines(e) {
+      drawLines = $(e.target).prop('checked')
+      redraw()
+    }
+
+    function redraw() {
+      const canvas = faceapi.createCanvasFromMedia(currentImg)
+      $('#faceContainer').empty()
+      $('#faceContainer').append(canvas)
+      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: drawLines ? 2 : 4, drawLines })
+    }
+
+    async function onSelectionChanged(uri) {
+      const imgBuf = await fetchImage(uri)
+      currentImg = await faceapi.bufferToImage(imgBuf)
+      landmarks = await net.detectLandmarks(currentImg)
+      redraw()
+    }
+
+    async function run() {
+      net = await initFaceLandmarkNet()
+      $('#loader').hide()
+      await onSelectionChanged($('#selectList select').val())
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'face_landmarks')
+      renderFaceImageSelectList(
+        '#selectList',
+        onSelectionChanged,
+        { className: 'sheldon', imageIdx: 1 }
+      )
+      run()
+    })
+
+  </script>
+
+</body>
+</html>

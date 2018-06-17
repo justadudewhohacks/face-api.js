@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceDetectionResult } from './faceDetectionNet/FaceDetectionResult';
-import { NetInput } from './NetInput';
+import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { getImageTensor } from './getImageTensor';
+import { NetInput } from './NetInput';
 import { TNetInput } from './types';
 
 /**
@@ -18,7 +18,7 @@ import { TNetInput } from './types';
  */
 export function extractFaceTensors(
   image: tf.Tensor | NetInput | TNetInput,
-  detections: FaceDetectionResult[]
+  detections: FaceDetection[]
 ): tf.Tensor4D[] {
   return tf.tidy(() => {
     const imgTensor = getImageTensor(image)
@@ -27,7 +27,7 @@ export function extractFaceTensors(
     const [batchSize, imgHeight, imgWidth, numChannels] = imgTensor.shape
 
     const faceTensors = detections.map(det => {
-      const { x, y, width, height } = det.forSize(imgWidth, imgHeight).box
+      const { x, y, width, height } = det.forSize(imgWidth, imgHeight).getBox().floor()
       return tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels])
     })
 

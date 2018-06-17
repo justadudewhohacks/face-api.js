@@ -3,14 +3,15 @@ import * as tf from '@tensorflow/tfjs-core';
 import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
 import { padToSquare } from '../padToSquare';
-import { TNetInput } from '../types';
+import { TNetInput, Dimensions } from '../types';
 import { extractParams } from './extractParams';
-import { FaceDetectionResult } from './FaceDetectionResult';
+import { FaceDetection } from './FaceDetection';
 import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
 import { resizeLayer } from './resizeLayer';
+import { Rect } from '../Rect';
 
 export function faceDetectionNet(weights: Float32Array) {
   const params = extractParams(weights)
@@ -40,9 +41,10 @@ export function faceDetectionNet(weights: Float32Array) {
     input: tf.Tensor | NetInput,
     minConfidence: number = 0.8,
     maxResults: number = 100,
-  ): Promise<FaceDetectionResult[]> {
+  ): Promise<FaceDetection[]> {
 
     let paddedHeightRelative = 1, paddedWidthRelative = 1
+    let imageDimensions: Dimensions | undefined
 
     const {
       boxes: _boxes,
@@ -51,6 +53,7 @@ export function faceDetectionNet(weights: Float32Array) {
 
       let imgTensor = getImageTensor(input)
       const [height, width] = imgTensor.shape.slice(1)
+      imageDimensions = { width, height }
 
       imgTensor = padToSquare(imgTensor)
       paddedHeightRelative = imgTensor.shape[1] / height
@@ -80,13 +83,26 @@ export function faceDetectionNet(weights: Float32Array) {
     )
 
     const results = indices
-      .map(idx => new FaceDetectionResult(
-        scoresData[idx],
-        boxes.get(idx, 0) * paddedHeightRelative,
-        boxes.get(idx, 1) * paddedWidthRelative,
-        boxes.get(idx, 2) * paddedHeightRelative,
-        boxes.get(idx, 3) * paddedWidthRelative
-      ))
+      .map(idx => {
+        const [top, bottom] = [
+          Math.max(0, boxes.get(idx, 0)),
+          Math.min(1.0, boxes.get(idx, 2))
+        ].map(val => val * paddedHeightRelative)
+        const [left, right] = [
+          Math.max(0, boxes.get(idx, 1)),
+          Math.min(1.0, boxes.get(idx, 3))
+        ].map(val => val * paddedWidthRelative)
+        return new FaceDetection(
+          scoresData[idx],
+          new Rect(
+            left,
+            top,
+            right - left,
+            bottom - top
+          ),
+          imageDimensions as Dimensions
+        )
+      })
 
     boxes.dispose()
     scores.dispose()

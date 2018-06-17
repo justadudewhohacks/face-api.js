@@ -24,10 +24,10 @@ export function createCanvas(_a) {
     canvas.height = height;
     return canvas;
 }
-export function createCanvasWithImageData(_a, buf) {
-    var width = _a.width, height = _a.height;
+export function createCanvasFromMedia(media, dims) {
+    var _a = dims || getMediaDimensions(media), width = _a.width, height = _a.height;
     var canvas = createCanvas({ width: width, height: height });
-    getContext2dOrThrow(canvas).putImageData(new ImageData(buf, width, height), 0, 0);
+    getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
     return canvas;
 }
 export function getMediaDimensions(media) {
@@ -64,15 +64,17 @@ export function getDefaultDrawOptions() {
     };
 }
 export function drawBox(ctx, x, y, w, h, options) {
-    ctx.strokeStyle = options.color;
-    ctx.lineWidth = options.lineWidth;
+    var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+    ctx.strokeStyle = drawOptions.color;
+    ctx.lineWidth = drawOptions.lineWidth;
     ctx.strokeRect(x, y, w, h);
 }
 export function drawText(ctx, x, y, text, options) {
-    var padText = 2 + options.lineWidth;
-    ctx.fillStyle = options.color;
-    ctx.font = options.fontSize + "px " + options.fontStyle;
-    ctx.fillText(text, x + padText, y + padText + (options.fontSize * 0.6));
+    var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+    var padText = 2 + drawOptions.lineWidth;
+    ctx.fillStyle = drawOptions.color;
+    ctx.font = drawOptions.fontSize + "px " + drawOptions.fontStyle;
+    ctx.fillText(text, x + padText, y + padText + (drawOptions.fontSize * 0.6));
 }
 export function drawDetection(canvasArg, detection, options) {
     var canvas = getElement(canvasArg);
@@ -83,15 +85,60 @@ export function drawDetection(canvasArg, detection, options) {
         ? detection
         : [detection];
     detectionArray.forEach(function (det) {
-        var score = det.score, box = det.box;
-        var x = box.x, y = box.y, width = box.width, height = box.height;
+        var _a = det.getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
         var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
         var withScore = Object.assign({ withScore: true }, (options || {})).withScore;
         var ctx = getContext2dOrThrow(canvas);
         drawBox(ctx, x, y, width, height, drawOptions);
         if (withScore) {
-            drawText(ctx, x, y, "" + round(score), drawOptions);
+            drawText(ctx, x, y, "" + round(det.getScore()), drawOptions);
         }
     });
+}
+function drawContour(ctx, points, isClosed) {
+    if (isClosed === void 0) { isClosed = false; }
+    ctx.beginPath();
+    points.slice(1).forEach(function (_a, prevIdx) {
+        var x = _a.x, y = _a.y;
+        var from = points[prevIdx];
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(x, y);
+    });
+    if (isClosed) {
+        var from = points[points.length - 1];
+        var to = points[0];
+        if (!from || !to) {
+            return;
+        }
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+    }
+    ctx.stroke();
+}
+export function drawLandmarks(canvasArg, faceLandmarks, options) {
+    var canvas = getElement(canvasArg);
+    if (!(canvas instanceof HTMLCanvasElement)) {
+        throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement');
+    }
+    var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+    var drawLines = Object.assign({ drawLines: false }, (options || {})).drawLines;
+    var ctx = getContext2dOrThrow(canvas);
+    var lineWidth = drawOptions.lineWidth, color = drawOptions.color;
+    if (drawLines) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        drawContour(ctx, faceLandmarks.getJawOutline());
+        drawContour(ctx, faceLandmarks.getLeftEyeBrow());
+        drawContour(ctx, faceLandmarks.getRightEyeBrow());
+        drawContour(ctx, faceLandmarks.getNose());
+        drawContour(ctx, faceLandmarks.getLeftEye(), true);
+        drawContour(ctx, faceLandmarks.getRightEye(), true);
+        drawContour(ctx, faceLandmarks.getMouth(), true);
+        return;
+    }
+    // else draw points
+    var ptOffset = lineWidth / 2;
+    ctx.fillStyle = color;
+    faceLandmarks.getPositions().forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
 }
 //# sourceMappingURL=utils.js.map

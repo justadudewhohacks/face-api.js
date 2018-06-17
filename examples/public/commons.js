@@ -24,6 +24,12 @@ async function initFaceRecognitionNet() {
   return faceapi.faceRecognitionNet(weights)
 }
 
+async function initFaceLandmarkNet() {
+  const res = await axios.get('face_landmark_68_model.weights', { responseType: 'arraybuffer' })
+  const weights = new Float32Array(res.data)
+  return faceapi.faceLandmarkNet(weights)
+}
+
 // fetch first image of each class and compute their descriptors
 async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
   const maxAvailableImagesPerClass = 5
@@ -81,6 +87,14 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'face_similarity',
       name: 'Face Similarity'
+    },
+    {
+      uri: 'face_landmarks',
+      name: 'Face Landmarks'
+    },
+    {
+      uri: 'detect_and_draw_landmarks',
+      name: 'Detect and Draw Landmarks'
     },
     {
       uri: 'detect_and_draw_faces',

@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { ConvParams } from '../commons/types';
 export declare namespace FaceDetectionNet {
     type PointwiseConvParams = {
         filters: tf.Tensor4D;
@@ -21,13 +22,9 @@ export declare namespace FaceDetectionNet {
             conv_pair_params: ConvPairParams[];
         };
     }
-    type ConvWithBiasParams = {
-        filters: tf.Tensor4D;
-        bias: tf.Tensor1D;
-    };
     type BoxPredictionParams = {
-        box_encoding_predictor_params: ConvWithBiasParams;
-        class_predictor_params: ConvWithBiasParams;
+        box_encoding_predictor_params: ConvParams;
+        class_predictor_params: ConvParams;
     };
     type PredictionLayerParams = {
         conv_0_params: PointwiseConvParams;
@@ -52,14 +49,5 @@ export declare namespace FaceDetectionNet {
         mobilenetv1_params: MobileNetV1.Params;
         prediction_layer_params: PredictionLayerParams;
         output_layer_params: OutputLayerParams;
-    };
-    type Detection = {
-        score: number;
-        box: {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-        };
     };
 }

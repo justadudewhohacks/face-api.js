@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { ConvParams } from '../commons/types';
 export declare namespace FaceRecognitionNet {
     type ScaleLayerParams = {
         weights: tf.Tensor1D;
@@ -7,10 +8,6 @@ export declare namespace FaceRecognitionNet {
     type ResidualLayerParams = {
         conv1: ConvLayerParams;
         conv2: ConvLayerParams;
-    };
-    type ConvParams = {
-        filters: tf.Tensor4D;
-        biases: tf.Tensor1D;
     };
     type ConvLayerParams = {
         conv: ConvParams;

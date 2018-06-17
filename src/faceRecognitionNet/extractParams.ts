@@ -1,14 +1,15 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { extractWeightsFactory } from '../commons/extractWeightsFactory';
+import { ExtractWeightsFunction } from '../commons/types';
 import { isFloat } from '../utils';
 import { FaceRecognitionNet } from './types';
 
-function extractorsFactory(extractWeights: (numWeights: number) => Float32Array) {
+function extractorsFactory(extractWeights: ExtractWeightsFunction) {
 
   function extractFilterValues(numFilterValues: number, numFilters: number, filterSize: number): tf.Tensor4D {
     const weights = extractWeights(numFilterValues)
     const depth = weights.length / (numFilters * filterSize * filterSize)
-
 
     if (isFloat(depth)) {
       throw new Error(`depth has to be an integer: ${depth}, weights.length: ${weights.length}, numFilters: ${numFilters}, filterSize: ${filterSize}`)
@@ -29,15 +30,19 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     }
   }
 
-  function extractConvLayerParams(numFilterValues: number, numFilters: number, filterSize: number): FaceRecognitionNet.ConvLayerParams {
+  function extractConvLayerParams(
+    numFilterValues: number,
+    numFilters: number,
+    filterSize: number
+  ): FaceRecognitionNet.ConvLayerParams {
     const conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize)
-    const conv_biases = tf.tensor1d(extractWeights(numFilters))
+    const conv_bias = tf.tensor1d(extractWeights(numFilters))
     const scale = extractScaleLayerParams(numFilters)
 
     return {
       conv: {
         filters: conv_filters,
-        biases: conv_biases
+        bias: conv_bias
       },
       scale
     }
@@ -61,11 +66,10 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
 }
 
 export function extractParams(weights: Float32Array): FaceRecognitionNet.NetParams {
-  const extractWeights = (numWeights: number): Float32Array => {
-    const ret = weights.slice(0, numWeights)
-    weights = weights.slice(numWeights)
-    return ret
-  }
+  const {
+    extractWeights,
+    getRemainingWeights
+  } = extractWeightsFactory(weights)
 
   const {
     extractConvLayerParams,
@@ -93,8 +97,8 @@ export function extractParams(weights: Float32Array): FaceRecognitionNet.NetPara
 
   const fc = tf.transpose(tf.tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0])
 
-  if (weights.length !== 0) {
-    throw new Error(`weights remaing after extract: ${weights.length}`)
+  if (getRemainingWeights().length !== 0) {
+    throw new Error(`weights remaing after extract: ${getRemainingWeights().length}`)
   }
 
   return {
