@@ -1,20 +1,23 @@
-import { Point } from '../Point';
+import { Point, IPoint } from '../Point';
 import { Dimensions } from '../types';
 
 export class FaceLandmarks {
   private _faceLandmarks: Point[]
   private _imageWidth: number
   private _imageHeight: number
+  private _shift: Point
 
   constructor(
     relativeFaceLandmarkPositions: Point[],
-    imageDims: Dimensions
+    imageDims: Dimensions,
+    shift: Point = new Point(0, 0)
   ) {
     const { width, height } = imageDims
     this._imageWidth = width
     this._imageHeight = height
+    this._shift = shift
     this._faceLandmarks = relativeFaceLandmarkPositions.map(
-      pt => new Point(pt.x * width, pt.y * height)
+      pt => pt.mul(new Point(width, height)).add(shift)
     )
   }
 
@@ -24,7 +27,7 @@ export class FaceLandmarks {
 
   public getRelativePositions() {
     return this._faceLandmarks.map(
-      pt => new Point(pt.x / this._imageWidth, pt.y / this._imageHeight)
+      pt => pt.sub(this._shift).div(new Point(this._imageWidth, this._imageHeight))
     )
   }
 
@@ -57,6 +60,17 @@ export class FaceLandmarks {
   }
 
   public forSize(width: number, height: number): FaceLandmarks {
-    return new FaceLandmarks(this.getRelativePositions(), { width, height })
+    return new FaceLandmarks(
+      this.getRelativePositions(),
+      { width, height }
+    )
+  }
+
+  public shift(x: number, y: number): FaceLandmarks {
+    return new FaceLandmarks(
+      this.getRelativePositions(),
+      { width: this._imageWidth, height: this._imageHeight },
+      new Point(x, y)
+    )
   }
 }

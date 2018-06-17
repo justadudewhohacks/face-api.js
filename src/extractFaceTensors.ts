@@ -27,7 +27,7 @@ export function extractFaceTensors(
     const [batchSize, imgHeight, imgWidth, numChannels] = imgTensor.shape
 
     const faceTensors = detections.map(det => {
-      const { x, y, width, height } = det.forSize(imgWidth, imgHeight).getBox()
+      const { x, y, width, height } = det.forSize(imgWidth, imgHeight).getBox().floor()
       return tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels])
     })
 

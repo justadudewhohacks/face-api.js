@@ -15,8 +15,7 @@ export function extractFaces(
   const ctx = getContext2dOrThrow(image)
 
   return detections.map(det => {
-    const { x, y, width, height } = det.forSize(image.width, image.height).getBox()
-
+    const { x, y, width, height } = det.forSize(image.width, image.height).getBox().floor()
     const faceImg = createCanvas({ width, height })
     getContext2dOrThrow(faceImg)
       .putImageData(ctx.getImageData(x, y, width, height), 0, 0)

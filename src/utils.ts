@@ -201,31 +201,31 @@ export function drawLandmarks(
     throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement')
   }
 
-    const drawOptions = Object.assign(
-      getDefaultDrawOptions(),
-      (options || {})
-    )
+  const drawOptions = Object.assign(
+    getDefaultDrawOptions(),
+    (options || {})
+  )
 
-    const { drawLines } = Object.assign({ drawLines: false }, (options || {}))
+  const { drawLines } = Object.assign({ drawLines: false }, (options || {}))
 
-    const ctx = getContext2dOrThrow(canvas)
-    const { lineWidth, color } = drawOptions
+  const ctx = getContext2dOrThrow(canvas)
+  const { lineWidth, color } = drawOptions
 
-    if (drawLines) {
-      ctx.strokeStyle = color
-      ctx.lineWidth = lineWidth
-      drawContour(ctx, faceLandmarks.getJawOutline())
-      drawContour(ctx, faceLandmarks.getLeftEyeBrow())
-      drawContour(ctx, faceLandmarks.getRightEyeBrow())
-      drawContour(ctx, faceLandmarks.getNose())
-      drawContour(ctx, faceLandmarks.getLeftEye(), true)
-      drawContour(ctx, faceLandmarks.getRightEye(), true)
-      drawContour(ctx, faceLandmarks.getMouth(), true)
-      return
-    }
+  if (drawLines) {
+    ctx.strokeStyle = color
+    ctx.lineWidth = lineWidth
+    drawContour(ctx, faceLandmarks.getJawOutline())
+    drawContour(ctx, faceLandmarks.getLeftEyeBrow())
+    drawContour(ctx, faceLandmarks.getRightEyeBrow())
+    drawContour(ctx, faceLandmarks.getNose())
+    drawContour(ctx, faceLandmarks.getLeftEye(), true)
+    drawContour(ctx, faceLandmarks.getRightEye(), true)
+    drawContour(ctx, faceLandmarks.getMouth(), true)
+    return
+  }
 
-    // else draw points
-    const ptOffset = lineWidth / 2
-    ctx.fillStyle = color
-    faceLandmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
+  // else draw points
+  const ptOffset = lineWidth / 2
+  ctx.fillStyle = color
+  faceLandmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
 }

@@ -17,10 +17,10 @@ export class FaceDetection {
     this._imageHeight = height
     this._score = score
     this._box = new Rect(
-      Math.floor(relativeBox.x * width),
-      Math.floor(relativeBox.y * height),
-      Math.floor(relativeBox.width * width),
-      Math.floor(relativeBox.height * height)
+      relativeBox.x * width,
+      relativeBox.y * height,
+      relativeBox.width * width,
+      relativeBox.height * height
     )
   }
 
@@ -30,6 +30,14 @@ export class FaceDetection {
 
   public getBox() {
     return this._box
+  }
+
+  public getImageWidth() {
+    return this._imageWidth
+  }
+
+  public getImageHeight() {
+    return this._imageHeight
   }
 
   public getRelativeBox() {

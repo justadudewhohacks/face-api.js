@@ -10,4 +10,13 @@ export class Rect {
     this.width = width
     this.height = height
   }
+
+  public floor(): Rect {
+    return new Rect(
+      Math.floor(this.x),
+      Math.floor(this.y),
+      Math.floor(this.width),
+      Math.floor(this.height)
+    )
+  }
 }

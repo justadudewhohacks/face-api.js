@@ -4,7 +4,7 @@ import { convLayer } from '../commons/convLayer';
 import { ConvParams } from '../commons/types';
 import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
-import { padToSquare } from '../padToSquare';
+import { Point } from '../Point';
 import { Dimensions, TNetInput } from '../types';
 import { extractParams } from './extractParams';
 import { FaceLandmarks } from './FaceLandmarks';
@@ -22,8 +22,6 @@ export function faceLandmarkNet(weights: Float32Array) {
   const params = extractParams(weights)
 
   async function detectLandmarks(input: tf.Tensor | NetInput | TNetInput) {
-    let adjustRelativeX = 0
-    let adjustRelativeY = 0
     let imageDimensions: Dimensions | undefined
 
     const outTensor = tf.tidy(() => {
@@ -31,9 +29,6 @@ export function faceLandmarkNet(weights: Float32Array) {
       const [height, width] = imgTensor.shape.slice(1)
       imageDimensions = { width, height }
 
-      imgTensor = padToSquare(imgTensor, true)
-      adjustRelativeX = (height > width) ? imgTensor.shape[2] / (2 * width) : 0
-      adjustRelativeY = (width > height) ? imgTensor.shape[1] / (2 * height) : 0
 
       // work with 128 x 128 sized face images
       if (imgTensor.shape[1] !== 128 || imgTensor.shape[2] !== 128) {
@@ -59,12 +54,13 @@ export function faceLandmarkNet(weights: Float32Array) {
     })
 
     const faceLandmarksArray = Array.from(await outTensor.data())
-    const xCoords = faceLandmarksArray.filter((c, i) => (i - 1) % 2).map(x => x + adjustRelativeX)
-    const yCoords = faceLandmarksArray.filter((c, i) => i % 2).map(y => y + adjustRelativeY)
     outTensor.dispose()
 
+    const xCoords = faceLandmarksArray.filter((c, i) => (i - 1) % 2)
+    const yCoords = faceLandmarksArray.filter((c, i) => i % 2)
+
     return new FaceLandmarks(
-      Array(68).fill(0).map((_, i) => ({ x: xCoords[i], y: yCoords[i] })),
+      Array(68).fill(0).map((_, i) => new Point(xCoords[i], yCoords[i])),
       imageDimensions as Dimensions
     )
   }
