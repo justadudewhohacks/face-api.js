@@ -179,7 +179,7 @@ Or simply obtain the tensor (tensor has to be disposed manually):
 const t = recognitionNet.forward('myImg')
 ```
 
-Compute the Face Descriptors for Detected Faces
+Compute the Face Descriptors for Detected Faces:
 
 ``` javascript
 const detections = await detectionNet.locateFaces(input)
@@ -217,14 +217,14 @@ Draw the detected face landmarks to a canvas:
 
 ``` javascript
 // adjust the landmark positions in case your displayed image has a different size then the original
-const landmarksForSize = landmarks.forSize(myImg.width, myImg.height))
+const landmarksForSize = landmarks.forSize(myImg.width, myImg.height)
 const canvas = document.getElementById('overlay')
 canvas.width = myImg.width
 canvas.height = myImg.height
 faceapi.drawLandmarks(canvas, landmarksForSize, { drawLines: true })
 ```
 
-Retrieve the face landmark positions
+Retrieve the face landmark positions:
 
 ``` javascript
 const landmarkPositions = landmarks.getPositions()
@@ -239,14 +239,14 @@ const leftEyeBbrow = landmarks.getLeftEyeBrow()
 const rightEyeBrow = landmarks.getRightEyeBrow()
 ```
 
-Compute the Face Landmarks for Detected Faces
+Compute the Face Landmarks for Detected Faces:
 
 ``` javascript
 const detections = await detectionNet.locateFaces(input)
 
 // get the face tensors from the image (have to be disposed manually)
 const faceTensors = await faceapi.extractFaceTensors(input, detections)
-const landmarksByFace = await Promise.all(faceTensors.map(t => landmarksNet.detectLandmarks(t)))
+const landmarksByFace = await Promise.all(faceTensors.map(t => faceLandmarkNet.detectLandmarks(t)))
 
 // free memory for face image tensors after we computed their descriptors
 faceTensors.forEach(t => t.dispose())
