@@ -93,6 +93,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Face Landmarks'
     },
     {
+      uri: 'detect_and_draw_landmarks',
+      name: 'Detect and Draw Landmarks'
+    },
+    {
       uri: 'detect_and_draw_faces',
       name: 'Detect and Draw Faces'
     },
