@@ -4,4 +4,5 @@ export declare class Rect {
     width: number;
     height: number;
     constructor(x: number, y: number, width: number, height: number);
+    floor(): Rect;
 }

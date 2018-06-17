@@ -1,17 +1,19 @@
 import { Point } from '../Point';
 var FaceLandmarks = /** @class */ (function () {
-    function FaceLandmarks(relativeFaceLandmarkPositions, imageDims) {
+    function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
+        if (shift === void 0) { shift = new Point(0, 0); }
         var width = imageDims.width, height = imageDims.height;
         this._imageWidth = width;
         this._imageHeight = height;
-        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return new Point(pt.x * width, pt.y * height); });
+        this._shift = shift;
+        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
     }
     FaceLandmarks.prototype.getPositions = function () {
         return this._faceLandmarks;
     };
     FaceLandmarks.prototype.getRelativePositions = function () {
         var _this = this;
-        return this._faceLandmarks.map(function (pt) { return new Point(pt.x / _this._imageWidth, pt.y / _this._imageHeight); });
+        return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
     };
     FaceLandmarks.prototype.getJawOutline = function () {
         return this._faceLandmarks.slice(0, 17);
@@ -36,6 +38,9 @@ var FaceLandmarks = /** @class */ (function () {
     };
     FaceLandmarks.prototype.forSize = function (width, height) {
         return new FaceLandmarks(this.getRelativePositions(), { width: width, height: height });
+    };
+    FaceLandmarks.prototype.shift = function (x, y) {
+        return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
     };
     return FaceLandmarks;
 }());

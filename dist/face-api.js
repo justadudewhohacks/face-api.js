@@ -714,6 +714,9 @@
           this.width = width;
           this.height = height;
       }
+      Rect.prototype.floor = function () {
+          return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+      };
       return Rect;
   }());
 
@@ -723,13 +726,19 @@
           this._imageWidth = width;
           this._imageHeight = height;
           this._score = score;
-          this._box = new Rect(Math.floor(relativeBox.x * width), Math.floor(relativeBox.y * height), Math.floor(relativeBox.width * width), Math.floor(relativeBox.height * height));
+          this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
       }
       FaceDetection.prototype.getScore = function () {
           return this._score;
       };
       FaceDetection.prototype.getBox = function () {
           return this._box;
+      };
+      FaceDetection.prototype.getImageWidth = function () {
+          return this._imageWidth;
+      };
+      FaceDetection.prototype.getImageHeight = function () {
+          return this._imageHeight;
       };
       FaceDetection.prototype.getRelativeBox = function () {
           return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
@@ -1019,6 +1028,26 @@
       };
   }
 
+  var Point = /** @class */ (function () {
+      function Point(x, y) {
+          this.x = x;
+          this.y = y;
+      }
+      Point.prototype.add = function (pt) {
+          return new Point(this.x + pt.x, this.y + pt.y);
+      };
+      Point.prototype.sub = function (pt) {
+          return new Point(this.x - pt.x, this.y - pt.y);
+      };
+      Point.prototype.mul = function (pt) {
+          return new Point(this.x * pt.x, this.y * pt.y);
+      };
+      Point.prototype.div = function (pt) {
+          return new Point(this.x / pt.x, this.y / pt.y);
+      };
+      return Point;
+  }());
+
   function extractConvParamsFactory(extractWeights) {
       return function (channelsIn, channelsOut, filterSize) {
           var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
@@ -1068,27 +1097,21 @@
       };
   }
 
-  var Point = /** @class */ (function () {
-      function Point(x, y) {
-          this.x = x;
-          this.y = y;
-      }
-      return Point;
-  }());
-
   var FaceLandmarks = /** @class */ (function () {
-      function FaceLandmarks(relativeFaceLandmarkPositions, imageDims) {
+      function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
+          if (shift === void 0) { shift = new Point(0, 0); }
           var width = imageDims.width, height = imageDims.height;
           this._imageWidth = width;
           this._imageHeight = height;
-          this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return new Point(pt.x * width, pt.y * height); });
+          this._shift = shift;
+          this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
       }
       FaceLandmarks.prototype.getPositions = function () {
           return this._faceLandmarks;
       };
       FaceLandmarks.prototype.getRelativePositions = function () {
           var _this = this;
-          return this._faceLandmarks.map(function (pt) { return new Point(pt.x / _this._imageWidth, pt.y / _this._imageHeight); });
+          return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
       };
       FaceLandmarks.prototype.getJawOutline = function () {
           return this._faceLandmarks.slice(0, 17);
@@ -1114,6 +1137,9 @@
       FaceLandmarks.prototype.forSize = function (width, height) {
           return new FaceLandmarks(this.getRelativePositions(), { width: width, height: height });
       };
+      FaceLandmarks.prototype.shift = function (x, y) {
+          return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+      };
       return FaceLandmarks;
   }());
 
@@ -1134,19 +1160,14 @@
       var params = extractParams$1(weights);
       function detectLandmarks(input) {
           return __awaiter$1(this, void 0, void 0, function () {
-              var adjustRelativeX, adjustRelativeY, imageDimensions, outTensor, faceLandmarksArray, _a, _b, xCoords, yCoords;
+              var imageDimensions, outTensor, faceLandmarksArray, _a, _b, xCoords, yCoords;
               return __generator$1(this, function (_c) {
                   switch (_c.label) {
                       case 0:
-                          adjustRelativeX = 0;
-                          adjustRelativeY = 0;
                           outTensor = tidy(function () {
                               var imgTensor = getImageTensor(input);
                               var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
                               imageDimensions = { width: width, height: height };
-                              imgTensor = padToSquare(imgTensor, true);
-                              adjustRelativeX = (height > width) ? imgTensor.shape[2] / (2 * width) : 0;
-                              adjustRelativeY = (width > height) ? imgTensor.shape[1] / (2 * height) : 0;
                               // work with 128 x 128 sized face images
                               if (imgTensor.shape[1] !== 128 || imgTensor.shape[2] !== 128) {
                                   imgTensor = image.resizeBilinear(imgTensor, [128, 128]);
@@ -1171,10 +1192,10 @@
                           return [4 /*yield*/, outTensor.data()];
                       case 1:
                           faceLandmarksArray = _b.apply(_a, [_c.sent()]);
-                          xCoords = faceLandmarksArray.filter(function (c, i) { return (i - 1) % 2; }).map(function (x) { return x + adjustRelativeX; });
-                          yCoords = faceLandmarksArray.filter(function (c, i) { return i % 2; }).map(function (y) { return y + adjustRelativeY; });
                           outTensor.dispose();
-                          return [2 /*return*/, new FaceLandmarks(Array(68).fill(0).map(function (_, i) { return ({ x: xCoords[i], y: yCoords[i] }); }), imageDimensions)];
+                          xCoords = faceLandmarksArray.filter(function (c, i) { return (i - 1) % 2; });
+                          yCoords = faceLandmarksArray.filter(function (c, i) { return i % 2; });
+                          return [2 /*return*/, new FaceLandmarks(Array(68).fill(0).map(function (_, i) { return new Point(xCoords[i], yCoords[i]); }), imageDimensions)];
                   }
               });
           });
@@ -1400,7 +1421,7 @@
   function extractFaces(image, detections) {
       var ctx = getContext2dOrThrow(image);
       return detections.map(function (det) {
-          var _a = det.forSize(image.width, image.height).getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+          var _a = det.forSize(image.width, image.height).getBox().floor(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
           var faceImg = createCanvas({ width: width, height: height });
           getContext2dOrThrow(faceImg)
               .putImageData(ctx.getImageData(x, y, width, height), 0, 0);
@@ -1425,7 +1446,7 @@
           // TODO handle batches
           var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
           var faceTensors = detections.map(function (det) {
-              var _a = det.forSize(imgWidth, imgHeight).getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+              var _a = det.forSize(imgWidth, imgHeight).getBox().floor(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
               return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
           });
           return faceTensors;
