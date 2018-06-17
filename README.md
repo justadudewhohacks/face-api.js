@@ -3,9 +3,14 @@
 **JavaScript API for face detection and face recognition in the browser implemented on top of the tensorflow.js core API ([tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core))**
 
 * **[Running the Examples](#running-the-examples)**
-* **[About Face Detection](#about-face-detection)**
-* **[About Face Recognition](#about-face-recognition)**
+* **[About the Package](#about-the-package)**
+  * **[Face Detection](#about-face-detection)**
+  * **[Face Recognition](#about-face-recognition)**
+  * **[Face Landmark Detection](#about-face-landmark-detection)**
 * **[Usage](#usage)**
+  * **[Face Detection](#usage-face-detection)**
+  * **[Face Recognition](#usage-face-recognition)**
+  * **[Face Landmark Detection](#usage-face-landmark-detection)**
 
 ## Examples
 
@@ -27,6 +32,12 @@
 
 ![preview_face-similarity](https://user-images.githubusercontent.com/31125521/40316573-0a1190c0-5d1f-11e8-8797-f6deaa344523.gif)
 
+### Face Landmarks
+
+![preview_face_landmarks_boxes](https://user-images.githubusercontent.com/31125521/41507933-65f9b642-723c-11e8-8f4e-aab13303e7ff.jpg)
+
+![preview_face_landmarks](https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png)
+
 ### Extracting Face Images
 
 ![preview_face-extraction](https://user-images.githubusercontent.com/31125521/41238647-bbb64c6c-6d96-11e8-8ca9-2d0fda779bb6.jpg)
@@ -43,21 +54,33 @@ npm start
 
 Browse to http://localhost:3000/.
 
+<a name="about-the-package"></a>
+
+## About the Package
+
 <a name="about-face-detection"></a>
 
-## About Face Detection
+### Face Detection
 
-For face recognition, this project implements a SSD (Single Shot Multibox Detector) based on MobileNetV1. The neural net will compute the locations of each face in an image and will return the bounding boxes together with it's probability for each face.
+For face detection, this project implements a SSD (Single Shot Multibox Detector) based on MobileNetV1. The neural net will compute the locations of each face in an image and will return the bounding boxes together with it's probability for each face.
 
 The face detection model has been trained on the [WIDERFACE dataset](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and the weights are provided by [yeephycho](https://github.com/yeephycho) in [this](https://github.com/yeephycho/tensorflow-face-detection) repo.
 
 <a name="about-face-recognition"></a>
 
-## About Face Recognition
+### Face Recognition
 
 For face recognition, a ResNet-34 like architecture is implemented to compute a face descriptor (a feature vector with 128 values) from any given face image, which is used to describe the characteristics of a persons face. The model is **not** limited to the set of faces used for training, meaning you can use it for face recognition of any person, for example yourself. You can determine the similarity of two arbitrary faces by comparing their face descriptors, for example by computing the euclidean distance or using any other classifier of your choice.
 
 The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognition.js](https://github.com/justadudewhohacks/face-recognition.js) and the net used in the [dlib](https://github.com/davisking/dlib/blob/master/examples/dnn_face_recognition_ex.cpp) face recognition example. The weights have been trained by [davisking](https://github.com/davisking) and the model achieves a prediction accuracy of 99.38% on the LFW (Labeled Faces in the Wild) benchmark for face recognition.
+
+<a name="about-face-landmark-detection"></a>
+
+### Face Landmark Detection
+
+This package implements a CNN to detect the 68 point face landmarks for a given face image.
+
+The model has been trained on a variety of public datasets and the model weights are provided by [yinguobing](https://github.com/yinguobing) in [this](https://github.com/yinguobing/head-pose-estimation) repo.
 
 <a name="usage"></a>
 
@@ -74,6 +97,8 @@ Or install the package:
 ``` bash
 npm i face-api.js
 ```
+
+<a name="usage-face-detection"></a>
 
 ### Face Detection
 
@@ -101,7 +126,7 @@ const detections = await detectionNet.locateFaces(myImg, minConfidence, maxResul
 Draw the detected faces to a canvas:
 
 ``` javascript
-// resize the detected boxes to the image dimensions (since the net returns relative coordinates)
+// resize the detected boxes in case your displayed image has a different size then the original
 const detectionsForSize = detections.map(det => det.forSize(myImg.width, myImg.height))
 const canvas = document.getElementById('overlay')
 canvas.width = myImg.width
@@ -114,6 +139,8 @@ You can also obtain the tensors of the unfiltered bounding boxes and scores for 
 ``` javascript
 const { boxes, scores } = detectionNet.forward('myImg')
 ```
+
+<a name="usage-face-recognition"></a>
 
 ### Face Recognition
 
@@ -152,7 +179,7 @@ Or simply obtain the tensor (tensor has to be disposed manually):
 const t = recognitionNet.forward('myImg')
 ```
 
-### Compute the Face Descriptors for detected Faces
+Compute the Face Descriptors for Detected Faces
 
 ``` javascript
 const detections = await detectionNet.locateFaces(input)
@@ -160,6 +187,66 @@ const detections = await detectionNet.locateFaces(input)
 // get the face tensors from the image (have to be disposed manually)
 const faceTensors = await faceapi.extractFaceTensors(input, detections)
 const descriptors = await Promise.all(faceTensors.map(t => recognitionNet.computeFaceDescriptor(t)))
+
+// free memory for face image tensors after we computed their descriptors
+faceTensors.forEach(t => t.dispose())
+```
+
+<a name="usage-face-landmark-detection"></a>
+
+### Face Landmark Detection
+
+Download the weights file from your server and initialize the net (note, that your server has to host the *face_landmark_68_model.weights* file).
+
+``` javascript
+// initialize the face recognizer
+const res = await axios.get('face_landmark_68_model.weights', { responseType: 'arraybuffer' })
+const weights = new Float32Array(res.data)
+const faceLandmarkNet = faceapi.faceLandmarkNet(weights)
+```
+
+Detect face landmarks:
+
+``` javascript
+// inputs can be html canvas, img or video element or their ids ...
+const myImg = document.getElementById('myImg')
+const landmarks = await faceLandmarkNet.detectLandmarks(myImg)
+```
+
+Draw the detected face landmarks to a canvas:
+
+``` javascript
+// adjust the landmark positions in case your displayed image has a different size then the original
+const landmarksForSize = landmarks.forSize(myImg.width, myImg.height))
+const canvas = document.getElementById('overlay')
+canvas.width = myImg.width
+canvas.height = myImg.height
+faceapi.drawLandmarks(canvas, landmarksForSize, { drawLines: true })
+```
+
+Retrieve the face landmark positions
+
+``` javascript
+const landmarkPositions = landmarks.getPositions()
+
+// or get the positions of individual contours
+const jawOutline = landmarks.getJawOutline()
+const nose = landmarks.getNose()
+const mouth = landmarks.getMouth()
+const leftEye = landmarks.getLeftEye()
+const rightEye = landmarks.getRightEye()
+const leftEyeBbrow = landmarks.getLeftEyeBrow()
+const rightEyeBrow = landmarks.getRightEyeBrow()
+```
+
+Compute the Face Landmarks for Detected Faces
+
+``` javascript
+const detections = await detectionNet.locateFaces(input)
+
+// get the face tensors from the image (have to be disposed manually)
+const faceTensors = await faceapi.extractFaceTensors(input, detections)
+const landmarksByFace = await Promise.all(faceTensors.map(t => landmarksNet.detectLandmarks(t)))
 
 // free memory for face image tensors after we computed their descriptors
 faceTensors.forEach(t => t.dispose())
