@@ -1,7 +1,9 @@
+import * as tf from '@tensorflow/tfjs-core';
+
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
-import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 import { Point } from './Point';
+import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 
 export function isFloat(num: number) {
   return num % 1 !== 0
@@ -66,6 +68,18 @@ export function bufferToImage(buf: Blob): Promise<HTMLImageElement> {
     reader.onerror = reject
     reader.readAsDataURL(buf)
   })
+}
+
+export async function imageTensorToCanvas(
+  imgTensor: tf.Tensor4D,
+  canvas?: HTMLCanvasElement
+): Promise<HTMLCanvasElement> {
+  const targetCanvas = canvas ||  document.createElement('canvas')
+
+  const [_, height, width, numChannels] = imgTensor.shape
+  await tf.toPixels(imgTensor.as3D(height, width, numChannels).toInt(), targetCanvas)
+
+  return targetCanvas
 }
 
 export function getDefaultDrawOptions(): DrawOptions {

@@ -27,4 +27,16 @@ export class Point implements IPoint {
   public div(pt: IPoint): Point {
     return new Point(this.x / pt.x, this.y / pt.y)
   }
+
+  public abs(): Point {
+    return new Point(Math.abs(this.x), Math.abs(this.y))
+  }
+
+  public magnitude(): number {
+    return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2))
+  }
+
+  public floor(): Point {
+    return new Point(Math.floor(this.x), Math.floor(this.y))
+  }
 }
