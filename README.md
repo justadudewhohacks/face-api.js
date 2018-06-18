@@ -11,6 +11,7 @@
   * **[Face Detection](#usage-face-detection)**
   * **[Face Recognition](#usage-face-recognition)**
   * **[Face Landmark Detection](#usage-face-landmark-detection)**
+  * **[Full Face Detection and Recognition Pipeline](#usage-full-face-detection-and-recognition-pipeline)**
 
 ## Examples
 
@@ -175,19 +176,6 @@ Or simply obtain the tensor (tensor has to be disposed manually):
 const t = recognitionNet.forward('myImg')
 ```
 
-Compute the Face Descriptors for Detected Faces:
-
-``` javascript
-const detections = await detectionNet.locateFaces(input)
-
-// get the face tensors from the image (have to be disposed manually)
-const faceTensors = await faceapi.extractFaceTensors(input, detections)
-const descriptors = await Promise.all(faceTensors.map(t => recognitionNet.computeFaceDescriptor(t)))
-
-// free memory for face image tensors after we computed their descriptors
-faceTensors.forEach(t => t.dispose())
-```
-
 <a name="usage-face-landmark-detection"></a>
 
 ### Face Landmark Detection
@@ -246,4 +234,40 @@ const landmarksByFace = await Promise.all(faceTensors.map(t => faceLandmarkNet.d
 
 // free memory for face image tensors after we computed their descriptors
 faceTensors.forEach(t => t.dispose())
+```
+
+<a name="usage-full-face-detection-and-recognition-pipeline"></a>
+
+### Full Face Detection and Recognition Pipeline
+
+After face detection has been performed, I would recommend to align the bounding boxes of the detected faces before passing them to the face recognition net, which will make the computed face descriptor much more accurate. You can easily align the faces from their face landmark positions as shown in the following example:
+
+``` javascript
+// first detect the face locations
+const detections = await detectionNet.locateFaces(input)
+
+// get the face tensors from the image (have to be disposed manually)
+const faceTensors = (await faceapi.extractFaceTensors(input, detections))
+
+// detect landmarks and get the aligned face image bounding boxes
+const alignedFaceBoxes = await Promise.all(faceTensors.map(
+  async (faceTensor, i) => {
+    const faceLandmarks = await landmarkNet.detectLandmarks(faceTensor)
+    return faceLandmarks.align(detections[i])
+  }
+))
+
+// free memory for face image tensors after we detected the face landmarks
+faceTensors.forEach(t => t.dispose())
+
+// get the face tensors for the aligned face images from the image (have to be disposed manually)
+const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceBoxes))
+
+// compute the face descriptors from the aligned face images
+const descriptors = await Promise.all(alignedFaceTensors.map(
+  faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
+))
+
+// free memory for face image tensors after we computed their descriptors
+alignedFaceTensors.forEach(t => t.dispose())
 ```

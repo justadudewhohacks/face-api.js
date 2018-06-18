@@ -105,7 +105,7 @@
         }
       ))
 
-      // free memory for face image tensors after we computed their descriptors
+      // free memory for face image tensors after we detected the face landmarks
       faceTensors.forEach(t => t.dispose())
 
       const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceBoxes))
