@@ -3,7 +3,21 @@ module.exports = function(config) {
     frameworks: ['jasmine', 'karma-typescript'],
     files: [
       'src/**/*.ts',
-      'test/**/*.ts'
+      'test/**/*.ts',
+      {
+        pattern: 'test/images/*.jpg',
+        watched: false,
+        included: false,
+        served: true,
+        nocache: false
+      },
+      {
+        pattern: 'weights/*.weights',
+        watched: false,
+        included: false,
+        served: true,
+        nocache: false
+      }
     ],
     preprocessors: {
       '**/*.ts': ['karma-typescript']
