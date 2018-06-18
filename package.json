@@ -7,7 +7,8 @@
   "scripts": {
     "rollup-min": "rollup -c rollup.config.js --environment minify:true",
     "rollup": "rollup -c rollup.config.js",
-    "build": "npm run rollup && npm run rollup-min && tsc"
+    "build": "npm run rollup && npm run rollup-min && tsc",
+    "test": "karma start"
   },
   "keywords": [
     "face",
@@ -22,7 +23,13 @@
     "@tensorflow/tfjs-core": "^0.11.0"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.8.8",
     "@types/node": "^10.1.1",
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.3",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.2",
+    "karma-typescript": "^3.0.12",
     "rollup": "^0.59.1",
     "rollup-plugin-commonjs": "^9.1.3",
     "rollup-plugin-node-resolve": "^3.3.0",
