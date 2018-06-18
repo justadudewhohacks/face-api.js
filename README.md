@@ -14,17 +14,9 @@
 
 ## Examples
 
-### Face Detection
-
-![preview_face-detection](https://user-images.githubusercontent.com/31125521/41238639-b72fb0fc-6d96-11e8-9f50-27159dd534d1.jpg)
-
-### Live Video Face Detection
-
-![preview_video-facedetection](https://user-images.githubusercontent.com/31125521/41238649-bbf10046-6d96-11e8-9041-1de46c6adccd.jpg)
-
 ### Face Recognition
 
-![preview_face-recognition](https://user-images.githubusercontent.com/31125521/41238648-bbd2cc52-6d96-11e8-9fd1-051745fa0128.jpg)
+![preview_face-detection-and-recognition](https://user-images.githubusercontent.com/31125521/41526995-1a90e4e6-72e6-11e8-96d4-8b2ccdee5f79.gif)
 
 ![preview_face-recognition_gif](https://user-images.githubusercontent.com/31125521/40313021-c3afdfec-5d14-11e8-86df-cf89a00668e2.gif)
 
@@ -38,9 +30,13 @@
 
 ![preview_face_landmarks](https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png)
 
-### Extracting Face Images
+### Live Video Face Detection
 
-![preview_face-extraction](https://user-images.githubusercontent.com/31125521/41238647-bbb64c6c-6d96-11e8-8ca9-2d0fda779bb6.jpg)
+![preview_video-facedetection](https://user-images.githubusercontent.com/31125521/41238649-bbf10046-6d96-11e8-9041-1de46c6adccd.jpg)
+
+### Face Alignment
+
+![preview_face_alignment](https://user-images.githubusercontent.com/31125521/41526994-1a690818-72e6-11e8-8f3c-d2cf31fe517b.jpg)
 
 <a name="running-the-examples"></a>
 
