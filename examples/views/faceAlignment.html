@@ -19,6 +19,7 @@
       <img id="inputImg" src="" style="max-width: 800px;" />
       <canvas id="overlay" />
     </div>
+    <div id="facesContainer"></div>
     <div class="row side-by-side">
       <div id="selectList"></div>
       <div class="row">
@@ -37,30 +38,13 @@
       >
         <i class="material-icons left">+</i>
       </button>
-      <div class="row">
-        <label for="maxDistance">Max Descriptor Distance:</label>
-        <input disabled value="0.8" id="maxDistance" type="text" class="bold">
-      </div>
-      <button
-        class="waves-effect waves-light btn"
-        onclick="onDecreaseMaxDistance()"
-      >
-        <i class="material-icons left">-</i>
-      </button>
-      <button
-        class="waves-effect waves-light btn"
-        onclick="onIncreaseMaxDistance()"
-      >
-        <i class="material-icons left">+</i>
-      </button>
     </div>
   </div>
 
   <script>
-    let maxDistance = 0.8
     let minConfidence = 0.7
-    let detectionNet, recognitionNet, landmarkNet
-    let trainDescriptorsByClass = []
+    let drawLines = true
+    let detectionNet, landmarkNet
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -74,18 +58,6 @@
       updateResults()
     }
 
-    function onIncreaseMaxDistance() {
-      maxDistance = Math.min(faceapi.round(maxDistance + 0.1), 1.0)
-      $('#maxDistance').val(maxDistance)
-      updateResults()
-    }
-
-    function onDecreaseMaxDistance() {
-      maxDistance = Math.max(faceapi.round(maxDistance - 0.1), 0.1)
-      $('#maxDistance').val(maxDistance)
-      updateResults()
-    }
-
     async function updateResults() {
       const inputImgEl = $('#inputImg').get(0)
       const { width, height } = inputImgEl
@@ -94,45 +66,23 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const detections = await detectionNet.locateFaces(input, minConfidence)
-      const faceTensors = (await faceapi.extractFaceTensors(input, detections))
+      const locations = await detectionNet.locateFaces(input, minConfidence)
+
+      const faceImages = await faceapi.extractFaces(input.canvases[0], locations)
 
       // detect landmarks and get the aligned face image bounding boxes
-      const alignedFaceBoxes = await Promise.all(faceTensors.map(
-        async (faceTensor, i) => {
-          const faceLandmarks = await landmarkNet.detectLandmarks(faceTensor)
-          return faceLandmarks.align(detections[i])
+      const alignedFaceBoxes = await Promise.all(faceImages.map(
+        async (faceCanvas, i) => {
+          const faceLandmarks = await landmarkNet.detectLandmarks(faceCanvas)
+          return faceLandmarks.align(locations[i])
         }
       ))
+      const alignedFaceImages = await faceapi.extractFaces(input.canvases[0], alignedFaceBoxes)
 
-      // free memory for face image tensors after we computed their descriptors
-      faceTensors.forEach(t => t.dispose())
-
-      const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceBoxes))
-
-      const descriptors = await Promise.all(alignedFaceTensors.map(
-        faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
-      ))
-
-      // free memory for face image tensors after we computed their descriptors
-      alignedFaceTensors.forEach(t => t.dispose())
-
-      // draw detections
-      const detectionsForSize = detections.map(det => det.forSize(width, height))
-      faceapi.drawDetection('overlay', detectionsForSize, { withScore: false })
-
-      // draw the recognition results
-      descriptors.forEach((descriptor, i) => {
-        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-        const { x, y, height: boxHeight } = detectionsForSize[i].getBox()
-        faceapi.drawText(
-          canvas.getContext('2d'),
-          x,
-          y + boxHeight,
-          text,
-          Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
-        )
+      $('#facesContainer').empty()
+      faceImages.forEach(async (faceCanvas, i) => {
+        $('#facesContainer').append(faceCanvas)
+        $('#facesContainer').append(alignedFaceImages[i])
       })
     }
 
@@ -144,15 +94,13 @@
 
     async function run() {
       detectionNet = await initFaceDetectionNet()
-      recognitionNet = await initFaceRecognitionNet()
       landmarkNet = await initFaceLandmarkNet()
-      trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet, 1)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'detect_and_recognize_faces')
+      renderNavBar('#navbar', 'face_alignment')
       renderImageSelectList(
         '#selectList',
         async (uri) => {

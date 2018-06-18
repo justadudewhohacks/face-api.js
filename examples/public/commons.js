@@ -101,6 +101,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Detect and Draw Faces'
     },
     {
+      uri: 'face_alignment',
+      name: 'Face Alignment'
+    },
+    {
       uri: 'detect_and_recognize_faces',
       name: 'Detect and Recognize Faces'
     }

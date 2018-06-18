@@ -4,7 +4,7 @@ import * as tf from '@tensorflow/tfjs-core';
  * Pads the smaller dimension of an image tensor with zeros, such that width === height.
  *
  * @param imgTensor The image tensor.
- * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image
+ * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image.
  * @returns The padded tensor with width === height.
  */
 export function padToSquare(
