@@ -10,4 +10,7 @@ export declare class Point implements IPoint {
     sub(pt: IPoint): Point;
     mul(pt: IPoint): Point;
     div(pt: IPoint): Point;
+    abs(): Point;
+    magnitude(): number;
+    floor(): Point;
 }

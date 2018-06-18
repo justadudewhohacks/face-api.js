@@ -351,6 +351,22 @@
           reader.readAsDataURL(buf);
       });
   }
+  function imageTensorToCanvas(imgTensor, canvas) {
+      return __awaiter$1(this, void 0, void 0, function () {
+          var targetCanvas, _a, _, height, width, numChannels;
+          return __generator$1(this, function (_b) {
+              switch (_b.label) {
+                  case 0:
+                      targetCanvas = canvas || document.createElement('canvas');
+                      _a = imgTensor.shape, _ = _a[0], height = _a[1], width = _a[2], numChannels = _a[3];
+                      return [4 /*yield*/, toPixels(imgTensor.as3D(height, width, numChannels).toInt(), targetCanvas)];
+                  case 1:
+                      _b.sent();
+                      return [2 /*return*/, targetCanvas];
+              }
+          });
+      });
+  }
   function getDefaultDrawOptions() {
       return {
           color: 'blue',
@@ -521,7 +537,7 @@
    * Pads the smaller dimension of an image tensor with zeros, such that width === height.
    *
    * @param imgTensor The image tensor.
-   * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image
+   * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image.
    * @returns The padded tensor with width === height.
    */
   function padToSquare(imgTensor, isCenterImage) {
@@ -1045,6 +1061,15 @@
       Point.prototype.div = function (pt) {
           return new Point(this.x / pt.x, this.y / pt.y);
       };
+      Point.prototype.abs = function () {
+          return new Point(Math.abs(this.x), Math.abs(this.y));
+      };
+      Point.prototype.magnitude = function () {
+          return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+      };
+      Point.prototype.floor = function () {
+          return new Point(Math.floor(this.x), Math.floor(this.y));
+      };
       return Point;
   }());
 
@@ -1097,6 +1122,15 @@
       };
   }
 
+  function getCenterPoint(pts) {
+      return pts.reduce(function (sum, pt) { return sum.add(pt); }, new Point(0, 0))
+          .div(new Point(pts.length, pts.length));
+  }
+
+  // face alignment constants
+  var relX = 0.5;
+  var relY = 0.43;
+  var relScale = 0.45;
   var FaceLandmarks = /** @class */ (function () {
       function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
           if (shift === void 0) { shift = new Point(0, 0); }
@@ -1106,6 +1140,15 @@
           this._shift = shift;
           this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
       }
+      FaceLandmarks.prototype.getShift = function () {
+          return new Point(this._shift.x, this._shift.y);
+      };
+      FaceLandmarks.prototype.getImageWidth = function () {
+          return this._imageWidth;
+      };
+      FaceLandmarks.prototype.getImageHeight = function () {
+          return this._imageHeight;
+      };
       FaceLandmarks.prototype.getPositions = function () {
           return this._faceLandmarks;
       };
@@ -1139,6 +1182,39 @@
       };
       FaceLandmarks.prototype.shift = function (x, y) {
           return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+      };
+      /**
+       * Aligns the face landmarks after face detection from the relative positions of the faces
+       * bounding box, or it's current shift. This function should be used to align the face images
+       * after face detection has been performed, before they are passed to the face recognition net.
+       * This will make the computed face descriptor more accurate.
+       *
+       * @param detection (optional) The bounding box of the face or the face detection result. If
+       * no argument was passed the position of the face landmarks are assumed to be relative to
+       * it's current shift.
+       * @returns The bounding box of the aligned face.
+       */
+      FaceLandmarks.prototype.align = function (detection) {
+          if (detection) {
+              var box = detection instanceof FaceDetection
+                  ? detection.getBox().floor()
+                  : detection;
+              return this.shift(box.x, box.y).align();
+          }
+          var centers = [
+              this.getLeftEye(),
+              this.getRightEye(),
+              this.getMouth()
+          ].map(getCenterPoint);
+          var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
+          var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
+          var eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2;
+          var size = Math.floor(eyeToMouthDist / relScale);
+          var refPoint = getCenterPoint(centers);
+          // TODO: pad in case rectangle is out of image bounds
+          var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
+          var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
+          return new Rect(x, y, size, size);
       };
       return FaceLandmarks;
   }());
@@ -1415,13 +1491,16 @@
    * Extracts the image regions containing the detected faces.
    *
    * @param input The image that face detection has been performed on.
-   * @param detections The face detection results for that image.
+   * @param detections The face detection results or face bounding boxes for that image.
    * @returns The Canvases of the corresponding image region for each detected face.
    */
   function extractFaces(image, detections) {
       var ctx = getContext2dOrThrow(image);
-      return detections.map(function (det) {
-          var _a = det.forSize(image.width, image.height).getBox().floor(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+      var boxes = detections.map(function (det) { return det instanceof FaceDetection
+          ? det.forSize(image.width, image.height).getBox().floor()
+          : det; });
+      return boxes.map(function (_a) {
+          var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
           var faceImg = createCanvas({ width: width, height: height });
           getContext2dOrThrow(faceImg)
               .putImageData(ctx.getImageData(x, y, width, height), 0, 0);
@@ -1431,13 +1510,12 @@
 
   /**
    * Extracts the tensors of the image regions containing the detected faces.
-   * Returned tensors have to be disposed manually once you don't need them anymore!
-   * Useful if you want to compute the face descriptors for the face
-   * images. Using this method is faster then extracting a canvas for each face and
+   * Useful if you want to compute the face descriptors for the face images.
+   * Using this method is faster then extracting a canvas for each face and
    * converting them to tensors individually.
    *
    * @param input The image that face detection has been performed on.
-   * @param detections The face detection results for that image.
+   * @param detections The face detection results or face bounding boxes for that image.
    * @returns Tensors of the corresponding image region for each detected face.
    */
   function extractFaceTensors(image$$1, detections) {
@@ -1445,8 +1523,11 @@
           var imgTensor = getImageTensor(image$$1);
           // TODO handle batches
           var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
-          var faceTensors = detections.map(function (det) {
-              var _a = det.forSize(imgWidth, imgHeight).getBox().floor(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+          var boxes = detections.map(function (det) { return det instanceof FaceDetection
+              ? det.forSize(imgWidth, imgHeight).getBox().floor()
+              : det; });
+          var faceTensors = boxes.map(function (_a) {
+              var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
               return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
           });
           return faceTensors;
@@ -1470,6 +1551,7 @@
   exports.createCanvasFromMedia = createCanvasFromMedia;
   exports.getMediaDimensions = getMediaDimensions;
   exports.bufferToImage = bufferToImage;
+  exports.imageTensorToCanvas = imageTensorToCanvas;
   exports.getDefaultDrawOptions = getDefaultDrawOptions;
   exports.drawBox = drawBox;
   exports.drawText = drawText;

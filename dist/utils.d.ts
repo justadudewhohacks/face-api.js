@@ -1,3 +1,4 @@
+import * as tf from '@tensorflow/tfjs-core';
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
@@ -12,6 +13,7 @@ export declare function getMediaDimensions(media: HTMLImageElement | HTMLVideoEl
     height: number;
 };
 export declare function bufferToImage(buf: Blob): Promise<HTMLImageElement>;
+export declare function imageTensorToCanvas(imgTensor: tf.Tensor4D, canvas?: HTMLCanvasElement): Promise<HTMLCanvasElement>;
 export declare function getDefaultDrawOptions(): DrawOptions;
 export declare function drawBox(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, options: DrawBoxOptions): void;
 export declare function drawText(ctx: CanvasRenderingContext2D, x: number, y: number, text: string, options: DrawTextOptions): void;
