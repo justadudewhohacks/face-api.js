@@ -18,6 +18,7 @@ app.get('/face_similarity', (req, res) => res.sendFile(path.join(viewsDir, 'face
 app.get('/face_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'faceLandmarks.html')))
 app.get('/detect_and_draw_faces', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndDrawFaces.html')))
 app.get('/detect_and_draw_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndDrawLandmarks.html')))
+app.get('/face_alignment', (req, res) => res.sendFile(path.join(viewsDir, 'faceAlignment.html')))
 app.get('/detect_and_recognize_faces', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndRecognizeFaces.html')))
 
 app.listen(3000, () => console.log('Listening on port 3000!'))
