@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { isEven } from './utils';
 /**
  * Pads the smaller dimension of an image tensor with zeros, such that width === height.
  *
@@ -13,12 +14,17 @@ export function padToSquare(imgTensor, isCenterImage) {
         if (height === width) {
             return imgTensor;
         }
-        var paddingAmount = Math.floor(Math.abs(height - width) * (isCenterImage ? 0.5 : 1));
+        var dimDiff = Math.abs(height - width);
+        var paddingAmount = Math.floor(dimDiff * (isCenterImage ? 0.5 : 1));
         var paddingAxis = height > width ? 2 : 1;
-        var paddingTensorShape = imgTensor.shape.slice();
-        paddingTensorShape[paddingAxis] = paddingAmount;
-        var tensorsToStack = (isCenterImage ? [tf.fill(paddingTensorShape, 0)] : [])
-            .concat([imgTensor, tf.fill(paddingTensorShape, 0)]);
+        var getPaddingTensorShape = function (isRoundUp) {
+            if (isRoundUp === void 0) { isRoundUp = false; }
+            var paddingTensorShape = imgTensor.shape.slice();
+            paddingTensorShape[paddingAxis] = paddingAmount + (isRoundUp ? 1 : 0);
+            return paddingTensorShape;
+        };
+        var tensorsToStack = (isCenterImage ? [tf.fill(getPaddingTensorShape(!isEven(dimDiff)), 0)] : [])
+            .concat([imgTensor, tf.fill(getPaddingTensorShape(), 0)]);
         return tf.concat(tensorsToStack, paddingAxis);
     });
 }

@@ -1,4 +1,10 @@
-export declare class Rect {
+export interface IRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+export declare class Rect implements IRect {
     x: number;
     y: number;
     width: number;
