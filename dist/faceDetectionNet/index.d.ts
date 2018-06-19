@@ -6,5 +6,5 @@ export declare function faceDetectionNet(weights: Float32Array): {
         boxes: tf.Tensor<tf.Rank.R2>[];
         scores: tf.Tensor<tf.Rank.R1>[];
     };
-    locateFaces: (input: tf.Tensor<tf.Rank> | NetInput, minConfidence?: number, maxResults?: number) => Promise<FaceDetection[]>;
+    locateFaces: (input: string | HTMLCanvasElement | HTMLImageElement | HTMLVideoElement | (string | HTMLCanvasElement | HTMLImageElement | HTMLVideoElement)[] | tf.Tensor<tf.Rank> | NetInput, minConfidence?: number, maxResults?: number) => Promise<FaceDetection[]>;
 };

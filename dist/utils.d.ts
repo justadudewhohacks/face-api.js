@@ -3,6 +3,7 @@ import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { Dimensions, DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 export declare function isFloat(num: number): boolean;
+export declare function isEven(num: number): boolean;
 export declare function round(num: number): number;
 export declare function getElement(arg: string | any): any;
 export declare function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2D;

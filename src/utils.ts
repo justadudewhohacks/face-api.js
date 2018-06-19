@@ -9,6 +9,10 @@ export function isFloat(num: number) {
   return num % 1 !== 0
 }
 
+export function isEven(num: number) {
+  return num % 2 === 0
+}
+
 export function round(num: number) {
   return Math.floor(num * 100) / 100
 }

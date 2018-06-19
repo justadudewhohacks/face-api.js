@@ -38,7 +38,7 @@ export function faceDetectionNet(weights: Float32Array) {
   }
 
   async function locateFaces(
-    input: tf.Tensor | NetInput,
+    input: tf.Tensor | NetInput | TNetInput,
     minConfidence: number = 0.8,
     maxResults: number = 100,
   ): Promise<FaceDetection[]> {
