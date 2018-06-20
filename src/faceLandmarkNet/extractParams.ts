@@ -2,9 +2,9 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { extractConvParamsFactory } from '../commons/extractConvParamsFactory';
 import { extractWeightsFactory } from '../commons/extractWeightsFactory';
-import { FaceLandmarkNet } from './types';
+import { FCParams, NetParams } from './types';
 
-export function extractParams(weights: Float32Array): FaceLandmarkNet.NetParams {
+export function extractParams(weights: Float32Array): NetParams {
   const {
     extractWeights,
     getRemainingWeights
@@ -12,7 +12,7 @@ export function extractParams(weights: Float32Array): FaceLandmarkNet.NetParams 
 
   const extractConvParams = extractConvParamsFactory(extractWeights)
 
-  function extractFcParams(channelsIn: number, channelsOut: number,): FaceLandmarkNet.FCParams {
+  function extractFcParams(channelsIn: number, channelsOut: number,): FCParams {
     const fc_weights = tf.tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut])
     const fc_bias = tf.tensor1d(extractWeights(channelsOut))
     return {
