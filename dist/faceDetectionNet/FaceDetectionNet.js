@@ -41,6 +41,9 @@ var FaceDetectionNet = /** @class */ (function () {
     };
     FaceDetectionNet.prototype.forwardTensor = function (imgTensor) {
         var _this = this;
+        if (!this._params) {
+            throw new Error('FaceDetectionNet - load model before inference');
+        }
         return tf.tidy(function () {
             var resized = resizeLayer(imgTensor);
             var features = mobileNetV1(resized, _this._params.mobilenetv1_params);

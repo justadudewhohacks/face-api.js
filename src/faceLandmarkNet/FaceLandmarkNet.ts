@@ -40,12 +40,10 @@ export class FaceLandmarkNet {
     this._params = extractParams(weights)
   }
 
-
   public async detectLandmarks(input: tf.Tensor | NetInput | TNetInput) {
     if (!this._params) {
       throw new Error('FaceLandmarkNet - load model before inference')
     }
-
 
     let imageDimensions: Dimensions | undefined
 

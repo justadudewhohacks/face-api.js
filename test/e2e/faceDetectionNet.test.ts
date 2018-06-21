@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import * as faceapi from '../../src';
 import { FaceDetection } from '../../src/faceDetectionNet/FaceDetection';
 import { IRect } from '../../src/Rect';
@@ -15,18 +13,18 @@ function expectFaceDetectionEquals(result: FaceDetection, score: number, expecte
 
 describe('faceDetectionNet', () => {
 
-  let faceDetectionNet: any, imgEl: HTMLImageElement
+  let faceDetectionNet: faceapi.FaceDetectionNet, imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/face_detection_model.weights', { responseType: 'arraybuffer' })
-    const weights = new Float32Array(res.data)
+    const res = await fetch('base/weights/uncompressed/face_detection_model.weights')
+    const weights = new Float32Array(await res.arrayBuffer())
     faceDetectionNet = faceapi.faceDetectionNet(weights)
 
-    const img = await axios.get('base/test/images/faces.jpg', { responseType: 'blob' })
-    imgEl = await faceapi.bufferToImage(img.data)
+    const img = await (await fetch('base/test/images/faces.jpg')).blob()
+    imgEl = await faceapi.bufferToImage(img)
   })
 
-  it('scores > 0.9', async () => {
+  it('scores > 0.8', async () => {
     const { width, height } = imgEl
 
     const result = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]

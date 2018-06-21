@@ -36,6 +36,10 @@ export class FaceDetectionNet {
   }
 
   private forwardTensor(imgTensor: tf.Tensor4D) {
+    if (!this._params) {
+      throw new Error('FaceDetectionNet - load model before inference')
+    }
+
     return tf.tidy(() => {
 
       const resized = resizeLayer(imgTensor) as tf.Tensor4D

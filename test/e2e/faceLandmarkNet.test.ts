@@ -1,21 +1,19 @@
-import axios from 'axios';
-
 import * as faceapi from '../../src';
 import { FaceLandmarks } from '../../src/faceLandmarkNet/FaceLandmarks';
 import { Point } from '../../src/Point';
 
 describe('faceLandmarkNet', () => {
 
-  let faceLandmarkNet: any, imgEl: HTMLImageElement, faceLandmarkPositions: Point[]
+  let faceLandmarkNet: faceapi.FaceLandmarkNet, imgEl: HTMLImageElement, faceLandmarkPositions: Point[]
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/uncompressed/face_landmark_68_model.weights', { responseType: 'arraybuffer' })
-    const weights = new Float32Array(res.data)
+    const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
+    const weights = new Float32Array(await res.arrayBuffer())
     faceLandmarkNet = faceapi.faceLandmarkNet(weights)
 
-    const img = await axios.get('base/test/images/face.png', { responseType: 'blob' })
-    imgEl = await faceapi.bufferToImage(img.data)
-    faceLandmarkPositions = (await axios.get('base/test/data/faceLandmarkPositions.json')).data
+    const img = await (await fetch('base/test/images/face.png')).blob()
+    imgEl = await faceapi.bufferToImage(img)
+    faceLandmarkPositions = await (await fetch('base/test/data/faceLandmarkPositions.json')).json()
   })
 
   it('computes face descriptor', async () => {

@@ -9,12 +9,12 @@ function getFaceImageUri(className, idx) {
 }
 
 async function fetchImage(uri) {
-  return (await axios.get(uri, { responseType: 'blob' })).data
+  return (await fetch(uri)).blob()
 }
 
 async function initFaceRecognitionNet() {
-  const res = await axios.get('uncompressed/face_recognition_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
+  const res = await fetch('uncompressed/face_recognition_model.weights')
+  const weights = new Float32Array(await res.arrayBuffer())
   return faceapi.faceRecognitionNet(weights)
 }
 
