@@ -19,7 +19,7 @@ export class FaceDetectionNet {
 
   private _params: NetParams
 
-  public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
+  public async load(weightsOrUrl?: Float32Array | string): Promise<void> {
     if (weightsOrUrl instanceof Float32Array) {
       this.extractWeights(weightsOrUrl)
       return
