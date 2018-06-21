@@ -9,7 +9,7 @@ describe('faceLandmarkNet', () => {
   let faceLandmarkNet: any, imgEl: HTMLImageElement, faceLandmarkPositions: Point[]
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/face_landmark_68_model.weights', { responseType: 'arraybuffer' })
+    const res = await axios.get('base/weights/uncompressed/face_landmark_68_model.weights', { responseType: 'arraybuffer' })
     const weights = new Float32Array(res.data)
     faceLandmarkNet = faceapi.faceLandmarkNet(weights)
 

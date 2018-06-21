@@ -7,7 +7,7 @@ describe('faceRecognitionNet', () => {
   let faceRecognitionNet: any, imgEl: HTMLImageElement, faceDescriptor: number[]
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/face_recognition_model.weights', { responseType: 'arraybuffer' })
+    const res = await axios.get('base/weights/uncompressed/face_recognition_model.weights', { responseType: 'arraybuffer' })
     const weights = new Float32Array(res.data)
     faceRecognitionNet = faceapi.faceRecognitionNet(weights)
 
