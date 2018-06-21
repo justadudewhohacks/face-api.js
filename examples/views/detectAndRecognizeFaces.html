@@ -143,9 +143,11 @@
     }
 
     async function run() {
-      detectionNet = await initFaceDetectionNet()
+      detectionNet = new faceapi.FaceDetectionNet()
+      await detectionNet.load('/')
+      landmarkNet = new faceapi.FaceLandmarkNet()
+      await landmarkNet.load('/')
       recognitionNet = await initFaceRecognitionNet()
-      landmarkNet = await initFaceLandmarkNet()
       trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet, 1)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())

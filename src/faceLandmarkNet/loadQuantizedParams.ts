@@ -7,8 +7,7 @@ import { isTensor4D, isTensor1D, isTensor2D } from '../commons/isTensor';
 
 const DEFAULT_MODEL_NAME = 'face_landmark_68_model'
 
-export async function loadQuantizedParams(uri: string | undefined): Promise<NetParams> {
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
+function extractorsFactory(weightMap: any) {
 
   function extractConvParams(prefix: string): ConvParams {
     const params = {
@@ -43,6 +42,20 @@ export async function loadQuantizedParams(uri: string | undefined): Promise<NetP
 
     return params
   }
+
+  return {
+    extractConvParams,
+    extractFcParams
+  }
+}
+
+export async function loadQuantizedParams(uri: string | undefined): Promise<NetParams> {
+  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
+
+  const {
+    extractConvParams,
+    extractFcParams
+  } = extractorsFactory(weightMap)
 
   return {
     conv0_params: extractConvParams('conv2d_0'),

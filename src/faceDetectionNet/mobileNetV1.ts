@@ -1,13 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { pointwiseConvLayer } from './pointwiseConvLayer';
-import { FaceDetectionNet } from './types';
+import { MobileNetV1 } from './types';
 
 const epsilon = 0.0010000000474974513
 
 function depthwiseConvLayer(
   x: tf.Tensor4D,
-  params: FaceDetectionNet.MobileNetV1.DepthwiseConvParams,
+  params: MobileNetV1.DepthwiseConvParams,
   strides: [number, number]
 ) {
   return tf.tidy(() => {
@@ -30,7 +30,7 @@ function getStridesForLayerIdx(layerIdx: number): [number, number] {
   return [2, 4, 6, 12].some(idx => idx === layerIdx) ? [2, 2] : [1, 1]
 }
 
-export function mobileNetV1(x: tf.Tensor4D, params: FaceDetectionNet.MobileNetV1.Params) {
+export function mobileNetV1(x: tf.Tensor4D, params: MobileNetV1.Params) {
   return tf.tidy(() => {
 
     let conv11 = null

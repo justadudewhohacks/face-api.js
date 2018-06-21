@@ -12,22 +12,10 @@ async function fetchImage(uri) {
   return (await axios.get(uri, { responseType: 'blob' })).data
 }
 
-async function initFaceDetectionNet() {
-  const res = await axios.get('face_detection_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
-  return faceapi.faceDetectionNet(weights)
-}
-
 async function initFaceRecognitionNet() {
-  const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
+  const res = await axios.get('uncompressed/face_recognition_model.weights', { responseType: 'arraybuffer' })
   const weights = new Float32Array(res.data)
   return faceapi.faceRecognitionNet(weights)
-}
-
-async function initFaceLandmarkNet() {
-  const res = await axios.get('face_landmark_68_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
-  return faceapi.faceLandmarkNet(weights)
 }
 
 // fetch first image of each class and compute their descriptors

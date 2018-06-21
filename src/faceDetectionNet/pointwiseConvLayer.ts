@@ -1,10 +1,10 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceDetectionNet } from './types';
+import { PointwiseConvParams } from './types';
 
 export function pointwiseConvLayer(
   x: tf.Tensor4D,
-  params: FaceDetectionNet.PointwiseConvParams,
+  params: PointwiseConvParams,
   strides: [number, number]
 ) {
   return tf.tidy(() => {

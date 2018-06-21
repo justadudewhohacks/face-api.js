@@ -89,8 +89,10 @@
     }
 
     async function run() {
-      detectionNet = await initFaceDetectionNet()
-      landmarkNet = await initFaceLandmarkNet()
+      detectionNet = new faceapi.FaceDetectionNet()
+      await detectionNet.load('/')
+      landmarkNet = new faceapi.FaceLandmarkNet()
+      await landmarkNet.load('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

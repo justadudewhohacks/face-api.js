@@ -87,7 +87,8 @@
     }
 
     async function run() {
-      net = await initFaceDetectionNet()
+      net = new faceapi.FaceDetectionNet()
+      await net.load('/')
       $('#loader').hide()
     }
 

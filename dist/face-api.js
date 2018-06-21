@@ -15201,6 +15201,28 @@
         });
     }
 
+    function scale(x, params) {
+        return add(mul(x, params.weights), params.biases);
+    }
+
+    function convLayer(x, params, strides, withRelu, padding) {
+        if (padding === void 0) { padding = 'same'; }
+        var _a = params.conv, filters = _a.filters, bias = _a.bias;
+        var out = conv2d(x, filters, strides, padding);
+        out = add(out, bias);
+        out = scale(out, params.scale);
+        return withRelu ? relu(out) : out;
+    }
+    function conv(x, params) {
+        return convLayer(x, params, [1, 1], true);
+    }
+    function convNoRelu(x, params) {
+        return convLayer(x, params, [1, 1], false);
+    }
+    function convDown(x, params) {
+        return convLayer(x, params, [2, 2], true, 'valid');
+    }
+
     function extractWeightsFactory(weights) {
         var remainingWeights = weights;
         function extractWeights(numWeights) {
@@ -15218,6 +15240,279 @@
     }
 
     function extractorsFactory(extractWeights) {
+        function extractFilterValues(numFilterValues, numFilters, filterSize) {
+            var weights = extractWeights(numFilterValues);
+            var depth = weights.length / (numFilters * filterSize * filterSize);
+            if (isFloat(depth)) {
+                throw new Error("depth has to be an integer: " + depth + ", weights.length: " + weights.length + ", numFilters: " + numFilters + ", filterSize: " + filterSize);
+            }
+            return transpose(tensor4d(weights, [numFilters, depth, filterSize, filterSize]), [2, 3, 1, 0]);
+        }
+        function extractScaleLayerParams(numWeights) {
+            var weights = tensor1d(extractWeights(numWeights));
+            var biases = tensor1d(extractWeights(numWeights));
+            return {
+                weights: weights,
+                biases: biases
+            };
+        }
+        function extractConvLayerParams(numFilterValues, numFilters, filterSize) {
+            var conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize);
+            var conv_bias = tensor1d(extractWeights(numFilters));
+            var scale = extractScaleLayerParams(numFilters);
+            return {
+                conv: {
+                    filters: conv_filters,
+                    bias: conv_bias
+                },
+                scale: scale
+            };
+        }
+        function extractResidualLayerParams(numFilterValues, numFilters, filterSize, isDown) {
+            if (isDown === void 0) { isDown = false; }
+            var conv1 = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize);
+            var conv2 = extractConvLayerParams(numFilterValues, numFilters, filterSize);
+            return {
+                conv1: conv1,
+                conv2: conv2
+            };
+        }
+        return {
+            extractConvLayerParams: extractConvLayerParams,
+            extractResidualLayerParams: extractResidualLayerParams
+        };
+    }
+    function extractParams(weights) {
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var _b = extractorsFactory(extractWeights), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
+        var conv32_down = extractConvLayerParams(4704, 32, 7);
+        var conv32_1 = extractResidualLayerParams(9216, 32, 3);
+        var conv32_2 = extractResidualLayerParams(9216, 32, 3);
+        var conv32_3 = extractResidualLayerParams(9216, 32, 3);
+        var conv64_down = extractResidualLayerParams(36864, 64, 3, true);
+        var conv64_1 = extractResidualLayerParams(36864, 64, 3);
+        var conv64_2 = extractResidualLayerParams(36864, 64, 3);
+        var conv64_3 = extractResidualLayerParams(36864, 64, 3);
+        var conv128_down = extractResidualLayerParams(147456, 128, 3, true);
+        var conv128_1 = extractResidualLayerParams(147456, 128, 3);
+        var conv128_2 = extractResidualLayerParams(147456, 128, 3);
+        var conv256_down = extractResidualLayerParams(589824, 256, 3, true);
+        var conv256_1 = extractResidualLayerParams(589824, 256, 3);
+        var conv256_2 = extractResidualLayerParams(589824, 256, 3);
+        var conv256_down_out = extractResidualLayerParams(589824, 256, 3);
+        var fc = transpose(tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0]);
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+        }
+        return {
+            conv32_down: conv32_down,
+            conv32_1: conv32_1,
+            conv32_2: conv32_2,
+            conv32_3: conv32_3,
+            conv64_down: conv64_down,
+            conv64_1: conv64_1,
+            conv64_2: conv64_2,
+            conv64_3: conv64_3,
+            conv128_down: conv128_down,
+            conv128_1: conv128_1,
+            conv128_2: conv128_2,
+            conv256_down: conv256_down,
+            conv256_1: conv256_1,
+            conv256_2: conv256_2,
+            conv256_down_out: conv256_down_out,
+            fc: fc
+        };
+    }
+
+    function normalize(x) {
+        return tidy(function () {
+            var avg_r = fill([1, 150, 150, 1], 122.782);
+            var avg_g = fill([1, 150, 150, 1], 117.001);
+            var avg_b = fill([1, 150, 150, 1], 104.298);
+            var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
+            return div(sub(x, avg_rgb), scalar(256));
+        });
+    }
+
+    function residual(x, params) {
+        var out = conv(x, params.conv1);
+        out = convNoRelu(out, params.conv2);
+        out = add(out, x);
+        out = relu(out);
+        return out;
+    }
+    function residualDown(x, params) {
+        var out = convDown(x, params.conv1);
+        out = convNoRelu(out, params.conv2);
+        var pooled = avgPool(x, 2, 2, 'valid');
+        var zeros$$1 = zeros(pooled.shape);
+        var isPad = pooled.shape[3] !== out.shape[3];
+        var isAdjustShape = pooled.shape[1] !== out.shape[1] || pooled.shape[2] !== out.shape[2];
+        if (isAdjustShape) {
+            var padShapeX = out.shape.slice();
+            padShapeX[1] = 1;
+            var zerosW = zeros(padShapeX);
+            out = concat([out, zerosW], 1);
+            var padShapeY = out.shape.slice();
+            padShapeY[2] = 1;
+            var zerosH = zeros(padShapeY);
+            out = concat([out, zerosH], 2);
+        }
+        pooled = isPad ? concat([pooled, zeros$$1], 3) : pooled;
+        out = add(pooled, out);
+        out = relu(out);
+        return out;
+    }
+
+    function faceRecognitionNet(weights) {
+        var _this = this;
+        var params = extractParams(weights);
+        function forward(input) {
+            return tidy(function () {
+                var x = padToSquare(getImageTensor(input), true);
+                // work with 150 x 150 sized face images
+                if (x.shape[1] !== 150 || x.shape[2] !== 150) {
+                    x = image.resizeBilinear(x, [150, 150]);
+                }
+                x = normalize(x);
+                var out = convDown(x, params.conv32_down);
+                out = maxPool(out, 3, 2, 'valid');
+                out = residual(out, params.conv32_1);
+                out = residual(out, params.conv32_2);
+                out = residual(out, params.conv32_3);
+                out = residualDown(out, params.conv64_down);
+                out = residual(out, params.conv64_1);
+                out = residual(out, params.conv64_2);
+                out = residual(out, params.conv64_3);
+                out = residualDown(out, params.conv128_down);
+                out = residual(out, params.conv128_1);
+                out = residual(out, params.conv128_2);
+                out = residualDown(out, params.conv256_down);
+                out = residual(out, params.conv256_1);
+                out = residual(out, params.conv256_2);
+                out = residualDown(out, params.conv256_down_out);
+                var globalAvg = out.mean([1, 2]);
+                var fullyConnected = matMul(globalAvg, params.fc);
+                return fullyConnected;
+            });
+        }
+        var computeFaceDescriptor = function (input) { return __awaiter$e(_this, void 0, void 0, function () {
+            var result, data;
+            return __generator$e(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        result = forward(input);
+                        return [4 /*yield*/, result.data()];
+                    case 1:
+                        data = _a.sent();
+                        result.dispose();
+                        return [2 /*return*/, data];
+                }
+            });
+        }); };
+        var computeFaceDescriptorSync = function (input) {
+            var result = forward(input);
+            var data = result.dataSync();
+            result.dispose();
+            return data;
+        };
+        return {
+            computeFaceDescriptor: computeFaceDescriptor,
+            computeFaceDescriptorSync: computeFaceDescriptorSync,
+            forward: forward
+        };
+    }
+
+    var Rect = /** @class */ (function () {
+        function Rect(x, y, width, height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        Rect.prototype.floor = function () {
+            return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+        };
+        return Rect;
+    }());
+
+    var FaceDetection = /** @class */ (function () {
+        function FaceDetection(score, relativeBox, imageDims) {
+            var width = imageDims.width, height = imageDims.height;
+            this._imageWidth = width;
+            this._imageHeight = height;
+            this._score = score;
+            this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
+        }
+        FaceDetection.prototype.getScore = function () {
+            return this._score;
+        };
+        FaceDetection.prototype.getBox = function () {
+            return this._box;
+        };
+        FaceDetection.prototype.getImageWidth = function () {
+            return this._imageWidth;
+        };
+        FaceDetection.prototype.getImageHeight = function () {
+            return this._imageHeight;
+        };
+        FaceDetection.prototype.getRelativeBox = function () {
+            return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
+        };
+        FaceDetection.prototype.forSize = function (width, height) {
+            return new FaceDetection(this._score, this.getRelativeBox(), { width: width, height: height });
+        };
+        return FaceDetection;
+    }());
+
+    /**
+     * Extracts the image regions containing the detected faces.
+     *
+     * @param input The image that face detection has been performed on.
+     * @param detections The face detection results or face bounding boxes for that image.
+     * @returns The Canvases of the corresponding image region for each detected face.
+     */
+    function extractFaces(image, detections) {
+        var ctx = getContext2dOrThrow(image);
+        var boxes = detections.map(function (det) { return det instanceof FaceDetection
+            ? det.forSize(image.width, image.height).getBox().floor()
+            : det; });
+        return boxes.map(function (_a) {
+            var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+            var faceImg = createCanvas({ width: width, height: height });
+            getContext2dOrThrow(faceImg)
+                .putImageData(ctx.getImageData(x, y, width, height), 0, 0);
+            return faceImg;
+        });
+    }
+
+    /**
+     * Extracts the tensors of the image regions containing the detected faces.
+     * Useful if you want to compute the face descriptors for the face images.
+     * Using this method is faster then extracting a canvas for each face and
+     * converting them to tensors individually.
+     *
+     * @param input The image that face detection has been performed on.
+     * @param detections The face detection results or face bounding boxes for that image.
+     * @returns Tensors of the corresponding image region for each detected face.
+     */
+    function extractFaceTensors(image$$1, detections) {
+        return tidy(function () {
+            var imgTensor = getImageTensor(image$$1);
+            // TODO handle batches
+            var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
+            var boxes = detections.map(function (det) { return det instanceof FaceDetection
+                ? det.forSize(imgWidth, imgHeight).getBox().floor()
+                : det; });
+            var faceTensors = boxes.map(function (_a) {
+                var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+                return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
+            });
+            return faceTensors;
+        });
+    }
+
+    function extractorsFactory$1(extractWeights) {
         function extractDepthwiseConvParams(numChannels) {
             var filters = tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
             var batch_norm_scale = tensor1d(extractWeights(numChannels));
@@ -15348,9 +15643,9 @@
             extractPredictionLayerParams: extractPredictionLayerParams
         };
     }
-    function extractParams(weights) {
+    function extractParams$1(weights) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory(extractWeights), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
+        var _b = extractorsFactory$1(extractWeights), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
         var mobilenetv1_params = extractMobilenetV1Params();
         var prediction_layer_params = extractPredictionLayerParams();
         var extra_dim = tensor3d(extractWeights(5118 * 4), [1, 5118, 4]);
@@ -15367,47 +15662,173 @@
         };
     }
 
-    var Rect = /** @class */ (function () {
-        function Rect(x, y, width, height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-        Rect.prototype.floor = function () {
-            return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
-        };
-        return Rect;
-    }());
+    function isTensor(tensor$$1, dim) {
+        return tensor$$1 instanceof Tensor && tensor$$1.shape.length === dim;
+    }
+    function isTensor1D(tensor$$1) {
+        return isTensor(tensor$$1, 1);
+    }
+    function isTensor2D(tensor$$1) {
+        return isTensor(tensor$$1, 2);
+    }
+    function isTensor3D(tensor$$1) {
+        return isTensor(tensor$$1, 3);
+    }
+    function isTensor4D(tensor$$1) {
+        return isTensor(tensor$$1, 4);
+    }
 
-    var FaceDetection = /** @class */ (function () {
-        function FaceDetection(score, relativeBox, imageDims) {
-            var width = imageDims.width, height = imageDims.height;
-            this._imageWidth = width;
-            this._imageHeight = height;
-            this._score = score;
-            this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
+    function getModelUris(uri, defaultModelName) {
+        var parts = (uri || '').split('/');
+        var modelBaseUri = ((uri || '').endsWith('.json')
+            ? parts.slice(0, parts.length - 1)
+            : parts).filter(function (s) { return s; }).join('/');
+        var defaultManifestFilename = defaultModelName + "-weights_manifest.json";
+        var manifestUri = !uri || !modelBaseUri
+            ? defaultManifestFilename
+            : (uri.endsWith('.json')
+                ? uri
+                : modelBaseUri + "/" + defaultManifestFilename);
+        return { manifestUri: manifestUri, modelBaseUri: modelBaseUri };
+    }
+    function loadWeightMap(uri, defaultModelName) {
+        return __awaiter$e(this, void 0, void 0, function () {
+            var _a, manifestUri, modelBaseUri, manifest;
+            return __generator$e(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = getModelUris(uri, defaultModelName), manifestUri = _a.manifestUri, modelBaseUri = _a.modelBaseUri;
+                        return [4 /*yield*/, fetch(manifestUri)];
+                    case 1: return [4 /*yield*/, (_b.sent()).json()];
+                    case 2:
+                        manifest = _b.sent();
+                        return [2 /*return*/, loadWeights(manifest, modelBaseUri)];
+                }
+            });
+        });
+    }
+
+    var DEFAULT_MODEL_NAME = 'face_detection_model';
+    function extractorsFactory$2(weightMap) {
+        function extractPointwiseConvParams(prefix, idx) {
+            var pointwise_conv_params = {
+                filters: weightMap[prefix + "/Conv2d_" + idx + "_pointwise/weights"],
+                batch_norm_offset: weightMap[prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset"]
+            };
+            if (!isTensor4D(pointwise_conv_params.filters)) {
+                throw new Error("expected weightMap[" + prefix + "/Conv2d_" + idx + "_pointwise/weights] to be a Tensor4D, instead have " + pointwise_conv_params.filters);
+            }
+            if (!isTensor1D(pointwise_conv_params.batch_norm_offset)) {
+                throw new Error("expected weightMap[" + prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset] to be a Tensor1D, instead have " + pointwise_conv_params.batch_norm_offset);
+            }
+            return pointwise_conv_params;
         }
-        FaceDetection.prototype.getScore = function () {
-            return this._score;
+        function extractConvPairParams(idx) {
+            var depthwise_conv_params = {
+                filters: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/depthwise_weights"],
+                batch_norm_scale: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/gamma"],
+                batch_norm_offset: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/beta"],
+                batch_norm_mean: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_mean"],
+                batch_norm_variance: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_variance"],
+            };
+            if (!isTensor4D(depthwise_conv_params.filters)) {
+                throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/depthwise_weights] to be a Tensor4D, instead have " + depthwise_conv_params.filters);
+            }
+            if (!isTensor1D(depthwise_conv_params.batch_norm_scale)) {
+                throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/gamma] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_scale);
+            }
+            if (!isTensor1D(depthwise_conv_params.batch_norm_offset)) {
+                throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/beta] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_offset);
+            }
+            if (!isTensor1D(depthwise_conv_params.batch_norm_mean)) {
+                throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_mean] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_mean);
+            }
+            if (!isTensor1D(depthwise_conv_params.batch_norm_variance)) {
+                throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_variance] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_variance);
+            }
+            return {
+                depthwise_conv_params: depthwise_conv_params,
+                pointwise_conv_params: extractPointwiseConvParams('MobilenetV1', idx)
+            };
+        }
+        function extractMobilenetV1Params() {
+            return {
+                conv_0_params: extractPointwiseConvParams('MobilenetV1', 0),
+                conv_pair_params: Array(13).fill(0).map(function (_, i) { return extractConvPairParams(i + 1); })
+            };
+        }
+        function extractBoxPredictorParams(idx) {
+            var params = {
+                box_encoding_predictor_params: {
+                    filters: weightMap["Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/weights"],
+                    bias: weightMap["Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/biases"]
+                },
+                class_predictor_params: {
+                    filters: weightMap["Prediction/BoxPredictor_" + idx + "/ClassPredictor/weights"],
+                    bias: weightMap["Prediction/BoxPredictor_" + idx + "/ClassPredictor/biases"]
+                }
+            };
+            if (!isTensor4D(params.box_encoding_predictor_params.filters)) {
+                throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/weights] to be a Tensor4D, instead have " + params.box_encoding_predictor_params.filters);
+            }
+            if (!isTensor1D(params.box_encoding_predictor_params.bias)) {
+                throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/biases] to be a Tensor1D, instead have " + params.box_encoding_predictor_params.bias);
+            }
+            if (!isTensor4D(params.class_predictor_params.filters)) {
+                throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/ClassPredictor/weights] to be a Tensor4D, instead have " + params.class_predictor_params.filters);
+            }
+            if (!isTensor1D(params.class_predictor_params.bias)) {
+                throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/ClassPredictor/biases] to be a Tensor1D, instead have " + params.class_predictor_params.bias);
+            }
+            return params;
+        }
+        function extractPredictionLayerParams() {
+            return {
+                conv_0_params: extractPointwiseConvParams('Prediction', 0),
+                conv_1_params: extractPointwiseConvParams('Prediction', 1),
+                conv_2_params: extractPointwiseConvParams('Prediction', 2),
+                conv_3_params: extractPointwiseConvParams('Prediction', 3),
+                conv_4_params: extractPointwiseConvParams('Prediction', 4),
+                conv_5_params: extractPointwiseConvParams('Prediction', 5),
+                conv_6_params: extractPointwiseConvParams('Prediction', 6),
+                conv_7_params: extractPointwiseConvParams('Prediction', 7),
+                box_predictor_0_params: extractBoxPredictorParams(0),
+                box_predictor_1_params: extractBoxPredictorParams(1),
+                box_predictor_2_params: extractBoxPredictorParams(2),
+                box_predictor_3_params: extractBoxPredictorParams(3),
+                box_predictor_4_params: extractBoxPredictorParams(4),
+                box_predictor_5_params: extractBoxPredictorParams(5)
+            };
+        }
+        return {
+            extractMobilenetV1Params: extractMobilenetV1Params,
+            extractPredictionLayerParams: extractPredictionLayerParams
         };
-        FaceDetection.prototype.getBox = function () {
-            return this._box;
-        };
-        FaceDetection.prototype.getImageWidth = function () {
-            return this._imageWidth;
-        };
-        FaceDetection.prototype.getImageHeight = function () {
-            return this._imageHeight;
-        };
-        FaceDetection.prototype.getRelativeBox = function () {
-            return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
-        };
-        FaceDetection.prototype.forSize = function (width, height) {
-            return new FaceDetection(this._score, this.getRelativeBox(), { width: width, height: height });
-        };
-        return FaceDetection;
-    }());
+    }
+    function loadQuantizedParams(uri) {
+        return __awaiter$e(this, void 0, void 0, function () {
+            var weightMap, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim;
+            return __generator$e(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                    case 1:
+                        weightMap = _b.sent();
+                        _a = extractorsFactory$2(weightMap), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
+                        extra_dim = weightMap['Output/extra_dim'];
+                        if (!isTensor3D(extra_dim)) {
+                            throw new Error("expected weightMap['Output/extra_dim'] to be a Tensor3D, instead have " + extra_dim);
+                        }
+                        return [2 /*return*/, {
+                                mobilenetv1_params: extractMobilenetV1Params(),
+                                prediction_layer_params: extractPredictionLayerParams(),
+                                output_layer_params: {
+                                    extra_dim: extra_dim
+                                }
+                            }];
+                }
+            });
+        });
+    }
 
     function pointwiseConvLayer(x, params, strides) {
         return tidy(function () {
@@ -15550,7 +15971,7 @@
         });
     }
 
-    function convLayer(x, params, padding, withRelu) {
+    function convLayer$1(x, params, padding, withRelu) {
         if (padding === void 0) { padding = 'same'; }
         if (withRelu === void 0) { withRelu = false; }
         return tidy(function () {
@@ -15562,8 +15983,8 @@
     function boxPredictionLayer(x, params) {
         return tidy(function () {
             var batchSize = x.shape[0];
-            var boxPredictionEncoding = reshape(convLayer(x, params.box_encoding_predictor_params), [batchSize, -1, 1, 4]);
-            var classPrediction = reshape(convLayer(x, params.class_predictor_params), [batchSize, -1, 3]);
+            var boxPredictionEncoding = reshape(convLayer$1(x, params.box_encoding_predictor_params), [batchSize, -1, 1, 4]);
+            var classPrediction = reshape(convLayer$1(x, params.class_predictor_params), [batchSize, -1, 3]);
             return {
                 boxPredictionEncoding: boxPredictionEncoding,
                 classPrediction: classPrediction
@@ -15620,23 +16041,52 @@
         });
     }
 
-    function faceDetectionNet(weights) {
-        var params = extractParams(weights);
-        function forwardTensor(imgTensor) {
+    var FaceDetectionNet = /** @class */ (function () {
+        function FaceDetectionNet() {
+        }
+        FaceDetectionNet.prototype.load = function (weightsOrUrl) {
+            return __awaiter$e(this, void 0, void 0, function () {
+                var _a;
+                return __generator$e(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            if (weightsOrUrl instanceof Float32Array) {
+                                this.extractWeights(weightsOrUrl);
+                                return [2 /*return*/];
+                            }
+                            if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
+                                throw new Error('FaceDetectionNet.load - expected model uri, or weights as Float32Array');
+                            }
+                            _a = this;
+                            return [4 /*yield*/, loadQuantizedParams(weightsOrUrl)];
+                        case 1:
+                            _a._params = _b.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        FaceDetectionNet.prototype.extractWeights = function (weights) {
+            this._params = extractParams$1(weights);
+        };
+        FaceDetectionNet.prototype.forwardTensor = function (imgTensor) {
+            var _this = this;
             return tidy(function () {
                 var resized = resizeLayer(imgTensor);
-                var features = mobileNetV1(resized, params.mobilenetv1_params);
-                var _a = predictionLayer(features.out, features.conv11, params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-                return outputLayer(boxPredictions, classPredictions, params.output_layer_params);
+                var features = mobileNetV1(resized, _this._params.mobilenetv1_params);
+                var _a = predictionLayer(features.out, features.conv11, _this._params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+                return outputLayer(boxPredictions, classPredictions, _this._params.output_layer_params);
             });
-        }
-        function forward(input) {
-            return tidy(function () { return forwardTensor(padToSquare(getImageTensor(input))); });
-        }
-        function locateFaces(input, minConfidence, maxResults) {
+        };
+        FaceDetectionNet.prototype.forward = function (input) {
+            var _this = this;
+            return tidy(function () { return _this.forwardTensor(padToSquare(getImageTensor(input))); });
+        };
+        FaceDetectionNet.prototype.locateFaces = function (input, minConfidence, maxResults) {
             if (minConfidence === void 0) { minConfidence = 0.8; }
             if (maxResults === void 0) { maxResults = 100; }
             return __awaiter$e(this, void 0, void 0, function () {
+                var _this = this;
                 var paddedHeightRelative, paddedWidthRelative, imageDimensions, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, results;
                 return __generator$e(this, function (_d) {
                     switch (_d.label) {
@@ -15649,7 +16099,7 @@
                                 imgTensor = padToSquare(imgTensor);
                                 paddedHeightRelative = imgTensor.shape[1] / height;
                                 paddedWidthRelative = imgTensor.shape[2] / width;
-                                return forwardTensor(imgTensor);
+                                return _this.forwardTensor(imgTensor);
                             }), _boxes = _a.boxes, _scores = _a.scores;
                             boxes = _boxes[0];
                             scores = _scores[0];
@@ -15681,264 +16131,14 @@
                     }
                 });
             });
-        }
-        return {
-            forward: forward,
-            locateFaces: locateFaces
         };
-    }
+        return FaceDetectionNet;
+    }());
 
-    function scale(x, params) {
-        return add(mul(x, params.weights), params.biases);
-    }
-
-    function convLayer$1(x, params, strides, withRelu, padding) {
-        if (padding === void 0) { padding = 'same'; }
-        var _a = params.conv, filters = _a.filters, bias = _a.bias;
-        var out = conv2d(x, filters, strides, padding);
-        out = add(out, bias);
-        out = scale(out, params.scale);
-        return withRelu ? relu(out) : out;
-    }
-    function conv(x, params) {
-        return convLayer$1(x, params, [1, 1], true);
-    }
-    function convNoRelu(x, params) {
-        return convLayer$1(x, params, [1, 1], false);
-    }
-    function convDown(x, params) {
-        return convLayer$1(x, params, [2, 2], true, 'valid');
-    }
-
-    function extractorsFactory$1(extractWeights) {
-        function extractFilterValues(numFilterValues, numFilters, filterSize) {
-            var weights = extractWeights(numFilterValues);
-            var depth = weights.length / (numFilters * filterSize * filterSize);
-            if (isFloat(depth)) {
-                throw new Error("depth has to be an integer: " + depth + ", weights.length: " + weights.length + ", numFilters: " + numFilters + ", filterSize: " + filterSize);
-            }
-            return transpose(tensor4d(weights, [numFilters, depth, filterSize, filterSize]), [2, 3, 1, 0]);
-        }
-        function extractScaleLayerParams(numWeights) {
-            var weights = tensor1d(extractWeights(numWeights));
-            var biases = tensor1d(extractWeights(numWeights));
-            return {
-                weights: weights,
-                biases: biases
-            };
-        }
-        function extractConvLayerParams(numFilterValues, numFilters, filterSize) {
-            var conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize);
-            var conv_bias = tensor1d(extractWeights(numFilters));
-            var scale = extractScaleLayerParams(numFilters);
-            return {
-                conv: {
-                    filters: conv_filters,
-                    bias: conv_bias
-                },
-                scale: scale
-            };
-        }
-        function extractResidualLayerParams(numFilterValues, numFilters, filterSize, isDown) {
-            if (isDown === void 0) { isDown = false; }
-            var conv1 = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize);
-            var conv2 = extractConvLayerParams(numFilterValues, numFilters, filterSize);
-            return {
-                conv1: conv1,
-                conv2: conv2
-            };
-        }
-        return {
-            extractConvLayerParams: extractConvLayerParams,
-            extractResidualLayerParams: extractResidualLayerParams
-        };
-    }
-    function extractParams$1(weights) {
-        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory$1(extractWeights), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
-        var conv32_down = extractConvLayerParams(4704, 32, 7);
-        var conv32_1 = extractResidualLayerParams(9216, 32, 3);
-        var conv32_2 = extractResidualLayerParams(9216, 32, 3);
-        var conv32_3 = extractResidualLayerParams(9216, 32, 3);
-        var conv64_down = extractResidualLayerParams(36864, 64, 3, true);
-        var conv64_1 = extractResidualLayerParams(36864, 64, 3);
-        var conv64_2 = extractResidualLayerParams(36864, 64, 3);
-        var conv64_3 = extractResidualLayerParams(36864, 64, 3);
-        var conv128_down = extractResidualLayerParams(147456, 128, 3, true);
-        var conv128_1 = extractResidualLayerParams(147456, 128, 3);
-        var conv128_2 = extractResidualLayerParams(147456, 128, 3);
-        var conv256_down = extractResidualLayerParams(589824, 256, 3, true);
-        var conv256_1 = extractResidualLayerParams(589824, 256, 3);
-        var conv256_2 = extractResidualLayerParams(589824, 256, 3);
-        var conv256_down_out = extractResidualLayerParams(589824, 256, 3);
-        var fc = transpose(tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0]);
-        if (getRemainingWeights().length !== 0) {
-            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
-        }
-        return {
-            conv32_down: conv32_down,
-            conv32_1: conv32_1,
-            conv32_2: conv32_2,
-            conv32_3: conv32_3,
-            conv64_down: conv64_down,
-            conv64_1: conv64_1,
-            conv64_2: conv64_2,
-            conv64_3: conv64_3,
-            conv128_down: conv128_down,
-            conv128_1: conv128_1,
-            conv128_2: conv128_2,
-            conv256_down: conv256_down,
-            conv256_1: conv256_1,
-            conv256_2: conv256_2,
-            conv256_down_out: conv256_down_out,
-            fc: fc
-        };
-    }
-
-    function normalize(x) {
-        return tidy(function () {
-            var avg_r = fill([1, 150, 150, 1], 122.782);
-            var avg_g = fill([1, 150, 150, 1], 117.001);
-            var avg_b = fill([1, 150, 150, 1], 104.298);
-            var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
-            return div(sub(x, avg_rgb), scalar(256));
-        });
-    }
-
-    function residual(x, params) {
-        var out = conv(x, params.conv1);
-        out = convNoRelu(out, params.conv2);
-        out = add(out, x);
-        out = relu(out);
-        return out;
-    }
-    function residualDown(x, params) {
-        var out = convDown(x, params.conv1);
-        out = convNoRelu(out, params.conv2);
-        var pooled = avgPool(x, 2, 2, 'valid');
-        var zeros$$1 = zeros(pooled.shape);
-        var isPad = pooled.shape[3] !== out.shape[3];
-        var isAdjustShape = pooled.shape[1] !== out.shape[1] || pooled.shape[2] !== out.shape[2];
-        if (isAdjustShape) {
-            var padShapeX = out.shape.slice();
-            padShapeX[1] = 1;
-            var zerosW = zeros(padShapeX);
-            out = concat([out, zerosW], 1);
-            var padShapeY = out.shape.slice();
-            padShapeY[2] = 1;
-            var zerosH = zeros(padShapeY);
-            out = concat([out, zerosH], 2);
-        }
-        pooled = isPad ? concat([pooled, zeros$$1], 3) : pooled;
-        out = add(pooled, out);
-        out = relu(out);
-        return out;
-    }
-
-    function faceRecognitionNet(weights) {
-        var _this = this;
-        var params = extractParams$1(weights);
-        function forward(input) {
-            return tidy(function () {
-                var x = padToSquare(getImageTensor(input), true);
-                // work with 150 x 150 sized face images
-                if (x.shape[1] !== 150 || x.shape[2] !== 150) {
-                    x = image.resizeBilinear(x, [150, 150]);
-                }
-                x = normalize(x);
-                var out = convDown(x, params.conv32_down);
-                out = maxPool(out, 3, 2, 'valid');
-                out = residual(out, params.conv32_1);
-                out = residual(out, params.conv32_2);
-                out = residual(out, params.conv32_3);
-                out = residualDown(out, params.conv64_down);
-                out = residual(out, params.conv64_1);
-                out = residual(out, params.conv64_2);
-                out = residual(out, params.conv64_3);
-                out = residualDown(out, params.conv128_down);
-                out = residual(out, params.conv128_1);
-                out = residual(out, params.conv128_2);
-                out = residualDown(out, params.conv256_down);
-                out = residual(out, params.conv256_1);
-                out = residual(out, params.conv256_2);
-                out = residualDown(out, params.conv256_down_out);
-                var globalAvg = out.mean([1, 2]);
-                var fullyConnected = matMul(globalAvg, params.fc);
-                return fullyConnected;
-            });
-        }
-        var computeFaceDescriptor = function (input) { return __awaiter$e(_this, void 0, void 0, function () {
-            var result, data;
-            return __generator$e(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        result = forward(input);
-                        return [4 /*yield*/, result.data()];
-                    case 1:
-                        data = _a.sent();
-                        result.dispose();
-                        return [2 /*return*/, data];
-                }
-            });
-        }); };
-        var computeFaceDescriptorSync = function (input) {
-            var result = forward(input);
-            var data = result.dataSync();
-            result.dispose();
-            return data;
-        };
-        return {
-            computeFaceDescriptor: computeFaceDescriptor,
-            computeFaceDescriptorSync: computeFaceDescriptorSync,
-            forward: forward
-        };
-    }
-
-    /**
-     * Extracts the image regions containing the detected faces.
-     *
-     * @param input The image that face detection has been performed on.
-     * @param detections The face detection results or face bounding boxes for that image.
-     * @returns The Canvases of the corresponding image region for each detected face.
-     */
-    function extractFaces(image, detections) {
-        var ctx = getContext2dOrThrow(image);
-        var boxes = detections.map(function (det) { return det instanceof FaceDetection
-            ? det.forSize(image.width, image.height).getBox().floor()
-            : det; });
-        return boxes.map(function (_a) {
-            var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
-            var faceImg = createCanvas({ width: width, height: height });
-            getContext2dOrThrow(faceImg)
-                .putImageData(ctx.getImageData(x, y, width, height), 0, 0);
-            return faceImg;
-        });
-    }
-
-    /**
-     * Extracts the tensors of the image regions containing the detected faces.
-     * Useful if you want to compute the face descriptors for the face images.
-     * Using this method is faster then extracting a canvas for each face and
-     * converting them to tensors individually.
-     *
-     * @param input The image that face detection has been performed on.
-     * @param detections The face detection results or face bounding boxes for that image.
-     * @returns Tensors of the corresponding image region for each detected face.
-     */
-    function extractFaceTensors(image$$1, detections) {
-        return tidy(function () {
-            var imgTensor = getImageTensor(image$$1);
-            // TODO handle batches
-            var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
-            var boxes = detections.map(function (det) { return det instanceof FaceDetection
-                ? det.forSize(imgWidth, imgHeight).getBox().floor()
-                : det; });
-            var faceTensors = boxes.map(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
-                return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
-            });
-            return faceTensors;
-        });
+    function faceDetectionNet(weights) {
+        var net = new FaceDetectionNet();
+        net.extractWeights(weights);
+        return net;
     }
 
     var Point = /** @class */ (function () {
@@ -16122,84 +16322,48 @@
         });
     }
 
-    function getModelUris(uri, defaultModelName) {
-        var parts = (uri || '').split('/');
-        var modelBaseUri = ((uri || '').endsWith('.json')
-            ? parts.slice(0, parts.length - 1)
-            : parts).filter(function (s) { return s; }).join('/');
-        var defaultManifestFilename = defaultModelName + "-weights_manifest.json";
-        var manifestUri = !uri || !modelBaseUri
-            ? defaultManifestFilename
-            : (uri.endsWith('.json')
-                ? uri
-                : modelBaseUri + "/" + defaultManifestFilename);
-        return { manifestUri: manifestUri, modelBaseUri: modelBaseUri };
+    var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
+    function extractorsFactory$3(weightMap) {
+        function extractConvParams(prefix) {
+            var params = {
+                filters: weightMap[prefix + "/kernel"],
+                bias: weightMap[prefix + "/bias"]
+            };
+            if (!isTensor4D(params.filters)) {
+                throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor4D, instead have " + params.filters);
+            }
+            if (!isTensor1D(params.bias)) {
+                throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
+            }
+            return params;
+        }
+        function extractFcParams(prefix) {
+            var params = {
+                weights: weightMap[prefix + "/kernel"],
+                bias: weightMap[prefix + "/bias"]
+            };
+            if (!isTensor2D(params.weights)) {
+                throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor2D, instead have " + params.weights);
+            }
+            if (!isTensor1D(params.bias)) {
+                throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
+            }
+            return params;
+        }
+        return {
+            extractConvParams: extractConvParams,
+            extractFcParams: extractFcParams
+        };
     }
-    function loadWeightMap(uri, defaultModelName) {
+    function loadQuantizedParams$1(uri) {
         return __awaiter$e(this, void 0, void 0, function () {
-            var _a, manifestUri, modelBaseUri, manifest;
+            var weightMap, _a, extractConvParams, extractFcParams;
             return __generator$e(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
-                        _a = getModelUris(uri, defaultModelName), manifestUri = _a.manifestUri, modelBaseUri = _a.modelBaseUri;
-                        return [4 /*yield*/, fetch(manifestUri)];
-                    case 1: return [4 /*yield*/, (_b.sent()).json()];
-                    case 2:
-                        manifest = _b.sent();
-                        return [2 /*return*/, loadWeights(manifest, modelBaseUri)];
-                }
-            });
-        });
-    }
-
-    function isTensor(tensor$$1, dim) {
-        return tensor$$1 instanceof Tensor && tensor$$1.shape.length === dim;
-    }
-    function isTensor1D(tensor$$1) {
-        return isTensor(tensor$$1, 1);
-    }
-    function isTensor2D(tensor$$1) {
-        return isTensor(tensor$$1, 2);
-    }
-    function isTensor4D(tensor$$1) {
-        return isTensor(tensor$$1, 4);
-    }
-
-    var DEFAULT_MODEL_NAME = 'face_landmark_68_model';
-    function loadQuantizedParams(uri) {
-        return __awaiter$e(this, void 0, void 0, function () {
-            function extractConvParams(prefix) {
-                var params = {
-                    filters: weightMap[prefix + "/kernel"],
-                    bias: weightMap[prefix + "/bias"]
-                };
-                if (!isTensor4D(params.filters)) {
-                    throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor4D, instead have " + params.filters);
-                }
-                if (!isTensor1D(params.bias)) {
-                    throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
-                }
-                return params;
-            }
-            function extractFcParams(prefix) {
-                var params = {
-                    weights: weightMap[prefix + "/kernel"],
-                    bias: weightMap[prefix + "/bias"]
-                };
-                if (!isTensor2D(params.weights)) {
-                    throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor2D, instead have " + params.weights);
-                }
-                if (!isTensor1D(params.bias)) {
-                    throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
-                }
-                return params;
-            }
-            var weightMap;
-            return __generator$e(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$1)];
                     case 1:
-                        weightMap = _a.sent();
+                        weightMap = _b.sent();
+                        _a = extractorsFactory$3(weightMap), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
                         return [2 /*return*/, {
                                 conv0_params: extractConvParams('conv2d_0'),
                                 conv1_params: extractConvParams('conv2d_1'),
@@ -16218,7 +16382,7 @@
     }
 
     function conv$1(x, params) {
-        return convLayer(x, params, 'valid', true);
+        return convLayer$1(x, params, 'valid', true);
     }
     function maxPool$1(x, strides) {
         if (strides === void 0) { strides = [2, 2]; }
@@ -16241,7 +16405,7 @@
                                 throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
                             }
                             _a = this;
-                            return [4 /*yield*/, loadQuantizedParams(weightsOrUrl)];
+                            return [4 /*yield*/, loadQuantizedParams$1(weightsOrUrl)];
                         case 1:
                             _a._params = _b.sent();
                             return [2 /*return*/];
@@ -16303,19 +16467,20 @@
     }());
 
     function faceLandmarkNet(weights) {
-        var faceLandmarkNet = new FaceLandmarkNet();
-        faceLandmarkNet.extractWeights(weights);
-        return faceLandmarkNet;
+        var net = new FaceLandmarkNet();
+        net.extractWeights(weights);
+        return net;
     }
 
     exports.euclideanDistance = euclideanDistance;
-    exports.faceDetectionNet = faceDetectionNet;
     exports.faceRecognitionNet = faceRecognitionNet;
     exports.NetInput = NetInput;
     exports.tf = index;
     exports.padToSquare = padToSquare;
     exports.extractFaces = extractFaces;
     exports.extractFaceTensors = extractFaceTensors;
+    exports.faceDetectionNet = faceDetectionNet;
+    exports.FaceDetectionNet = FaceDetectionNet;
     exports.faceLandmarkNet = faceLandmarkNet;
     exports.FaceLandmarkNet = FaceLandmarkNet;
     exports.isFloat = isFloat;

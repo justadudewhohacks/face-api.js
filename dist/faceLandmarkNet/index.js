@@ -1,8 +1,8 @@
 import { FaceLandmarkNet } from './FaceLandmarkNet';
 export * from './FaceLandmarkNet';
 export function faceLandmarkNet(weights) {
-    var faceLandmarkNet = new FaceLandmarkNet();
-    faceLandmarkNet.extractWeights(weights);
-    return faceLandmarkNet;
+    var net = new FaceLandmarkNet();
+    net.extractWeights(weights);
+    return net;
 }
 //# sourceMappingURL=index.js.map
