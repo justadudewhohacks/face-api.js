@@ -12,6 +12,30 @@ async function fetchImage(uri) {
   return (await fetch(uri)).blob()
 }
 
+async function requestExternalImage(imageUrl) {
+  const res = await fetch('fetch_external_image', {
+    method: 'post',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({ imageUrl })
+  })
+  if (!(res.status < 400)) {
+    console.error(res.status + ' : ' + await res.text())
+    throw new Error('failed to fetch image from url: ' + imageUrl)
+  }
+
+  let blob
+  try {
+    blob = await res.blob()
+    return await faceapi.bufferToImage(blob)
+  } catch (e) {
+    console.error('received blob:', blob)
+    console.error('error:', e)
+    throw new Error('failed to load image from url: ' + imageUrl)
+  }
+}
+
 // fetch first image of each class and compute their descriptors
 async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
   const maxAvailableImagesPerClass = 5
@@ -113,17 +137,30 @@ function renderNavBar(navbarId, exampleUri) {
   menuButton.appendChild(menuButtonIcon)
   navbar.appendChild(menuButton)
 
+  const li = document.createElement('li')
+  const githubLink = document.createElement('a')
+  githubLink.classList.add('waves-effect', 'waves-light', 'side-by-side')
+  githubLink.id = 'github-link'
+  githubLink.href = 'https://github.com/justadudewhohacks/face-api.js'
+  const h5 = document.createElement('h5')
+  h5.innerHTML = 'face-api.js'//'If you like this project, feel free to leave a star on github :)'
+  githubLink.appendChild(h5)
+  const githubLinkIcon = document.createElement('img')
+  githubLinkIcon.src = 'github_link_icon.png'
+  githubLink.appendChild(githubLinkIcon)
+  li.appendChild(githubLink)
+  menuContent.appendChild(li)
+
   examples
     .filter(ex => ex.uri !== exampleUri)
     .forEach(ex => {
       const li = document.createElement('li')
       const a = document.createElement('a')
-      li.appendChild(a)
-      menuContent.appendChild(li)
-
       a.classList.add('waves-effect', 'waves-light')
       a.href = ex.uri
       a.innerHTML = ex.name
+      li.appendChild(a)
+      menuContent.appendChild(li)
     })
 
   $('.button-collapse').sideNav({

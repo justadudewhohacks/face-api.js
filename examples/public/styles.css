@@ -25,6 +25,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .side-by-side {
@@ -46,6 +47,14 @@
 
 .margin {
   margin: 20px;
+}
+
+#github-link {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid;
+  margin-bottom: 10px;
 }
 
 #overlay {
