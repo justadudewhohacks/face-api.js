@@ -2,7 +2,6 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -10,8 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
 <body>
+  <div id="navbar"></div>
   <div class="center-content page-container">
-    <div id="navbar"></div>
     <div class="progress" id="loader">
       <div class="indeterminate"></div>
     </div>
@@ -143,9 +142,12 @@
     }
 
     async function run() {
-      detectionNet = await initFaceDetectionNet()
-      recognitionNet = await initFaceRecognitionNet()
-      landmarkNet = await initFaceLandmarkNet()
+      detectionNet = new faceapi.FaceDetectionNet()
+      await detectionNet.load('/')
+      landmarkNet = new faceapi.FaceLandmarkNet()
+      await landmarkNet.load('/')
+      recognitionNet = new faceapi.FaceRecognitionNet()
+      await recognitionNet.load('/')
       trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet, 1)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())

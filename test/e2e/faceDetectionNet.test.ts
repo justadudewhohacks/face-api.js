@@ -1,63 +1,113 @@
-import axios from 'axios';
-
 import * as faceapi from '../../src';
 import { FaceDetection } from '../../src/faceDetectionNet/FaceDetection';
 import { IRect } from '../../src/Rect';
+import { expectMaxDelta } from '../utils';
 
-function expectFaceDetectionEquals(result: FaceDetection, score: number, expectedBox: IRect) {
-  const { x, y, width, height } = result.getBox()
-  expect(result.getScore()).toBeCloseTo(score, 2)
-  expect(Math.floor(x)).toEqual(expectedBox.x)
-  expect(Math.floor(y)).toEqual(expectedBox.y)
-  expect(Math.floor(width)).toEqual(expectedBox.width)
-  expect(Math.floor(height)).toEqual(expectedBox.height)
+function expectRectClose(
+  result: IRect,
+  expectedBox: IRect,
+  maxDelta: number
+) {
+  const { x, y, width, height } = result
+  expectMaxDelta(x, expectedBox.x, maxDelta)
+  expectMaxDelta(y, expectedBox.y, maxDelta)
+  expectMaxDelta(width, expectedBox.width, maxDelta)
+  expectMaxDelta(height, expectedBox.height, maxDelta)
 }
+
+const expectedBoxes = [
+  { x: 48, y: 253, width: 104, height: 129 },
+  { x: 260, y: 227, width: 76, height: 117 },
+  { x: 466, y: 165, width: 88, height: 130 },
+  { x: 234, y: 36, width: 84, height: 119 },
+  { x: 577, y: 65, width: 84, height: 105 },
+  { x: 84, y: 14, width: 79, height: 132 }
+]
 
 describe('faceDetectionNet', () => {
 
-  let faceDetectionNet: any, imgEl: HTMLImageElement
+  let imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/face_detection_model.weights', { responseType: 'arraybuffer' })
-    const weights = new Float32Array(res.data)
-    faceDetectionNet = faceapi.faceDetectionNet(weights)
-
-    const img = await axios.get('base/test/images/faces.jpg', { responseType: 'blob' })
-    imgEl = await faceapi.bufferToImage(img.data)
+    const img = await (await fetch('base/test/images/faces.jpg')).blob()
+    imgEl = await faceapi.bufferToImage(img)
   })
 
-  it('scores > 0.9', async () => {
-    const { width, height } = imgEl
+  describe('uncompressed weights', () => {
 
-    const result = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
-    expect(result.length).toEqual(3)
+    let faceDetectionNet: faceapi.FaceDetectionNet
 
-    result.forEach(res => {
-      expect(res.getImageWidth()).toEqual(width)
-      expect(res.getImageHeight()).toEqual(height)
+    const expectedScores = [0.98, 0.89, 0.82, 0.75, 0.58, 0.55]
+    const maxBoxDelta = 1
+
+    beforeAll(async () => {
+      const res = await fetch('base/weights/uncompressed/face_detection_model.weights')
+      const weights = new Float32Array(await res.arrayBuffer())
+      faceDetectionNet = faceapi.faceDetectionNet(weights)
     })
-    const [d0, d1, d2] = result
-    expectFaceDetectionEquals(d0, 0.98, { x: 48, y: 253, width: 104, height: 129 })
-    expectFaceDetectionEquals(d1, 0.89, { x: 260, y: 227, width: 76, height: 117 })
-    expectFaceDetectionEquals(d2, 0.82, { x: 466, y: 165, width: 88, height: 130 })
-  })
 
-  it('scores > 0.5', async () => {
-    const { width, height } = imgEl
+    it('scores > 0.8', async () => {
+      const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
 
-    const result = await faceDetectionNet.locateFaces(imgEl, 0.5) as FaceDetection[]
-    expect(result.length).toEqual(6)
-
-    result.forEach(res => {
-      expect(res.getImageWidth()).toEqual(width)
-      expect(res.getImageHeight()).toEqual(height)
+      expect(detections.length).toEqual(3)
+      detections.forEach((det, i) => {
+        expect(det.getImageWidth()).toEqual(imgEl.width)
+        expect(det.getImageHeight()).toEqual(imgEl.height)
+        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
+        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+      })
     })
-    const [d0, d1, d2, d3, d4, d5] = result
-    expectFaceDetectionEquals(d0, 0.98, { x: 48, y: 253, width: 104, height: 129 })
-    expectFaceDetectionEquals(d1, 0.89, { x: 260, y: 227, width: 76, height: 117 })
-    expectFaceDetectionEquals(d2, 0.82, { x: 466, y: 165, width: 88, height: 130 })
-    expectFaceDetectionEquals(d3, 0.75, { x: 234, y: 36, width: 84, height: 119 })
-    expectFaceDetectionEquals(d4, 0.58, { x: 577, y: 65, width: 84, height: 105 })
-    expectFaceDetectionEquals(d5, 0.55, { x: 84, y: 14, width: 79, height: 132 })
+
+    it('scores > 0.5', async () => {
+      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as FaceDetection[]
+
+      expect(detections.length).toEqual(6)
+      detections.forEach((det, i) => {
+        expect(det.getImageWidth()).toEqual(imgEl.width)
+        expect(det.getImageHeight()).toEqual(imgEl.height)
+        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
+        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+      })
+    })
+
   })
+
+  describe('quantized weights', () => {
+
+    let faceDetectionNet: faceapi.FaceDetectionNet
+
+    const expectedScores = [0.97, 0.88, 0.83, 0.82, 0.59, 0.52]
+    const maxBoxDelta = 5
+
+    beforeAll(async () => {
+      faceDetectionNet = new faceapi.FaceDetectionNet()
+      await faceDetectionNet.load('base/weights')
+    })
+
+    it('scores > 0.8', async () => {
+      const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
+
+      expect(detections.length).toEqual(4)
+      detections.forEach((det, i) => {
+        expect(det.getImageWidth()).toEqual(imgEl.width)
+        expect(det.getImageHeight()).toEqual(imgEl.height)
+        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
+        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+      })
+    })
+
+    it('scores > 0.5', async () => {
+      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as FaceDetection[]
+
+      expect(detections.length).toEqual(6)
+      detections.forEach((det, i) => {
+        expect(det.getImageWidth()).toEqual(imgEl.width)
+        expect(det.getImageHeight()).toEqual(imgEl.height)
+        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
+        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+      })
+    })
+
+  })
+
 })

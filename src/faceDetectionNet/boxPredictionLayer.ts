@@ -1,12 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { convLayer } from '../commons/convLayer';
-import { FaceDetectionNet } from './types';
+import { BoxPredictionParams } from './types';
 
 
 export function boxPredictionLayer(
   x: tf.Tensor4D,
-  params: FaceDetectionNet.BoxPredictionParams
+  params: BoxPredictionParams
 ) {
   return tf.tidy(() => {
 

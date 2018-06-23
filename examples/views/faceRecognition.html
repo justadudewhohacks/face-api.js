@@ -2,7 +2,6 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="axios.min.js"></script>
   <script src="commons.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -10,9 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
 <body>
+  <div id="navbar"></div>
   <div class="center-content page-container">
-    <div id="navbar"></div>
-
     <div>
       <div class="row center-content" id="loader">
         <input disabled value="" id="status" type="text" class="bold">
@@ -137,7 +135,9 @@
       try {
         setStatusText('loading model file...')
 
-        net = await initFaceRecognitionNet()
+        net = new faceapi.FaceRecognitionNet()
+        await net.load('/')
+
         setStatusText('computing initial descriptors...')
 
         trainDescriptorsByClass = await initTrainDescriptorsByClass(net)

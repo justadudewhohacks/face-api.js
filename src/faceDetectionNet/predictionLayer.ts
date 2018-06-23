@@ -2,12 +2,12 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { boxPredictionLayer } from './boxPredictionLayer';
 import { pointwiseConvLayer } from './pointwiseConvLayer';
-import { FaceDetectionNet } from './types';
+import { PredictionLayerParams } from './types';
 
 export function predictionLayer(
   x: tf.Tensor4D,
   conv11: tf.Tensor4D,
-  params: FaceDetectionNet.PredictionLayerParams
+  params: PredictionLayerParams
 ) {
   return tf.tidy(() => {
 

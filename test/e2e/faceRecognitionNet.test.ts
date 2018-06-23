@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import * as faceapi from '../../src';
 
 describe('faceRecognitionNet', () => {
@@ -7,13 +5,13 @@ describe('faceRecognitionNet', () => {
   let faceRecognitionNet: any, imgEl: HTMLImageElement, faceDescriptor: number[]
 
   beforeAll(async () => {
-    const res = await axios.get('base/weights/face_recognition_model.weights', { responseType: 'arraybuffer' })
-    const weights = new Float32Array(res.data)
+    const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
+    const weights = new Float32Array(await res.arrayBuffer())
     faceRecognitionNet = faceapi.faceRecognitionNet(weights)
 
-    const img = await axios.get('base/test/images/face.png', { responseType: 'blob' })
-    imgEl = await faceapi.bufferToImage(img.data)
-    faceDescriptor = (await axios.get('base/test/data/faceDescriptor.json')).data
+    const img = await (await fetch('base/test/images/face.png')).blob()
+    imgEl = await faceapi.bufferToImage(img)
+    faceDescriptor = await (await fetch('base/test/data/faceDescriptor.json')).json()
   })
 
   it('computes face descriptor', async () => {

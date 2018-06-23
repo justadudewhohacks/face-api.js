@@ -2,7 +2,7 @@ const dataFiles = [
   'test/images/*.jpg',
   'test/images/*.png',
   'test/data/*.json',
-  'weights/*.weights'
+  'weights/**/*'
 ].map(pattern => ({
   pattern,
   watched: false,

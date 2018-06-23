@@ -9,25 +9,7 @@ function getFaceImageUri(className, idx) {
 }
 
 async function fetchImage(uri) {
-  return (await axios.get(uri, { responseType: 'blob' })).data
-}
-
-async function initFaceDetectionNet() {
-  const res = await axios.get('face_detection_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
-  return faceapi.faceDetectionNet(weights)
-}
-
-async function initFaceRecognitionNet() {
-  const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
-  return faceapi.faceRecognitionNet(weights)
-}
-
-async function initFaceLandmarkNet() {
-  const res = await axios.get('face_landmark_68_model.weights', { responseType: 'arraybuffer' })
-  const weights = new Float32Array(res.data)
-  return faceapi.faceLandmarkNet(weights)
+  return (await fetch(uri)).blob()
 }
 
 // fetch first image of each class and compute their descriptors
@@ -111,17 +93,42 @@ function renderNavBar(navbarId, exampleUri) {
   ]
 
   const navbar = $(navbarId).get(0)
-  navbar.classList.add('row')
+  const pageContainer = $('.page-container').get(0)
+
+  const header = document.createElement('h3')
+  header.innerHTML = examples.find(ex => ex.uri === exampleUri).name
+  pageContainer.insertBefore(header, pageContainer.children[0])
+
+  const menuContent = document.createElement('ul')
+  menuContent.id = 'slide-out'
+  menuContent.classList.add('side-nav', 'fixed')
+  navbar.appendChild(menuContent)
+
+  const menuButton = document.createElement('a')
+  menuButton.href='#'
+  menuButton.classList.add('button-collapse', 'show-on-large')
+  menuButton.setAttribute('data-activates', 'slide-out')
+  const menuButtonIcon = document.createElement('img')
+  menuButtonIcon.src = 'menu_icon.png'
+  menuButton.appendChild(menuButtonIcon)
+  navbar.appendChild(menuButton)
+
   examples
     .filter(ex => ex.uri !== exampleUri)
     .forEach(ex => {
+      const li = document.createElement('li')
       const a = document.createElement('a')
-      navbar.appendChild(a)
+      li.appendChild(a)
+      menuContent.appendChild(li)
 
-      a.classList.add('waves-effect', 'waves-light', 'btn', 'margin-sm')
+      a.classList.add('waves-effect', 'waves-light')
       a.href = ex.uri
       a.innerHTML = ex.name
     })
+
+  $('.button-collapse').sideNav({
+    menuWidth: 250
+  })
 }
 
 function renderSelectList(selectListId, onChange, initialValue, renderChildren) {

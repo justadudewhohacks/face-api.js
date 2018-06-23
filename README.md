@@ -8,6 +8,7 @@
   * **[Face Recognition](#about-face-recognition)**
   * **[Face Landmark Detection](#about-face-landmark-detection)**
 * **[Usage](#usage)**
+  * **[Loading the Models](#usage-load-models)**
   * **[Face Detection](#usage-face-detection)**
   * **[Face Recognition](#usage-face-recognition)**
   * **[Face Landmark Detection](#usage-face-landmark-detection)**
@@ -95,18 +96,45 @@ Or install the package:
 npm i face-api.js
 ```
 
+<a name="usage-load-models"></a>
+
+### Loading the Models
+
+To load a model, you have provide the corresponding manifest.json file as well as the model weight files (shards) as assets. Simply copy them to your public or assets folder. The manifest.json and shard files of a model have to be located in the same directory / accessible under the same route.
+
+Assuming the models reside in **public/model**:
+
+``` javascript
+const net = new faceapi.FaceDetectionNet()
+// accordingly for the other models:
+// const net = new faceapi.FaceLandmarkNet()
+// const net = new faceapi.FaceRecognitionNet()
+
+await net.load('/models/face_detection_model-weights_manifest.json')
+// await net.load('/models/face_landmark_68_model-weights_manifest.json')
+// await net.load('/models/face_recognition_model-weights_manifest.json')
+
+// or simply
+await net.load('/models')
+```
+
+Alternatively you can load the weights as a Float32Array (in case you want to use the uncompressed models):
+
+``` javascript
+// using fetch
+const res = await fetch('/models/face_detection_model.weights')
+const weights = new Float32Array(await res.arrayBuffer())
+net.load(weights)
+
+// using axios
+const res = await axios.get('/models/face_detection_model.weights', { responseType: 'arraybuffer' })
+const weights = new Float32Array(res.data)
+net.load(weights)
+```
+
 <a name="usage-face-detection"></a>
 
 ### Face Detection
-
-Download the weights file from your server and initialize the net (note, that your server has to host the *face_detection_model.weights* file).
-
-``` javascript
-// initialize the face detector
-const res = await axios.get('face_detection_model.weights', { responseType: 'arraybuffer' })
-const weights = new Float32Array(res.data)
-const detectionNet = faceapi.faceDetectionNet(weights)
-```
 
 Detect faces and get the bounding boxes and scores:
 
@@ -141,15 +169,6 @@ const { boxes, scores } = detectionNet.forward('myImg')
 
 ### Face Recognition
 
-Download the weights file from your server and initialize the net (note, that your server has to host the *face_recognition_model.weights* file).
-
-``` javascript
-// initialize the face recognizer
-const res = await axios.get('face_recognition_model.weights', { responseType: 'arraybuffer' })
-const weights = new Float32Array(res.data)
-const recognitionNet = faceapi.faceRecognitionNet(weights)
-```
-
 Compute and compare the descriptors of two face images:
 
 ``` javascript
@@ -179,15 +198,6 @@ const t = recognitionNet.forward('myImg')
 <a name="usage-face-landmark-detection"></a>
 
 ### Face Landmark Detection
-
-Download the weights file from your server and initialize the net (note, that your server has to host the *face_landmark_68_model.weights* file).
-
-``` javascript
-// initialize the face recognizer
-const res = await axios.get('face_landmark_68_model.weights', { responseType: 'arraybuffer' })
-const weights = new Float32Array(res.data)
-const faceLandmarkNet = faceapi.faceLandmarkNet(weights)
-```
 
 Detect face landmarks:
 

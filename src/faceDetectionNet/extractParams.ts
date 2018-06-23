@@ -2,11 +2,11 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { extractWeightsFactory } from '../commons/extractWeightsFactory';
 import { ConvParams } from '../commons/types';
-import { FaceDetectionNet } from './types';
+import { MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
 function extractorsFactory(extractWeights: (numWeights: number) => Float32Array) {
 
-  function extractDepthwiseConvParams(numChannels: number): FaceDetectionNet.MobileNetV1.DepthwiseConvParams {
+  function extractDepthwiseConvParams(numChannels: number): MobileNetV1.DepthwiseConvParams {
     const filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1])
     const batch_norm_scale = tf.tensor1d(extractWeights(numChannels))
     const batch_norm_offset = tf.tensor1d(extractWeights(numChannels))
@@ -43,7 +43,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     channelsIn: number,
     channelsOut: number,
     filterSize: number
-  ): FaceDetectionNet.PointwiseConvParams {
+  ): PointwiseConvParams {
     const {
       filters,
       bias
@@ -55,7 +55,10 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     }
   }
 
-  function extractConvPairParams(channelsIn: number, channelsOut: number): FaceDetectionNet.MobileNetV1.ConvPairParams {
+  function extractConvPairParams(
+    channelsIn: number,
+    channelsOut: number
+  ): MobileNetV1.ConvPairParams {
     const depthwise_conv_params = extractDepthwiseConvParams(channelsIn)
     const pointwise_conv_params = extractPointwiseConvParams(channelsIn, channelsOut, 1)
 
@@ -65,7 +68,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
     }
   }
 
-  function extractMobilenetV1Params(): FaceDetectionNet.MobileNetV1.Params {
+  function extractMobilenetV1Params(): MobileNetV1.Params {
 
     const conv_0_params = extractPointwiseConvParams(3, 32, 3)
 
@@ -96,7 +99,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
 
   }
 
-  function extractPredictionLayerParams(): FaceDetectionNet.PredictionLayerParams {
+  function extractPredictionLayerParams(): PredictionLayerParams {
     const conv_0_params = extractPointwiseConvParams(1024, 256, 1)
     const conv_1_params = extractPointwiseConvParams(256, 512, 3)
     const conv_2_params = extractPointwiseConvParams(512, 128, 1)
@@ -170,7 +173,7 @@ function extractorsFactory(extractWeights: (numWeights: number) => Float32Array)
 
 }
 
-export function extractParams(weights: Float32Array): FaceDetectionNet.NetParams {
+export function extractParams(weights: Float32Array): NetParams {
   const {
     extractWeights,
     getRemainingWeights

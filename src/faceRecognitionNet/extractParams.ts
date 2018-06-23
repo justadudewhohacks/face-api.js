@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { extractWeightsFactory } from '../commons/extractWeightsFactory';
 import { ExtractWeightsFunction } from '../commons/types';
 import { isFloat } from '../utils';
-import { FaceRecognitionNet } from './types';
+import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
 function extractorsFactory(extractWeights: ExtractWeightsFunction) {
 
@@ -21,7 +21,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction) {
     )
   }
 
-  function extractScaleLayerParams(numWeights: number): FaceRecognitionNet.ScaleLayerParams {
+  function extractScaleLayerParams(numWeights: number): ScaleLayerParams {
     const weights = tf.tensor1d(extractWeights(numWeights))
     const biases = tf.tensor1d(extractWeights(numWeights))
     return {
@@ -34,7 +34,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction) {
     numFilterValues: number,
     numFilters: number,
     filterSize: number
-  ): FaceRecognitionNet.ConvLayerParams {
+  ): ConvLayerParams {
     const conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize)
     const conv_bias = tf.tensor1d(extractWeights(numFilters))
     const scale = extractScaleLayerParams(numFilters)
@@ -48,9 +48,14 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction) {
     }
   }
 
-  function extractResidualLayerParams(numFilterValues: number, numFilters: number, filterSize: number, isDown: boolean = false): FaceRecognitionNet.ResidualLayerParams {
-    const conv1: FaceRecognitionNet.ConvLayerParams = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize)
-    const conv2: FaceRecognitionNet.ConvLayerParams = extractConvLayerParams(numFilterValues, numFilters, filterSize)
+  function extractResidualLayerParams(
+    numFilterValues: number,
+    numFilters: number,
+    filterSize: number,
+    isDown: boolean = false
+  ): ResidualLayerParams {
+    const conv1: ConvLayerParams = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize)
+    const conv2: ConvLayerParams = extractConvLayerParams(numFilterValues, numFilters, filterSize)
 
     return {
       conv1,
@@ -65,7 +70,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction) {
 
 }
 
-export function extractParams(weights: Float32Array): FaceRecognitionNet.NetParams {
+export function extractParams(weights: Float32Array): NetParams {
   const {
     extractWeights,
     getRemainingWeights

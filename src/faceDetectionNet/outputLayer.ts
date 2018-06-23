@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceDetectionNet } from './types';
+import { OutputLayerParams } from './types';
+
 
 function getCenterCoordinatesAndSizesLayer(x: tf.Tensor2D) {
   const vec = tf.unstack(tf.transpose(x, [1, 0]))
@@ -49,7 +50,7 @@ function decodeBoxesLayer(x0: tf.Tensor2D, x1: tf.Tensor2D) {
 export function outputLayer(
   boxPredictions: tf.Tensor4D,
   classPredictions: tf.Tensor4D,
-  params: FaceDetectionNet.OutputLayerParams
+  params: OutputLayerParams
 ) {
   return tf.tidy(() => {
 
