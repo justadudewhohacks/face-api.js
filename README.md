@@ -102,7 +102,7 @@ npm i face-api.js
 
 To load a model, you have provide the corresponding manifest.json file as well as the model weight files (shards) as assets. Simply copy them to your public or assets folder. The manifest.json and shard files of a model have to be located in the same directory / accessible under the same route.
 
-Assuming the models reside in **public/model**:
+Assuming the models reside in **public/models**:
 
 ``` javascript
 const net = new faceapi.FaceDetectionNet()
