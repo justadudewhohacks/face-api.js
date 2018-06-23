@@ -21,6 +21,18 @@
     <div class="row side-by-side">
       <div id="selectList"></div>
       <div class="row">
+        <label for="imgUrlInput">Get image from URL:</label>
+        <input id="imgUrlInput" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadImageFromUrl()"
+      >
+        Ok
+      </button>
+    </div>
+    <div class="row side-by-side">
+      <div class="row">
         <label for="minConfidence">Min Confidence:</label>
         <input disabled value="0.7" id="minConfidence" type="text" class="bold">
       </div>
@@ -38,7 +50,7 @@
       </button>
       <div class="row">
         <label for="maxDistance">Max Descriptor Distance:</label>
-        <input disabled value="0.8" id="maxDistance" type="text" class="bold">
+        <input disabled value="0.6" id="maxDistance" type="text" class="bold">
       </div>
       <button
         class="waves-effect waves-light btn"
@@ -56,7 +68,7 @@
   </div>
 
   <script>
-    let maxDistance = 0.8
+    let maxDistance = 0.6
     let minConfidence = 0.7
     let detectionNet, recognitionNet, landmarkNet
     let trainDescriptorsByClass = []
@@ -82,6 +94,12 @@
     function onDecreaseMaxDistance() {
       maxDistance = Math.max(faceapi.round(maxDistance - 0.1), 0.1)
       $('#maxDistance').val(maxDistance)
+      updateResults()
+    }
+
+    async function loadImageFromUrl(url) {
+      const img = await requestExternalImage($('#imgUrlInput').val())
+      $('#inputImg').get(0).src = img.src
       updateResults()
     }
 

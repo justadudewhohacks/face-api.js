@@ -21,6 +21,18 @@
     <div class="row side-by-side">
       <div id="selectList"></div>
       <div class="row">
+        <label for="imgUrlInput">Get image from URL:</label>
+        <input id="imgUrlInput" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadImageFromUrl()"
+      >
+        Ok
+      </button>
+    </div>
+    <div class="row side-by-side">
+      <div class="row">
         <label for="minConfidence">Min Confidence:</label>
         <input disabled value="0.7" id="minConfidence" type="text" class="bold">
       </div>
@@ -56,6 +68,18 @@
       updateResults()
     }
 
+    async function onSelectionChanged(uri) {
+      const imgBuf = await fetchImage(uri)
+      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
+      updateResults()
+    }
+
+    async function loadImageFromUrl(url) {
+      const img = await requestExternalImage($('#imgUrlInput').val())
+      $('#inputImg').get(0).src = img.src
+      updateResults()
+    }
+
     async function updateResults() {
       const inputImgEl = $('#inputImg').get(0)
       const { width, height } = inputImgEl
@@ -79,12 +103,6 @@
       })
 
       faceapi.drawDetection('overlay', locations.map(det => det.forSize(width, height)))
-    }
-
-    async function onSelectionChanged(uri) {
-      const imgBuf = await fetchImage(uri)
-      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
-      updateResults()
     }
 
     async function run() {
