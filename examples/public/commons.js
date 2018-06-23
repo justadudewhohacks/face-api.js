@@ -12,12 +12,6 @@ async function fetchImage(uri) {
   return (await fetch(uri)).blob()
 }
 
-async function initFaceRecognitionNet() {
-  const res = await fetch('uncompressed/face_recognition_model.weights')
-  const weights = new Float32Array(await res.arrayBuffer())
-  return faceapi.faceRecognitionNet(weights)
-}
-
 // fetch first image of each class and compute their descriptors
 async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
   const maxAvailableImagesPerClass = 5

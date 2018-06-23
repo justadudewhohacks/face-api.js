@@ -61,7 +61,8 @@
     }
 
     async function run() {
-      net = await initFaceRecognitionNet()
+      net = new faceapi.FaceRecognitionNet()
+      await net.load('/')
       $('#loader').hide()
       await onSelectionChanged(1, $('#selectList1 select').val())
       await onSelectionChanged(2, $('#selectList2 select').val())

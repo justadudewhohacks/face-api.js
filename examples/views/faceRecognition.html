@@ -136,7 +136,9 @@
       try {
         setStatusText('loading model file...')
 
-        net = await initFaceRecognitionNet()
+        net = new faceapi.FaceRecognitionNet()
+        await net.load('/')
+
         setStatusText('computing initial descriptors...')
 
         trainDescriptorsByClass = await initTrainDescriptorsByClass(net)

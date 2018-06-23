@@ -1,2 +1,2 @@
-import { FaceRecognitionNet } from './types';
-export declare function extractParams(weights: Float32Array): FaceRecognitionNet.NetParams;
+import { NetParams } from './types';
+export declare function extractParams(weights: Float32Array): NetParams;
