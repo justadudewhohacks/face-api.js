@@ -3,6 +3,21 @@
   right: 0;
   margin: auto;
   margin-top: 20px;
+  padding-left: 300px;
+  display: inline-flex !important;
+}
+
+@media only screen and (max-width : 992px) {
+  .page-container {
+    padding-left: 0;
+    display: flex !important;
+  }
+}
+
+#navbar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
 }
 
 .center-content {
