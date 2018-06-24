@@ -1,5 +1,7 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { isEven } from './utils';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var utils_1 = require("./utils");
 /**
  * Pads the smaller dimension of an image tensor with zeros, such that width === height.
  *
@@ -7,7 +9,7 @@ import { isEven } from './utils';
  * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image.
  * @returns The padded tensor with width === height.
  */
-export function padToSquare(imgTensor, isCenterImage) {
+function padToSquare(imgTensor, isCenterImage) {
     if (isCenterImage === void 0) { isCenterImage = false; }
     return tf.tidy(function () {
         var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
@@ -23,9 +25,10 @@ export function padToSquare(imgTensor, isCenterImage) {
             paddingTensorShape[paddingAxis] = paddingAmount + (isRoundUp ? 1 : 0);
             return paddingTensorShape;
         };
-        var tensorsToStack = (isCenterImage ? [tf.fill(getPaddingTensorShape(!isEven(dimDiff)), 0)] : [])
+        var tensorsToStack = (isCenterImage ? [tf.fill(getPaddingTensorShape(!utils_1.isEven(dimDiff)), 0)] : [])
             .concat([imgTensor, tf.fill(getPaddingTensorShape(), 0)]);
         return tf.concat(tensorsToStack, paddingAxis);
     });
 }
+exports.padToSquare = padToSquare;
 //# sourceMappingURL=padToSquare.js.map

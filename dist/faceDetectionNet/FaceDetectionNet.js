@@ -1,16 +1,18 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-import { getImageTensor } from '../getImageTensor';
-import { padToSquare } from '../padToSquare';
-import { Rect } from '../Rect';
-import { extractParams } from './extractParams';
-import { FaceDetection } from './FaceDetection';
-import { loadQuantizedParams } from './loadQuantizedParams';
-import { mobileNetV1 } from './mobileNetV1';
-import { nonMaxSuppression } from './nonMaxSuppression';
-import { outputLayer } from './outputLayer';
-import { predictionLayer } from './predictionLayer';
-import { resizeLayer } from './resizeLayer';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+var getImageTensor_1 = require("../getImageTensor");
+var padToSquare_1 = require("../padToSquare");
+var Rect_1 = require("../Rect");
+var extractParams_1 = require("./extractParams");
+var FaceDetection_1 = require("./FaceDetection");
+var loadQuantizedParams_1 = require("./loadQuantizedParams");
+var mobileNetV1_1 = require("./mobileNetV1");
+var nonMaxSuppression_1 = require("./nonMaxSuppression");
+var outputLayer_1 = require("./outputLayer");
+var predictionLayer_1 = require("./predictionLayer");
+var resizeLayer_1 = require("./resizeLayer");
 var FaceDetectionNet = /** @class */ (function () {
     function FaceDetectionNet() {
     }
@@ -28,7 +30,7 @@ var FaceDetectionNet = /** @class */ (function () {
                             throw new Error('FaceDetectionNet.load - expected model uri, or weights as Float32Array');
                         }
                         _a = this;
-                        return [4 /*yield*/, loadQuantizedParams(weightsOrUrl)];
+                        return [4 /*yield*/, loadQuantizedParams_1.loadQuantizedParams(weightsOrUrl)];
                     case 1:
                         _a._params = _b.sent();
                         return [2 /*return*/];
@@ -37,7 +39,7 @@ var FaceDetectionNet = /** @class */ (function () {
         });
     };
     FaceDetectionNet.prototype.extractWeights = function (weights) {
-        this._params = extractParams(weights);
+        this._params = extractParams_1.extractParams(weights);
     };
     FaceDetectionNet.prototype.forwardTensor = function (imgTensor) {
         var _this = this;
@@ -45,15 +47,15 @@ var FaceDetectionNet = /** @class */ (function () {
             throw new Error('FaceDetectionNet - load model before inference');
         }
         return tf.tidy(function () {
-            var resized = resizeLayer(imgTensor);
-            var features = mobileNetV1(resized, _this._params.mobilenetv1_params);
-            var _a = predictionLayer(features.out, features.conv11, _this._params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-            return outputLayer(boxPredictions, classPredictions, _this._params.output_layer_params);
+            var resized = resizeLayer_1.resizeLayer(imgTensor);
+            var features = mobileNetV1_1.mobileNetV1(resized, _this._params.mobilenetv1_params);
+            var _a = predictionLayer_1.predictionLayer(features.out, features.conv11, _this._params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+            return outputLayer_1.outputLayer(boxPredictions, classPredictions, _this._params.output_layer_params);
         });
     };
     FaceDetectionNet.prototype.forward = function (input) {
         var _this = this;
-        return tf.tidy(function () { return _this.forwardTensor(padToSquare(getImageTensor(input))); });
+        return tf.tidy(function () { return _this.forwardTensor(padToSquare_1.padToSquare(getImageTensor_1.getImageTensor(input))); });
     };
     FaceDetectionNet.prototype.locateFaces = function (input, minConfidence, maxResults) {
         if (minConfidence === void 0) { minConfidence = 0.8; }
@@ -66,10 +68,10 @@ var FaceDetectionNet = /** @class */ (function () {
                     case 0:
                         paddedHeightRelative = 1, paddedWidthRelative = 1;
                         _a = tf.tidy(function () {
-                            var imgTensor = getImageTensor(input);
+                            var imgTensor = getImageTensor_1.getImageTensor(input);
                             var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
                             imageDimensions = { width: width, height: height };
-                            imgTensor = padToSquare(imgTensor);
+                            imgTensor = padToSquare_1.padToSquare(imgTensor);
                             paddedHeightRelative = imgTensor.shape[1] / height;
                             paddedWidthRelative = imgTensor.shape[2] / width;
                             return _this.forwardTensor(imgTensor);
@@ -85,7 +87,7 @@ var FaceDetectionNet = /** @class */ (function () {
                     case 1:
                         scoresData = _c.apply(_b, [_d.sent()]);
                         iouThreshold = 0.5;
-                        indices = nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
+                        indices = nonMaxSuppression_1.nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
                         results = indices
                             .map(function (idx) {
                             var _a = [
@@ -96,7 +98,7 @@ var FaceDetectionNet = /** @class */ (function () {
                                 Math.max(0, boxes.get(idx, 1)),
                                 Math.min(1.0, boxes.get(idx, 3))
                             ].map(function (val) { return val * paddedWidthRelative; }), left = _b[0], right = _b[1];
-                            return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), imageDimensions);
+                            return new FaceDetection_1.FaceDetection(scoresData[idx], new Rect_1.Rect(left, top, right - left, bottom - top), imageDimensions);
                         });
                         boxes.dispose();
                         scores.dispose();
@@ -107,5 +109,5 @@ var FaceDetectionNet = /** @class */ (function () {
     };
     return FaceDetectionNet;
 }());
-export { FaceDetectionNet };
+exports.FaceDetectionNet = FaceDetectionNet;
 //# sourceMappingURL=FaceDetectionNet.js.map

@@ -1,5 +1,7 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory } from '../commons/extractWeightsFactory';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var extractWeightsFactory_1 = require("../commons/extractWeightsFactory");
 function extractorsFactory(extractWeights) {
     function extractDepthwiseConvParams(numChannels) {
         var filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
@@ -131,8 +133,8 @@ function extractorsFactory(extractWeights) {
         extractPredictionLayerParams: extractPredictionLayerParams
     };
 }
-export function extractParams(weights) {
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+function extractParams(weights) {
+    var _a = extractWeightsFactory_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var _b = extractorsFactory(extractWeights), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
     var mobilenetv1_params = extractMobilenetV1Params();
     var prediction_layer_params = extractPredictionLayerParams();
@@ -149,4 +151,5 @@ export function extractParams(weights) {
         output_layer_params: output_layer_params
     };
 }
+exports.extractParams = extractParams;
 //# sourceMappingURL=extractParams.js.map

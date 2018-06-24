@@ -1,6 +1,8 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { FaceDetection } from './faceDetectionNet/FaceDetection';
-import { getImageTensor } from './getImageTensor';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var FaceDetection_1 = require("./faceDetectionNet/FaceDetection");
+var getImageTensor_1 = require("./getImageTensor");
 /**
  * Extracts the tensors of the image regions containing the detected faces.
  * Useful if you want to compute the face descriptors for the face images.
@@ -11,12 +13,12 @@ import { getImageTensor } from './getImageTensor';
  * @param detections The face detection results or face bounding boxes for that image.
  * @returns Tensors of the corresponding image region for each detected face.
  */
-export function extractFaceTensors(image, detections) {
+function extractFaceTensors(image, detections) {
     return tf.tidy(function () {
-        var imgTensor = getImageTensor(image);
+        var imgTensor = getImageTensor_1.getImageTensor(image);
         // TODO handle batches
         var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
-        var boxes = detections.map(function (det) { return det instanceof FaceDetection
+        var boxes = detections.map(function (det) { return det instanceof FaceDetection_1.FaceDetection
             ? det.forSize(imgWidth, imgHeight).getBox().floor()
             : det; });
         var faceTensors = boxes.map(function (_a) {
@@ -26,4 +28,5 @@ export function extractFaceTensors(image, detections) {
         return faceTensors;
     });
 }
+exports.extractFaceTensors = extractFaceTensors;
 //# sourceMappingURL=extractFaceTensors.js.map

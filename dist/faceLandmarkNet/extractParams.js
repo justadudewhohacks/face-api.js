@@ -1,9 +1,11 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { extractConvParamsFactory } from '../commons/extractConvParamsFactory';
-import { extractWeightsFactory } from '../commons/extractWeightsFactory';
-export function extractParams(weights) {
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-    var extractConvParams = extractConvParamsFactory(extractWeights);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var extractConvParamsFactory_1 = require("../commons/extractConvParamsFactory");
+var extractWeightsFactory_1 = require("../commons/extractWeightsFactory");
+function extractParams(weights) {
+    var _a = extractWeightsFactory_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var extractConvParams = extractConvParamsFactory_1.extractConvParamsFactory(extractWeights);
     function extractFcParams(channelsIn, channelsOut) {
         var fc_weights = tf.tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
         var fc_bias = tf.tensor1d(extractWeights(channelsOut));
@@ -38,4 +40,5 @@ export function extractParams(weights) {
         fc1_params: fc1_params
     };
 }
+exports.extractParams = extractParams;
 //# sourceMappingURL=extractParams.js.map

@@ -1,4 +1,6 @@
-export function extractWeightsFactory(weights) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function extractWeightsFactory(weights) {
     var remainingWeights = weights;
     function extractWeights(numWeights) {
         var ret = remainingWeights.slice(0, numWeights);
@@ -13,4 +15,5 @@ export function extractWeightsFactory(weights) {
         getRemainingWeights: getRemainingWeights
     };
 }
+exports.extractWeightsFactory = extractWeightsFactory;
 //# sourceMappingURL=extractWeightsFactory.js.map

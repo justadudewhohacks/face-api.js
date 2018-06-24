@@ -1,41 +1,50 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-export function isFloat(num) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+function isFloat(num) {
     return num % 1 !== 0;
 }
-export function isEven(num) {
+exports.isFloat = isFloat;
+function isEven(num) {
     return num % 2 === 0;
 }
-export function round(num) {
+exports.isEven = isEven;
+function round(num) {
     return Math.floor(num * 100) / 100;
 }
-export function getElement(arg) {
+exports.round = round;
+function getElement(arg) {
     if (typeof arg === 'string') {
         return document.getElementById(arg);
     }
     return arg;
 }
-export function getContext2dOrThrow(canvas) {
+exports.getElement = getElement;
+function getContext2dOrThrow(canvas) {
     var ctx = canvas.getContext('2d');
     if (!ctx) {
         throw new Error('canvas 2d context is null');
     }
     return ctx;
 }
-export function createCanvas(_a) {
+exports.getContext2dOrThrow = getContext2dOrThrow;
+function createCanvas(_a) {
     var width = _a.width, height = _a.height;
     var canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     return canvas;
 }
-export function createCanvasFromMedia(media, dims) {
+exports.createCanvas = createCanvas;
+function createCanvasFromMedia(media, dims) {
     var _a = dims || getMediaDimensions(media), width = _a.width, height = _a.height;
     var canvas = createCanvas({ width: width, height: height });
     getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
     return canvas;
 }
-export function getMediaDimensions(media) {
+exports.createCanvasFromMedia = createCanvasFromMedia;
+function getMediaDimensions(media) {
     if (media instanceof HTMLImageElement) {
         return { width: media.naturalWidth, height: media.naturalHeight };
     }
@@ -44,7 +53,8 @@ export function getMediaDimensions(media) {
     }
     return media;
 }
-export function bufferToImage(buf) {
+exports.getMediaDimensions = getMediaDimensions;
+function bufferToImage(buf) {
     return new Promise(function (resolve, reject) {
         if (!(buf instanceof Blob)) {
             return reject('bufferToImage - expected buf to be of type: Blob');
@@ -60,7 +70,8 @@ export function bufferToImage(buf) {
         reader.readAsDataURL(buf);
     });
 }
-export function imageTensorToCanvas(imgTensor, canvas) {
+exports.bufferToImage = bufferToImage;
+function imageTensorToCanvas(imgTensor, canvas) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var targetCanvas, _a, _, height, width, numChannels;
         return tslib_1.__generator(this, function (_b) {
@@ -76,7 +87,8 @@ export function imageTensorToCanvas(imgTensor, canvas) {
         });
     });
 }
-export function getDefaultDrawOptions() {
+exports.imageTensorToCanvas = imageTensorToCanvas;
+function getDefaultDrawOptions() {
     return {
         color: 'blue',
         lineWidth: 2,
@@ -84,20 +96,23 @@ export function getDefaultDrawOptions() {
         fontStyle: 'Georgia'
     };
 }
-export function drawBox(ctx, x, y, w, h, options) {
+exports.getDefaultDrawOptions = getDefaultDrawOptions;
+function drawBox(ctx, x, y, w, h, options) {
     var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
     ctx.strokeStyle = drawOptions.color;
     ctx.lineWidth = drawOptions.lineWidth;
     ctx.strokeRect(x, y, w, h);
 }
-export function drawText(ctx, x, y, text, options) {
+exports.drawBox = drawBox;
+function drawText(ctx, x, y, text, options) {
     var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
     var padText = 2 + drawOptions.lineWidth;
     ctx.fillStyle = drawOptions.color;
     ctx.font = drawOptions.fontSize + "px " + drawOptions.fontStyle;
     ctx.fillText(text, x + padText, y + padText + (drawOptions.fontSize * 0.6));
 }
-export function drawDetection(canvasArg, detection, options) {
+exports.drawText = drawText;
+function drawDetection(canvasArg, detection, options) {
     var canvas = getElement(canvasArg);
     if (!(canvas instanceof HTMLCanvasElement)) {
         throw new Error('drawBox - expected canvas to be of type: HTMLCanvasElement');
@@ -116,6 +131,7 @@ export function drawDetection(canvasArg, detection, options) {
         }
     });
 }
+exports.drawDetection = drawDetection;
 function drawContour(ctx, points, isClosed) {
     if (isClosed === void 0) { isClosed = false; }
     ctx.beginPath();
@@ -136,7 +152,7 @@ function drawContour(ctx, points, isClosed) {
     }
     ctx.stroke();
 }
-export function drawLandmarks(canvasArg, faceLandmarks, options) {
+function drawLandmarks(canvasArg, faceLandmarks, options) {
     var canvas = getElement(canvasArg);
     if (!(canvas instanceof HTMLCanvasElement)) {
         throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement');
@@ -162,4 +178,5 @@ export function drawLandmarks(canvasArg, faceLandmarks, options) {
     ctx.fillStyle = color;
     faceLandmarks.getPositions().forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
 }
+exports.drawLandmarks = drawLandmarks;
 //# sourceMappingURL=utils.js.map

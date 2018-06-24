@@ -1,6 +1,8 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-export function getModelUris(uri, defaultModelName) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+function getModelUris(uri, defaultModelName) {
     var parts = (uri || '').split('/');
     var modelBaseUri = ((uri || '').endsWith('.json')
         ? parts.slice(0, parts.length - 1)
@@ -13,7 +15,8 @@ export function getModelUris(uri, defaultModelName) {
             : modelBaseUri + "/" + defaultManifestFilename);
     return { manifestUri: manifestUri, modelBaseUri: modelBaseUri };
 }
-export function loadWeightMap(uri, defaultModelName) {
+exports.getModelUris = getModelUris;
+function loadWeightMap(uri, defaultModelName) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var _a, manifestUri, modelBaseUri, manifest;
         return tslib_1.__generator(this, function (_b) {
@@ -29,4 +32,5 @@ export function loadWeightMap(uri, defaultModelName) {
         });
     });
 }
+exports.loadWeightMap = loadWeightMap;
 //# sourceMappingURL=loadWeightMap.js.map

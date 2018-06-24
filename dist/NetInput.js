@@ -1,4 +1,6 @@
-import { createCanvasFromMedia, getElement } from './utils';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = require("./utils");
 var NetInput = /** @class */ (function () {
     function NetInput(mediaArg, dims) {
         var _this = this;
@@ -8,7 +10,7 @@ var NetInput = /** @class */ (function () {
         if (!mediaArgArray.length) {
             throw new Error('NetInput - empty array passed as input');
         }
-        var medias = mediaArgArray.map(getElement);
+        var medias = mediaArgArray.map(utils_1.getElement);
         medias.forEach(function (media, i) {
             if (!(media instanceof HTMLImageElement || media instanceof HTMLVideoElement || media instanceof HTMLCanvasElement)) {
                 var idxHint = Array.isArray(mediaArg) ? " at input index " + i + ":" : '';
@@ -28,7 +30,7 @@ var NetInput = /** @class */ (function () {
         }
         // if input is batch type, make sure every canvas has the same dimensions
         var canvasDims = this.dims || dims;
-        this._canvases.push(createCanvasFromMedia(media, canvasDims));
+        this._canvases.push(utils_1.createCanvasFromMedia(media, canvasDims));
     };
     Object.defineProperty(NetInput.prototype, "canvases", {
         get: function () {
@@ -61,5 +63,5 @@ var NetInput = /** @class */ (function () {
     });
     return NetInput;
 }());
-export { NetInput };
+exports.NetInput = NetInput;
 //# sourceMappingURL=NetInput.js.map

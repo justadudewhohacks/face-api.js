@@ -1,12 +1,14 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-import { getImageTensor } from '../getImageTensor';
-import { padToSquare } from '../padToSquare';
-import { convDown } from './convLayer';
-import { extractParams } from './extractParams';
-import { loadQuantizedParams } from './loadQuantizedParams';
-import { normalize } from './normalize';
-import { residual, residualDown } from './residualLayer';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+var getImageTensor_1 = require("../getImageTensor");
+var padToSquare_1 = require("../padToSquare");
+var convLayer_1 = require("./convLayer");
+var extractParams_1 = require("./extractParams");
+var loadQuantizedParams_1 = require("./loadQuantizedParams");
+var normalize_1 = require("./normalize");
+var residualLayer_1 = require("./residualLayer");
 var FaceRecognitionNet = /** @class */ (function () {
     function FaceRecognitionNet() {
     }
@@ -24,7 +26,7 @@ var FaceRecognitionNet = /** @class */ (function () {
                             throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
                         }
                         _a = this;
-                        return [4 /*yield*/, loadQuantizedParams(weightsOrUrl)];
+                        return [4 /*yield*/, loadQuantizedParams_1.loadQuantizedParams(weightsOrUrl)];
                     case 1:
                         _a._params = _b.sent();
                         return [2 /*return*/];
@@ -33,7 +35,7 @@ var FaceRecognitionNet = /** @class */ (function () {
         });
     };
     FaceRecognitionNet.prototype.extractWeights = function (weights) {
-        this._params = extractParams(weights);
+        this._params = extractParams_1.extractParams(weights);
     };
     FaceRecognitionNet.prototype.forward = function (input) {
         var _this = this;
@@ -41,28 +43,28 @@ var FaceRecognitionNet = /** @class */ (function () {
             throw new Error('FaceRecognitionNet - load model before inference');
         }
         return tf.tidy(function () {
-            var x = padToSquare(getImageTensor(input), true);
+            var x = padToSquare_1.padToSquare(getImageTensor_1.getImageTensor(input), true);
             // work with 150 x 150 sized face images
             if (x.shape[1] !== 150 || x.shape[2] !== 150) {
                 x = tf.image.resizeBilinear(x, [150, 150]);
             }
-            x = normalize(x);
-            var out = convDown(x, _this._params.conv32_down);
+            x = normalize_1.normalize(x);
+            var out = convLayer_1.convDown(x, _this._params.conv32_down);
             out = tf.maxPool(out, 3, 2, 'valid');
-            out = residual(out, _this._params.conv32_1);
-            out = residual(out, _this._params.conv32_2);
-            out = residual(out, _this._params.conv32_3);
-            out = residualDown(out, _this._params.conv64_down);
-            out = residual(out, _this._params.conv64_1);
-            out = residual(out, _this._params.conv64_2);
-            out = residual(out, _this._params.conv64_3);
-            out = residualDown(out, _this._params.conv128_down);
-            out = residual(out, _this._params.conv128_1);
-            out = residual(out, _this._params.conv128_2);
-            out = residualDown(out, _this._params.conv256_down);
-            out = residual(out, _this._params.conv256_1);
-            out = residual(out, _this._params.conv256_2);
-            out = residualDown(out, _this._params.conv256_down_out);
+            out = residualLayer_1.residual(out, _this._params.conv32_1);
+            out = residualLayer_1.residual(out, _this._params.conv32_2);
+            out = residualLayer_1.residual(out, _this._params.conv32_3);
+            out = residualLayer_1.residualDown(out, _this._params.conv64_down);
+            out = residualLayer_1.residual(out, _this._params.conv64_1);
+            out = residualLayer_1.residual(out, _this._params.conv64_2);
+            out = residualLayer_1.residual(out, _this._params.conv64_3);
+            out = residualLayer_1.residualDown(out, _this._params.conv128_down);
+            out = residualLayer_1.residual(out, _this._params.conv128_1);
+            out = residualLayer_1.residual(out, _this._params.conv128_2);
+            out = residualLayer_1.residualDown(out, _this._params.conv256_down);
+            out = residualLayer_1.residual(out, _this._params.conv256_1);
+            out = residualLayer_1.residual(out, _this._params.conv256_2);
+            out = residualLayer_1.residualDown(out, _this._params.conv256_down_out);
             var globalAvg = out.mean([1, 2]);
             var fullyConnected = tf.matMul(globalAvg, _this._params.fc);
             return fullyConnected;
@@ -97,5 +99,5 @@ var FaceRecognitionNet = /** @class */ (function () {
     };
     return FaceRecognitionNet;
 }());
-export { FaceRecognitionNet };
+exports.FaceRecognitionNet = FaceRecognitionNet;
 //# sourceMappingURL=FaceRecognitionNet.js.map

@@ -1,22 +1,24 @@
-import { getCenterPoint } from '../commons/getCenterPoint';
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
-import { Point } from '../Point';
-import { Rect } from '../Rect';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var getCenterPoint_1 = require("../commons/getCenterPoint");
+var FaceDetection_1 = require("../faceDetectionNet/FaceDetection");
+var Point_1 = require("../Point");
+var Rect_1 = require("../Rect");
 // face alignment constants
 var relX = 0.5;
 var relY = 0.43;
 var relScale = 0.45;
 var FaceLandmarks = /** @class */ (function () {
     function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
-        if (shift === void 0) { shift = new Point(0, 0); }
+        if (shift === void 0) { shift = new Point_1.Point(0, 0); }
         var width = imageDims.width, height = imageDims.height;
         this._imageWidth = width;
         this._imageHeight = height;
         this._shift = shift;
-        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
+        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point_1.Point(width, height)).add(shift); });
     }
     FaceLandmarks.prototype.getShift = function () {
-        return new Point(this._shift.x, this._shift.y);
+        return new Point_1.Point(this._shift.x, this._shift.y);
     };
     FaceLandmarks.prototype.getImageWidth = function () {
         return this._imageWidth;
@@ -29,7 +31,7 @@ var FaceLandmarks = /** @class */ (function () {
     };
     FaceLandmarks.prototype.getRelativePositions = function () {
         var _this = this;
-        return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
+        return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point_1.Point(_this._imageWidth, _this._imageHeight)); });
     };
     FaceLandmarks.prototype.getJawOutline = function () {
         return this._faceLandmarks.slice(0, 17);
@@ -56,7 +58,7 @@ var FaceLandmarks = /** @class */ (function () {
         return new FaceLandmarks(this.getRelativePositions(), { width: width, height: height });
     };
     FaceLandmarks.prototype.shift = function (x, y) {
-        return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+        return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point_1.Point(x, y));
     };
     /**
      * Aligns the face landmarks after face detection from the relative positions of the faces
@@ -71,7 +73,7 @@ var FaceLandmarks = /** @class */ (function () {
      */
     FaceLandmarks.prototype.align = function (detection) {
         if (detection) {
-            var box = detection instanceof FaceDetection
+            var box = detection instanceof FaceDetection_1.FaceDetection
                 ? detection.getBox().floor()
                 : detection;
             return this.shift(box.x, box.y).align();
@@ -80,18 +82,18 @@ var FaceLandmarks = /** @class */ (function () {
             this.getLeftEye(),
             this.getRightEye(),
             this.getMouth()
-        ].map(getCenterPoint);
+        ].map(getCenterPoint_1.getCenterPoint);
         var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
         var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
         var eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2;
         var size = Math.floor(eyeToMouthDist / relScale);
-        var refPoint = getCenterPoint(centers);
+        var refPoint = getCenterPoint_1.getCenterPoint(centers);
         // TODO: pad in case rectangle is out of image bounds
         var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
         var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-        return new Rect(x, y, size, size);
+        return new Rect_1.Rect(x, y, size, size);
     };
     return FaceLandmarks;
 }());
-export { FaceLandmarks };
+exports.FaceLandmarks = FaceLandmarks;
 //# sourceMappingURL=FaceLandmarks.js.map

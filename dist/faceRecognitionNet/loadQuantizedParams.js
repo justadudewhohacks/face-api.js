@@ -1,6 +1,8 @@
-import * as tslib_1 from "tslib";
-import { isTensor1D, isTensor2D, isTensor4D } from '../commons/isTensor';
-import { loadWeightMap } from '../commons/loadWeightMap';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var isTensor_1 = require("../commons/isTensor");
+var loadWeightMap_1 = require("../commons/loadWeightMap");
 var DEFAULT_MODEL_NAME = 'face_recognition_model';
 function extractorsFactory(weightMap) {
     function extractScaleLayerParams(prefix) {
@@ -8,10 +10,10 @@ function extractorsFactory(weightMap) {
             weights: weightMap[prefix + "/scale/weights"],
             biases: weightMap[prefix + "/scale/biases"]
         };
-        if (!isTensor1D(params.weights)) {
+        if (!isTensor_1.isTensor1D(params.weights)) {
             throw new Error("expected weightMap[" + prefix + "/scale/weights] to be a Tensor1D, instead have " + params.weights);
         }
-        if (!isTensor1D(params.biases)) {
+        if (!isTensor_1.isTensor1D(params.biases)) {
             throw new Error("expected weightMap[" + prefix + "/scale/biases] to be a Tensor1D, instead have " + params.biases);
         }
         return params;
@@ -21,10 +23,10 @@ function extractorsFactory(weightMap) {
             filters: weightMap[prefix + "/conv/filters"],
             bias: weightMap[prefix + "/conv/bias"]
         };
-        if (!isTensor4D(params.filters)) {
+        if (!isTensor_1.isTensor4D(params.filters)) {
             throw new Error("expected weightMap[" + prefix + "/conv/filters] to be a Tensor1D, instead have " + params.filters);
         }
-        if (!isTensor1D(params.bias)) {
+        if (!isTensor_1.isTensor1D(params.bias)) {
             throw new Error("expected weightMap[" + prefix + "/conv/bias] to be a Tensor1D, instead have " + params.bias);
         }
         return {
@@ -43,12 +45,12 @@ function extractorsFactory(weightMap) {
         extractResidualLayerParams: extractResidualLayerParams
     };
 }
-export function loadQuantizedParams(uri) {
+function loadQuantizedParams(uri) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var weightMap, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                case 0: return [4 /*yield*/, loadWeightMap_1.loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                 case 1:
                     weightMap = _b.sent();
                     _a = extractorsFactory(weightMap), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
@@ -68,7 +70,7 @@ export function loadQuantizedParams(uri) {
                     conv256_2 = extractResidualLayerParams('conv256_2');
                     conv256_down_out = extractResidualLayerParams('conv256_down_out');
                     fc = weightMap['fc'];
-                    if (!isTensor2D(fc)) {
+                    if (!isTensor_1.isTensor2D(fc)) {
                         throw new Error("expected weightMap[fc] to be a Tensor2D, instead have " + fc);
                     }
                     return [2 /*return*/, {
@@ -93,4 +95,5 @@ export function loadQuantizedParams(uri) {
         });
     });
 }
+exports.loadQuantizedParams = loadQuantizedParams;
 //# sourceMappingURL=loadQuantizedParams.js.map
