@@ -2,8 +2,8 @@
   "name": "face-api.js",
   "version": "0.3.0",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "main": "./build/index.js",
+  "typings": "./build/index.d.ts",
   "scripts": {
     "rollup-min": "rollup -c rollup.config.js --environment minify:true",
     "rollup": "rollup -c rollup.config.js",

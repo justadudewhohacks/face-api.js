@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/faceLandmarkNet/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,mBAAmB,CAAC;AAEpD,cAAc,mBAAmB,CAAC;AAElC,MAAM,0BAA0B,OAAqB;IACnD,IAAM,GAAG,GAAG,IAAI,eAAe,EAAE,CAAA;IACjC,GAAG,CAAC,cAAc,CAAC,OAAO,CAAC,CAAA;IAC3B,OAAO,GAAG,CAAA;AACZ,CAAC"}

@@ -9,7 +9,14 @@ const { minify } = process.env
 export default {
   input: 'src/index.ts',
   plugins: [
-    typescript(),
+    typescript({
+      tsconfigOverride: {
+        compilerOptions: {
+          module: 'ES2015',
+          declaration: false
+        }
+      }
+    }),
     node(),
     commonjs()
   ].concat(minify ? uglify() : []),

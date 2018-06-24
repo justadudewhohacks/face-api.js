@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/faceDetectionNet/index.ts"],"names":[],"mappings":";;;AAAA,uDAAsD;AAEtD,6DAAmC;AAEnC,0BAAiC,OAAqB;IACpD,IAAM,GAAG,GAAG,IAAI,mCAAgB,EAAE,CAAA;IAClC,GAAG,CAAC,cAAc,CAAC,OAAO,CAAC,CAAA;IAC3B,OAAO,GAAG,CAAA;AACZ,CAAC;AAJD,4CAIC"}
