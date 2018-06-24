@@ -12,7 +12,8 @@ export default {
     typescript({
       tsconfigOverride: {
         compilerOptions: {
-          module: 'ES2015'
+          module: 'ES2015',
+          declaration: false
         }
       }
     }),

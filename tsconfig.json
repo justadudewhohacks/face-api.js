@@ -21,7 +21,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es5",
-    "outDir": "dist",
+    "outDir": "build",
     "baseUrl": ".",
     "lib": ["es2015", "dom"],
     "typeRoots": [
