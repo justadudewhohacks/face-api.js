@@ -90,17 +90,18 @@
       const locations = await faceapi.locateFaces(input, minConfidence)
 
       const faceTensors = (await faceapi.extractFaceTensors(input, locations))
-      landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLandmarks(t)))
+      let landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLandmarks(t)))
 
       // free memory for face image tensors after we computed their descriptors
       faceTensors.forEach(t => t.dispose())
 
-      landmarksByFace.forEach((landmarks, i) => {
-        // shift and scale the face landmarks to the face image position in the canvas
+      // shift and scale the face landmarks to the face image position in the canvas
+      landmarksByFace = landmarksByFace.map((landmarks, i) => {
         const box = locations[i].forSize(width, height).getBox()
-        faceapi.drawLandmarks(canvas, landmarks.forSize(box.width, box.height).shift(box.x, box.y), { lineWidth: drawLines ? 2 : 4, drawLines, color: 'red' })
+        return landmarks.forSize(box.width, box.height).shift(box.x, box.y)
       })
 
+      faceapi.drawLandmarks(canvas, landmarksByFace, { lineWidth: drawLines ? 2 : 4, drawLines, color: 'red' })
       faceapi.drawDetection('overlay', locations.map(det => det.forSize(width, height)))
     }
 
