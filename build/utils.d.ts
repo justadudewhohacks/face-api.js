@@ -21,6 +21,6 @@ export declare function drawText(ctx: CanvasRenderingContext2D, x: number, y: nu
 export declare function drawDetection(canvasArg: string | HTMLCanvasElement, detection: FaceDetection | FaceDetection[], options?: DrawBoxOptions & DrawTextOptions & {
     withScore: boolean;
 }): void;
-export declare function drawLandmarks(canvasArg: string | HTMLCanvasElement, faceLandmarks: FaceLandmarks, options?: DrawLandmarksOptions & {
+export declare function drawLandmarks(canvasArg: string | HTMLCanvasElement, faceLandmarks: FaceLandmarks | FaceLandmarks[], options?: DrawLandmarksOptions & {
     drawLines: boolean;
 }): void;

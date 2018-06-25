@@ -1,6 +1,6 @@
 import { getCenterPoint } from '../commons/getCenterPoint';
 import { FaceDetection } from '../faceDetectionNet/FaceDetection';
-import { Point } from '../Point';
+import { IPoint, Point } from '../Point';
 import { Rect } from '../Rect';
 import { Dimensions } from '../types';
 
@@ -92,6 +92,10 @@ export class FaceLandmarks {
       { width: this._imageWidth, height: this._imageHeight },
       new Point(x, y)
     )
+  }
+
+  public shiftByPoint(pt: IPoint): FaceLandmarks {
+    return this.shift(pt.x, pt.y)
   }
 
   /**

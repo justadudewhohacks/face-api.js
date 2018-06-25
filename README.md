@@ -105,6 +105,15 @@ To load a model, you have provide the corresponding manifest.json file as well a
 Assuming the models reside in **public/models**:
 
 ``` javascript
+await faceapi.loadFaceDetectionModel('/models')
+// accordingly for the other models:
+// await faceapi.loadFaceLandmarkModel('/models')
+// await faceapi.loadFaceRecognitionModel('/models')
+```
+
+As an alternative, you can also create instance of the neural nets:
+
+``` javascript
 const net = new faceapi.FaceDetectionNet()
 // accordingly for the other models:
 // const net = new faceapi.FaceLandmarkNet()
@@ -118,7 +127,7 @@ await net.load('/models/face_detection_model-weights_manifest.json')
 await net.load('/models')
 ```
 
-Alternatively you can load the weights as a Float32Array (in case you want to use the uncompressed models):
+Using instances, you can also load the weights as a Float32Array (in case you want to use the uncompressed models):
 
 ``` javascript
 // using fetch
@@ -145,7 +154,7 @@ const maxResults = 10
 
 // inputs can be html canvas, img or video element or their ids ...
 const myImg = document.getElementById('myImg')
-const detections = await detectionNet.locateFaces(myImg, minConfidence, maxResults)
+const detections = await faceapi.locateFaces(myImg, minConfidence, maxResults)
 ```
 
 Draw the detected faces to a canvas:
@@ -162,7 +171,7 @@ faceapi.drawDetection(canvas, detectionsForSize, { withScore: false })
 You can also obtain the tensors of the unfiltered bounding boxes and scores for each image in the batch (tensors have to be disposed manually):
 
 ``` javascript
-const { boxes, scores } = detectionNet.forward('myImg')
+const { boxes, scores } = net.forward('myImg')
 ```
 
 <a name="usage-face-recognition"></a>
@@ -173,8 +182,8 @@ Compute and compare the descriptors of two face images:
 
 ``` javascript
 // inputs can be html canvas, img or video element or their ids ...
-const descriptor1 = await recognitionNet.computeFaceDescriptor('myImg')
-const descriptor2 = await recognitionNet.computeFaceDescriptor(document.getElementById('myCanvas'))
+const descriptor1 = await faceapi.computeFaceDescriptor('myImg')
+const descriptor2 = await faceapi.computeFaceDescriptor(document.getElementById('myCanvas'))
 const distance = faceapi.euclidianDistance(descriptor1, descriptor2)
 
 if (distance < 0.6)
@@ -183,16 +192,10 @@ else
   console.log('no match')
 ```
 
-You can also get the face descriptor data synchronously:
-
-``` javascript
-const desc = recognitionNet.computeFaceDescriptorSync('myImg')
-```
-
 Or simply obtain the tensor (tensor has to be disposed manually):
 
 ``` javascript
-const t = recognitionNet.forward('myImg')
+const t = net.forward('myImg')
 ```
 
 <a name="usage-face-landmark-detection"></a>
@@ -204,7 +207,7 @@ Detect face landmarks:
 ``` javascript
 // inputs can be html canvas, img or video element or their ids ...
 const myImg = document.getElementById('myImg')
-const landmarks = await faceLandmarkNet.detectLandmarks(myImg)
+const landmarks = await faceapi.detectLandmarks(myImg)
 ```
 
 Draw the detected face landmarks to a canvas:
@@ -236,11 +239,11 @@ const rightEyeBrow = landmarks.getRightEyeBrow()
 Compute the Face Landmarks for Detected Faces:
 
 ``` javascript
-const detections = await detectionNet.locateFaces(input)
+const detections = await faceapi.locateFaces(input)
 
 // get the face tensors from the image (have to be disposed manually)
 const faceTensors = await faceapi.extractFaceTensors(input, detections)
-const landmarksByFace = await Promise.all(faceTensors.map(t => faceLandmarkNet.detectLandmarks(t)))
+const landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLandmarks(t)))
 
 // free memory for face image tensors after we computed their descriptors
 faceTensors.forEach(t => t.dispose())
@@ -250,11 +253,23 @@ faceTensors.forEach(t => t.dispose())
 
 ### Full Face Detection and Recognition Pipeline
 
-After face detection has been performed, I would recommend to align the bounding boxes of the detected faces before passing them to the face recognition net, which will make the computed face descriptor much more accurate. You can easily align the faces from their face landmark positions as shown in the following example:
+After face detection has been performed, I would recommend to align the bounding boxes of the detected faces before passing them to the face recognition net, which will make the computed face descriptor much more accurate. Fortunately, the api can do this for you under the hood. You can obtain the full face descriptions (location, landmarks and descriptor) of each face in an input image as follows:
+
+``` javascript
+const fullFaceDescriptions = await faceapi.allFaces(input, minConfidence)
+
+const fullFaceDescription0 = fullFaceDescriptions[0]
+console.log(fullFaceDescription0.detection) // bounding box & score
+console.log(fullFaceDescription0.landmarks) // 68 point face landmarks
+console.log(fullFaceDescription0.descriptor) // face descriptors
+
+```
+
+You can also do everything manually as shown in the following:
 
 ``` javascript
 // first detect the face locations
-const detections = await detectionNet.locateFaces(input)
+const detections = await faceapi.locateFaces(input, minConfidence)
 
 // get the face tensors from the image (have to be disposed manually)
 const faceTensors = (await faceapi.extractFaceTensors(input, detections))
@@ -262,7 +277,7 @@ const faceTensors = (await faceapi.extractFaceTensors(input, detections))
 // detect landmarks and get the aligned face image bounding boxes
 const alignedFaceBoxes = await Promise.all(faceTensors.map(
   async (faceTensor, i) => {
-    const faceLandmarks = await landmarkNet.detectLandmarks(faceTensor)
+    const faceLandmarks = await faceapi.detectLandmarks(faceTensor)
     return faceLandmarks.align(detections[i])
   }
 ))
@@ -275,7 +290,7 @@ const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceB
 
 // compute the face descriptors from the aligned face images
 const descriptors = await Promise.all(alignedFaceTensors.map(
-  faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
+  faceTensor => faceapi.computeFaceDescriptor(faceTensor)
 ))
 
 // free memory for face image tensors after we computed their descriptors

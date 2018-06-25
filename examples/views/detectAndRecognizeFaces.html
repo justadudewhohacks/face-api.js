@@ -111,38 +111,14 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const detections = await detectionNet.locateFaces(input, minConfidence)
-      const faceTensors = (await faceapi.extractFaceTensors(input, detections))
+      const fullFaceDescriptions = (await faceapi.allFaces(input, minConfidence))
+        .map(fd => fd.forSize(width, height))
 
-      // detect landmarks and get the aligned face image bounding boxes
-      const alignedFaceBoxes = await Promise.all(faceTensors.map(
-        async (faceTensor, i) => {
-          const faceLandmarks = await landmarkNet.detectLandmarks(faceTensor)
-          return faceLandmarks.align(detections[i])
-        }
-      ))
-
-      // free memory for face image tensors after we detected the face landmarks
-      faceTensors.forEach(t => t.dispose())
-
-      const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceBoxes))
-
-      const descriptors = await Promise.all(alignedFaceTensors.map(
-        faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
-      ))
-
-      // free memory for face image tensors after we computed their descriptors
-      alignedFaceTensors.forEach(t => t.dispose())
-
-      // draw detections
-      const detectionsForSize = detections.map(det => det.forSize(width, height))
-      faceapi.drawDetection('overlay', detectionsForSize, { withScore: false })
-
-      // draw the recognition results
-      descriptors.forEach((descriptor, i) => {
+      fullFaceDescriptions.forEach(({ detection, descriptor }) => {
+        faceapi.drawDetection('overlay', [detection], { withScore: false })
         const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
         const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-        const { x, y, height: boxHeight } = detectionsForSize[i].getBox()
+        const { x, y, height: boxHeight } = detection.getBox()
         faceapi.drawText(
           canvas.getContext('2d'),
           x,
@@ -160,13 +136,8 @@
     }
 
     async function run() {
-      detectionNet = new faceapi.FaceDetectionNet()
-      await detectionNet.load('/')
-      landmarkNet = new faceapi.FaceLandmarkNet()
-      await landmarkNet.load('/')
-      recognitionNet = new faceapi.FaceRecognitionNet()
-      await recognitionNet.load('/')
-      trainDescriptorsByClass = await initTrainDescriptorsByClass(recognitionNet, 1)
+      await faceapi.loadModels('/')
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet, 1)
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

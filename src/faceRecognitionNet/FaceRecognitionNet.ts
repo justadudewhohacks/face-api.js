@@ -77,13 +77,13 @@ export class FaceRecognitionNet {
     const result = this.forward(input)
     const data = await result.data()
     result.dispose()
-    return data
+    return data as Float32Array
   }
 
   public async computeFaceDescriptorSync(input: tf.Tensor | NetInput | TNetInput) {
     const result = this.forward(input)
     const data = result.dataSync()
     result.dispose()
-    return data
+    return data as Float32Array
   }
 }

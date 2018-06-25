@@ -55,7 +55,6 @@
   <script>
     let minConfidence = 0.7
     let drawLines = true
-    let detectionNet, landmarkNet
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -83,14 +82,14 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const locations = await detectionNet.locateFaces(input, minConfidence)
+      const locations = await faceapi.locateFaces(input, minConfidence)
 
       const faceImages = await faceapi.extractFaces(input.canvases[0], locations)
 
       // detect landmarks and get the aligned face image bounding boxes
       const alignedFaceBoxes = await Promise.all(faceImages.map(
         async (faceCanvas, i) => {
-          const faceLandmarks = await landmarkNet.detectLandmarks(faceCanvas)
+          const faceLandmarks = await faceapi.detectLandmarks(faceCanvas)
           return faceLandmarks.align(locations[i])
         }
       ))
@@ -110,10 +109,8 @@
     }
 
     async function run() {
-      detectionNet = new faceapi.FaceDetectionNet()
-      await detectionNet.load('/')
-      landmarkNet = new faceapi.FaceLandmarkNet()
-      await landmarkNet.load('/')
+      await faceapi.loadFaceDetectionModel('/')
+      await faceapi.loadFaceLandmarkModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

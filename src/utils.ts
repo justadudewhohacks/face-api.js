@@ -211,7 +211,7 @@ function drawContour(
 
 export function drawLandmarks(
   canvasArg: string | HTMLCanvasElement,
-  faceLandmarks: FaceLandmarks,
+  faceLandmarks: FaceLandmarks | FaceLandmarks[],
   options?: DrawLandmarksOptions & { drawLines: boolean }
 ) {
   const canvas = getElement(canvasArg)
@@ -229,21 +229,25 @@ export function drawLandmarks(
   const ctx = getContext2dOrThrow(canvas)
   const { lineWidth, color } = drawOptions
 
-  if (drawLines) {
-    ctx.strokeStyle = color
-    ctx.lineWidth = lineWidth
-    drawContour(ctx, faceLandmarks.getJawOutline())
-    drawContour(ctx, faceLandmarks.getLeftEyeBrow())
-    drawContour(ctx, faceLandmarks.getRightEyeBrow())
-    drawContour(ctx, faceLandmarks.getNose())
-    drawContour(ctx, faceLandmarks.getLeftEye(), true)
-    drawContour(ctx, faceLandmarks.getRightEye(), true)
-    drawContour(ctx, faceLandmarks.getMouth(), true)
-    return
-  }
+  const faceLandmarksArray = Array.isArray(faceLandmarks) ? faceLandmarks : [faceLandmarks]
 
-  // else draw points
-  const ptOffset = lineWidth / 2
-  ctx.fillStyle = color
-  faceLandmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
+  faceLandmarksArray.forEach(landmarks => {
+    if (drawLines) {
+      ctx.strokeStyle = color
+      ctx.lineWidth = lineWidth
+      drawContour(ctx, landmarks.getJawOutline())
+      drawContour(ctx, landmarks.getLeftEyeBrow())
+      drawContour(ctx, landmarks.getRightEyeBrow())
+      drawContour(ctx, landmarks.getNose())
+      drawContour(ctx, landmarks.getLeftEye(), true)
+      drawContour(ctx, landmarks.getRightEye(), true)
+      drawContour(ctx, landmarks.getMouth(), true)
+      return
+    }
+
+    // else draw points
+    const ptOffset = lineWidth / 2
+    ctx.fillStyle = color
+    landmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
+  })
 }

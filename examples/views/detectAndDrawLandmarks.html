@@ -54,7 +54,6 @@
   <script>
     let minConfidence = 0.7
     let drawLines = true
-    let detectionNet, landmarkNet
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -88,28 +87,27 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const locations = await detectionNet.locateFaces(input, minConfidence)
+      const locations = await faceapi.locateFaces(input, minConfidence)
 
       const faceTensors = (await faceapi.extractFaceTensors(input, locations))
-      landmarksByFace = await Promise.all(faceTensors.map(t => landmarkNet.detectLandmarks(t)))
+      let landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLandmarks(t)))
 
       // free memory for face image tensors after we computed their descriptors
       faceTensors.forEach(t => t.dispose())
 
-      landmarksByFace.forEach((landmarks, i) => {
-        // shift and scale the face landmarks to the face image position in the canvas
+      // shift and scale the face landmarks to the face image position in the canvas
+      landmarksByFace = landmarksByFace.map((landmarks, i) => {
         const box = locations[i].forSize(width, height).getBox()
-        faceapi.drawLandmarks(canvas, landmarks.forSize(box.width, box.height).shift(box.x, box.y), { lineWidth: drawLines ? 2 : 4, drawLines, color: 'red' })
+        return landmarks.forSize(box.width, box.height).shift(box.x, box.y)
       })
 
+      faceapi.drawLandmarks(canvas, landmarksByFace, { lineWidth: drawLines ? 2 : 4, drawLines, color: 'red' })
       faceapi.drawDetection('overlay', locations.map(det => det.forSize(width, height)))
     }
 
     async function run() {
-      detectionNet = new faceapi.FaceDetectionNet()
-      await detectionNet.load('/')
-      landmarkNet = new faceapi.FaceLandmarkNet()
-      await landmarkNet.load('/')
+      await faceapi.loadFaceDetectionModel('/')
+      await faceapi.loadFaceLandmarkModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

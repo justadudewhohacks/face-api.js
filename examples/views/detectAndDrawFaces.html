@@ -54,7 +54,6 @@
 
   <script>
     let minConfidence = 0.7
-    let net
 
     function onIncreaseThreshold() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -82,7 +81,7 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const detections = await net.locateFaces(input, minConfidence)
+      const detections = await faceapi.locateFaces(input, minConfidence)
       faceapi.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
 
       const faceImages = await faceapi.extractFaces(input.canvases[0], detections)
@@ -97,8 +96,7 @@
     }
 
     async function run() {
-      net = new faceapi.FaceDetectionNet()
-      await net.load('/')
+      await faceapi.loadFaceDetectionModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
