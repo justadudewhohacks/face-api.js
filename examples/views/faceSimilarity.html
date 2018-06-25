@@ -35,7 +35,7 @@
 
   <script>
     const threshold = 0.6
-    let net, descriptors = { desc1: null, desc2: null }
+    let descriptors = { desc1: null, desc2: null }
 
     function updateResult() {
       const distance = faceapi.round(
@@ -56,12 +56,11 @@
       const input = await faceapi.bufferToImage(imgBuf)
       const imgEl = $(`#face${which}`).get(0)
       imgEl.src = input.src
-      descriptors[`desc${which}`] = await net.computeFaceDescriptor(input)
+      descriptors[`desc${which}`] = await faceapi.computeFaceDescriptor(input)
     }
 
     async function run() {
-      net = new faceapi.FaceRecognitionNet()
-      await net.load('/')
+      await  faceapi.loadFaceRecognitionModel()
       $('#loader').hide()
       await onSelectionChanged(1, $('#selectList1 select').val())
       await onSelectionChanged(2, $('#selectList2 select').val())

@@ -29,7 +29,6 @@
   </div>
 
   <script>
-    let net
     let drawLines = true
     let landmarks
     let currentImg
@@ -49,13 +48,12 @@
     async function onSelectionChanged(uri) {
       const imgBuf = await fetchImage(uri)
       currentImg = await faceapi.bufferToImage(imgBuf)
-      landmarks = await net.detectLandmarks(currentImg)
+      landmarks = await faceapi.detectLandmarks(currentImg)
       redraw()
     }
 
     async function run() {
-      net = new faceapi.FaceLandmarkNet()
-      await net.load('/')
+      await faceapi.loadFaceLandmarkModel('/')
       $('#loader').hide()
       await onSelectionChanged($('#selectList select').val())
     }

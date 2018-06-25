@@ -1,4 +1,4 @@
-import { Point } from '../Point';
+import { IPoint, Point } from '../Point';
 import { Rect } from '../Rect';
 import { Dimensions } from '../types';
 export declare class FaceLandmarks {
@@ -21,6 +21,7 @@ export declare class FaceLandmarks {
     getMouth(): Point[];
     forSize(width: number, height: number): FaceLandmarks;
     shift(x: number, y: number): FaceLandmarks;
+    shiftByPoint(pt: IPoint): FaceLandmarks;
     /**
      * Aligns the face landmarks after face detection from the relative positions of the faces
      * bounding box, or it's current shift. This function should be used to align the face images

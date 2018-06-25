@@ -69,7 +69,6 @@
 
     let isStop = false
     let trainDescriptorsByClass = []
-    let net
     let currImageIdx = 2, currClassIdx = 0
     let to = null
 
@@ -114,7 +113,7 @@
         imgEl.src = input.src
 
         const ts = Date.now()
-        const descriptor = await net.computeFaceDescriptor(input)
+        const descriptor = await faceapi.computeFaceDescriptor(input)
         displayTimeStats(Date.now() - ts)
 
         const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
@@ -135,12 +134,11 @@
       try {
         setStatusText('loading model file...')
 
-        net = new faceapi.FaceRecognitionNet()
-        await net.load('/')
+        await faceapi.loadFaceRecognitionModel('/')
 
         setStatusText('computing initial descriptors...')
 
-        trainDescriptorsByClass = await initTrainDescriptorsByClass(net)
+        trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet)
         $('#loader').hide()
 
         runFaceRecognition()

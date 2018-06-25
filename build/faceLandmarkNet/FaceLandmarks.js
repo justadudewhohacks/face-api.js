@@ -60,6 +60,9 @@ var FaceLandmarks = /** @class */ (function () {
     FaceLandmarks.prototype.shift = function (x, y) {
         return new FaceLandmarks(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point_1.Point(x, y));
     };
+    FaceLandmarks.prototype.shiftByPoint = function (pt) {
+        return this.shift(pt.x, pt.y);
+    };
     /**
      * Aligns the face landmarks after face detection from the relative positions of the faces
      * bounding box, or it's current shift. This function should be used to align the face images

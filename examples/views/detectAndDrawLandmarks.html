@@ -54,7 +54,6 @@
   <script>
     let minConfidence = 0.7
     let drawLines = true
-    let detectionNet, landmarkNet
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -88,10 +87,10 @@
       canvas.height = height
 
       const input = new faceapi.NetInput(inputImgEl)
-      const locations = await detectionNet.locateFaces(input, minConfidence)
+      const locations = await faceapi.locateFaces(input, minConfidence)
 
       const faceTensors = (await faceapi.extractFaceTensors(input, locations))
-      landmarksByFace = await Promise.all(faceTensors.map(t => landmarkNet.detectLandmarks(t)))
+      landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLandmarks(t)))
 
       // free memory for face image tensors after we computed their descriptors
       faceTensors.forEach(t => t.dispose())
@@ -106,10 +105,8 @@
     }
 
     async function run() {
-      detectionNet = new faceapi.FaceDetectionNet()
-      await detectionNet.load('/')
-      landmarkNet = new faceapi.FaceLandmarkNet()
-      await landmarkNet.load('/')
+      await faceapi.loadFaceDetectionModel('/')
+      await faceapi.loadFaceLandmarkModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

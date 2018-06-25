@@ -50,7 +50,7 @@
 
   <script>
     let minConfidence = 0.7
-    let net, result
+    let result
 
     function onIncreaseThreshold() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -78,7 +78,7 @@
       canvas.height = height
 
       const ts = Date.now()
-      result = await net.locateFaces(input, minConfidence)
+      result = await faceapi.locateFaces(input, minConfidence)
       displayTimeStats(Date.now() - ts)
 
       faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))
@@ -86,8 +86,7 @@
     }
 
     async function run() {
-      net = new faceapi.FaceDetectionNet()
-      await net.load('/')
+      await faceapi.loadFaceDetectionModel('/')
       $('#loader').hide()
     }
 
