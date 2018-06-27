@@ -171,7 +171,7 @@ faceapi.drawDetection(canvas, detectionsForSize, { withScore: false })
 You can also obtain the tensors of the unfiltered bounding boxes and scores for each image in the batch (tensors have to be disposed manually):
 
 ``` javascript
-const { boxes, scores } = net.forward('myImg')
+const { boxes, scores } = await net.forward('myImg')
 ```
 
 <a name="usage-face-recognition"></a>
@@ -195,7 +195,7 @@ else
 Or simply obtain the tensor (tensor has to be disposed manually):
 
 ``` javascript
-const t = net.forward('myImg')
+const t = await net.forward('myImg')
 ```
 
 <a name="usage-face-landmark-detection"></a>
