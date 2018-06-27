@@ -110,8 +110,7 @@
       canvas.width = width
       canvas.height = height
 
-      const input = new faceapi.NetInput(inputImgEl)
-      const fullFaceDescriptions = (await faceapi.allFaces(input, minConfidence))
+      const fullFaceDescriptions = (await faceapi.allFaces(inputImgEl, minConfidence))
         .map(fd => fd.forSize(width, height))
 
       fullFaceDescriptions.forEach(({ detection, descriptor }) => {

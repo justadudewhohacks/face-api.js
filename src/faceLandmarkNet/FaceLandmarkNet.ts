@@ -1,10 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { convLayer } from '../commons/convLayer';
+import { getImageTensor } from '../commons/getImageTensor';
 import { ConvParams } from '../commons/types';
-import { getImageTensor } from '../getImageTensor';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
+import { toNetInput } from '../toNetInput';
 import { Dimensions, TNetInput } from '../types';
 import { extractParams } from './extractParams';
 import { FaceLandmarks } from './FaceLandmarks';
@@ -45,12 +46,16 @@ export class FaceLandmarkNet {
       throw new Error('FaceLandmarkNet - load model before inference')
     }
 
+    const netInput = input instanceof tf.Tensor
+      ? input
+      : await toNetInput(input)
+
     let imageDimensions: Dimensions | undefined
 
     const outTensor = tf.tidy(() => {
       const params = this._params
 
-      let imgTensor = getImageTensor(input)
+      let imgTensor = getImageTensor(netInput)
       const [height, width] = imgTensor.shape.slice(1)
       imageDimensions = { width, height }
 

@@ -24,6 +24,36 @@ export function getElement(arg: string | any) {
   return arg
 }
 
+export function isLoaded(media: HTMLImageElement | HTMLVideoElement) : boolean {
+  return media instanceof HTMLImageElement && media.complete
+    || media instanceof HTMLVideoElement && media.readyState >= 3
+}
+
+export function awaitMediaLoaded(media: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement) {
+  return new Promise((resolve, reject) => {
+    if (media instanceof HTMLCanvasElement || isLoaded(media)) {
+      return resolve()
+    }
+
+    function onLoad(e: Event) {
+      if (!e.currentTarget) return
+      e.currentTarget.removeEventListener('load', onLoad)
+      e.currentTarget.removeEventListener('error', onError)
+      resolve()
+    }
+
+    function onError(e: Event) {
+      if (!e.currentTarget) return
+      e.currentTarget.removeEventListener('load', onLoad)
+      e.currentTarget.removeEventListener('error', onError)
+      reject()
+    }
+
+    media.addEventListener('load', onLoad)
+    media.addEventListener('error', onError)
+  })
+}
+
 export function getContext2dOrThrow(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d')
   if (!ctx) {
@@ -40,6 +70,10 @@ export function createCanvas({ width, height }: Dimensions): HTMLCanvasElement {
 }
 
 export function createCanvasFromMedia(media: HTMLImageElement | HTMLVideoElement, dims?: Dimensions): HTMLCanvasElement {
+  if (!isLoaded(media)) {
+    throw new Error('createCanvasFromMedia - media has not finished loading yet')
+  }
+
   const { width, height } = dims || getMediaDimensions(media)
   const canvas = createCanvas({ width, height })
   getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height)

@@ -21,6 +21,35 @@ function getElement(arg) {
     return arg;
 }
 exports.getElement = getElement;
+function isLoaded(media) {
+    return media instanceof HTMLImageElement && media.complete
+        || media instanceof HTMLVideoElement && media.readyState >= 3;
+}
+exports.isLoaded = isLoaded;
+function awaitMediaLoaded(media) {
+    return new Promise(function (resolve, reject) {
+        if (media instanceof HTMLCanvasElement || isLoaded(media)) {
+            return resolve();
+        }
+        function onLoad(e) {
+            if (!e.currentTarget)
+                return;
+            e.currentTarget.removeEventListener('load', onLoad);
+            e.currentTarget.removeEventListener('error', onError);
+            resolve();
+        }
+        function onError(e) {
+            if (!e.currentTarget)
+                return;
+            e.currentTarget.removeEventListener('load', onLoad);
+            e.currentTarget.removeEventListener('error', onError);
+            reject();
+        }
+        media.addEventListener('load', onLoad);
+        media.addEventListener('error', onError);
+    });
+}
+exports.awaitMediaLoaded = awaitMediaLoaded;
 function getContext2dOrThrow(canvas) {
     var ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -38,6 +67,9 @@ function createCanvas(_a) {
 }
 exports.createCanvas = createCanvas;
 function createCanvasFromMedia(media, dims) {
+    if (!isLoaded(media)) {
+        throw new Error('createCanvasFromMedia - media has not finished loading yet');
+    }
     var _a = dims || getMediaDimensions(media), width = _a.width, height = _a.height;
     var canvas = createCanvas({ width: width, height: height });
     getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);

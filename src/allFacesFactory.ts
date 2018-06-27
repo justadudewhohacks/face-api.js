@@ -29,7 +29,7 @@ export function allFacesFactory(
     const alignedFaceBoxes = await Promise.all(faceLandmarksByFace.map(
       (landmarks, i) => landmarks.align(detections[i].getBox())
     ))
-    const alignedFaceTensors = (await extractFaceTensors(input, alignedFaceBoxes))
+    const alignedFaceTensors = await extractFaceTensors(input, alignedFaceBoxes)
 
     const descriptors = await Promise.all(alignedFaceTensors.map(
       faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)

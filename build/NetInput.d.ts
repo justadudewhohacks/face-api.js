@@ -1,7 +1,7 @@
-import { Dimensions, TNetInput } from './types';
+import { Dimensions, TMediaElement } from './types';
 export declare class NetInput {
     private _canvases;
-    constructor(mediaArg: TNetInput, dims?: Dimensions);
+    constructor(medias: Array<TMediaElement>, dims?: Dimensions);
     private initCanvas(media, dims?);
     readonly canvases: HTMLCanvasElement[];
     readonly width: number;

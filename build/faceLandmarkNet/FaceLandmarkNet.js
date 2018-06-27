@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var convLayer_1 = require("../commons/convLayer");
-var getImageTensor_1 = require("../getImageTensor");
+var getImageTensor_1 = require("../commons/getImageTensor");
 var Point_1 = require("../Point");
+var toNetInput_1 = require("../toNetInput");
 var extractParams_1 = require("./extractParams");
 var FaceLandmarks_1 = require("./FaceLandmarks");
 var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
@@ -47,16 +48,25 @@ var FaceLandmarkNet = /** @class */ (function () {
     FaceLandmarkNet.prototype.detectLandmarks = function (input) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var imageDimensions, outTensor, faceLandmarksArray, _a, _b, xCoords, yCoords;
-            return tslib_1.__generator(this, function (_c) {
-                switch (_c.label) {
+            var netInput, _a, imageDimensions, outTensor, faceLandmarksArray, _b, _c, xCoords, yCoords;
+            return tslib_1.__generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         if (!this._params) {
                             throw new Error('FaceLandmarkNet - load model before inference');
                         }
+                        if (!(input instanceof tf.Tensor)) return [3 /*break*/, 1];
+                        _a = input;
+                        return [3 /*break*/, 3];
+                    case 1: return [4 /*yield*/, toNetInput_1.toNetInput(input)];
+                    case 2:
+                        _a = _d.sent();
+                        _d.label = 3;
+                    case 3:
+                        netInput = _a;
                         outTensor = tf.tidy(function () {
                             var params = _this._params;
-                            var imgTensor = getImageTensor_1.getImageTensor(input);
+                            var imgTensor = getImageTensor_1.getImageTensor(netInput);
                             var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
                             imageDimensions = { width: width, height: height };
                             // work with 128 x 128 sized face images
@@ -79,10 +89,10 @@ var FaceLandmarkNet = /** @class */ (function () {
                             var fc1 = fullyConnectedLayer_1.fullyConnectedLayer(fc0, params.fc1_params);
                             return fc1;
                         });
-                        _b = (_a = Array).from;
+                        _c = (_b = Array).from;
                         return [4 /*yield*/, outTensor.data()];
-                    case 1:
-                        faceLandmarksArray = _b.apply(_a, [_c.sent()]);
+                    case 4:
+                        faceLandmarksArray = _c.apply(_b, [_d.sent()]);
                         outTensor.dispose();
                         xCoords = faceLandmarksArray.filter(function (c, i) { return (i - 1) % 2; });
                         yCoords = faceLandmarksArray.filter(function (c, i) { return i % 2; });

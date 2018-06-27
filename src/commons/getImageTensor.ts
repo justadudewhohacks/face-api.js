@@ -1,9 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { NetInput } from './NetInput';
-import { TNetInput } from './types';
+import { NetInput } from '../NetInput';
 
-export function getImageTensor(input: tf.Tensor | NetInput | TNetInput): tf.Tensor4D {
+export function getImageTensor(input: tf.Tensor | NetInput): tf.Tensor4D {
   return tf.tidy(() => {
     if (input instanceof tf.Tensor) {
       const rank = input.shape.length
@@ -14,9 +13,12 @@ export function getImageTensor(input: tf.Tensor | NetInput | TNetInput): tf.Tens
       return (rank === 3 ? input.expandDims(0) : input).toFloat() as tf.Tensor4D
     }
 
-    const netInput = input instanceof NetInput ? input : new NetInput(input)
+    if (!(input instanceof NetInput)) {
+      throw new Error('getImageTensor - expected input to be a tensor or an instance of NetInput')
+    }
+
     return tf.concat(
-      netInput.canvases.map(canvas =>
+      input.canvases.map(canvas =>
         tf.fromPixels(canvas).expandDims(0).toFloat()
       )
     ) as tf.Tensor4D

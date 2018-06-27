@@ -1,10 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { getImageTensor } from './commons/getImageTensor';
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
-import { getImageTensor } from './getImageTensor';
 import { NetInput } from './NetInput';
 import { Rect } from './Rect';
 import { TNetInput } from './types';
+import { toNetInput } from './toNetInput';
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -16,10 +17,15 @@ import { TNetInput } from './types';
  * @param detections The face detection results or face bounding boxes for that image.
  * @returns Tensors of the corresponding image region for each detected face.
  */
-export function extractFaceTensors(
-  image: tf.Tensor | NetInput | TNetInput,
+export async function extractFaceTensors(
+  input: tf.Tensor | NetInput | TNetInput,
   detections: Array<FaceDetection|Rect>
-): tf.Tensor4D[] {
+): Promise<tf.Tensor4D[]> {
+
+  const image = input instanceof tf.Tensor
+    ? input
+    : await toNetInput(input)
+
   return tf.tidy(() => {
     const imgTensor = getImageTensor(image)
 

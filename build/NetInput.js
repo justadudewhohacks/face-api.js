@@ -2,24 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("./utils");
 var NetInput = /** @class */ (function () {
-    function NetInput(mediaArg, dims) {
+    function NetInput(medias, dims) {
         var _this = this;
-        var mediaArgArray = Array.isArray(mediaArg)
-            ? mediaArg
-            : [mediaArg];
-        if (!mediaArgArray.length) {
-            throw new Error('NetInput - empty array passed as input');
-        }
-        var medias = mediaArgArray.map(utils_1.getElement);
-        medias.forEach(function (media, i) {
-            if (!(media instanceof HTMLImageElement || media instanceof HTMLVideoElement || media instanceof HTMLCanvasElement)) {
-                var idxHint = Array.isArray(mediaArg) ? " at input index " + i + ":" : '';
-                if (typeof mediaArgArray[i] === 'string') {
-                    throw new Error("NetInput -" + idxHint + " string passed, but could not resolve HTMLElement for element id");
-                }
-                throw new Error("NetInput -" + idxHint + " expected media to be of type HTMLImageElement | HTMLVideoElement | HTMLCanvasElement, or to be an element id");
-            }
-        });
         this._canvases = [];
         medias.forEach(function (m) { return _this.initCanvas(m, dims); });
     }

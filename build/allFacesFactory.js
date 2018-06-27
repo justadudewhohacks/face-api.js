@@ -24,7 +24,7 @@ function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
                         alignedFaceBoxes = _a.sent();
                         return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, alignedFaceBoxes)];
                     case 5:
-                        alignedFaceTensors = (_a.sent());
+                        alignedFaceTensors = _a.sent();
                         return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
                     case 6:
                         descriptors = _a.sent();

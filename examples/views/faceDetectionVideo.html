@@ -71,7 +71,7 @@
       if(videoEl.paused || videoEl.ended)
         return false
 
-      const input = new faceapi.NetInput(videoEl)
+      const input = await faceapi.toNetInput(videoEl)
       const { width, height } = input
       const canvas = $('#overlay').get(0)
       canvas.width = width
