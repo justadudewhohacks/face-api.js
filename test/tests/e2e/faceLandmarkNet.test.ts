@@ -1,7 +1,7 @@
-import * as faceapi from '../../src';
-import { FaceLandmarks } from '../../src/faceLandmarkNet/FaceLandmarks';
-import { Point } from '../../src/Point';
-import { expectMaxDelta } from '../utils';
+import * as faceapi from '../../../src';
+import { FaceLandmarks } from '../../../src/faceLandmarkNet/FaceLandmarks';
+import { Point } from '../../../src/Point';
+import { expectMaxDelta } from '../../utils';
 
 describe('faceLandmarkNet', () => {
 

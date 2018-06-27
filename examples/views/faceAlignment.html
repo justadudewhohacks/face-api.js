@@ -81,7 +81,7 @@
       canvas.width = width
       canvas.height = height
 
-      const input = new faceapi.NetInput(inputImgEl)
+      const input = await faceapi.toNetInput(inputImgEl)
       const locations = await faceapi.locateFaces(input, minConfidence)
 
       const faceImages = await faceapi.extractFaces(input.canvases[0], locations)

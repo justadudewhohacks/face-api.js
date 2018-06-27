@@ -80,8 +80,7 @@
       canvas.width = width
       canvas.height = height
 
-      const input = new faceapi.NetInput(inputImgEl)
-      result = await faceapi.locateFaces(input, minConfidence)
+      result = await faceapi.locateFaces(inputImgEl, minConfidence)
       faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))
     }
 

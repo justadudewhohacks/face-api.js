@@ -1,9 +1,10 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { getImageTensor } from '../getImageTensor';
+import { getImageTensor } from '../commons/getImageTensor';
 import { NetInput } from '../NetInput';
 import { padToSquare } from '../padToSquare';
 import { Rect } from '../Rect';
+import { toNetInput } from '../toNetInput';
 import { Dimensions, TNetInput } from '../types';
 import { extractParams } from './extractParams';
 import { FaceDetection } from './FaceDetection';
@@ -54,9 +55,13 @@ export class FaceDetectionNet {
     })
   }
 
-  public forward(input: tf.Tensor | NetInput | TNetInput) {
-    return tf.tidy(
-      () => this.forwardTensor(padToSquare(getImageTensor(input)))
+  public async forward(input: tf.Tensor | NetInput | TNetInput) {
+    const netInput = input instanceof tf.Tensor
+      ? input
+      : await toNetInput(input)
+
+    return tf.tidy(() =>
+      this.forwardTensor(padToSquare(getImageTensor(netInput)))
     )
   }
 
@@ -66,6 +71,10 @@ export class FaceDetectionNet {
     maxResults: number = 100,
   ): Promise<FaceDetection[]> {
 
+    const netInput = input instanceof tf.Tensor
+      ? input
+      : await toNetInput(input)
+
     let paddedHeightRelative = 1, paddedWidthRelative = 1
     let imageDimensions: Dimensions | undefined
 
@@ -74,7 +83,7 @@ export class FaceDetectionNet {
       scores: _scores
     } = tf.tidy(() => {
 
-      let imgTensor = getImageTensor(input)
+      let imgTensor = getImageTensor(netInput)
       const [height, width] = imgTensor.shape.slice(1)
       imageDimensions = { width, height }
 

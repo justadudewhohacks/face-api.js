@@ -1,8 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { getImageTensor } from '../getImageTensor';
+import { getImageTensor } from '../commons/getImageTensor';
 import { NetInput } from '../NetInput';
 import { padToSquare } from '../padToSquare';
+import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
@@ -31,14 +32,18 @@ export class FaceRecognitionNet {
     this._params = extractParams(weights)
   }
 
-  public forward(input: tf.Tensor | NetInput | TNetInput) {
+  public async forward(input: tf.Tensor | NetInput | TNetInput): Promise<tf.Tensor2D> {
     if (!this._params) {
       throw new Error('FaceRecognitionNet - load model before inference')
     }
 
+    const netInput = input instanceof tf.Tensor
+      ? input
+      : await toNetInput(input)
+
     return tf.tidy(() => {
 
-      let x = padToSquare(getImageTensor(input), true)
+      let x = padToSquare(getImageTensor(netInput), true)
       // work with 150 x 150 sized face images
       if (x.shape[1] !== 150 || x.shape[2] !== 150) {
         x = tf.image.resizeBilinear(x, [150, 150])
@@ -74,15 +79,12 @@ export class FaceRecognitionNet {
   }
 
   public async computeFaceDescriptor(input: tf.Tensor | NetInput | TNetInput) {
-    const result = this.forward(input)
-    const data = await result.data()
-    result.dispose()
-    return data as Float32Array
-  }
+    const netInput = input instanceof tf.Tensor
+      ? input
+      : await toNetInput(input)
 
-  public async computeFaceDescriptorSync(input: tf.Tensor | NetInput | TNetInput) {
-    const result = this.forward(input)
-    const data = result.dataSync()
+    const result = await this.forward(netInput)
+    const data = await result.data()
     result.dispose()
     return data as Float32Array
   }
