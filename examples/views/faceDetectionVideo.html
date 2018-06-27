@@ -15,7 +15,7 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <video src="media/bbt.mp4" onplay="onPlay(this)" autoplay muted></video>
+      <video src="media/bbt.mp4" onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
       <canvas id="overlay" />
     </div>
     <div class="row side-by-side">
@@ -50,6 +50,7 @@
 
   <script>
     let minConfidence = 0.7
+    let modelLoaded = false
     let result
 
     function onIncreaseThreshold() {
@@ -68,7 +69,7 @@
     }
 
     async function onPlay(videoEl) {
-      if(videoEl.paused || videoEl.ended)
+      if(videoEl.paused || videoEl.ended || !modelLoaded)
         return false
 
       const input = await faceapi.toNetInput(videoEl)
@@ -87,6 +88,8 @@
 
     async function run() {
       await faceapi.loadFaceDetectionModel('/')
+      modelLoaded = true
+      onPlay($('#inputVideo').get(0))
       $('#loader').hide()
     }
 
