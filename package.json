@@ -20,7 +20,7 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "^0.11.0"
+    "@tensorflow/tfjs-core": "^0.11.9"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
