@@ -1,7 +1,7 @@
-import * as faceapi from '../../src';
-import { FaceDetection } from '../../src/faceDetectionNet/FaceDetection';
-import { IRect } from '../../src/Rect';
-import { expectMaxDelta } from '../utils';
+import * as faceapi from '../../../src';
+import { FaceDetection } from '../../../src/faceDetectionNet/FaceDetection';
+import { IRect } from '../../../src/Rect';
+import { expectMaxDelta } from '../../utils';
 
 function expectRectClose(
   result: IRect,

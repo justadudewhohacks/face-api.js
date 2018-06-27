@@ -1,4 +1,4 @@
-import { getModelUris } from '../src/commons/loadWeightMap';
+import { getModelUris } from '../../../src/commons/loadWeightMap';
 
 const FAKE_DEFAULT_MODEL_NAME = 'default_model_name'
 

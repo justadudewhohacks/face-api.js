@@ -1,4 +1,4 @@
-import * as faceapi from '../../src';
+import * as faceapi from '../../../src';
 
 describe('faceRecognitionNet', () => {
 

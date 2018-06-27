@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { padToSquare } from '../src/padToSquare';
-import { ones, zeros } from './utils';
+import { padToSquare } from '../../src/padToSquare';
+import { ones, zeros } from '../utils';
 
 describe('padToSquare', () => {
 

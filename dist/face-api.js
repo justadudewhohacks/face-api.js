@@ -14901,87 +14901,6 @@
         return FullFaceDescription;
     }());
 
-    var Point = /** @class */ (function () {
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        Point.prototype.add = function (pt) {
-            return new Point(this.x + pt.x, this.y + pt.y);
-        };
-        Point.prototype.sub = function (pt) {
-            return new Point(this.x - pt.x, this.y - pt.y);
-        };
-        Point.prototype.mul = function (pt) {
-            return new Point(this.x * pt.x, this.y * pt.y);
-        };
-        Point.prototype.div = function (pt) {
-            return new Point(this.x / pt.x, this.y / pt.y);
-        };
-        Point.prototype.abs = function () {
-            return new Point(Math.abs(this.x), Math.abs(this.y));
-        };
-        Point.prototype.magnitude = function () {
-            return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-        };
-        Point.prototype.floor = function () {
-            return new Point(Math.floor(this.x), Math.floor(this.y));
-        };
-        return Point;
-    }());
-
-    var Rect = /** @class */ (function () {
-        function Rect(x, y, width, height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-        Rect.prototype.floor = function () {
-            return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
-        };
-        return Rect;
-    }());
-
-    function euclideanDistance(arr1, arr2) {
-        if (arr1.length !== arr2.length)
-            throw new Error('euclideanDistance: arr1.length !== arr2.length');
-        var desc1 = Array.from(arr1);
-        var desc2 = Array.from(arr2);
-        return Math.sqrt(desc1
-            .map(function (val, i) { return val - desc2[i]; })
-            .reduce(function (res, diff) { return res + Math.pow(diff, 2); }, 0));
-    }
-
-    var FaceDetection = /** @class */ (function () {
-        function FaceDetection(score, relativeBox, imageDims) {
-            var width = imageDims.width, height = imageDims.height;
-            this._imageWidth = width;
-            this._imageHeight = height;
-            this._score = score;
-            this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
-        }
-        FaceDetection.prototype.getScore = function () {
-            return this._score;
-        };
-        FaceDetection.prototype.getBox = function () {
-            return this._box;
-        };
-        FaceDetection.prototype.getImageWidth = function () {
-            return this._imageWidth;
-        };
-        FaceDetection.prototype.getImageHeight = function () {
-            return this._imageHeight;
-        };
-        FaceDetection.prototype.getRelativeBox = function () {
-            return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
-        };
-        FaceDetection.prototype.forSize = function (width, height) {
-            return new FaceDetection(this._score, this.getRelativeBox(), { width: width, height: height });
-        };
-        return FaceDetection;
-    }());
-
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -15050,8 +14969,8 @@
         return arg;
     }
     function isLoaded(media) {
-        return media instanceof HTMLImageElement && media.complete
-            || media instanceof HTMLVideoElement && media.readyState >= 3;
+        return (media instanceof HTMLImageElement && media.complete)
+            || (media instanceof HTMLVideoElement && media.readyState >= 3);
     }
     function awaitMediaLoaded(media) {
         return new Promise(function (resolve, reject) {
@@ -15140,6 +15059,96 @@
             });
         });
     }
+
+    var NetInput = /** @class */ (function () {
+        function NetInput(medias, dims) {
+            var _this = this;
+            this._canvases = [];
+            medias.forEach(function (m) { return _this.initCanvas(m, dims); });
+        }
+        NetInput.prototype.initCanvas = function (media, dims) {
+            if (media instanceof HTMLCanvasElement) {
+                this._canvases.push(media);
+                return;
+            }
+            // if input is batch type, make sure every canvas has the same dimensions
+            var canvasDims = this.dims || dims;
+            this._canvases.push(createCanvasFromMedia(media, canvasDims));
+        };
+        Object.defineProperty(NetInput.prototype, "canvases", {
+            get: function () {
+                return this._canvases;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NetInput.prototype, "width", {
+            get: function () {
+                return (this._canvases[0] || {}).width;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NetInput.prototype, "height", {
+            get: function () {
+                return (this._canvases[0] || {}).height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NetInput.prototype, "dims", {
+            get: function () {
+                var _a = this, width = _a.width, height = _a.height;
+                return (width > 0 && height > 0) ? { width: width, height: height } : null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return NetInput;
+    }());
+
+    var Point = /** @class */ (function () {
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        Point.prototype.add = function (pt) {
+            return new Point(this.x + pt.x, this.y + pt.y);
+        };
+        Point.prototype.sub = function (pt) {
+            return new Point(this.x - pt.x, this.y - pt.y);
+        };
+        Point.prototype.mul = function (pt) {
+            return new Point(this.x * pt.x, this.y * pt.y);
+        };
+        Point.prototype.div = function (pt) {
+            return new Point(this.x / pt.x, this.y / pt.y);
+        };
+        Point.prototype.abs = function () {
+            return new Point(Math.abs(this.x), Math.abs(this.y));
+        };
+        Point.prototype.magnitude = function () {
+            return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        };
+        Point.prototype.floor = function () {
+            return new Point(Math.floor(this.x), Math.floor(this.y));
+        };
+        return Point;
+    }());
+
+    var Rect = /** @class */ (function () {
+        function Rect(x, y, width, height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        Rect.prototype.floor = function () {
+            return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+        };
+        return Rect;
+    }());
+
     function getDefaultDrawOptions() {
         return {
             color: 'blue',
@@ -15230,6 +15239,45 @@
         });
     }
 
+    function euclideanDistance(arr1, arr2) {
+        if (arr1.length !== arr2.length)
+            throw new Error('euclideanDistance: arr1.length !== arr2.length');
+        var desc1 = Array.from(arr1);
+        var desc2 = Array.from(arr2);
+        return Math.sqrt(desc1
+            .map(function (val, i) { return val - desc2[i]; })
+            .reduce(function (res, diff) { return res + Math.pow(diff, 2); }, 0));
+    }
+
+    var FaceDetection = /** @class */ (function () {
+        function FaceDetection(score, relativeBox, imageDims) {
+            var width = imageDims.width, height = imageDims.height;
+            this._imageWidth = width;
+            this._imageHeight = height;
+            this._score = score;
+            this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
+        }
+        FaceDetection.prototype.getScore = function () {
+            return this._score;
+        };
+        FaceDetection.prototype.getBox = function () {
+            return this._box;
+        };
+        FaceDetection.prototype.getImageWidth = function () {
+            return this._imageWidth;
+        };
+        FaceDetection.prototype.getImageHeight = function () {
+            return this._imageHeight;
+        };
+        FaceDetection.prototype.getRelativeBox = function () {
+            return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
+        };
+        FaceDetection.prototype.forSize = function (width, height) {
+            return new FaceDetection(this._score, this.getRelativeBox(), { width: width, height: height });
+        };
+        return FaceDetection;
+    }());
+
     /**
      * Extracts the image regions containing the detected faces.
      *
@@ -15250,53 +15298,6 @@
             return faceImg;
         });
     }
-
-    var NetInput = /** @class */ (function () {
-        function NetInput(medias, dims) {
-            var _this = this;
-            this._canvases = [];
-            medias.forEach(function (m) { return _this.initCanvas(m, dims); });
-        }
-        NetInput.prototype.initCanvas = function (media, dims) {
-            if (media instanceof HTMLCanvasElement) {
-                this._canvases.push(media);
-                return;
-            }
-            // if input is batch type, make sure every canvas has the same dimensions
-            var canvasDims = this.dims || dims;
-            this._canvases.push(createCanvasFromMedia(media, canvasDims));
-        };
-        Object.defineProperty(NetInput.prototype, "canvases", {
-            get: function () {
-                return this._canvases;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NetInput.prototype, "width", {
-            get: function () {
-                return (this._canvases[0] || {}).width;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NetInput.prototype, "height", {
-            get: function () {
-                return (this._canvases[0] || {}).height;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NetInput.prototype, "dims", {
-            get: function () {
-                var _a = this, width = _a.width, height = _a.height;
-                return (width > 0 && height > 0) ? { width: width, height: height } : null;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return NetInput;
-    }());
 
     function getImageTensor(input) {
         return tidy(function () {
@@ -16842,8 +16843,14 @@
 
     exports.tf = index;
     exports.FullFaceDescription = FullFaceDescription;
+    exports.NetInput = NetInput;
     exports.Point = Point;
     exports.Rect = Rect;
+    exports.getDefaultDrawOptions = getDefaultDrawOptions;
+    exports.drawBox = drawBox;
+    exports.drawText = drawText;
+    exports.drawDetection = drawDetection;
+    exports.drawLandmarks = drawLandmarks;
     exports.euclideanDistance = euclideanDistance;
     exports.extractFaces = extractFaces;
     exports.extractFaceTensors = extractFaceTensors;
@@ -16880,11 +16887,6 @@
     exports.getMediaDimensions = getMediaDimensions;
     exports.bufferToImage = bufferToImage;
     exports.imageTensorToCanvas = imageTensorToCanvas;
-    exports.getDefaultDrawOptions = getDefaultDrawOptions;
-    exports.drawBox = drawBox;
-    exports.drawText = drawText;
-    exports.drawDetection = drawDetection;
-    exports.drawLandmarks = drawLandmarks;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
