@@ -184,7 +184,7 @@ Compute and compare the descriptors of two face images:
 // inputs can be html canvas, img or video element or their ids ...
 const descriptor1 = await faceapi.computeFaceDescriptor('myImg')
 const descriptor2 = await faceapi.computeFaceDescriptor(document.getElementById('myCanvas'))
-const distance = faceapi.euclidianDistance(descriptor1, descriptor2)
+const distance = faceapi.euclideanDistance(descriptor1, descriptor2)
 
 if (distance < 0.6)
   console.log('match')
