@@ -27,7 +27,8 @@ export default {
     name: 'faceapi',
     globals: {
       'crypto': 'crypto'
-    }
+    },
+    sourcemap: minify ? false : true
   },
   external: ['crypto'],
   onwarn: (warning) => {
