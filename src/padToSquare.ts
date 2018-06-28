@@ -21,17 +21,28 @@ export function padToSquare(
     }
 
     const dimDiff = Math.abs(height - width)
-    const paddingAmount = Math.floor(dimDiff * (isCenterImage ? 0.5 : 1))
+    const paddingAmount = Math.round(dimDiff * (isCenterImage ? 0.5 : 1))
     const paddingAxis = height > width ? 2 : 1
 
-    const getPaddingTensorShape = (isRoundUp: boolean = false): number[] => {
+    const createPaddingTensor = (paddingAmount: number): tf.Tensor => {
       const paddingTensorShape = imgTensor.shape.slice()
-      paddingTensorShape[paddingAxis] = paddingAmount + (isRoundUp ? 1 : 0)
-      return paddingTensorShape
+      paddingTensorShape[paddingAxis] = paddingAmount
+      return tf.fill(paddingTensorShape, 0)
     }
 
-    const tensorsToStack = (isCenterImage ? [tf.fill(getPaddingTensorShape(!isEven(dimDiff)), 0)] : [])
-      .concat([imgTensor,  tf.fill(getPaddingTensorShape(), 0)]) as tf.Tensor4D[]
+    const paddingTensorAppend = createPaddingTensor(paddingAmount)
+    const remainingPaddingAmount = dimDiff - paddingTensorAppend.shape[paddingAxis]
+
+    const paddingTensorPrepend = isCenterImage && remainingPaddingAmount
+      ? createPaddingTensor(remainingPaddingAmount)
+      : null
+
+    const tensorsToStack = [
+      paddingTensorPrepend,
+      imgTensor,
+      paddingTensorAppend
+    ]
+      .filter(t => t !== null) as tf.Tensor4D[]
     return tf.concat(tensorsToStack, paddingAxis)
   })
 }
