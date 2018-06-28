@@ -2,6 +2,8 @@
 
 **JavaScript API for face detection and face recognition in the browser implemented on top of the tensorflow.js core API ([tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core))**
 
+Check out my article **[face-api.js — JavaScript API for Face Recognition in the Browser with tensorflow.js](https://itnext.io/face-api-js-javascript-api-for-face-recognition-in-the-browser-with-tensorflow-js-bcc2a6c4cf07)** for a quick introduction to the package.
+
 * **[Running the Examples](#running-the-examples)**
 * **[About the Package](#about-the-package)**
   * **[Face Detection](#about-face-detection)**
