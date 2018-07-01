@@ -31,7 +31,10 @@ describe('faceLandmarkNet', () => {
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
-      expect(result.getPositions().map(({ x, y }) => ({ x, y }))).toEqual(faceLandmarkPositions)
+      result.getPositions().forEach(({ x, y }, i) => {
+        expectMaxDelta(x, faceLandmarkPositions[i].x, 0.1)
+        expectMaxDelta(y, faceLandmarkPositions[i].y, 0.1)
+      })
     })
 
   })

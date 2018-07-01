@@ -18,6 +18,20 @@ export class Rect implements IRect {
     this.height = height
   }
 
+  public toSquare(): Rect {
+    let { x, y, width, height } = this
+    const diff = Math.abs(width - height)
+    if (width < height) {
+      x -= (diff / 2)
+      width += diff
+    }
+    if (height < width) {
+      y -= (diff / 2)
+      height += diff
+    }
+    return new Rect(x, y, width, height)
+  }
+
   public floor(): Rect {
     return new Rect(
       Math.floor(this.x),

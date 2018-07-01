@@ -510,6 +510,19 @@
           this.width = width;
           this.height = height;
       }
+      Rect.prototype.toSquare = function () {
+          var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+          var diff = Math.abs(width - height);
+          if (width < height) {
+              x -= (diff / 2);
+              width += diff;
+          }
+          if (height < width) {
+              y -= (diff / 2);
+              height += diff;
+          }
+          return new Rect(x, y, width, height);
+      };
       Rect.prototype.floor = function () {
           return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
       };
@@ -1732,6 +1745,72 @@
       FaceLandmarkNet.prototype.extractWeights = function (weights) {
           this._params = extractParams$1(weights);
       };
+      FaceLandmarkNet.prototype.forwardTensor = function (imgTensor) {
+          var params = this._params;
+          if (!params) {
+              throw new Error('FaceLandmarkNet - load model before inference');
+          }
+          return tidy(function () {
+              var _a = imgTensor.shape.slice(), batchSize = _a[0], height = _a[1], width = _a[2];
+              var x = padToSquare(imgTensor, true);
+              var _b = x.shape.slice(1), heightAfterPadding = _b[0], widthAfterPadding = _b[1];
+              // work with 128 x 128 sized face images
+              if (heightAfterPadding !== 128 || widthAfterPadding !== 128) {
+                  x = image.resizeBilinear(x, [128, 128]);
+              }
+              var out = conv(x, params.conv0_params);
+              out = maxPool$1(out);
+              out = conv(out, params.conv1_params);
+              out = conv(out, params.conv2_params);
+              out = maxPool$1(out);
+              out = conv(out, params.conv3_params);
+              out = conv(out, params.conv4_params);
+              out = maxPool$1(out);
+              out = conv(out, params.conv5_params);
+              out = conv(out, params.conv6_params);
+              out = maxPool$1(out, [1, 1]);
+              out = conv(out, params.conv7_params);
+              var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params));
+              var fc1 = fullyConnectedLayer(fc0, params.fc1_params);
+              var createInterleavedTensor = function (fillX, fillY) {
+                  return stack([
+                      fill([68], fillX),
+                      fill([68], fillY)
+                  ], 1).as2D(batchSize, 136);
+              };
+              /* shift coordinates back, to undo centered padding
+                ((x * widthAfterPadding) - shiftX) / width
+                ((y * heightAfterPadding) - shiftY) / height
+              */
+              var shiftX = Math.floor(Math.abs(widthAfterPadding - width) / 2);
+              var shiftY = Math.floor(Math.abs(heightAfterPadding - height) / 2);
+              var landmarkTensor = fc1
+                  .mul(createInterleavedTensor(widthAfterPadding, heightAfterPadding))
+                  .sub(createInterleavedTensor(shiftX, shiftY))
+                  .div(createInterleavedTensor(width, height));
+              return landmarkTensor;
+          });
+      };
+      FaceLandmarkNet.prototype.forward = function (input) {
+          return __awaiter$1(this, void 0, void 0, function () {
+              var netInput, _a;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
+                      case 0:
+                          if (!(input instanceof Tensor)) return [3 /*break*/, 1];
+                          _a = input;
+                          return [3 /*break*/, 3];
+                      case 1: return [4 /*yield*/, toNetInput(input)];
+                      case 2:
+                          _a = _b.sent();
+                          _b.label = 3;
+                      case 3:
+                          netInput = _a;
+                          return [2 /*return*/, this.forwardTensor(getImageTensor(netInput))];
+                  }
+              });
+          });
+      };
       FaceLandmarkNet.prototype.detectLandmarks = function (input) {
           return __awaiter$1(this, void 0, void 0, function () {
               var _this = this;
@@ -1739,9 +1818,6 @@
               return __generator$1(this, function (_d) {
                   switch (_d.label) {
                       case 0:
-                          if (!this._params) {
-                              throw new Error('FaceLandmarkNet - load model before inference');
-                          }
                           if (!(input instanceof Tensor)) return [3 /*break*/, 1];
                           _a = input;
                           return [3 /*break*/, 3];
@@ -1752,37 +1828,18 @@
                       case 3:
                           netInput = _a;
                           outTensor = tidy(function () {
-                              var params = _this._params;
                               var imgTensor = getImageTensor(netInput);
                               var _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
                               imageDimensions = { width: width, height: height };
-                              // work with 128 x 128 sized face images
-                              if (imgTensor.shape[1] !== 128 || imgTensor.shape[2] !== 128) {
-                                  imgTensor = image.resizeBilinear(imgTensor, [128, 128]);
-                              }
-                              var out = conv(imgTensor, params.conv0_params);
-                              out = maxPool$1(out);
-                              out = conv(out, params.conv1_params);
-                              out = conv(out, params.conv2_params);
-                              out = maxPool$1(out);
-                              out = conv(out, params.conv3_params);
-                              out = conv(out, params.conv4_params);
-                              out = maxPool$1(out);
-                              out = conv(out, params.conv5_params);
-                              out = conv(out, params.conv6_params);
-                              out = maxPool$1(out, [1, 1]);
-                              out = conv(out, params.conv7_params);
-                              var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params));
-                              var fc1 = fullyConnectedLayer(fc0, params.fc1_params);
-                              return fc1;
+                              return _this.forwardTensor(imgTensor);
                           });
                           _c = (_b = Array).from;
                           return [4 /*yield*/, outTensor.data()];
                       case 4:
                           faceLandmarksArray = _c.apply(_b, [_d.sent()]);
                           outTensor.dispose();
-                          xCoords = faceLandmarksArray.filter(function (c, i) { return (i - 1) % 2; });
-                          yCoords = faceLandmarksArray.filter(function (c, i) { return i % 2; });
+                          xCoords = faceLandmarksArray.filter(function (_, i) { return isEven(i); });
+                          yCoords = faceLandmarksArray.filter(function (_, i) { return !isEven(i); });
                           return [2 /*return*/, new FaceLandmarks(Array(68).fill(0).map(function (_, i) { return new Point(xCoords[i], yCoords[i]); }), imageDimensions)];
                   }
               });
