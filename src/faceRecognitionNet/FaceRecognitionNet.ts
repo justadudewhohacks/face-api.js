@@ -1,8 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { getImageTensor } from '../commons/getImageTensor';
 import { NetInput } from '../NetInput';
-import { padToSquare } from '../padToSquare';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { convDown } from './convLayer';
@@ -32,25 +30,18 @@ export class FaceRecognitionNet {
     this._params = extractParams(weights)
   }
 
-  public async forward(input: tf.Tensor | NetInput | TNetInput): Promise<tf.Tensor2D> {
+  public async forwardInput(input: NetInput): Promise<tf.Tensor2D> {
     if (!this._params) {
       throw new Error('FaceRecognitionNet - load model before inference')
     }
 
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
 
     return tf.tidy(() => {
+      const batchTensor = input.toBatchTensor(150, true)
 
-      let x = padToSquare(getImageTensor(netInput), true)
-      // work with 150 x 150 sized face images
-      if (x.shape[1] !== 150 || x.shape[2] !== 150) {
-        x = tf.image.resizeBilinear(x, [150, 150])
-      }
-      x = normalize(x)
+      const normalized = normalize(batchTensor)
 
-      let out = convDown(x, this._params.conv32_down)
+      let out = convDown(normalized, this._params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')
 
       out = residual(out, this._params.conv32_1)
@@ -77,13 +68,12 @@ export class FaceRecognitionNet {
       return fullyConnected
     })
   }
+  public async forward(input: TNetInput): Promise<tf.Tensor2D> {
+    return this.forwardInput(await toNetInput(input, true))
+  }
 
-  public async computeFaceDescriptor(input: tf.Tensor | NetInput | TNetInput) {
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
-
-    const result = await this.forward(netInput)
+  public async computeFaceDescriptor(input: TNetInput) {
+    const result = await this.forward(await toNetInput(input, true))
     const data = await result.data()
     result.dispose()
     return data as Float32Array

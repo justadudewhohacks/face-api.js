@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="timeNoBatch">Time for processing each face seperately:</label>
+          <input disabled value="-" id="timeNoBatch" type="text" class="bold"/>
+        </div>
+        <div class="row">
+          <label for="timeBatch">Time for processing in Batch:</label>
+          <input disabled value="-" id="timeBatch" type="text" class="bold"/>
+        </div>
+      </div>
+      <div class="row side-by-side">
+        <div>
+          <label for="numImages">Num Images:</label>
+          <input id="numImages" type="text" class="bold" value="40"/>
+        </div>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="measureTimingsAndDisplay()"
+        >
+          Ok
+        </button>
+      </div>
+      <div class="row side-by-side">
+        <div class="center-content">
+          <div id="faceContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let images = []
+    let landmarksByFace = []
+    let numImages = 40
+
+    function onNumImagesChanged(e) {
+      const val = parseInt(e.target.value) || 40
+      numImages = Math.min(Math.max(val, 0), 40)
+      e.target.value = numImages
+    }
+
+    function displayTimeStats(timeNoBatch, timeBatch) {
+      $('#timeNoBatch').val(`${timeNoBatch} ms`)
+      $('#timeBatch').val(`${timeBatch} ms`)
+    }
+
+    function drawLandmarkCanvas(img, landmarks) {
+      const canvas = faceapi.createCanvasFromMedia(img)
+      $('#faceContainer').append(canvas)
+      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: 2 , drawLines: true })
+    }
+
+    async function runLandmarkDetection(useBatchInput) {
+      const ts = Date.now()
+      landmarksByFace = useBatchInput
+        ? await faceapi.detectLandmarks(images.slice(0, numImages))
+        : await Promise.all(images.slice(0, numImages).map(img => faceapi.detectLandmarks(img)))
+      const time = Date.now() - ts
+      return time
+    }
+
+    async function measureTimings() {
+      const timeNoBatch = await runLandmarkDetection(false)
+      const timeBatch = await runLandmarkDetection(true)
+      return { timeNoBatch, timeBatch }
+    }
+
+    async function measureTimingsAndDisplay() {
+      const { timeNoBatch, timeBatch } = await measureTimings()
+      displayTimeStats(timeNoBatch, timeBatch)
+      $('#faceContainer').empty()
+      landmarksByFace.forEach((landmarks, i) => drawLandmarkCanvas(images[i], landmarks))
+    }
+
+    async function run() {
+      await faceapi.loadFaceLandmarkModel('/')
+      $('#loader').hide()
+      const allImgUris = classes
+        .map(clazz => Array.from(Array(5), (_, idx) => getFaceImageUri(clazz, idx + 1)))
+        .reduce((flat, arr) => flat.concat(arr))
+
+      images = await Promise.all(allImgUris.map(
+        async uri => faceapi.bufferToImage(await fetchImage(uri))
+      ))
+      // warmup
+      await measureTimings()
+      // run
+      measureTimingsAndDisplay()
+    }
+
+    $(document).ready(function() {
+      $('#numImages').on('change', onNumImagesChanged)
+      renderNavBar('#navbar', 'batch_face_landmarks')
+      run()
+    })
+
+  </script>
+
+</body>
+</html>

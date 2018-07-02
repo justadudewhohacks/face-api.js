@@ -10,5 +10,6 @@ export declare class Rect implements IRect {
     width: number;
     height: number;
     constructor(x: number, y: number, width: number, height: number);
+    toSquare(): Rect;
     floor(): Rect;
 }

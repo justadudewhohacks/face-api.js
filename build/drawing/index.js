@@ -26,7 +26,7 @@ function drawText(ctx, x, y, text, options) {
 }
 exports.drawText = drawText;
 function drawDetection(canvasArg, detection, options) {
-    var canvas = utils_1.getElement(canvasArg);
+    var canvas = utils_1.resolveInput(canvasArg);
     if (!(canvas instanceof HTMLCanvasElement)) {
         throw new Error('drawBox - expected canvas to be of type: HTMLCanvasElement');
     }
@@ -66,7 +66,7 @@ function drawContour(ctx, points, isClosed) {
     ctx.stroke();
 }
 function drawLandmarks(canvasArg, faceLandmarks, options) {
-    var canvas = utils_1.getElement(canvasArg);
+    var canvas = utils_1.resolveInput(canvasArg);
     if (!(canvas instanceof HTMLCanvasElement)) {
         throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement');
     }

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
-var utils_1 = require("./utils");
 /**
  * Pads the smaller dimension of an image tensor with zeros, such that width === height.
  *
@@ -17,16 +16,24 @@ function padToSquare(imgTensor, isCenterImage) {
             return imgTensor;
         }
         var dimDiff = Math.abs(height - width);
-        var paddingAmount = Math.floor(dimDiff * (isCenterImage ? 0.5 : 1));
+        var paddingAmount = Math.round(dimDiff * (isCenterImage ? 0.5 : 1));
         var paddingAxis = height > width ? 2 : 1;
-        var getPaddingTensorShape = function (isRoundUp) {
-            if (isRoundUp === void 0) { isRoundUp = false; }
+        var createPaddingTensor = function (paddingAmount) {
             var paddingTensorShape = imgTensor.shape.slice();
-            paddingTensorShape[paddingAxis] = paddingAmount + (isRoundUp ? 1 : 0);
-            return paddingTensorShape;
+            paddingTensorShape[paddingAxis] = paddingAmount;
+            return tf.fill(paddingTensorShape, 0);
         };
-        var tensorsToStack = (isCenterImage ? [tf.fill(getPaddingTensorShape(!utils_1.isEven(dimDiff)), 0)] : [])
-            .concat([imgTensor, tf.fill(getPaddingTensorShape(), 0)]);
+        var paddingTensorAppend = createPaddingTensor(paddingAmount);
+        var remainingPaddingAmount = dimDiff - paddingTensorAppend.shape[paddingAxis];
+        var paddingTensorPrepend = isCenterImage && remainingPaddingAmount
+            ? createPaddingTensor(remainingPaddingAmount)
+            : null;
+        var tensorsToStack = [
+            paddingTensorPrepend,
+            imgTensor,
+            paddingTensorAppend
+        ]
+            .filter(function (t) { return t !== null; });
         return tf.concat(tensorsToStack, paddingAxis);
     });
 }

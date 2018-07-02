@@ -1,12 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { convLayer } from '../commons/convLayer';
-import { getImageTensor } from '../commons/getImageTensor';
 import { ConvParams } from '../commons/types';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
 import { toNetInput } from '../toNetInput';
-import { Dimensions, TNetInput } from '../types';
+import { TNetInput } from '../types';
+import { isEven } from '../utils';
 import { extractParams } from './extractParams';
 import { FaceLandmarks } from './FaceLandmarks';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
@@ -41,31 +41,17 @@ export class FaceLandmarkNet {
     this._params = extractParams(weights)
   }
 
-  public async detectLandmarks(input: tf.Tensor | NetInput | TNetInput) {
-    if (!this._params) {
+  public forwardInput(input: NetInput): tf.Tensor2D {
+    const params = this._params
+
+    if (!params) {
       throw new Error('FaceLandmarkNet - load model before inference')
     }
 
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
+    return tf.tidy(() => {
+      const batchTensor = input.toBatchTensor(128, true)
 
-    let imageDimensions: Dimensions | undefined
-
-    const outTensor = tf.tidy(() => {
-      const params = this._params
-
-      let imgTensor = getImageTensor(netInput)
-      const [height, width] = imgTensor.shape.slice(1)
-      imageDimensions = { width, height }
-
-
-      // work with 128 x 128 sized face images
-      if (imgTensor.shape[1] !== 128 || imgTensor.shape[2] !== 128) {
-        imgTensor = tf.image.resizeBilinear(imgTensor, [128, 128])
-      }
-
-      let out = conv(imgTensor, params.conv0_params)
+      let out = conv(batchTensor, params.conv0_params)
       out = maxPool(out)
       out = conv(out, params.conv1_params)
       out = conv(out, params.conv2_params)
@@ -80,18 +66,72 @@ export class FaceLandmarkNet {
       const fc0 = tf.relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params))
       const fc1 = fullyConnectedLayer(fc0, params.fc1_params)
 
-      return fc1
+      const createInterleavedTensor = (fillX: number, fillY: number) =>
+        tf.stack([
+          tf.fill([68], fillX),
+          tf.fill([68], fillY)
+        ], 1).as2D(1, 136).as1D()
+
+      /* shift coordinates back, to undo centered padding
+        x = ((x * widthAfterPadding) - shiftX) / width
+        y = ((y * heightAfterPadding) - shiftY) / height
+      */
+
+      const landmarkTensors = fc1
+        .mul(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
+          createInterleavedTensor(
+            input.getPaddings(batchIdx).x + input.getInputWidth(batchIdx),
+            input.getPaddings(batchIdx).y + input.getInputHeight(batchIdx)
+          )
+        )))
+        .sub(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
+          createInterleavedTensor(
+            Math.floor(input.getPaddings(batchIdx).x / 2),
+            Math.floor(input.getPaddings(batchIdx).y / 2)
+          )
+        )))
+        .div(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
+          createInterleavedTensor(
+            input.getInputWidth(batchIdx),
+            input.getInputHeight(batchIdx)
+          )
+        )))
+
+      return landmarkTensors as tf.Tensor2D
     })
+  }
 
-    const faceLandmarksArray = Array.from(await outTensor.data())
-    outTensor.dispose()
+  public async forward(input: TNetInput): Promise<tf.Tensor2D> {
+    return this.forwardInput(await toNetInput(input, true))
+  }
 
-    const xCoords = faceLandmarksArray.filter((c, i) => (i - 1) % 2)
-    const yCoords = faceLandmarksArray.filter((c, i) => i % 2)
+  public async detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]> {
+    const netInput = await toNetInput(input, true)
 
-    return new FaceLandmarks(
-      Array(68).fill(0).map((_, i) => new Point(xCoords[i], yCoords[i])),
-      imageDimensions as Dimensions
+    const landmarkTensors = tf.tidy(
+      () => tf.unstack(this.forwardInput(netInput))
     )
+
+    const landmarksForBatch = await Promise.all(landmarkTensors.map(
+      async (landmarkTensor, batchIdx) => {
+        const landmarksArray = Array.from(await landmarkTensor.data())
+        const xCoords = landmarksArray.filter((_, i) => isEven(i))
+        const yCoords = landmarksArray.filter((_, i) => !isEven(i))
+
+        return new FaceLandmarks(
+          Array(68).fill(0).map((_, i) => new Point(xCoords[i], yCoords[i])),
+          {
+            height: netInput.getInputHeight(batchIdx),
+            width : netInput.getInputWidth(batchIdx),
+          }
+        )
+      }
+    ))
+
+    landmarkTensors.forEach(t => t.dispose())
+
+    return netInput.isBatchInput
+      ? landmarksForBatch
+      : landmarksForBatch[0]
   }
 }

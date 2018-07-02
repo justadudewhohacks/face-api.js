@@ -6,3 +6,10 @@ export type ConvParams = {
 }
 
 export type ExtractWeightsFunction = (numWeights: number) => Float32Array
+
+export type BatchReshapeInfo = {
+  originalWidth: number
+  originalHeight: number
+  paddingX: number
+  paddingY: number
+}

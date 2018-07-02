@@ -103,6 +103,9 @@
 
       faceapi.drawLandmarks(canvas, landmarksByFace, { lineWidth: drawLines ? 2 : 4, drawLines, color: 'red' })
       faceapi.drawDetection('overlay', locations.map(det => det.forSize(width, height)))
+
+      // free memory for input tensors
+      input.dispose()
     }
 
     async function run() {
