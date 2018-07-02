@@ -72,14 +72,13 @@
       if(videoEl.paused || videoEl.ended || !modelLoaded)
         return false
 
-      const input = await faceapi.toNetInput(videoEl)
-      const { width, height } = input
+      const { width, height } = faceapi.getMediaDimensions(videoEl)
       const canvas = $('#overlay').get(0)
       canvas.width = width
       canvas.height = height
 
       const ts = Date.now()
-      result = await faceapi.locateFaces(input, minConfidence)
+      result = await faceapi.locateFaces(videoEl, minConfidence)
       displayTimeStats(Date.now() - ts)
 
       faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))

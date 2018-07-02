@@ -35,7 +35,7 @@ export function loadModels(url: string) {
 }
 
 export function locateFaces(
-  input: tf.Tensor | NetInput | TNetInput,
+  input: TNetInput,
   minConfidence?: number,
   maxResults?: number
 ): Promise<FaceDetection[]> {
@@ -43,13 +43,13 @@ export function locateFaces(
 }
 
 export function detectLandmarks(
-  input: tf.Tensor | NetInput | TNetInput
+  input: TNetInput
 ): Promise<FaceLandmarks | FaceLandmarks[]> {
   return landmarkNet.detectLandmarks(input)
 }
 
 export function computeFaceDescriptor(
-  input: tf.Tensor | NetInput | TNetInput
+  input: TNetInput
 ): Promise<Float32Array>  {
   return recognitionNet.computeFaceDescriptor(input)
 }

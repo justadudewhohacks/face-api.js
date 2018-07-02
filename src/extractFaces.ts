@@ -1,6 +1,8 @@
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { Rect } from './Rect';
-import { createCanvas, getContext2dOrThrow } from './utils';
+import { toNetInput } from './toNetInput';
+import { TNetInput } from './types';
+import { createCanvas, getContext2dOrThrow, imageTensorToCanvas } from './utils';
 
 /**
  * Extracts the image regions containing the detected faces.
@@ -9,15 +11,31 @@ import { createCanvas, getContext2dOrThrow } from './utils';
  * @param detections The face detection results or face bounding boxes for that image.
  * @returns The Canvases of the corresponding image region for each detected face.
  */
-export function extractFaces(
-  image: HTMLCanvasElement,
-  detections: Array<FaceDetection|Rect>
-): HTMLCanvasElement[] {
-  const ctx = getContext2dOrThrow(image)
+export async function extractFaces(
+  input: TNetInput,
+  detections: Array<FaceDetection | Rect>
+): Promise<HTMLCanvasElement[]> {
+
+  let canvas = input as HTMLCanvasElement
+
+  if (!(input instanceof HTMLCanvasElement)) {
+    const netInput = await toNetInput(input, true)
+
+    if (netInput.batchSize > 1) {
+      if (netInput.isManaged) {
+        netInput.dispose()
+      }
+      throw new Error('extractFaces - batchSize > 1 not supported')
+    }
+
+    canvas = await imageTensorToCanvas(netInput.inputs[0])
+  }
+
+  const ctx = getContext2dOrThrow(canvas)
 
   const boxes = detections.map(
     det => det instanceof FaceDetection
-      ? det.forSize(image.width, image.height).getBox().floor()
+      ? det.forSize(canvas.width, canvas.height).getBox().floor()
       : det
   )
   return boxes.map(({ x, y, width, height }) => {

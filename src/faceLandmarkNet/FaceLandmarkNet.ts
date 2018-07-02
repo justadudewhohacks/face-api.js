@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { convLayer } from '../commons/convLayer';
-import { toInputTensor } from '../commons/toInputTensor';
 import { ConvParams } from '../commons/types';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
@@ -42,7 +41,7 @@ export class FaceLandmarkNet {
     this._params = extractParams(weights)
   }
 
-  public forwardTensor(input: tf.Tensor | NetInput): tf.Tensor2D {
+  public forwardInput(input: NetInput): tf.Tensor2D {
     const params = this._params
 
     if (!params) {
@@ -50,7 +49,7 @@ export class FaceLandmarkNet {
     }
 
     return tf.tidy(() => {
-      const { batchTensor, batchInfo } = toInputTensor(input, 128, true)
+      const batchTensor = input.toBatchTensor(128, true)
 
       let out = conv(batchTensor, params.conv0_params)
       out = maxPool(out)
@@ -79,22 +78,22 @@ export class FaceLandmarkNet {
       */
 
       const landmarkTensors = fc1
-        .mul(tf.stack(batchInfo.map(info =>
+        .mul(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
           createInterleavedTensor(
-            info.paddingX + info.originalWidth,
-            info.paddingY + info.originalHeight
+            input.getPaddings(batchIdx).x + input.getInputWidth(batchIdx),
+            input.getPaddings(batchIdx).y + input.getInputHeight(batchIdx)
           )
         )))
-        .sub(tf.stack(batchInfo.map(info =>
+        .sub(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
           createInterleavedTensor(
-            Math.floor(info.paddingX / 2),
-            Math.floor(info.paddingY / 2)
+            Math.floor(input.getPaddings(batchIdx).x / 2),
+            Math.floor(input.getPaddings(batchIdx).y / 2)
           )
         )))
-        .div(tf.stack(batchInfo.map(info =>
+        .div(tf.stack(Array.from(Array(input.batchSize), (_, batchIdx) =>
           createInterleavedTensor(
-            info.originalWidth,
-            info.originalHeight
+            input.getInputWidth(batchIdx),
+            input.getInputHeight(batchIdx)
           )
         )))
 
@@ -102,39 +101,32 @@ export class FaceLandmarkNet {
     })
   }
 
-  public async forward(input: tf.Tensor | NetInput | TNetInput): Promise<tf.Tensor2D> {
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
-
-    return this.forwardTensor(netInput)
+  public async forward(input: TNetInput): Promise<tf.Tensor2D> {
+    return this.forwardInput(await toNetInput(input, true))
   }
 
-  public async detectLandmarks(input: tf.Tensor | NetInput | TNetInput): Promise<FaceLandmarks | FaceLandmarks[]> {
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
+  public async detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]> {
+    const netInput = await toNetInput(input, true)
 
-    const landmarkTensors = tf.unstack(this.forwardTensor(netInput))
+    const landmarkTensors = tf.unstack(this.forwardInput(netInput))
 
     const landmarksForBatch = await Promise.all(landmarkTensors.map(
       async (landmarkTensor, batchIdx) => {
         const landmarksArray = Array.from(await landmarkTensor.data())
-        landmarkTensor.dispose()
-
         const xCoords = landmarksArray.filter((_, i) => isEven(i))
         const yCoords = landmarksArray.filter((_, i) => !isEven(i))
 
-        const [height, width] = netInput instanceof tf.Tensor
-          ? netInput.shape.slice(1)
-          : [netInput.canvases[batchIdx].height, netInput.canvases[batchIdx].width]
-
         return new FaceLandmarks(
           Array(68).fill(0).map((_, i) => new Point(xCoords[i], yCoords[i])),
-          { height, width }
+          {
+            height: netInput.getInputHeight(batchIdx),
+            width : netInput.getInputWidth(batchIdx),
+          }
         )
       }
     ))
+
+    landmarkTensors.forEach(t => t.dispose())
 
     return landmarksForBatch.length === 1 ? landmarksForBatch[0] : landmarksForBatch
   }

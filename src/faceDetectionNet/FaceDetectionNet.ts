@@ -1,11 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { getImageTensor } from '../commons/getImageTensor';
 import { NetInput } from '../NetInput';
-import { padToSquare } from '../padToSquare';
 import { Rect } from '../Rect';
 import { toNetInput } from '../toNetInput';
-import { Dimensions, TNetInput } from '../types';
+import { TNetInput } from '../types';
 import { extractParams } from './extractParams';
 import { FaceDetection } from './FaceDetection';
 import { loadQuantizedParams } from './loadQuantizedParams';
@@ -13,7 +11,6 @@ import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
-import { resizeLayer } from './resizeLayer';
 import { NetParams } from './types';
 
 export class FaceDetectionNet {
@@ -36,15 +33,16 @@ export class FaceDetectionNet {
     this._params = extractParams(weights)
   }
 
-  private forwardTensor(imgTensor: tf.Tensor4D) {
+  public forwardInput(input: NetInput) {
     if (!this._params) {
       throw new Error('FaceDetectionNet - load model before inference')
     }
 
     return tf.tidy(() => {
+      const batchTensor = input.toBatchTensor(512, false)
 
-      const resized = resizeLayer(imgTensor) as tf.Tensor4D
-      const features = mobileNetV1(resized, this._params.mobilenetv1_params)
+      const x = tf.sub(tf.mul(batchTensor, tf.scalar(0.007843137718737125)), tf.scalar(1)) as tf.Tensor4D
+      const features = mobileNetV1(x, this._params.mobilenetv1_params)
 
       const {
         boxPredictions,
@@ -55,44 +53,23 @@ export class FaceDetectionNet {
     })
   }
 
-  public async forward(input: tf.Tensor | NetInput | TNetInput) {
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
-
-    return tf.tidy(() =>
-      this.forwardTensor(padToSquare(getImageTensor(netInput)))
-    )
+  public async forward(input: TNetInput) {
+    return this.forwardInput(await toNetInput(input, true))
   }
 
   public async locateFaces(
-    input: tf.Tensor | NetInput | TNetInput,
+    input: TNetInput,
     minConfidence: number = 0.8,
     maxResults: number = 100,
   ): Promise<FaceDetection[]> {
 
-    const netInput = input instanceof tf.Tensor
-      ? input
-      : await toNetInput(input)
-
-    let paddedHeightRelative = 1, paddedWidthRelative = 1
-    let imageDimensions: Dimensions | undefined
+    const netInput = await toNetInput(input, true)
 
     const {
       boxes: _boxes,
       scores: _scores
-    } = tf.tidy(() => {
+    } = this.forwardInput(netInput)
 
-      let imgTensor = getImageTensor(netInput)
-      const [height, width] = imgTensor.shape.slice(1)
-      imageDimensions = { width, height }
-
-      imgTensor = padToSquare(imgTensor)
-      paddedHeightRelative = imgTensor.shape[1] / height
-      paddedWidthRelative = imgTensor.shape[2] / width
-
-      return this.forwardTensor(imgTensor)
-    })
 
     // TODO batches
     const boxes = _boxes[0]
@@ -114,6 +91,10 @@ export class FaceDetectionNet {
       minConfidence
     )
 
+
+    const paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0)
+    const paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0)
+
     const results = indices
       .map(idx => {
         const [top, bottom] = [
@@ -132,7 +113,10 @@ export class FaceDetectionNet {
             right - left,
             bottom - top
           ),
-          imageDimensions as Dimensions
+          {
+            height: netInput.getInputHeight(0),
+            width: netInput.getInputWidth(0)
+          }
         )
       })
 
