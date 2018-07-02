@@ -3,6 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { extractFaceTensors } from './extractFaceTensors';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
+import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { FullFaceDescription } from './FullFaceDescription';
 import { NetInput } from './NetInput';
@@ -23,7 +24,8 @@ export function allFacesFactory(
     const faceTensors = await extractFaceTensors(input, detections)
     const faceLandmarksByFace = await Promise.all(faceTensors.map(
       faceTensor => landmarkNet.detectLandmarks(faceTensor)
-    ))
+    )) as FaceLandmarks[]
+
     faceTensors.forEach(t => t.dispose())
 
     const alignedFaceBoxes = await Promise.all(faceLandmarksByFace.map(

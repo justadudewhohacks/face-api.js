@@ -18,25 +18,10 @@ export class NetInput {
       return
     }
 
-    // if input is batch type, make sure every canvas has the same dimensions
-    const canvasDims = this.dims || dims
-    this._canvases.push(createCanvasFromMedia(media, canvasDims))
+    this._canvases.push(createCanvasFromMedia(media, dims))
   }
 
   public get canvases() : HTMLCanvasElement[] {
     return this._canvases
-  }
-
-  public get width() : number {
-    return (this._canvases[0] || {}).width
-  }
-
-  public get height() : number {
-    return (this._canvases[0] || {}).height
-  }
-
-  public get dims() : Dimensions | null {
-    const { width, height } = this
-    return (width > 0 && height > 0) ? { width, height } : null
   }
 }

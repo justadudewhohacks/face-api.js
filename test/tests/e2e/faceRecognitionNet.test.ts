@@ -9,7 +9,7 @@ describe('faceRecognitionNet', () => {
     const weights = new Float32Array(await res.arrayBuffer())
     faceRecognitionNet = faceapi.faceRecognitionNet(weights)
 
-    const img = await (await fetch('base/test/images/face.png')).blob()
+    const img = await (await fetch('base/test/images/face1.png')).blob()
     imgEl = await faceapi.bufferToImage(img)
     faceDescriptor = await (await fetch('base/test/data/faceDescriptor.json')).json()
   })

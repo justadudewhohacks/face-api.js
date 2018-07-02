@@ -4,8 +4,8 @@ import { getImageTensor } from './commons/getImageTensor';
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { NetInput } from './NetInput';
 import { Rect } from './Rect';
-import { TNetInput } from './types';
 import { toNetInput } from './toNetInput';
+import { TNetInput } from './types';
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -29,8 +29,7 @@ export async function extractFaceTensors(
   return tf.tidy(() => {
     const imgTensor = getImageTensor(image)
 
-    // TODO handle batches
-    const [batchSize, imgHeight, imgWidth, numChannels] = imgTensor.shape
+    const [imgHeight, imgWidth, numChannels] = imgTensor.shape.slice(1)
 
     const boxes = detections.map(
       det => det instanceof FaceDetection
