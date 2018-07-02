@@ -64,7 +64,7 @@ function toNetInput(inputs, manageCreatedInput) {
                 case 1:
                     // wait for all media elements being loaded
                     _a.sent();
-                    return [2 /*return*/, afterCreate(new NetInput_1.NetInput(inputArray))];
+                    return [2 /*return*/, afterCreate(new NetInput_1.NetInput(inputArray, Array.isArray(inputs)))];
             }
         });
     });

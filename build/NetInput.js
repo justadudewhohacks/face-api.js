@@ -6,9 +6,11 @@ var padToSquare_1 = require("./padToSquare");
 var Point_1 = require("./Point");
 var utils_1 = require("./utils");
 var NetInput = /** @class */ (function () {
-    function NetInput(inputs) {
+    function NetInput(inputs, isBatchInput) {
+        if (isBatchInput === void 0) { isBatchInput = false; }
         this._inputs = [];
         this._isManaged = false;
+        this._isBatchInput = false;
         this._inputDimensions = [];
         this._paddings = [];
         if (isTensor_1.isTensor4D(inputs)) {
@@ -23,6 +25,7 @@ var NetInput = /** @class */ (function () {
                 return tf.fromPixels(input instanceof HTMLCanvasElement ? input : utils_1.createCanvasFromMedia(input));
             });
         }
+        this._isBatchInput = this.batchSize > 1 || isBatchInput;
         this._inputDimensions = this._inputs.map(function (t) { return t.shape; });
     }
     Object.defineProperty(NetInput.prototype, "inputs", {
@@ -35,6 +38,13 @@ var NetInput = /** @class */ (function () {
     Object.defineProperty(NetInput.prototype, "isManaged", {
         get: function () {
             return this._isManaged;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NetInput.prototype, "isBatchInput", {
+        get: function () {
+            return this._isBatchInput;
         },
         enumerable: true,
         configurable: true

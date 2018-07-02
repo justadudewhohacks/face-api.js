@@ -510,9 +510,11 @@
   }
 
   var NetInput = /** @class */ (function () {
-      function NetInput(inputs) {
+      function NetInput(inputs, isBatchInput) {
+          if (isBatchInput === void 0) { isBatchInput = false; }
           this._inputs = [];
           this._isManaged = false;
+          this._isBatchInput = false;
           this._inputDimensions = [];
           this._paddings = [];
           if (isTensor4D(inputs)) {
@@ -527,6 +529,7 @@
                   return fromPixels(input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input));
               });
           }
+          this._isBatchInput = this.batchSize > 1 || isBatchInput;
           this._inputDimensions = this._inputs.map(function (t) { return t.shape; });
       }
       Object.defineProperty(NetInput.prototype, "inputs", {
@@ -539,6 +542,13 @@
       Object.defineProperty(NetInput.prototype, "isManaged", {
           get: function () {
               return this._isManaged;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(NetInput.prototype, "isBatchInput", {
+          get: function () {
+              return this._isBatchInput;
           },
           enumerable: true,
           configurable: true
@@ -832,7 +842,7 @@
                   case 1:
                       // wait for all media elements being loaded
                       _a.sent();
-                      return [2 /*return*/, afterCreate(new NetInput(inputArray))];
+                      return [2 /*return*/, afterCreate(new NetInput(inputArray, Array.isArray(inputs)))];
               }
           });
       });
@@ -1871,7 +1881,7 @@
                       case 0: return [4 /*yield*/, toNetInput(input, true)];
                       case 1:
                           netInput = _a.sent();
-                          landmarkTensors = unstack(this.forwardInput(netInput));
+                          landmarkTensors = tidy(function () { return unstack(_this.forwardInput(netInput)); });
                           return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return __awaiter$1(_this, void 0, void 0, function () {
                                   var landmarksArray, _a, _b, xCoords, yCoords;
                                   return __generator$1(this, function (_c) {
@@ -1893,7 +1903,9 @@
                       case 2:
                           landmarksForBatch = _a.sent();
                           landmarkTensors.forEach(function (t) { return t.dispose(); });
-                          return [2 /*return*/, landmarksForBatch.length === 1 ? landmarksForBatch[0] : landmarksForBatch];
+                          return [2 /*return*/, netInput.isBatchInput
+                                  ? landmarksForBatch
+                                  : landmarksForBatch[0]];
                   }
               });
           });

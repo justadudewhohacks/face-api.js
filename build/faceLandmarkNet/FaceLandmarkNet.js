@@ -111,7 +111,7 @@ var FaceLandmarkNet = /** @class */ (function () {
                     case 0: return [4 /*yield*/, toNetInput_1.toNetInput(input, true)];
                     case 1:
                         netInput = _a.sent();
-                        landmarkTensors = tf.unstack(this.forwardInput(netInput));
+                        landmarkTensors = tf.tidy(function () { return tf.unstack(_this.forwardInput(netInput)); });
                         return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
                                 var landmarksArray, _a, _b, xCoords, yCoords;
                                 return tslib_1.__generator(this, function (_c) {
@@ -133,7 +133,9 @@ var FaceLandmarkNet = /** @class */ (function () {
                     case 2:
                         landmarksForBatch = _a.sent();
                         landmarkTensors.forEach(function (t) { return t.dispose(); });
-                        return [2 /*return*/, landmarksForBatch.length === 1 ? landmarksForBatch[0] : landmarksForBatch];
+                        return [2 /*return*/, netInput.isBatchInput
+                                ? landmarksForBatch
+                                : landmarksForBatch[0]];
                 }
             });
         });

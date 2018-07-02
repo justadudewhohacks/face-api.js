@@ -4,11 +4,13 @@ import { TResolvedNetInput } from './types';
 export declare class NetInput {
     private _inputs;
     private _isManaged;
+    private _isBatchInput;
     private _inputDimensions;
     private _paddings;
-    constructor(inputs: tf.Tensor4D | Array<TResolvedNetInput>);
+    constructor(inputs: tf.Tensor4D | Array<TResolvedNetInput>, isBatchInput?: boolean);
     readonly inputs: tf.Tensor3D[];
     readonly isManaged: boolean;
+    readonly isBatchInput: boolean;
     readonly batchSize: number;
     readonly inputDimensions: number[][];
     readonly paddings: Point[];
