@@ -128,6 +128,8 @@ export class FaceLandmarkNet {
 
     landmarkTensors.forEach(t => t.dispose())
 
-    return landmarksForBatch.length === 1 ? landmarksForBatch[0] : landmarksForBatch
+    return netInput.isBatchInput
+      ? landmarksForBatch
+      : landmarksForBatch[0]
   }
 }

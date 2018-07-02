@@ -113,6 +113,10 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'detect_and_recognize_faces',
       name: 'Detect and Recognize Faces'
+    },
+    {
+      uri: 'batch_face_landmarks',
+      name: 'Batch Face Landmarks'
     }
   ]
 
@@ -152,9 +156,11 @@ function renderNavBar(navbarId, exampleUri) {
   menuContent.appendChild(li)
 
   examples
-    .filter(ex => ex.uri !== exampleUri)
     .forEach(ex => {
       const li = document.createElement('li')
+      if (ex.uri === exampleUri) {
+        li.style.background='#b0b0b0'
+      }
       const a = document.createElement('a')
       a.classList.add('waves-effect', 'waves-light')
       a.href = ex.uri

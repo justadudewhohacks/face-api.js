@@ -9,11 +9,15 @@ import { createCanvasFromMedia } from './utils';
 export class NetInput {
   private _inputs: tf.Tensor3D[] = []
   private _isManaged: boolean = false
+  private _isBatchInput: boolean = false
 
   private _inputDimensions: number[][] = []
   private _paddings: Point[] = []
 
-  constructor(inputs: tf.Tensor4D | Array<TResolvedNetInput>) {
+  constructor(
+    inputs: tf.Tensor4D | Array<TResolvedNetInput>,
+    isBatchInput: boolean = false
+  ) {
     if (isTensor4D(inputs)) {
       this._inputs = tf.unstack(inputs as tf.Tensor4D) as tf.Tensor3D[]
     }
@@ -30,6 +34,8 @@ export class NetInput {
         )
       })
     }
+
+    this._isBatchInput = this.batchSize > 1 || isBatchInput
     this._inputDimensions = this._inputs.map(t => t.shape)
   }
 
@@ -39,6 +45,10 @@ export class NetInput {
 
   public get isManaged(): boolean {
     return this._isManaged
+  }
+
+  public get isBatchInput(): boolean {
+    return this._isBatchInput
   }
 
   public get batchSize(): number {

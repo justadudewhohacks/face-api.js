@@ -72,5 +72,5 @@ export async function toNetInput(
     inputArray.map(input => isMediaElement(input) && awaitMediaLoaded(input))
   )
 
-  return afterCreate(new NetInput(inputArray))
+  return afterCreate(new NetInput(inputArray, Array.isArray(inputs)))
 }

@@ -26,6 +26,11 @@ module.exports = function(config) {
       tsconfig: 'tsconfig.test.json'
     },
     browsers: ['Chrome'],
-    browserNoActivityTimeout: 60000
+    browserNoActivityTimeout: 60000,
+    client: {
+      jasmine: {
+        timeoutInterval: 30000
+      }
+    }
   })
 }
