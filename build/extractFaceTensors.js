@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
-var getImageTensor_1 = require("./commons/getImageTensor");
 var FaceDetection_1 = require("./faceDetectionNet/FaceDetection");
 var toNetInput_1 = require("./toNetInput");
 /**
@@ -17,23 +16,21 @@ var toNetInput_1 = require("./toNetInput");
  */
 function extractFaceTensors(input, detections) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var image, _a;
-        return tslib_1.__generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    if (!(input instanceof tf.Tensor)) return [3 /*break*/, 1];
-                    _a = input;
-                    return [3 /*break*/, 3];
-                case 1: return [4 /*yield*/, toNetInput_1.toNetInput(input)];
-                case 2:
-                    _a = _b.sent();
-                    _b.label = 3;
-                case 3:
-                    image = _a;
+        var netInput;
+        return tslib_1.__generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, toNetInput_1.toNetInput(input, true)];
+                case 1:
+                    netInput = _a.sent();
+                    if (netInput.batchSize > 1) {
+                        if (netInput.isManaged) {
+                            netInput.dispose();
+                        }
+                        throw new Error('extractFaceTensors - batchSize > 1 not supported');
+                    }
                     return [2 /*return*/, tf.tidy(function () {
-                            var imgTensor = getImageTensor_1.getImageTensor(image);
-                            // TODO handle batches
-                            var _a = imgTensor.shape, batchSize = _a[0], imgHeight = _a[1], imgWidth = _a[2], numChannels = _a[3];
+                            var imgTensor = netInput.inputs[0].expandDims().toFloat();
+                            var _a = imgTensor.shape.slice(1), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
                             var boxes = detections.map(function (det) { return det instanceof FaceDetection_1.FaceDetection
                                 ? det.forSize(imgWidth, imgHeight).getBox().floor()
                                 : det; });
@@ -41,6 +38,9 @@ function extractFaceTensors(input, detections) {
                                 var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                                 return tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
                             });
+                            if (netInput.isManaged) {
+                                netInput.dispose();
+                            }
                             return faceTensors;
                         })];
             }

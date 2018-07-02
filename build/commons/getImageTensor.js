@@ -2,21 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
 var NetInput_1 = require("../NetInput");
+var tensorTo4D_1 = require("./tensorTo4D");
 function getImageTensor(input) {
     return tf.tidy(function () {
         if (input instanceof tf.Tensor) {
-            var rank = input.shape.length;
-            if (rank !== 3 && rank !== 4) {
-                throw new Error('input tensor must be of rank 3 or 4');
-            }
-            return (rank === 3 ? input.expandDims(0) : input).toFloat();
+            return tensorTo4D_1.tensorTo4D(input);
         }
         if (!(input instanceof NetInput_1.NetInput)) {
             throw new Error('getImageTensor - expected input to be a tensor or an instance of NetInput');
         }
-        return tf.concat(input.canvases.map(function (canvas) {
-            return tf.fromPixels(canvas).expandDims(0).toFloat();
-        }));
+        if (input.canvases.length > 1) {
+            throw new Error('getImageTensor - batch input is not accepted here');
+        }
+        return tf.fromPixels(input.canvases[0]).expandDims(0).toFloat();
     });
 }
 exports.getImageTensor = getImageTensor;

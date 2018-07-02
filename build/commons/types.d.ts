@@ -4,3 +4,9 @@ export declare type ConvParams = {
     bias: tf.Tensor1D;
 };
 export declare type ExtractWeightsFunction = (numWeights: number) => Float32Array;
+export declare type BatchReshapeInfo = {
+    originalWidth: number;
+    originalHeight: number;
+    paddingX: number;
+    paddingY: number;
+};

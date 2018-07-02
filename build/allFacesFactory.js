@@ -12,21 +12,25 @@ function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
                     case 0: return [4 /*yield*/, detectionNet.locateFaces(input, minConfidence)];
                     case 1:
                         detections = _a.sent();
-                        return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, detections)];
+                        return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, detections)
+                            /**
+                            const faceLandmarksByFace = await Promise.all(faceTensors.map(
+                              faceTensor => landmarkNet.detectLandmarks(faceTensor)
+                            )) as FaceLandmarks[]
+                             */
+                        ];
                     case 2:
                         faceTensors = _a.sent();
-                        return [4 /*yield*/, Promise.all(faceTensors.map(function (faceTensor) { return landmarkNet.detectLandmarks(faceTensor); }))];
+                        return [4 /*yield*/, landmarkNet.detectLandmarks(faceTensors)];
                     case 3:
                         faceLandmarksByFace = _a.sent();
                         faceTensors.forEach(function (t) { return t.dispose(); });
-                        return [4 /*yield*/, Promise.all(faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); }))];
-                    case 4:
-                        alignedFaceBoxes = _a.sent();
+                        alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
                         return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, alignedFaceBoxes)];
-                    case 5:
+                    case 4:
                         alignedFaceTensors = _a.sent();
                         return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
-                    case 6:
+                    case 5:
                         descriptors = _a.sent();
                         alignedFaceTensors.forEach(function (t) { return t.dispose(); });
                         return [2 /*return*/, detections.map(function (detection, i) {
