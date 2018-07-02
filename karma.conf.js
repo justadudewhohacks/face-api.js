@@ -2,6 +2,7 @@ const dataFiles = [
   'test/images/*.jpg',
   'test/images/*.png',
   'test/data/*.json',
+  'test/media/*.mp4',
   'weights/**/*'
 ].map(pattern => ({
   pattern,
@@ -24,6 +25,7 @@ module.exports = function(config) {
     karmaTypescriptConfig: {
       tsconfig: 'tsconfig.test.json'
     },
-    browsers: ['Chrome']
+    browsers: ['Chrome'],
+    browserNoActivityTimeout: 60000
   })
 }
