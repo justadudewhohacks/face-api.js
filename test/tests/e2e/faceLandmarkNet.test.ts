@@ -5,7 +5,8 @@ import { isTensor3D } from '../../../src/commons/isTensor';
 import { FaceLandmarks } from '../../../src/faceLandmarkNet/FaceLandmarks';
 import { Point } from '../../../src/Point';
 import { Dimensions, TMediaElement } from '../../../src/types';
-import { expectMaxDelta } from '../../utils';
+import { expectMaxDelta, expectAllTensorsReleased } from '../../utils';
+import { NetInput } from '../../../src/NetInput';
 
 function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
   if (input instanceof tf.Tensor) {
@@ -115,7 +116,6 @@ describe('faceLandmarkNet', () => {
 
   })
 
-
   describe('batch inputs', () => {
 
     let faceLandmarkNet: faceapi.FaceLandmarkNet
@@ -134,6 +134,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositions2,
         faceLandmarkPositionsRect
       ]
+
       const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
@@ -158,6 +159,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositions2,
         faceLandmarkPositionsRect
       ]
+
       const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
@@ -182,6 +184,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositions2,
         faceLandmarkPositionsRect
       ]
+
       const results = await faceLandmarkNet.detectLandmarks(tf.stack(inputs) as tf.Tensor4D) as FaceLandmarks[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(2)
@@ -207,7 +210,6 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-
       const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
@@ -224,6 +226,52 @@ describe('faceLandmarkNet', () => {
       })
     })
 
+  })
+
+  describe('no memory leaks', () => {
+
+    let faceLandmarkNet: faceapi.FaceLandmarkNet
+
+    beforeAll(async () => {
+      faceLandmarkNet = new faceapi.FaceLandmarkNet()
+      await faceLandmarkNet.load('base/weights')
+    })
+
+    describe('forwardInput', () => {
+
+      it('single image element', async () => {
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([imgEl1])).managed()
+          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+      })
+
+      it('multiple image elements', async () => {
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([imgEl1, imgEl1, imgEl1])).managed()
+          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+      })
+
+    })
+
+    describe('detectLandmarks', () => {
+
+      it('single image element', async () => {
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks(imgEl1)
+        })
+      })
+
+      it('multiple image elements', async () => {
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks([imgEl1, imgEl1, imgEl1])
+        })
+      })
+
+    })
   })
 
 })

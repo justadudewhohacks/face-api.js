@@ -108,7 +108,9 @@ export class FaceLandmarkNet {
   public async detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]> {
     const netInput = await toNetInput(input, true)
 
-    const landmarkTensors = tf.unstack(this.forwardInput(netInput))
+    const landmarkTensors = tf.tidy(
+      () => tf.unstack(this.forwardInput(netInput))
+    )
 
     const landmarksForBatch = await Promise.all(landmarkTensors.map(
       async (landmarkTensor, batchIdx) => {

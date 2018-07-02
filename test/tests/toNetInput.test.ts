@@ -1,15 +1,7 @@
 import { NetInput } from '../../src/NetInput';
 import { toNetInput } from '../../src/toNetInput';
 import { bufferToImage, createCanvasFromMedia } from '../../src/utils';
-
-async function createFakeHTMLVideoElement() {
-  const videoEl = document.createElement('video')
-  videoEl.muted = true
-  videoEl.src = 'base/test/media/video.mp4'
-  await videoEl.pause()
-  await videoEl.play()
-  return videoEl
-}
+import { createFakeHTMLVideoElement } from '../utils';
 
 describe('toNetInput', () => {
 
