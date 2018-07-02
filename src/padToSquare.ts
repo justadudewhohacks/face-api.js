@@ -1,7 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { isEven } from './utils';
-
 /**
  * Pads the smaller dimension of an image tensor with zeros, such that width === height.
  *

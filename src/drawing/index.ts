@@ -1,7 +1,7 @@
 import { FaceDetection } from '../faceDetectionNet/FaceDetection';
 import { FaceLandmarks } from '../faceLandmarkNet/FaceLandmarks';
 import { Point } from '../Point';
-import { getContext2dOrThrow, getElement, round } from '../utils';
+import { getContext2dOrThrow, resolveInput, round } from '../utils';
 import { DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 
 export function getDefaultDrawOptions(): DrawOptions {
@@ -55,7 +55,7 @@ export function drawDetection(
   detection: FaceDetection | FaceDetection[],
   options?: DrawBoxOptions & DrawTextOptions & { withScore: boolean }
 ) {
-  const canvas = getElement(canvasArg)
+  const canvas = resolveInput(canvasArg)
   if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error('drawBox - expected canvas to be of type: HTMLCanvasElement')
   }
@@ -132,7 +132,7 @@ export function drawLandmarks(
   faceLandmarks: FaceLandmarks | FaceLandmarks[],
   options?: DrawLandmarksOptions & { drawLines: boolean }
 ) {
-  const canvas = getElement(canvasArg)
+  const canvas = resolveInput(canvasArg)
   if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement')
   }

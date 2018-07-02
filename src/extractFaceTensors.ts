@@ -1,11 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { getImageTensor } from './commons/getImageTensor';
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
-import { NetInput } from './NetInput';
 import { Rect } from './Rect';
-import { TNetInput } from './types';
 import { toNetInput } from './toNetInput';
+import { TNetInput } from './types';
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -18,19 +16,23 @@ import { toNetInput } from './toNetInput';
  * @returns Tensors of the corresponding image region for each detected face.
  */
 export async function extractFaceTensors(
-  input: tf.Tensor | NetInput | TNetInput,
-  detections: Array<FaceDetection|Rect>
+  input: TNetInput,
+  detections: Array<FaceDetection | Rect>
 ): Promise<tf.Tensor4D[]> {
 
-  const image = input instanceof tf.Tensor
-    ? input
-    : await toNetInput(input)
+  const netInput = await toNetInput(input, true)
+
+  if (netInput.batchSize > 1) {
+    if (netInput.isManaged) {
+      netInput.dispose()
+    }
+    throw new Error('extractFaceTensors - batchSize > 1 not supported')
+  }
 
   return tf.tidy(() => {
-    const imgTensor = getImageTensor(image)
+    const imgTensor = netInput.inputs[0].expandDims().toFloat() as tf.Tensor4D
 
-    // TODO handle batches
-    const [batchSize, imgHeight, imgWidth, numChannels] = imgTensor.shape
+    const [imgHeight, imgWidth, numChannels] = imgTensor.shape.slice(1)
 
     const boxes = detections.map(
       det => det instanceof FaceDetection
@@ -41,6 +43,9 @@ export async function extractFaceTensors(
       tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels])
     )
 
+    if (netInput.isManaged) {
+      netInput.dispose()
+    }
     return faceTensors
   })
 }

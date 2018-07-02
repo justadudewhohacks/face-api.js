@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { isTensor4D } from './commons/isTensor';
 import { Dimensions } from './types';
 
 export function isFloat(num: number) {
@@ -14,7 +15,7 @@ export function round(num: number) {
   return Math.floor(num * 100) / 100
 }
 
-export function getElement(arg: string | any) {
+export function resolveInput(arg: string | any) {
   if (typeof arg === 'string') {
     return document.getElementById(arg)
   }
@@ -106,12 +107,12 @@ export function bufferToImage(buf: Blob): Promise<HTMLImageElement> {
 }
 
 export async function imageTensorToCanvas(
-  imgTensor: tf.Tensor4D,
+  imgTensor: tf.Tensor,
   canvas?: HTMLCanvasElement
 ): Promise<HTMLCanvasElement> {
   const targetCanvas = canvas ||  document.createElement('canvas')
 
-  const [_, height, width, numChannels] = imgTensor.shape
+  const [height, width, numChannels] = imgTensor.shape.slice(isTensor4D(imgTensor) ? 1 : 0)
   await tf.toPixels(imgTensor.as3D(height, width, numChannels).toInt(), targetCanvas)
 
   return targetCanvas

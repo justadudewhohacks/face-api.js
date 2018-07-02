@@ -1,42 +1,127 @@
-import { Dimensions, TMediaElement } from './types';
+import * as tf from '@tensorflow/tfjs-core';
+
+import { isTensor3D, isTensor4D } from './commons/isTensor';
+import { padToSquare } from './padToSquare';
+import { Point } from './Point';
+import { TResolvedNetInput } from './types';
 import { createCanvasFromMedia } from './utils';
 
 export class NetInput {
-  private _canvases: HTMLCanvasElement[]
+  private _inputs: tf.Tensor3D[] = []
+  private _isManaged: boolean = false
+  private _isBatchInput: boolean = false
+
+  private _inputDimensions: number[][] = []
+  private _paddings: Point[] = []
 
   constructor(
-    medias: Array<TMediaElement>,
-    dims?: Dimensions
+    inputs: tf.Tensor4D | Array<TResolvedNetInput>,
+    isBatchInput: boolean = false
   ) {
-    this._canvases = []
-    medias.forEach(m => this.initCanvas(m, dims))
-  }
-
-  private initCanvas(media: TMediaElement, dims?: Dimensions) {
-    if (media instanceof HTMLCanvasElement) {
-      this._canvases.push(media)
-      return
+    if (isTensor4D(inputs)) {
+      this._inputs = tf.unstack(inputs as tf.Tensor4D) as tf.Tensor3D[]
     }
 
-    // if input is batch type, make sure every canvas has the same dimensions
-    const canvasDims = this.dims || dims
-    this._canvases.push(createCanvasFromMedia(media, canvasDims))
+    if (Array.isArray(inputs)) {
+      this._inputs = inputs.map(input => {
+        if (isTensor3D(input)) {
+          // TODO: make sure not to dispose original tensors passed in by the user
+          return tf.clone(input as tf.Tensor3D)
+        }
+
+        return tf.fromPixels(
+          input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input as HTMLImageElement | HTMLVideoElement)
+        )
+      })
+    }
+
+    this._isBatchInput = this.batchSize > 1 || isBatchInput
+    this._inputDimensions = this._inputs.map(t => t.shape)
   }
 
-  public get canvases() : HTMLCanvasElement[] {
-    return this._canvases
+  public get inputs(): tf.Tensor3D[] {
+    return this._inputs
   }
 
-  public get width() : number {
-    return (this._canvases[0] || {}).width
+  public get isManaged(): boolean {
+    return this._isManaged
   }
 
-  public get height() : number {
-    return (this._canvases[0] || {}).height
+  public get isBatchInput(): boolean {
+    return this._isBatchInput
   }
 
-  public get dims() : Dimensions | null {
-    const { width, height } = this
-    return (width > 0 && height > 0) ? { width, height } : null
+  public get batchSize(): number {
+    return this._inputs.length
+  }
+
+  public get inputDimensions(): number[][] {
+    return this._inputDimensions
+  }
+
+  public get paddings(): Point[] {
+    return this._paddings
+  }
+
+  public getInputDimensions(batchIdx: number): number[] {
+    return this._inputDimensions[batchIdx]
+  }
+
+  public getInputHeight(batchIdx: number): number {
+    return this._inputDimensions[batchIdx][0]
+  }
+
+  public getInputWidth(batchIdx: number): number {
+    return this._inputDimensions[batchIdx][1]
+  }
+
+  public getPaddings(batchIdx: number): Point {
+    return this._paddings[batchIdx]
+  }
+
+  public toBatchTensor(inputSize: number, isCenterInputs: boolean = true): tf.Tensor4D {
+
+    return tf.tidy(() => {
+
+      const inputTensors = this._inputs.map((inputTensor: tf.Tensor3D) => {
+        const [originalHeight, originalWidth] = inputTensor.shape
+
+        let imgTensor = inputTensor.expandDims().toFloat() as tf.Tensor4D
+        imgTensor = padToSquare(imgTensor, isCenterInputs)
+
+        const [heightAfterPadding, widthAfterPadding] = imgTensor.shape.slice(1)
+
+        if (heightAfterPadding !== inputSize || widthAfterPadding !== inputSize) {
+          imgTensor = tf.image.resizeBilinear(imgTensor, [inputSize, inputSize])
+        }
+
+        this._paddings.push(new Point(
+          widthAfterPadding - originalWidth,
+          heightAfterPadding - originalHeight
+        ))
+        return imgTensor
+      })
+
+      const batchTensor = tf.stack(inputTensors).as4D(this.batchSize, inputSize, inputSize, 3)
+
+      if (this.isManaged) {
+        this.dispose()
+      }
+
+      return batchTensor
+    })
+  }
+
+  /**
+   *  By setting the isManaged flag, all newly created tensors will be automatically
+   *  automatically disposed after the batch tensor has been created
+   */
+  public managed() {
+    this._isManaged = true
+    return this
+  }
+
+  public dispose() {
+    this._inputs.forEach(t => t.dispose())
   }
 }

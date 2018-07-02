@@ -6,10 +6,13 @@ export declare class FaceDetectionNet {
     private _params;
     load(weightsOrUrl?: Float32Array | string): Promise<void>;
     extractWeights(weights: Float32Array): void;
-    private forwardTensor(imgTensor);
-    forward(input: tf.Tensor | NetInput | TNetInput): Promise<{
+    forwardInput(input: NetInput): {
+        boxes: tf.Tensor<tf.Rank.R2>[];
+        scores: tf.Tensor<tf.Rank.R1>[];
+    };
+    forward(input: TNetInput): Promise<{
         boxes: tf.Tensor<tf.Rank.R2>[];
         scores: tf.Tensor<tf.Rank.R1>[];
     }>;
-    locateFaces(input: tf.Tensor | NetInput | TNetInput, minConfidence?: number, maxResults?: number): Promise<FaceDetection[]>;
+    locateFaces(input: TNetInput, minConfidence?: number, maxResults?: number): Promise<FaceDetection[]>;
 }

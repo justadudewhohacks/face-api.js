@@ -6,9 +6,9 @@ import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
 import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
+import { FullFaceDescription } from './FullFaceDescription';
 import { NetInput } from './NetInput';
 import { TNetInput } from './types';
-import { FullFaceDescription } from './FullFaceDescription';
 
 export const detectionNet = new FaceDetectionNet()
 export const landmarkNet = new FaceLandmarkNet()
@@ -35,7 +35,7 @@ export function loadModels(url: string) {
 }
 
 export function locateFaces(
-  input: tf.Tensor | NetInput | TNetInput,
+  input: TNetInput,
   minConfidence?: number,
   maxResults?: number
 ): Promise<FaceDetection[]> {
@@ -43,13 +43,13 @@ export function locateFaces(
 }
 
 export function detectLandmarks(
-  input: tf.Tensor | NetInput | TNetInput
-): Promise<FaceLandmarks> {
+  input: TNetInput
+): Promise<FaceLandmarks | FaceLandmarks[]> {
   return landmarkNet.detectLandmarks(input)
 }
 
 export function computeFaceDescriptor(
-  input: tf.Tensor | NetInput | TNetInput
+  input: TNetInput
 ): Promise<Float32Array>  {
   return recognitionNet.computeFaceDescriptor(input)
 }

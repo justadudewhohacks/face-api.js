@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
+var isTensor_1 = require("./commons/isTensor");
 function isFloat(num) {
     return num % 1 !== 0;
 }
@@ -14,13 +15,13 @@ function round(num) {
     return Math.floor(num * 100) / 100;
 }
 exports.round = round;
-function getElement(arg) {
+function resolveInput(arg) {
     if (typeof arg === 'string') {
         return document.getElementById(arg);
     }
     return arg;
 }
-exports.getElement = getElement;
+exports.resolveInput = resolveInput;
 function isLoaded(media) {
     return (media instanceof HTMLImageElement && media.complete)
         || (media instanceof HTMLVideoElement && media.readyState >= 3);
@@ -105,12 +106,12 @@ function bufferToImage(buf) {
 exports.bufferToImage = bufferToImage;
 function imageTensorToCanvas(imgTensor, canvas) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var targetCanvas, _a, _, height, width, numChannels;
+        var targetCanvas, _a, height, width, numChannels;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     targetCanvas = canvas || document.createElement('canvas');
-                    _a = imgTensor.shape, _ = _a[0], height = _a[1], width = _a[2], numChannels = _a[3];
+                    _a = imgTensor.shape.slice(isTensor_1.isTensor4D(imgTensor) ? 1 : 0), height = _a[0], width = _a[1], numChannels = _a[2];
                     return [4 /*yield*/, tf.toPixels(imgTensor.as3D(height, width, numChannels).toInt(), targetCanvas)];
                 case 1:
                     _b.sent();
