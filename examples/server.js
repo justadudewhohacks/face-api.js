@@ -25,8 +25,7 @@ app.get('/detect_and_draw_landmarks', (req, res) => res.sendFile(path.join(views
 app.get('/face_alignment', (req, res) => res.sendFile(path.join(viewsDir, 'faceAlignment.html')))
 app.get('/detect_and_recognize_faces', (req, res) => res.sendFile(path.join(viewsDir, 'detectAndRecognizeFaces.html')))
 app.get('/batch_face_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceLandmarks.html')))
-
-
+app.get('/batch_face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceRecognition.html')))
 
 app.post('/fetch_external_image', async (req, res) => {
   const { imageUrl } = req.body

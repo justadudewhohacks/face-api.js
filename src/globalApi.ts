@@ -56,7 +56,8 @@ export function computeFaceDescriptor(
 
 export const allFaces: (
   input: tf.Tensor | NetInput | TNetInput,
-  minConfidence: number
+  minConfidence: number,
+  useBatchProcessing?: boolean
 ) => Promise<FullFaceDescription[]> = allFacesFactory(
   detectionNet,
   landmarkNet,

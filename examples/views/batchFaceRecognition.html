@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="timeNoBatch">Time for processing each face seperately:</label>
+          <input disabled value="-" id="timeNoBatch" type="text" class="bold"/>
+        </div>
+        <div class="row">
+          <label for="timeBatch">Time for processing in Batch:</label>
+          <input disabled value="-" id="timeBatch" type="text" class="bold"/>
+        </div>
+      </div>
+      <div class="row side-by-side">
+        <div>
+          <label for="numImages">Num Images:</label>
+          <input id="numImages" type="text" class="bold" value="32"/>
+        </div>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="measureTimingsAndDisplay()"
+        >
+          Ok
+        </button>
+      </div>
+      <div class="row side-by-side">
+        <div class="center-content">
+          <div id="faceContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let images = []
+    let trainDescriptorsByClass = []
+    let descriptorsByFace = []
+    let numImages = 32
+    let maxDistance = 0.6
+
+    function onNumImagesChanged(e) {
+      const val = parseInt(e.target.value) || 32
+      numImages = Math.min(Math.max(val, 0), 32)
+      e.target.value = numImages
+    }
+
+    function displayTimeStats(timeNoBatch, timeBatch) {
+      $('#timeNoBatch').val(`${timeNoBatch} ms`)
+      $('#timeBatch').val(`${timeBatch} ms`)
+    }
+
+    function drawFaceRecognitionCanvas(img, descriptor) {
+      const canvas = faceapi.createCanvasFromMedia(img)
+      $('#faceContainer').append(canvas)
+
+      const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+      const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
+
+      const x = 20, y = canvas.height - 20
+      faceapi.drawText(
+        canvas.getContext('2d'),
+        x,
+        y,
+        text,
+        Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
+      )
+    }
+
+    async function runComputeFaceDescriptors(useBatchInput) {
+      const ts = Date.now()
+      descriptorsByFace = useBatchInput
+        ? await faceapi.computeFaceDescriptor(images.slice(0, numImages))
+        : await Promise.all(images.slice(0, numImages).map(img => faceapi.computeFaceDescriptor(img)))
+      const time = Date.now() - ts
+      return time
+    }
+
+    async function measureTimings() {
+      const timeNoBatch = await runComputeFaceDescriptors(false)
+      const timeBatch = await runComputeFaceDescriptors(true)
+      return { timeNoBatch, timeBatch }
+    }
+
+    async function measureTimingsAndDisplay() {
+      const { timeNoBatch, timeBatch } = await measureTimings()
+      displayTimeStats(timeNoBatch, timeBatch)
+
+      $('#faceContainer').empty()
+      descriptorsByFace.forEach((descriptor, i) => drawFaceRecognitionCanvas(images[i], descriptor))
+    }
+
+    async function run() {
+      await faceapi.loadFaceRecognitionModel('/')
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet, 1)
+      $('#loader').hide()
+
+      const imgUris = classes
+        // skip images with idx 1, as they are used as reference data
+        .map(clazz => Array.from(Array(4), (_, idx) => getFaceImageUri(clazz, idx + 2)))
+        .reduce((flat, arr) => flat.concat(arr))
+
+      images = await Promise.all(imgUris.map(
+        async uri => faceapi.bufferToImage(await fetchImage(uri))
+      ))
+
+      // warmup
+      await measureTimings()
+      // run
+      measureTimingsAndDisplay()
+    }
+
+    $(document).ready(function() {
+      $('#numImages').on('change', onNumImagesChanged)
+      renderNavBar('#navbar', 'batch_face_recognition')
+      run()
+    })
+
+  </script>
+
+</body>
+</html>
