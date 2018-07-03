@@ -50,7 +50,7 @@ export function detectLandmarks(
 
 export function computeFaceDescriptor(
   input: TNetInput
-): Promise<Float32Array>  {
+): Promise<Float32Array | Float32Array[]>  {
   return recognitionNet.computeFaceDescriptor(input)
 }
 

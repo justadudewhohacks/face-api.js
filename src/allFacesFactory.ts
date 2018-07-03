@@ -35,7 +35,7 @@ export function allFacesFactory(
 
     const descriptors = await Promise.all(alignedFaceTensors.map(
       faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
-    ))
+    )) as Float32Array[]
     alignedFaceTensors.forEach(t => t.dispose())
 
     return detections.map((detection, i) =>
