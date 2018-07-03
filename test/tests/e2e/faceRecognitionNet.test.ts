@@ -1,6 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import * as faceapi from '../../../src';
+import { NetInput } from '../../../src/NetInput';
+import { expectAllTensorsReleased } from '../../utils';
+import { toNetInput } from '../../../src';
 
 describe('faceRecognitionNet', () => {
 
@@ -152,5 +155,142 @@ describe('faceRecognitionNet', () => {
     })
 
   })
+
+  describe('no memory leaks', () => {
+
+    let faceRecognitionNet: faceapi.FaceRecognitionNet
+
+    beforeAll(async () => {
+      const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
+      const weights = new Float32Array(await res.arrayBuffer())
+      faceRecognitionNet = faceapi.faceRecognitionNet(weights)
+    })
+
+    describe('forwardInput', () => {
+
+      it('single image element', async () => {
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([imgEl1])).managed()
+          const outTensor = await faceRecognitionNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+      })
+
+      it('multiple image elements', async () => {
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([imgEl1, imgEl1, imgEl1])).managed()
+          const outTensor = await faceRecognitionNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+      })
+
+      it('single tf.Tensor3D', async () => {
+        const tensor = tf.fromPixels(imgEl1)
+
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([tensor])).managed()
+          const outTensor = await faceRecognitionNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple tf.Tensor3Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
+
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput(tensors)).managed()
+          const outTensor = await faceRecognitionNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+      it('single batch size 1 tf.Tensor4Ds', async () => {
+        const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
+
+        await expectAllTensorsReleased(async () => {
+          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensor, true))
+          outTensor.dispose()
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple batch size 1 tf.Tensor4Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1]
+          .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
+
+        await expectAllTensorsReleased(async () => {
+          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensors, true))
+          outTensor.dispose()
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+    })
+
+    describe('computeFaceDescriptor', () => {
+
+      it('single image element', async () => {
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor(imgEl1)
+        })
+      })
+
+      it('multiple image elements', async () => {
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor([imgEl1, imgEl1, imgEl1])
+        })
+      })
+
+      it('single tf.Tensor3D', async () => {
+        const tensor = tf.fromPixels(imgEl1)
+
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor(tensor)
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple tf.Tensor3Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
+
+
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor(tensors)
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+      it('single batch size 1 tf.Tensor4Ds', async () => {
+        const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
+
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor(tensor)
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple batch size 1 tf.Tensor4Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1]
+          .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
+
+        await expectAllTensorsReleased(async () => {
+          await faceRecognitionNet.computeFaceDescriptor(tensors)
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+    })
+  })
+
 
 })
