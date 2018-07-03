@@ -13,18 +13,19 @@ export function allFacesFactory(
 ) {
   return async function(
     input: TNetInput,
-    minConfidence: number
+    minConfidence: number,
+    useBatchProcessing: boolean = false
   ): Promise<FullFaceDescription[]> {
 
     const detections = await detectionNet.locateFaces(input, minConfidence)
 
     const faceTensors = await extractFaceTensors(input, detections)
-    /**
-    const faceLandmarksByFace = await Promise.all(faceTensors.map(
-      faceTensor => landmarkNet.detectLandmarks(faceTensor)
-    )) as FaceLandmarks[]
-     */
-    const faceLandmarksByFace = await landmarkNet.detectLandmarks(faceTensors) as FaceLandmarks[]
+
+    const faceLandmarksByFace = useBatchProcessing
+      ? await landmarkNet.detectLandmarks(faceTensors) as FaceLandmarks[]
+      : await Promise.all(faceTensors.map(
+        faceTensor => landmarkNet.detectLandmarks(faceTensor)
+      )) as FaceLandmarks[]
 
     faceTensors.forEach(t => t.dispose())
 
@@ -33,9 +34,12 @@ export function allFacesFactory(
     )
     const alignedFaceTensors = await extractFaceTensors(input, alignedFaceBoxes)
 
-    const descriptors = await Promise.all(alignedFaceTensors.map(
-      faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
-    ))
+    const descriptors = useBatchProcessing
+      ? await recognitionNet.computeFaceDescriptor(alignedFaceTensors) as Float32Array[]
+      : await Promise.all(alignedFaceTensors.map(
+        faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
+      )) as Float32Array[]
+
     alignedFaceTensors.forEach(t => t.dispose())
 
     return detections.map((detection, i) =>

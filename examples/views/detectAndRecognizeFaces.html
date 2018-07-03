@@ -30,6 +30,10 @@
       >
         Ok
       </button>
+      <p>
+        <input type="checkbox" id="useBatchProcessing" onchange="onChangeUseBatchProcessing(event)" />
+        <label for="useBatchProcessing">Use Batch Processing</label>
+      </p>
     </div>
     <div class="row side-by-side">
       <div class="row">
@@ -37,13 +41,13 @@
         <input disabled value="0.7" id="minConfidence" type="text" class="bold">
       </div>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onDecreaseMinConfidence()"
       >
         <i class="material-icons left">-</i>
       </button>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onIncreaseMinConfidence()"
       >
         <i class="material-icons left">+</i>
@@ -53,13 +57,13 @@
         <input disabled value="0.6" id="maxDistance" type="text" class="bold">
       </div>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onDecreaseMaxDistance()"
       >
         <i class="material-icons left">-</i>
       </button>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onIncreaseMaxDistance()"
       >
         <i class="material-icons left">+</i>
@@ -70,8 +74,13 @@
   <script>
     let maxDistance = 0.6
     let minConfidence = 0.7
+    let useBatchProcessing = false
     let detectionNet, recognitionNet, landmarkNet
     let trainDescriptorsByClass = []
+
+    function onChangeUseBatchProcessing(e) {
+      useBatchProcessing = $(e.target).prop('checked')
+    }
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -110,7 +119,7 @@
       canvas.width = width
       canvas.height = height
 
-      const fullFaceDescriptions = (await faceapi.allFaces(inputImgEl, minConfidence))
+      const fullFaceDescriptions = (await faceapi.allFaces(inputImgEl, minConfidence, useBatchProcessing))
         .map(fd => fd.forSize(width, height))
 
       fullFaceDescriptions.forEach(({ detection, descriptor }) => {

@@ -49,6 +49,10 @@
   margin: 20px;
 }
 
+.button-sm {
+  padding: 0 10px !important;
+}
+
 #github-link {
   display: flex !important;
   justify-content: center;

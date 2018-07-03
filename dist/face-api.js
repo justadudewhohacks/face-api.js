@@ -2128,9 +2128,9 @@
 
   function normalize(x) {
       return tidy(function () {
-          var avg_r = fill([1, 150, 150, 1], 122.782);
-          var avg_g = fill([1, 150, 150, 1], 117.001);
-          var avg_b = fill([1, 150, 150, 1], 104.298);
+          var avg_r = fill(x.shape.slice(0, 3).concat([1]), 122.782);
+          var avg_g = fill(x.shape.slice(0, 3).concat([1]), 117.001);
+          var avg_b = fill(x.shape.slice(0, 3).concat([1]), 104.298);
           var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
           return div(sub(x, avg_rgb), scalar(256));
       });
@@ -2195,36 +2195,32 @@
           this._params = extractParams$2(weights);
       };
       FaceRecognitionNet.prototype.forwardInput = function (input) {
-          return __awaiter$1(this, void 0, void 0, function () {
-              var _this = this;
-              return __generator$1(this, function (_a) {
-                  if (!this._params) {
-                      throw new Error('FaceRecognitionNet - load model before inference');
-                  }
-                  return [2 /*return*/, tidy(function () {
-                          var batchTensor = input.toBatchTensor(150, true);
-                          var normalized = normalize(batchTensor);
-                          var out = convDown(normalized, _this._params.conv32_down);
-                          out = maxPool(out, 3, 2, 'valid');
-                          out = residual(out, _this._params.conv32_1);
-                          out = residual(out, _this._params.conv32_2);
-                          out = residual(out, _this._params.conv32_3);
-                          out = residualDown(out, _this._params.conv64_down);
-                          out = residual(out, _this._params.conv64_1);
-                          out = residual(out, _this._params.conv64_2);
-                          out = residual(out, _this._params.conv64_3);
-                          out = residualDown(out, _this._params.conv128_down);
-                          out = residual(out, _this._params.conv128_1);
-                          out = residual(out, _this._params.conv128_2);
-                          out = residualDown(out, _this._params.conv256_down);
-                          out = residual(out, _this._params.conv256_1);
-                          out = residual(out, _this._params.conv256_2);
-                          out = residualDown(out, _this._params.conv256_down_out);
-                          var globalAvg = out.mean([1, 2]);
-                          var fullyConnected = matMul(globalAvg, _this._params.fc);
-                          return fullyConnected;
-                      })];
-              });
+          var _this = this;
+          if (!this._params) {
+              throw new Error('FaceRecognitionNet - load model before inference');
+          }
+          return tidy(function () {
+              var batchTensor = input.toBatchTensor(150, true);
+              var normalized = normalize(batchTensor);
+              var out = convDown(normalized, _this._params.conv32_down);
+              out = maxPool(out, 3, 2, 'valid');
+              out = residual(out, _this._params.conv32_1);
+              out = residual(out, _this._params.conv32_2);
+              out = residual(out, _this._params.conv32_3);
+              out = residualDown(out, _this._params.conv64_down);
+              out = residual(out, _this._params.conv64_1);
+              out = residual(out, _this._params.conv64_2);
+              out = residual(out, _this._params.conv64_3);
+              out = residualDown(out, _this._params.conv128_down);
+              out = residual(out, _this._params.conv128_1);
+              out = residual(out, _this._params.conv128_2);
+              out = residualDown(out, _this._params.conv256_down);
+              out = residual(out, _this._params.conv256_1);
+              out = residual(out, _this._params.conv256_2);
+              out = residualDown(out, _this._params.conv256_down_out);
+              var globalAvg = out.mean([1, 2]);
+              var fullyConnected = matMul(globalAvg, _this._params.fc);
+              return fullyConnected;
           });
       };
       FaceRecognitionNet.prototype.forward = function (input) {
@@ -2242,20 +2238,21 @@
       };
       FaceRecognitionNet.prototype.computeFaceDescriptor = function (input) {
           return __awaiter$1(this, void 0, void 0, function () {
-              var result, _a, data;
-              return __generator$1(this, function (_b) {
-                  switch (_b.label) {
-                      case 0:
-                          _a = this.forward;
-                          return [4 /*yield*/, toNetInput(input, true)];
-                      case 1: return [4 /*yield*/, _a.apply(this, [_b.sent()])];
+              var _this = this;
+              var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
+              return __generator$1(this, function (_a) {
+                  switch (_a.label) {
+                      case 0: return [4 /*yield*/, toNetInput(input, true)];
+                      case 1:
+                          netInput = _a.sent();
+                          faceDescriptorTensors = tidy(function () { return unstack(_this.forwardInput(netInput)); });
+                          return [4 /*yield*/, Promise.all(faceDescriptorTensors.map(function (t) { return t.data(); }))];
                       case 2:
-                          result = _b.sent();
-                          return [4 /*yield*/, result.data()];
-                      case 3:
-                          data = _b.sent();
-                          result.dispose();
-                          return [2 /*return*/, data];
+                          faceDescriptorsForBatch = _a.sent();
+                          faceDescriptorTensors.forEach(function (t) { return t.dispose(); });
+                          return [2 /*return*/, netInput.isBatchInput
+                                  ? faceDescriptorsForBatch
+                                  : faceDescriptorsForBatch[0]];
                   }
               });
           });
@@ -2270,34 +2267,45 @@
   }
 
   function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
-      return function (input, minConfidence) {
+      return function (input, minConfidence, useBatchProcessing) {
+          if (useBatchProcessing === void 0) { useBatchProcessing = false; }
           return __awaiter$1(this, void 0, void 0, function () {
-              var detections, faceTensors, faceLandmarksByFace, alignedFaceBoxes, alignedFaceTensors, descriptors;
-              return __generator$1(this, function (_a) {
-                  switch (_a.label) {
+              var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, alignedFaceTensors, descriptors, _b;
+              return __generator$1(this, function (_c) {
+                  switch (_c.label) {
                       case 0: return [4 /*yield*/, detectionNet.locateFaces(input, minConfidence)];
                       case 1:
-                          detections = _a.sent();
-                          return [4 /*yield*/, extractFaceTensors(input, detections)
-                              /**
-                              const faceLandmarksByFace = await Promise.all(faceTensors.map(
-                                faceTensor => landmarkNet.detectLandmarks(faceTensor)
-                              )) as FaceLandmarks[]
-                               */
-                          ];
+                          detections = _c.sent();
+                          return [4 /*yield*/, extractFaceTensors(input, detections)];
                       case 2:
-                          faceTensors = _a.sent();
+                          faceTensors = _c.sent();
+                          if (!useBatchProcessing) return [3 /*break*/, 4];
                           return [4 /*yield*/, landmarkNet.detectLandmarks(faceTensors)];
                       case 3:
-                          faceLandmarksByFace = _a.sent();
+                          _a = _c.sent();
+                          return [3 /*break*/, 6];
+                      case 4: return [4 /*yield*/, Promise.all(faceTensors.map(function (faceTensor) { return landmarkNet.detectLandmarks(faceTensor); }))];
+                      case 5:
+                          _a = _c.sent();
+                          _c.label = 6;
+                      case 6:
+                          faceLandmarksByFace = _a;
                           faceTensors.forEach(function (t) { return t.dispose(); });
                           alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
                           return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
-                      case 4:
-                          alignedFaceTensors = _a.sent();
-                          return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
-                      case 5:
-                          descriptors = _a.sent();
+                      case 7:
+                          alignedFaceTensors = _c.sent();
+                          if (!useBatchProcessing) return [3 /*break*/, 9];
+                          return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                      case 8:
+                          _b = _c.sent();
+                          return [3 /*break*/, 11];
+                      case 9: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                      case 10:
+                          _b = _c.sent();
+                          _c.label = 11;
+                      case 11:
+                          descriptors = _b;
                           alignedFaceTensors.forEach(function (t) { return t.dispose(); });
                           return [2 /*return*/, detections.map(function (detection, i) {
                                   return new FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(detection.getBox()), descriptors[i]);

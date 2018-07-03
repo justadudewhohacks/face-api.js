@@ -30,11 +30,10 @@ export class FaceRecognitionNet {
     this._params = extractParams(weights)
   }
 
-  public async forwardInput(input: NetInput): Promise<tf.Tensor2D> {
+  public forwardInput(input: NetInput): tf.Tensor2D {
     if (!this._params) {
       throw new Error('FaceRecognitionNet - load model before inference')
     }
-
 
     return tf.tidy(() => {
       const batchTensor = input.toBatchTensor(150, true)
@@ -68,14 +67,26 @@ export class FaceRecognitionNet {
       return fullyConnected
     })
   }
+
   public async forward(input: TNetInput): Promise<tf.Tensor2D> {
     return this.forwardInput(await toNetInput(input, true))
   }
 
-  public async computeFaceDescriptor(input: TNetInput) {
-    const result = await this.forward(await toNetInput(input, true))
-    const data = await result.data()
-    result.dispose()
-    return data as Float32Array
+  public async computeFaceDescriptor(input: TNetInput): Promise<Float32Array|Float32Array[]> {
+    const netInput = await toNetInput(input, true)
+
+    const faceDescriptorTensors = tf.tidy(
+      () => tf.unstack(this.forwardInput(netInput))
+    )
+
+    const faceDescriptorsForBatch = await Promise.all(faceDescriptorTensors.map(
+      t => t.data()
+    )) as Float32Array[]
+
+    faceDescriptorTensors.forEach(t => t.dispose())
+
+    return netInput.isBatchInput
+      ? faceDescriptorsForBatch
+      : faceDescriptorsForBatch[0]
   }
 }

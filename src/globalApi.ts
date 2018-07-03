@@ -50,13 +50,14 @@ export function detectLandmarks(
 
 export function computeFaceDescriptor(
   input: TNetInput
-): Promise<Float32Array>  {
+): Promise<Float32Array | Float32Array[]>  {
   return recognitionNet.computeFaceDescriptor(input)
 }
 
 export const allFaces: (
   input: tf.Tensor | NetInput | TNetInput,
-  minConfidence: number
+  minConfidence: number,
+  useBatchProcessing?: boolean
 ) => Promise<FullFaceDescription[]> = allFacesFactory(
   detectionNet,
   landmarkNet,

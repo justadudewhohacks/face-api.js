@@ -87,7 +87,7 @@ describe('faceLandmarkNet', () => {
       await faceLandmarkNet.load('base/weights')
     })
 
-    it('computes face landmarks', async () => {
+    it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
 
       const result = await faceLandmarkNet.detectLandmarks(imgEl1) as FaceLandmarks

@@ -16,5 +16,5 @@ export declare function loadFaceRecognitionModel(url: string): Promise<void>;
 export declare function loadModels(url: string): Promise<[void, void, void]>;
 export declare function locateFaces(input: TNetInput, minConfidence?: number, maxResults?: number): Promise<FaceDetection[]>;
 export declare function detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]>;
-export declare function computeFaceDescriptor(input: TNetInput): Promise<Float32Array>;
-export declare const allFaces: (input: tf.Tensor | NetInput | TNetInput, minConfidence: number) => Promise<FullFaceDescription[]>;
+export declare function computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
+export declare const allFaces: (input: tf.Tensor | NetInput | TNetInput, minConfidence: number, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
