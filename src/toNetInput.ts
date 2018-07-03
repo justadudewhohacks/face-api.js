@@ -41,29 +41,24 @@ export async function toNetInput(
 
   const getIdxHint = (idx: number) => Array.isArray(inputs) ? ` at input index ${idx}:` : ''
 
-  const inputArray = inputArgArray
-    .map(resolveInput)
-    .map((input, i) => {
-      if (isTensor4D(input)) {
-        // if tf.Tensor4D is passed in the input array, the batch size has to be 1
-        const batchSize = input.shape[0]
-        if (batchSize !== 1) {
-          throw new Error(`toNetInput -${getIdxHint(i)} tf.Tensor4D with batchSize ${batchSize} passed, but not supported in input array`)
-        }
-        // to tf.Tensor3D
-        return input.reshape(input.shape.slice(1))
-      }
-      return input
-    })
+  const inputArray = inputArgArray.map(resolveInput)
 
   inputArray.forEach((input, i) => {
-    if (!isMediaElement(input) && !isTensor3D(input)) {
+    if (!isMediaElement(input) && !isTensor3D(input) && !isTensor4D(input)) {
 
       if (typeof inputArgArray[i] === 'string') {
         throw new Error(`toNetInput -${getIdxHint(i)} string passed, but could not resolve HTMLElement for element id ${inputArgArray[i]}`)
       }
 
       throw new Error(`toNetInput -${getIdxHint(i)} expected media to be of type HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | tf.Tensor3D, or to be an element id`)
+    }
+
+    if (isTensor4D(input)) {
+      // if tf.Tensor4D is passed in the input array, the batch size has to be 1
+      const batchSize = input.shape[0]
+      if (batchSize !== 1) {
+        throw new Error(`toNetInput -${getIdxHint(i)} tf.Tensor4D with batchSize ${batchSize} passed, but not supported in input array`)
+      }
     }
   })
 

@@ -113,7 +113,10 @@ export async function imageTensorToCanvas(
   const targetCanvas = canvas ||  document.createElement('canvas')
 
   const [height, width, numChannels] = imgTensor.shape.slice(isTensor4D(imgTensor) ? 1 : 0)
-  await tf.toPixels(imgTensor.as3D(height, width, numChannels).toInt(), targetCanvas)
+  const imgTensor3D = tf.tidy(() => imgTensor.as3D(height, width, numChannels).toInt())
+  await tf.toPixels(imgTensor3D, targetCanvas)
+
+  imgTensor3D.dispose()
 
   return targetCanvas
 }

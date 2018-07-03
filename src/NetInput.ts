@@ -29,6 +29,16 @@ export class NetInput {
           return tf.clone(input as tf.Tensor3D)
         }
 
+        if (isTensor4D(input)) {
+          const shape = (input as tf.Tensor4D).shape
+          const batchSize = shape[0]
+          if (batchSize !== 1) {
+            throw new Error(`NetInput - tf.Tensor4D with batchSize ${batchSize} passed, but not supported in input array`)
+          }
+
+          return (input as tf.Tensor4D).reshape(shape.slice(1) as [number, number, number]) as tf.Tensor3D
+        }
+
         return tf.fromPixels(
           input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input as HTMLImageElement | HTMLVideoElement)
         )

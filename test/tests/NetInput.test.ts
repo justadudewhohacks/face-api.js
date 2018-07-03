@@ -7,12 +7,11 @@ import { expectAllTensorsReleased, tensor3D } from '../utils';
 
 describe('NetInput', () => {
 
-  let imgEl: HTMLImageElement, canvasEl: HTMLCanvasElement
+  let imgEl: HTMLImageElement
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/face1.png')).blob()
     imgEl = await bufferToImage(img)
-    canvasEl = createCanvasFromMedia(imgEl)
   })
 
   describe('no memory leaks', () => {

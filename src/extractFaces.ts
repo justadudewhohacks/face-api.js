@@ -3,6 +3,7 @@ import { Rect } from './Rect';
 import { toNetInput } from './toNetInput';
 import { TNetInput } from './types';
 import { createCanvas, getContext2dOrThrow, imageTensorToCanvas } from './utils';
+import * as tf from '@tensorflow/tfjs-core';
 
 /**
  * Extracts the image regions containing the detected faces.
@@ -29,6 +30,10 @@ export async function extractFaces(
     }
 
     canvas = await imageTensorToCanvas(netInput.inputs[0])
+
+    if (netInput.isManaged) {
+      netInput.dispose()
+    }
   }
 
   const ctx = getContext2dOrThrow(canvas)

@@ -1,7 +1,8 @@
+import { tf } from '../../src';
 import { NetInput } from '../../src/NetInput';
 import { toNetInput } from '../../src/toNetInput';
 import { bufferToImage, createCanvasFromMedia } from '../../src/utils';
-import { createFakeHTMLVideoElement } from '../utils';
+import { expectAllTensorsReleased } from '../utils';
 
 describe('toNetInput', () => {
 
@@ -21,13 +22,6 @@ describe('toNetInput', () => {
       expect(netInput.batchSize).toEqual(1)
     })
 
-    it('from HTMLVideoElement', async () => {
-      const videoEl = await createFakeHTMLVideoElement()
-      const netInput = await toNetInput(videoEl, true)
-      expect(netInput instanceof NetInput).toBe(true)
-      expect(netInput.batchSize).toEqual(1)
-    })
-
     it('from HTMLCanvasElement', async () => {
       const netInput = await toNetInput(canvasEl, true)
       expect(netInput instanceof NetInput).toBe(true)
@@ -39,20 +33,6 @@ describe('toNetInput', () => {
         imgEl,
         imgEl
       ], true)
-      expect(netInput instanceof NetInput).toBe(true)
-      expect(netInput.batchSize).toEqual(2)
-    })
-
-    it('from HTMLVideoElement array', async () => {
-      const videoElements = [
-        await createFakeHTMLVideoElement(),
-        await createFakeHTMLVideoElement()
-      ]
-      videoElements.forEach(videoEl =>
-        spyOnProperty(videoEl, 'readyState', 'get').and.returnValue(4)
-      )
-
-      const netInput = await toNetInput(videoElements, true)
       expect(netInput instanceof NetInput).toBe(true)
       expect(netInput.batchSize).toEqual(2)
     })
@@ -70,7 +50,7 @@ describe('toNetInput', () => {
       const netInput = await toNetInput([
         imgEl,
         canvasEl,
-        await createFakeHTMLVideoElement()
+        canvasEl
       ], true)
       expect(netInput instanceof NetInput).toBe(true)
       expect(netInput.batchSize).toEqual(3)
@@ -107,6 +87,69 @@ describe('toNetInput', () => {
           errorMessage = error.message;
       }
       expect(errorMessage).toBe('toNetInput - at input index 1: expected media to be of type HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | tf.Tensor3D, or to be an element id')
+    })
+
+  })
+
+  describe('no memory leaks', () => {
+
+    it('single image element', async () => {
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput(imgEl)
+        netInput.dispose()
+      })
+    })
+
+    it('multiple image elements', async () => {
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput([imgEl, imgEl, imgEl])
+        netInput.dispose()
+      })
+    })
+
+    it('single tf.Tensor3D', async () => {
+      const tensor = tf.fromPixels(imgEl)
+
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput(tensor)
+        netInput.dispose()
+      })
+
+      tensor.dispose()
+    })
+
+    it('multiple tf.Tensor3Ds', async () => {
+      const tensors = [imgEl, imgEl, imgEl].map(el => tf.fromPixels(el))
+
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput(tensors)
+        netInput.dispose()
+      })
+
+      tensors.forEach(t => t.dispose())
+    })
+
+    it('single batch size 1 tf.Tensor4Ds', async () => {
+      const tensor = tf.tidy(() => tf.fromPixels(imgEl).expandDims()) as tf.Tensor4D
+
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput(tensor)
+        netInput.dispose()
+      })
+
+      tensor.dispose()
+    })
+
+    it('multiple batch size 1 tf.Tensor4Ds', async () => {
+      const tensors = [imgEl, imgEl, imgEl]
+        .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
+
+      await expectAllTensorsReleased(async () => {
+        const netInput = await toNetInput(tensors)
+        netInput.dispose()
+      })
+
+      tensors.forEach(t => t.dispose())
     })
 
   })

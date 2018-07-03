@@ -31,6 +31,9 @@ function extractFaces(input, detections) {
                     return [4 /*yield*/, utils_1.imageTensorToCanvas(netInput.inputs[0])];
                 case 2:
                     canvas = _a.sent();
+                    if (netInput.isManaged) {
+                        netInput.dispose();
+                    }
                     _a.label = 3;
                 case 3:
                     ctx = utils_1.getContext2dOrThrow(canvas);

@@ -5,8 +5,9 @@ import { isTensor3D } from '../../../src/commons/isTensor';
 import { FaceLandmarks } from '../../../src/faceLandmarkNet/FaceLandmarks';
 import { Point } from '../../../src/Point';
 import { Dimensions, TMediaElement } from '../../../src/types';
-import { expectMaxDelta, expectAllTensorsReleased } from '../../utils';
+import { expectMaxDelta, expectAllTensorsReleased, tensor3D } from '../../utils';
 import { NetInput } from '../../../src/NetInput';
+import { toNetInput } from '../../../src';
 
 function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
   if (input instanceof tf.Tensor) {
@@ -255,6 +256,53 @@ describe('faceLandmarkNet', () => {
         })
       })
 
+      it('single tf.Tensor3D', async () => {
+        const tensor = tf.fromPixels(imgEl1)
+
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput([tensor])).managed()
+          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple tf.Tensor3Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
+
+        await expectAllTensorsReleased(async () => {
+          const netInput = (new NetInput(tensors)).managed()
+          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          outTensor.dispose()
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+      it('single batch size 1 tf.Tensor4Ds', async () => {
+        const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
+
+        await expectAllTensorsReleased(async () => {
+          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensor, true))
+          outTensor.dispose()
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple batch size 1 tf.Tensor4Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1]
+          .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
+
+        await expectAllTensorsReleased(async () => {
+          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensors, true))
+          outTensor.dispose()
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
     })
 
     describe('detectLandmarks', () => {
@@ -269,6 +317,48 @@ describe('faceLandmarkNet', () => {
         await expectAllTensorsReleased(async () => {
           await faceLandmarkNet.detectLandmarks([imgEl1, imgEl1, imgEl1])
         })
+      })
+
+      it('single tf.Tensor3D', async () => {
+        const tensor = tf.fromPixels(imgEl1)
+
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks(tensor)
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple tf.Tensor3Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
+
+
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks(tensors)
+        })
+
+        tensors.forEach(t => t.dispose())
+      })
+
+      it('single batch size 1 tf.Tensor4Ds', async () => {
+        const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
+
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks(tensor)
+        })
+
+        tensor.dispose()
+      })
+
+      it('multiple batch size 1 tf.Tensor4Ds', async () => {
+        const tensors = [imgEl1, imgEl1, imgEl1]
+          .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
+
+        await expectAllTensorsReleased(async () => {
+          await faceLandmarkNet.detectLandmarks(tensors)
+        })
+
+        tensors.forEach(t => t.dispose())
       })
 
     })

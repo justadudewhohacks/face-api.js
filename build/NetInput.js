@@ -22,6 +22,14 @@ var NetInput = /** @class */ (function () {
                     // TODO: make sure not to dispose original tensors passed in by the user
                     return tf.clone(input);
                 }
+                if (isTensor_1.isTensor4D(input)) {
+                    var shape = input.shape;
+                    var batchSize = shape[0];
+                    if (batchSize !== 1) {
+                        throw new Error("NetInput - tf.Tensor4D with batchSize " + batchSize + " passed, but not supported in input array");
+                    }
+                    return input.reshape(shape.slice(1));
+                }
                 return tf.fromPixels(input instanceof HTMLCanvasElement ? input : utils_1.createCanvasFromMedia(input));
             });
         }

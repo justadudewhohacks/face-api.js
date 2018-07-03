@@ -37,26 +37,20 @@ function toNetInput(inputs, manageCreatedInput) {
                         throw new Error('toNetInput - empty array passed as input');
                     }
                     getIdxHint = function (idx) { return Array.isArray(inputs) ? " at input index " + idx + ":" : ''; };
-                    inputArray = inputArgArray
-                        .map(utils_1.resolveInput)
-                        .map(function (input, i) {
+                    inputArray = inputArgArray.map(utils_1.resolveInput);
+                    inputArray.forEach(function (input, i) {
+                        if (!isMediaElement_1.isMediaElement(input) && !isTensor_1.isTensor3D(input) && !isTensor_1.isTensor4D(input)) {
+                            if (typeof inputArgArray[i] === 'string') {
+                                throw new Error("toNetInput -" + getIdxHint(i) + " string passed, but could not resolve HTMLElement for element id " + inputArgArray[i]);
+                            }
+                            throw new Error("toNetInput -" + getIdxHint(i) + " expected media to be of type HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | tf.Tensor3D, or to be an element id");
+                        }
                         if (isTensor_1.isTensor4D(input)) {
                             // if tf.Tensor4D is passed in the input array, the batch size has to be 1
                             var batchSize = input.shape[0];
                             if (batchSize !== 1) {
                                 throw new Error("toNetInput -" + getIdxHint(i) + " tf.Tensor4D with batchSize " + batchSize + " passed, but not supported in input array");
                             }
-                            // to tf.Tensor3D
-                            return input.reshape(input.shape.slice(1));
-                        }
-                        return input;
-                    });
-                    inputArray.forEach(function (input, i) {
-                        if (!isMediaElement_1.isMediaElement(input) && !isTensor_1.isTensor3D(input)) {
-                            if (typeof inputArgArray[i] === 'string') {
-                                throw new Error("toNetInput -" + getIdxHint(i) + " string passed, but could not resolve HTMLElement for element id " + inputArgArray[i]);
-                            }
-                            throw new Error("toNetInput -" + getIdxHint(i) + " expected media to be of type HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | tf.Tensor3D, or to be an element id");
                         }
                     });
                     // wait for all media elements being loaded
