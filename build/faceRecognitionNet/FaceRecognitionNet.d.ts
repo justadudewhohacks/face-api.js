@@ -5,7 +5,7 @@ export declare class FaceRecognitionNet {
     private _params;
     load(weightsOrUrl: Float32Array | string | undefined): Promise<void>;
     extractWeights(weights: Float32Array): void;
-    forwardInput(input: NetInput): Promise<tf.Tensor2D>;
+    forwardInput(input: NetInput): tf.Tensor2D;
     forward(input: TNetInput): Promise<tf.Tensor2D>;
-    computeFaceDescriptor(input: TNetInput): Promise<Float32Array>;
+    computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
 }
