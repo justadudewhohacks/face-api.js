@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { convLayer } from '../commons/convLayer';
+import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { ConvParams } from '../commons/types';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
@@ -21,9 +22,7 @@ function maxPool(x: tf.Tensor4D, strides: [number, number] = [2, 2]): tf.Tensor4
   return tf.maxPool(x, [2, 2], strides, 'valid')
 }
 
-export class FaceLandmarkNet {
-
-  private _params: NetParams
+export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
 
   public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
     if (weightsOrUrl instanceof Float32Array) {
@@ -34,11 +33,23 @@ export class FaceLandmarkNet {
     if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
       throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array')
     }
-    this._params = await loadQuantizedParams(weightsOrUrl)
+    const {
+      paramMappings,
+      params
+    } = await loadQuantizedParams(weightsOrUrl)
+
+    this._paramMappings = paramMappings
+    this._params = params
   }
 
   public extractWeights(weights: Float32Array) {
-    this._params = extractParams(weights)
+    const {
+      paramMappings,
+      params
+    } = extractParams(weights)
+
+    this._paramMappings = paramMappings
+    this._params = params
   }
 
   public forwardInput(input: NetInput): tf.Tensor2D {

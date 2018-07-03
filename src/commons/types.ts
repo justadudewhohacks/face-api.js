@@ -13,3 +13,8 @@ export type BatchReshapeInfo = {
   paddingX: number
   paddingY: number
 }
+
+export type ParamMapping = {
+  originalPath?: string
+  paramPath: string
+}
