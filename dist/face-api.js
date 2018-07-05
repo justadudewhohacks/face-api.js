@@ -364,6 +364,17 @@
   See the Apache Version 2.0 License for specific language governing permissions
   and limitations under the License.
   ***************************************************************************** */
+  /* global Reflect, Promise */
+
+  var extendStatics$1 = Object.setPrototypeOf ||
+      ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+      function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+  function __extends$1(d, b) {
+      extendStatics$1(d, b);
+      function __() { this.constructor = d; }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  }
 
   function __awaiter$1(thisArg, _arguments, P, generator) {
       return new (P || (P = Promise))(function (resolve, reject) {
@@ -1573,10 +1584,92 @@
       return net;
   }
 
-  function extractConvParamsFactory(extractWeights) {
-      return function (channelsIn, channelsOut, filterSize) {
+  var NeuralNetwork = /** @class */ (function () {
+      function NeuralNetwork() {
+          this._params = undefined;
+          this._paramMappings = [];
+      }
+      Object.defineProperty(NeuralNetwork.prototype, "params", {
+          get: function () {
+              return this._params;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(NeuralNetwork.prototype, "paramMappings", {
+          get: function () {
+              return this._paramMappings;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      NeuralNetwork.prototype.getParamFromPath = function (paramPath) {
+          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
+          return obj[objProp];
+      };
+      NeuralNetwork.prototype.reassignParamFromPath = function (paramPath, tensor$$1) {
+          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
+          obj[objProp].dispose();
+          obj[objProp] = tensor$$1;
+      };
+      NeuralNetwork.prototype.getParamList = function () {
+          var _this = this;
+          return this._paramMappings.map(function (_a) {
+              var paramPath = _a.paramPath;
+              return ({
+                  path: paramPath,
+                  tensor: _this.getParamFromPath(paramPath)
+              });
+          });
+      };
+      NeuralNetwork.prototype.getTrainableParams = function () {
+          return this.getParamList().filter(function (param) { return param.tensor instanceof Variable; });
+      };
+      NeuralNetwork.prototype.getFrozenParams = function () {
+          return this.getParamList().filter(function (param) { return !(param.tensor instanceof Variable); });
+      };
+      NeuralNetwork.prototype.variable = function () {
+          var _this = this;
+          this.getFrozenParams().forEach(function (_a) {
+              var path = _a.path, tensor$$1 = _a.tensor;
+              _this.reassignParamFromPath(path, variable(tensor$$1));
+          });
+      };
+      NeuralNetwork.prototype.freeze = function () {
+          var _this = this;
+          this.getTrainableParams().forEach(function (_a) {
+              var path = _a.path, tensor$$1 = _a.tensor;
+              _this.reassignParamFromPath(path, tensor(tensor$$1));
+          });
+      };
+      NeuralNetwork.prototype.dispose = function () {
+          this.getParamList().forEach(function (param) { return param.tensor.dispose(); });
+          this._params = undefined;
+      };
+      NeuralNetwork.prototype.traversePropertyPath = function (paramPath) {
+          if (!this.params) {
+              throw new Error("traversePropertyPath - model has no loaded params");
+          }
+          var result = paramPath.split('/').reduce(function (res, objProp) {
+              if (!res.nextObj.hasOwnProperty(objProp)) {
+                  throw new Error("traversePropertyPath - object does not have property " + objProp + ", for path " + paramPath);
+              }
+              return { obj: res.nextObj, objProp: objProp, nextObj: res.nextObj[objProp] };
+          }, { nextObj: this.params });
+          var obj = result.obj, objProp = result.objProp;
+          if (!obj || !objProp || !(obj[objProp] instanceof Tensor)) {
+              throw new Error("traversePropertyPath - parameter is not a tensor, for path " + paramPath);
+          }
+          return { obj: obj, objProp: objProp };
+      };
+      return NeuralNetwork;
+  }());
+
+  function extractConvParamsFactory(extractWeights, paramMappings) {
+      return function (channelsIn, channelsOut, filterSize, mappedPrefix) {
           var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
           var bias = tensor1d(extractWeights(channelsOut));
+          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
           return {
               filters: filters,
               bias: bias
@@ -1585,40 +1678,45 @@
   }
 
   function extractParams$1(weights) {
+      var paramMappings = [];
       var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-      var extractConvParams = extractConvParamsFactory(extractWeights);
-      function extractFcParams(channelsIn, channelsOut) {
+      var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+      function extractFcParams(channelsIn, channelsOut, mappedPrefix) {
           var fc_weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
           var fc_bias = tensor1d(extractWeights(channelsOut));
+          paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/bias" });
           return {
               weights: fc_weights,
               bias: fc_bias
           };
       }
-      var conv0_params = extractConvParams(3, 32, 3);
-      var conv1_params = extractConvParams(32, 64, 3);
-      var conv2_params = extractConvParams(64, 64, 3);
-      var conv3_params = extractConvParams(64, 64, 3);
-      var conv4_params = extractConvParams(64, 64, 3);
-      var conv5_params = extractConvParams(64, 128, 3);
-      var conv6_params = extractConvParams(128, 128, 3);
-      var conv7_params = extractConvParams(128, 256, 3);
-      var fc0_params = extractFcParams(6400, 1024);
-      var fc1_params = extractFcParams(1024, 136);
+      var conv0_params = extractConvParams(3, 32, 3, 'conv0_params');
+      var conv1_params = extractConvParams(32, 64, 3, 'conv1_params');
+      var conv2_params = extractConvParams(64, 64, 3, 'conv2_params');
+      var conv3_params = extractConvParams(64, 64, 3, 'conv3_params');
+      var conv4_params = extractConvParams(64, 64, 3, 'conv4_params');
+      var conv5_params = extractConvParams(64, 128, 3, 'conv5_params');
+      var conv6_params = extractConvParams(128, 128, 3, 'conv6_params');
+      var conv7_params = extractConvParams(128, 256, 3, 'conv7_params');
+      var fc0_params = extractFcParams(6400, 1024, 'fc0_params');
+      var fc1_params = extractFcParams(1024, 136, 'fc1_params');
       if (getRemainingWeights().length !== 0) {
           throw new Error("weights remaing after extract: " + getRemainingWeights().length);
       }
       return {
-          conv0_params: conv0_params,
-          conv1_params: conv1_params,
-          conv2_params: conv2_params,
-          conv3_params: conv3_params,
-          conv4_params: conv4_params,
-          conv5_params: conv5_params,
-          conv6_params: conv6_params,
-          conv7_params: conv7_params,
-          fc0_params: fc0_params,
-          fc1_params: fc1_params
+          paramMappings: paramMappings,
+          params: {
+              conv0_params: conv0_params,
+              conv1_params: conv1_params,
+              conv2_params: conv2_params,
+              conv3_params: conv3_params,
+              conv4_params: conv4_params,
+              conv5_params: conv5_params,
+              conv6_params: conv6_params,
+              conv7_params: conv7_params,
+              fc0_params: fc0_params,
+              fc1_params: fc1_params
+          }
       };
   }
 
@@ -1728,33 +1826,33 @@
       });
   }
 
-  var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
-  function extractorsFactory$2(weightMap) {
-      function extractConvParams(prefix) {
-          var params = {
-              filters: weightMap[prefix + "/kernel"],
-              bias: weightMap[prefix + "/bias"]
-          };
-          if (!isTensor4D(params.filters)) {
-              throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor4D, instead have " + params.filters);
-          }
-          if (!isTensor1D(params.bias)) {
-              throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
-          }
-          return params;
+  function extractWeightEntry(weightMap, path, paramRank) {
+      var tensor = weightMap[path];
+      if (!isTensor(tensor, paramRank)) {
+          throw new Error("expected weightMap[" + path + "] to be a Tensor" + paramRank + "D, instead have " + tensor);
       }
-      function extractFcParams(prefix) {
-          var params = {
-              weights: weightMap[prefix + "/kernel"],
-              bias: weightMap[prefix + "/bias"]
+      return { path: path, tensor: tensor };
+  }
+
+  var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
+  function extractorsFactory$2(weightMap, paramMappings) {
+      function extractConvParams(prefix, mappedPrefix) {
+          var filtersEntry = extractWeightEntry(weightMap, prefix + "/kernel", 4);
+          var biasEntry = extractWeightEntry(weightMap, prefix + "/bias", 1);
+          paramMappings.push({ originalPath: filtersEntry.path, paramPath: mappedPrefix + "/filters" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
+          return {
+              filters: filtersEntry.tensor,
+              bias: biasEntry.tensor
           };
-          if (!isTensor2D(params.weights)) {
-              throw new Error("expected weightMap[" + prefix + "/kernel] to be a Tensor2D, instead have " + params.weights);
-          }
-          if (!isTensor1D(params.bias)) {
-              throw new Error("expected weightMap[" + prefix + "/bias] to be a Tensor1D, instead have " + params.bias);
-          }
-          return params;
+      }
+      function extractFcParams(prefix, mappedPrefix) {
+          var weightsEntry = extractWeightEntry(weightMap, prefix + "/kernel", 2);
+          var biasEntry = extractWeightEntry(weightMap, prefix + "/bias", 1);
+          paramMappings.push({ originalPath: weightsEntry.path, paramPath: mappedPrefix + "/weights" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
+          return {
+              weights: weightsEntry.tensor,
+              bias: biasEntry.tensor
+          };
       }
       return {
           extractConvParams: extractConvParams,
@@ -1763,25 +1861,27 @@
   }
   function loadQuantizedParams$1(uri) {
       return __awaiter$1(this, void 0, void 0, function () {
-          var weightMap, _a, extractConvParams, extractFcParams;
+          var weightMap, paramMappings, _a, extractConvParams, extractFcParams, params;
           return __generator$1(this, function (_b) {
               switch (_b.label) {
                   case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$1)];
                   case 1:
                       weightMap = _b.sent();
-                      _a = extractorsFactory$2(weightMap), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
-                      return [2 /*return*/, {
-                              conv0_params: extractConvParams('conv2d_0'),
-                              conv1_params: extractConvParams('conv2d_1'),
-                              conv2_params: extractConvParams('conv2d_2'),
-                              conv3_params: extractConvParams('conv2d_3'),
-                              conv4_params: extractConvParams('conv2d_4'),
-                              conv5_params: extractConvParams('conv2d_5'),
-                              conv6_params: extractConvParams('conv2d_6'),
-                              conv7_params: extractConvParams('conv2d_7'),
-                              fc0_params: extractFcParams('dense'),
-                              fc1_params: extractFcParams('logits')
-                          }];
+                      paramMappings = [];
+                      _a = extractorsFactory$2(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
+                      params = {
+                          conv0_params: extractConvParams('conv2d_0', 'conv0_params'),
+                          conv1_params: extractConvParams('conv2d_1', 'conv1_params'),
+                          conv2_params: extractConvParams('conv2d_2', 'conv2_params'),
+                          conv3_params: extractConvParams('conv2d_3', 'conv3_params'),
+                          conv4_params: extractConvParams('conv2d_4', 'conv4_params'),
+                          conv5_params: extractConvParams('conv2d_5', 'conv5_params'),
+                          conv6_params: extractConvParams('conv2d_6', 'conv6_params'),
+                          conv7_params: extractConvParams('conv2d_7', 'conv7_params'),
+                          fc0_params: extractFcParams('dense', 'fc0_params'),
+                          fc1_params: extractFcParams('logits', 'fc1_params')
+                      };
+                      return [2 /*return*/, { params: params, paramMappings: paramMappings }];
               }
           });
       });
@@ -1794,12 +1894,14 @@
       if (strides === void 0) { strides = [2, 2]; }
       return maxPool(x, [2, 2], strides, 'valid');
   }
-  var FaceLandmarkNet = /** @class */ (function () {
+  var FaceLandmarkNet = /** @class */ (function (_super) {
+      __extends$1(FaceLandmarkNet, _super);
       function FaceLandmarkNet() {
+          return _super !== null && _super.apply(this, arguments) || this;
       }
       FaceLandmarkNet.prototype.load = function (weightsOrUrl) {
           return __awaiter$1(this, void 0, void 0, function () {
-              var _a;
+              var _a, paramMappings, params;
               return __generator$1(this, function (_b) {
                   switch (_b.label) {
                       case 0:
@@ -1810,17 +1912,20 @@
                           if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
                               throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
                           }
-                          _a = this;
                           return [4 /*yield*/, loadQuantizedParams$1(weightsOrUrl)];
                       case 1:
-                          _a._params = _b.sent();
+                          _a = _b.sent(), paramMappings = _a.paramMappings, params = _a.params;
+                          this._paramMappings = paramMappings;
+                          this._params = params;
                           return [2 /*return*/];
                   }
               });
           });
       };
       FaceLandmarkNet.prototype.extractWeights = function (weights) {
-          this._params = extractParams$1(weights);
+          var _a = extractParams$1(weights), paramMappings = _a.paramMappings, params = _a.params;
+          this._paramMappings = paramMappings;
+          this._params = params;
       };
       FaceLandmarkNet.prototype.forwardInput = function (input) {
           var params = this._params;
@@ -1918,7 +2023,7 @@
           });
       };
       return FaceLandmarkNet;
-  }());
+  }(NeuralNetwork));
 
   function faceLandmarkNet(weights) {
       var net = new FaceLandmarkNet();

@@ -10,3 +10,7 @@ export declare type BatchReshapeInfo = {
     paddingX: number;
     paddingY: number;
 };
+export declare type ParamMapping = {
+    originalPath?: string;
+    paramPath: string;
+};
