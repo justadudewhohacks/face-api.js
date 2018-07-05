@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var convLayer_1 = require("../commons/convLayer");
+var NeuralNetwork_1 = require("../commons/NeuralNetwork");
 var Point_1 = require("../Point");
 var toNetInput_1 = require("../toNetInput");
 var utils_1 = require("../utils");
@@ -17,12 +18,14 @@ function maxPool(x, strides) {
     if (strides === void 0) { strides = [2, 2]; }
     return tf.maxPool(x, [2, 2], strides, 'valid');
 }
-var FaceLandmarkNet = /** @class */ (function () {
+var FaceLandmarkNet = /** @class */ (function (_super) {
+    tslib_1.__extends(FaceLandmarkNet, _super);
     function FaceLandmarkNet() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     FaceLandmarkNet.prototype.load = function (weightsOrUrl) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _a;
+            var _a, paramMappings, params;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -33,17 +36,20 @@ var FaceLandmarkNet = /** @class */ (function () {
                         if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
                             throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
                         }
-                        _a = this;
                         return [4 /*yield*/, loadQuantizedParams_1.loadQuantizedParams(weightsOrUrl)];
                     case 1:
-                        _a._params = _b.sent();
+                        _a = _b.sent(), paramMappings = _a.paramMappings, params = _a.params;
+                        this._paramMappings = paramMappings;
+                        this._params = params;
                         return [2 /*return*/];
                 }
             });
         });
     };
     FaceLandmarkNet.prototype.extractWeights = function (weights) {
-        this._params = extractParams_1.extractParams(weights);
+        var _a = extractParams_1.extractParams(weights), paramMappings = _a.paramMappings, params = _a.params;
+        this._paramMappings = paramMappings;
+        this._params = params;
     };
     FaceLandmarkNet.prototype.forwardInput = function (input) {
         var params = this._params;
@@ -141,6 +147,6 @@ var FaceLandmarkNet = /** @class */ (function () {
         });
     };
     return FaceLandmarkNet;
-}());
+}(NeuralNetwork_1.NeuralNetwork));
 exports.FaceLandmarkNet = FaceLandmarkNet;
 //# sourceMappingURL=FaceLandmarkNet.js.map
