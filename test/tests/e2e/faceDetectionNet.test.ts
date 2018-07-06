@@ -1,7 +1,7 @@
 import * as faceapi from '../../../src';
 import { FaceDetection } from '../../../src/faceDetectionNet/FaceDetection';
 import { IRect } from '../../../src/Rect';
-import { expectAllTensorsReleased, expectMaxDelta } from '../../utils';
+import { describeWithNets, expectAllTensorsReleased, expectMaxDelta } from '../../utils';
 
 function expectRectClose(
   result: IRect,
@@ -33,18 +33,10 @@ describe('faceDetectionNet', () => {
     imgEl = await faceapi.bufferToImage(img)
   })
 
-  describe('uncompressed weights', () => {
-
-    let faceDetectionNet: faceapi.FaceDetectionNet
+  describeWithNets('uncompressed weights', { withFaceDetectionNet: { quantized: false } }, ({ faceDetectionNet }) => {
 
     const expectedScores = [0.98, 0.89, 0.82, 0.75, 0.58, 0.55]
     const maxBoxDelta = 1
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_detection_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceDetectionNet = faceapi.faceDetectionNet(weights)
-    })
 
     it('scores > 0.8', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
@@ -72,17 +64,10 @@ describe('faceDetectionNet', () => {
 
   })
 
-  describe('quantized weights', () => {
-
-    let faceDetectionNet: faceapi.FaceDetectionNet
+  describeWithNets('quantized weights', { withFaceDetectionNet: { quantized: true } }, ({ faceDetectionNet }) => {
 
     const expectedScores = [0.97, 0.88, 0.83, 0.82, 0.59, 0.52]
     const maxBoxDelta = 5
-
-    beforeAll(async () => {
-      faceDetectionNet = new faceapi.FaceDetectionNet()
-      await faceDetectionNet.load('base/weights')
-    })
 
     it('scores > 0.8', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]

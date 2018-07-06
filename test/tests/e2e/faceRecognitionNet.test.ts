@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import * as faceapi from '../../../src';
 import { NetInput } from '../../../src/NetInput';
-import { expectAllTensorsReleased } from '../../utils';
+import { expectAllTensorsReleased, describeWithNets } from '../../utils';
 import { toNetInput } from '../../../src';
 
 describe('faceRecognitionNet', () => {
@@ -26,15 +26,7 @@ describe('faceRecognitionNet', () => {
     faceDescriptorRect = await (await fetch('base/test/data/faceDescriptorRect.json')).json()
   })
 
-  describe('uncompressed weights', () => {
-
-    let faceRecognitionNet: faceapi.FaceRecognitionNet
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceRecognitionNet = faceapi.faceRecognitionNet(weights)
-    })
+  describeWithNets('uncompressed weights', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptor for squared input', async () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgEl1) as Float32Array
@@ -52,14 +44,7 @@ describe('faceRecognitionNet', () => {
 
   // TODO: figure out why descriptors return NaN in the test cases
   /*
-  describe('quantized weights', () => {
-
-    let faceRecognitionNet: faceapi.FaceRecognitionNet
-
-    beforeAll(async () => {
-      faceRecognitionNet = new faceapi.FaceRecognitionNet()
-      await faceRecognitionNet.load('base/weights')
-    })
+  describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptor for squared input', async () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgEl1) as Float32Array
@@ -76,15 +61,7 @@ describe('faceRecognitionNet', () => {
   })
   */
 
-  describe('batch inputs', () => {
-
-    let faceRecognitionNet: faceapi.FaceRecognitionNet
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceRecognitionNet = faceapi.faceRecognitionNet(weights)
-    })
+  describeWithNets('batch inputs', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptors for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]
@@ -156,19 +133,7 @@ describe('faceRecognitionNet', () => {
 
   })
 
-  describe('no memory leaks', () => {
-
-    let faceRecognitionNet: faceapi.FaceRecognitionNet
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceRecognitionNet = faceapi.faceRecognitionNet(weights)
-    })
-
-    afterAll(async () => {
-      faceRecognitionNet.dispose()
-    })
+  describeWithNets('no memory leaks', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
 
     describe('NeuralNetwork, uncompressed model', () => {
 
