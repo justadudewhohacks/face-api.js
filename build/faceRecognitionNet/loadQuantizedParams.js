@@ -1,38 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
+var disposeUnusedWeightTensors_1 = require("../commons/disposeUnusedWeightTensors");
+var extractWeightEntryFactory_1 = require("../commons/extractWeightEntryFactory");
 var isTensor_1 = require("../commons/isTensor");
 var loadWeightMap_1 = require("../commons/loadWeightMap");
 var DEFAULT_MODEL_NAME = 'face_recognition_model';
-function extractorsFactory(weightMap) {
+function extractorsFactory(weightMap, paramMappings) {
+    var extractWeightEntry = extractWeightEntryFactory_1.extractWeightEntryFactory(weightMap, paramMappings);
     function extractScaleLayerParams(prefix) {
-        var params = {
-            weights: weightMap[prefix + "/scale/weights"],
-            biases: weightMap[prefix + "/scale/biases"]
-        };
-        if (!isTensor_1.isTensor1D(params.weights)) {
-            throw new Error("expected weightMap[" + prefix + "/scale/weights] to be a Tensor1D, instead have " + params.weights);
-        }
-        if (!isTensor_1.isTensor1D(params.biases)) {
-            throw new Error("expected weightMap[" + prefix + "/scale/biases] to be a Tensor1D, instead have " + params.biases);
-        }
-        return params;
+        var weights = extractWeightEntry(prefix + "/scale/weights", 1);
+        var biases = extractWeightEntry(prefix + "/scale/biases", 1);
+        return { weights: weights, biases: biases };
     }
     function extractConvLayerParams(prefix) {
-        var params = {
-            filters: weightMap[prefix + "/conv/filters"],
-            bias: weightMap[prefix + "/conv/bias"]
-        };
-        if (!isTensor_1.isTensor4D(params.filters)) {
-            throw new Error("expected weightMap[" + prefix + "/conv/filters] to be a Tensor1D, instead have " + params.filters);
-        }
-        if (!isTensor_1.isTensor1D(params.bias)) {
-            throw new Error("expected weightMap[" + prefix + "/conv/bias] to be a Tensor1D, instead have " + params.bias);
-        }
-        return {
-            conv: params,
-            scale: extractScaleLayerParams(prefix)
-        };
+        var filters = extractWeightEntry(prefix + "/conv/filters", 4);
+        var bias = extractWeightEntry(prefix + "/conv/bias", 1);
+        var scale = extractScaleLayerParams(prefix);
+        return { conv: { filters: filters, bias: bias }, scale: scale };
     }
     function extractResidualLayerParams(prefix) {
         return {
@@ -47,13 +32,14 @@ function extractorsFactory(weightMap) {
 }
 function loadQuantizedParams(uri) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var weightMap, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc;
+        var weightMap, paramMappings, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc, params;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, loadWeightMap_1.loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                 case 1:
                     weightMap = _b.sent();
-                    _a = extractorsFactory(weightMap), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
+                    paramMappings = [];
+                    _a = extractorsFactory(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
                     conv32_down = extractConvLayerParams('conv32_down');
                     conv32_1 = extractResidualLayerParams('conv32_1');
                     conv32_2 = extractResidualLayerParams('conv32_2');
@@ -70,27 +56,30 @@ function loadQuantizedParams(uri) {
                     conv256_2 = extractResidualLayerParams('conv256_2');
                     conv256_down_out = extractResidualLayerParams('conv256_down_out');
                     fc = weightMap['fc'];
+                    paramMappings.push({ originalPath: 'fc', paramPath: 'fc' });
                     if (!isTensor_1.isTensor2D(fc)) {
                         throw new Error("expected weightMap[fc] to be a Tensor2D, instead have " + fc);
                     }
-                    return [2 /*return*/, {
-                            conv32_down: conv32_down,
-                            conv32_1: conv32_1,
-                            conv32_2: conv32_2,
-                            conv32_3: conv32_3,
-                            conv64_down: conv64_down,
-                            conv64_1: conv64_1,
-                            conv64_2: conv64_2,
-                            conv64_3: conv64_3,
-                            conv128_down: conv128_down,
-                            conv128_1: conv128_1,
-                            conv128_2: conv128_2,
-                            conv256_down: conv256_down,
-                            conv256_1: conv256_1,
-                            conv256_2: conv256_2,
-                            conv256_down_out: conv256_down_out,
-                            fc: fc
-                        }];
+                    params = {
+                        conv32_down: conv32_down,
+                        conv32_1: conv32_1,
+                        conv32_2: conv32_2,
+                        conv32_3: conv32_3,
+                        conv64_down: conv64_down,
+                        conv64_1: conv64_1,
+                        conv64_2: conv64_2,
+                        conv64_3: conv64_3,
+                        conv128_down: conv128_down,
+                        conv128_1: conv128_1,
+                        conv128_2: conv128_2,
+                        conv256_down: conv256_down,
+                        conv256_1: conv256_1,
+                        conv256_2: conv256_2,
+                        conv256_down_out: conv256_down_out,
+                        fc: fc
+                    };
+                    disposeUnusedWeightTensors_1.disposeUnusedWeightTensors(weightMap, paramMappings);
+                    return [2 /*return*/, { params: params, paramMappings: paramMappings }];
             }
         });
     });

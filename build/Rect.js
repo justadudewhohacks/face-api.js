@@ -20,6 +20,10 @@ var Rect = /** @class */ (function () {
         }
         return new Rect(x, y, width, height);
     };
+    Rect.prototype.pad = function (padX, padY) {
+        var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+        return new Rect(x - (padX / 2), y - (padY / 2), width + padX, height + padY);
+    };
     Rect.prototype.floor = function () {
         return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
     };
