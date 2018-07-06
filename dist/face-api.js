@@ -271,9 +271,6 @@
   function isTensor(tensor$$1, dim) {
       return tensor$$1 instanceof Tensor && tensor$$1.shape.length === dim;
   }
-  function isTensor1D(tensor$$1) {
-      return isTensor(tensor$$1, 1);
-  }
   function isTensor2D(tensor$$1) {
       return isTensor(tensor$$1, 2);
   }
@@ -663,6 +660,10 @@
           }
           return new Rect(x, y, width, height);
       };
+      Rect.prototype.pad = function (padX, padY) {
+          var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+          return new Rect(x - (padX / 2), y - (padY / 2), width + padX, height + padY);
+      };
       Rect.prototype.floor = function () {
           return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
       };
@@ -955,6 +956,128 @@
       });
   }
 
+  var NeuralNetwork = /** @class */ (function () {
+      function NeuralNetwork(_name) {
+          this._name = _name;
+          this._params = undefined;
+          this._paramMappings = [];
+      }
+      Object.defineProperty(NeuralNetwork.prototype, "params", {
+          get: function () {
+              return this._params;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(NeuralNetwork.prototype, "paramMappings", {
+          get: function () {
+              return this._paramMappings;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      NeuralNetwork.prototype.getParamFromPath = function (paramPath) {
+          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
+          return obj[objProp];
+      };
+      NeuralNetwork.prototype.reassignParamFromPath = function (paramPath, tensor$$1) {
+          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
+          obj[objProp].dispose();
+          obj[objProp] = tensor$$1;
+      };
+      NeuralNetwork.prototype.getParamList = function () {
+          var _this = this;
+          return this._paramMappings.map(function (_a) {
+              var paramPath = _a.paramPath;
+              return ({
+                  path: paramPath,
+                  tensor: _this.getParamFromPath(paramPath)
+              });
+          });
+      };
+      NeuralNetwork.prototype.getTrainableParams = function () {
+          return this.getParamList().filter(function (param) { return param.tensor instanceof Variable; });
+      };
+      NeuralNetwork.prototype.getFrozenParams = function () {
+          return this.getParamList().filter(function (param) { return !(param.tensor instanceof Variable); });
+      };
+      NeuralNetwork.prototype.variable = function () {
+          var _this = this;
+          this.getFrozenParams().forEach(function (_a) {
+              var path = _a.path, tensor$$1 = _a.tensor;
+              _this.reassignParamFromPath(path, variable(tensor$$1));
+          });
+      };
+      NeuralNetwork.prototype.freeze = function () {
+          var _this = this;
+          this.getTrainableParams().forEach(function (_a) {
+              var path = _a.path, tensor$$1 = _a.tensor;
+              _this.reassignParamFromPath(path, tensor(tensor$$1));
+          });
+      };
+      NeuralNetwork.prototype.dispose = function (throwOnRedispose) {
+          if (throwOnRedispose === void 0) { throwOnRedispose = true; }
+          this.getParamList().forEach(function (param) {
+              if (throwOnRedispose && param.tensor.isDisposed) {
+                  throw new Error("param tensor has already been disposed for path " + param.path);
+              }
+              param.tensor.dispose();
+          });
+          this._params = undefined;
+      };
+      NeuralNetwork.prototype.load = function (weightsOrUrl) {
+          return __awaiter$1(this, void 0, void 0, function () {
+              var _a, paramMappings, params;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
+                      case 0:
+                          if (weightsOrUrl instanceof Float32Array) {
+                              this.extractWeights(weightsOrUrl);
+                              return [2 /*return*/];
+                          }
+                          if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
+                              throw new Error(this._name + ".load - expected model uri, or weights as Float32Array");
+                          }
+                          return [4 /*yield*/, this.loadQuantizedParams(weightsOrUrl)];
+                      case 1:
+                          _a = _b.sent(), paramMappings = _a.paramMappings, params = _a.params;
+                          this._paramMappings = paramMappings;
+                          this._params = params;
+                          return [2 /*return*/];
+                  }
+              });
+          });
+      };
+      NeuralNetwork.prototype.extractWeights = function (weights) {
+          var _a = this.extractParams(weights), paramMappings = _a.paramMappings, params = _a.params;
+          this._paramMappings = paramMappings;
+          this._params = params;
+      };
+      NeuralNetwork.prototype.traversePropertyPath = function (paramPath) {
+          if (!this.params) {
+              throw new Error("traversePropertyPath - model has no loaded params");
+          }
+          var result = paramPath.split('/').reduce(function (res, objProp) {
+              if (!res.nextObj.hasOwnProperty(objProp)) {
+                  throw new Error("traversePropertyPath - object does not have property " + objProp + ", for path " + paramPath);
+              }
+              return { obj: res.nextObj, objProp: objProp, nextObj: res.nextObj[objProp] };
+          }, { nextObj: this.params });
+          var obj = result.obj, objProp = result.objProp;
+          if (!obj || !objProp || !(obj[objProp] instanceof Tensor)) {
+              throw new Error("traversePropertyPath - parameter is not a tensor, for path " + paramPath);
+          }
+          return { obj: obj, objProp: objProp };
+      };
+      NeuralNetwork.prototype.loadQuantizedParams = function (_) {
+          throw new Error(this._name + ".loadQuantizedParams - not implemented");
+      };
+      NeuralNetwork.prototype.extractParams = function (_) {
+          throw new Error(this._name + ".extractParams - not implemented");
+      };
+      return NeuralNetwork;
+  }());
+
   function extractWeightsFactory(weights) {
       var remainingWeights = weights;
       function extractWeights(numWeights) {
@@ -971,13 +1094,14 @@
       };
   }
 
-  function extractorsFactory(extractWeights) {
-      function extractDepthwiseConvParams(numChannels) {
+  function extractorsFactory(extractWeights, paramMappings) {
+      function extractDepthwiseConvParams(numChannels, mappedPrefix) {
           var filters = tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
           var batch_norm_scale = tensor1d(extractWeights(numChannels));
           var batch_norm_offset = tensor1d(extractWeights(numChannels));
           var batch_norm_mean = tensor1d(extractWeights(numChannels));
           var batch_norm_variance = tensor1d(extractWeights(numChannels));
+          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/batch_norm_scale" }, { paramPath: mappedPrefix + "/batch_norm_offset" }, { paramPath: mappedPrefix + "/batch_norm_mean" }, { paramPath: mappedPrefix + "/batch_norm_variance" });
           return {
               filters: filters,
               batch_norm_scale: batch_norm_scale,
@@ -986,115 +1110,116 @@
               batch_norm_variance: batch_norm_variance
           };
       }
-      function extractConvParams(channelsIn, channelsOut, filterSize) {
+      function extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, isPointwiseConv) {
           var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
           var bias = tensor1d(extractWeights(channelsOut));
-          return {
-              filters: filters,
-              bias: bias
-          };
+          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/" + (isPointwiseConv ? 'batch_norm_offset' : 'bias') });
+          return { filters: filters, bias: bias };
       }
-      function extractPointwiseConvParams(channelsIn, channelsOut, filterSize) {
-          var _a = extractConvParams(channelsIn, channelsOut, filterSize), filters = _a.filters, bias = _a.bias;
+      function extractPointwiseConvParams(channelsIn, channelsOut, filterSize, mappedPrefix) {
+          var _a = extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, true), filters = _a.filters, bias = _a.bias;
           return {
               filters: filters,
               batch_norm_offset: bias
           };
       }
-      function extractConvPairParams(channelsIn, channelsOut) {
-          var depthwise_conv_params = extractDepthwiseConvParams(channelsIn);
-          var pointwise_conv_params = extractPointwiseConvParams(channelsIn, channelsOut, 1);
-          return {
-              depthwise_conv_params: depthwise_conv_params,
-              pointwise_conv_params: pointwise_conv_params
-          };
+      function extractConvPairParams(channelsIn, channelsOut, mappedPrefix) {
+          var depthwise_conv = extractDepthwiseConvParams(channelsIn, mappedPrefix + "/depthwise_conv");
+          var pointwise_conv = extractPointwiseConvParams(channelsIn, channelsOut, 1, mappedPrefix + "/pointwise_conv");
+          return { depthwise_conv: depthwise_conv, pointwise_conv: pointwise_conv };
       }
       function extractMobilenetV1Params() {
-          var conv_0_params = extractPointwiseConvParams(3, 32, 3);
-          var channelNumPairs = [
-              [32, 64],
-              [64, 128],
-              [128, 128],
-              [128, 256],
-              [256, 256],
-              [256, 512],
-              [512, 512],
-              [512, 512],
-              [512, 512],
-              [512, 512],
-              [512, 512],
-              [512, 1024],
-              [1024, 1024]
-          ];
-          var conv_pair_params = channelNumPairs.map(function (_a) {
-              var channelsIn = _a[0], channelsOut = _a[1];
-              return extractConvPairParams(channelsIn, channelsOut);
-          });
+          var conv_0 = extractPointwiseConvParams(3, 32, 3, 'mobilenetv1/conv_0');
+          var conv_1 = extractConvPairParams(32, 64, 'mobilenetv1/conv_1');
+          var conv_2 = extractConvPairParams(64, 128, 'mobilenetv1/conv_2');
+          var conv_3 = extractConvPairParams(128, 128, 'mobilenetv1/conv_3');
+          var conv_4 = extractConvPairParams(128, 256, 'mobilenetv1/conv_4');
+          var conv_5 = extractConvPairParams(256, 256, 'mobilenetv1/conv_5');
+          var conv_6 = extractConvPairParams(256, 512, 'mobilenetv1/conv_6');
+          var conv_7 = extractConvPairParams(512, 512, 'mobilenetv1/conv_7');
+          var conv_8 = extractConvPairParams(512, 512, 'mobilenetv1/conv_8');
+          var conv_9 = extractConvPairParams(512, 512, 'mobilenetv1/conv_9');
+          var conv_10 = extractConvPairParams(512, 512, 'mobilenetv1/conv_10');
+          var conv_11 = extractConvPairParams(512, 512, 'mobilenetv1/conv_11');
+          var conv_12 = extractConvPairParams(512, 1024, 'mobilenetv1/conv_12');
+          var conv_13 = extractConvPairParams(1024, 1024, 'mobilenetv1/conv_13');
           return {
-              conv_0_params: conv_0_params,
-              conv_pair_params: conv_pair_params
+              conv_0: conv_0,
+              conv_1: conv_1,
+              conv_2: conv_2,
+              conv_3: conv_3,
+              conv_4: conv_4,
+              conv_5: conv_5,
+              conv_6: conv_6,
+              conv_7: conv_7,
+              conv_8: conv_8,
+              conv_9: conv_9,
+              conv_10: conv_10,
+              conv_11: conv_11,
+              conv_12: conv_12,
+              conv_13: conv_13
           };
       }
       function extractPredictionLayerParams() {
-          var conv_0_params = extractPointwiseConvParams(1024, 256, 1);
-          var conv_1_params = extractPointwiseConvParams(256, 512, 3);
-          var conv_2_params = extractPointwiseConvParams(512, 128, 1);
-          var conv_3_params = extractPointwiseConvParams(128, 256, 3);
-          var conv_4_params = extractPointwiseConvParams(256, 128, 1);
-          var conv_5_params = extractPointwiseConvParams(128, 256, 3);
-          var conv_6_params = extractPointwiseConvParams(256, 64, 1);
-          var conv_7_params = extractPointwiseConvParams(64, 128, 3);
-          var box_encoding_0_predictor_params = extractConvParams(512, 12, 1);
-          var class_predictor_0_params = extractConvParams(512, 9, 1);
-          var box_encoding_1_predictor_params = extractConvParams(1024, 24, 1);
-          var class_predictor_1_params = extractConvParams(1024, 18, 1);
-          var box_encoding_2_predictor_params = extractConvParams(512, 24, 1);
-          var class_predictor_2_params = extractConvParams(512, 18, 1);
-          var box_encoding_3_predictor_params = extractConvParams(256, 24, 1);
-          var class_predictor_3_params = extractConvParams(256, 18, 1);
-          var box_encoding_4_predictor_params = extractConvParams(256, 24, 1);
-          var class_predictor_4_params = extractConvParams(256, 18, 1);
-          var box_encoding_5_predictor_params = extractConvParams(128, 24, 1);
-          var class_predictor_5_params = extractConvParams(128, 18, 1);
-          var box_predictor_0_params = {
-              box_encoding_predictor_params: box_encoding_0_predictor_params,
-              class_predictor_params: class_predictor_0_params
+          var conv_0 = extractPointwiseConvParams(1024, 256, 1, 'prediction_layer/conv_0');
+          var conv_1 = extractPointwiseConvParams(256, 512, 3, 'prediction_layer/conv_1');
+          var conv_2 = extractPointwiseConvParams(512, 128, 1, 'prediction_layer/conv_2');
+          var conv_3 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_3');
+          var conv_4 = extractPointwiseConvParams(256, 128, 1, 'prediction_layer/conv_4');
+          var conv_5 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_5');
+          var conv_6 = extractPointwiseConvParams(256, 64, 1, 'prediction_layer/conv_6');
+          var conv_7 = extractPointwiseConvParams(64, 128, 3, 'prediction_layer/conv_7');
+          var box_encoding_0_predictor = extractConvParams(512, 12, 1, 'prediction_layer/box_predictor_0/box_encoding_predictor');
+          var class_predictor_0 = extractConvParams(512, 9, 1, 'prediction_layer/box_predictor_0/class_predictor');
+          var box_encoding_1_predictor = extractConvParams(1024, 24, 1, 'prediction_layer/box_predictor_1/box_encoding_predictor');
+          var class_predictor_1 = extractConvParams(1024, 18, 1, 'prediction_layer/box_predictor_1/class_predictor');
+          var box_encoding_2_predictor = extractConvParams(512, 24, 1, 'prediction_layer/box_predictor_2/box_encoding_predictor');
+          var class_predictor_2 = extractConvParams(512, 18, 1, 'prediction_layer/box_predictor_2/class_predictor');
+          var box_encoding_3_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_3/box_encoding_predictor');
+          var class_predictor_3 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_3/class_predictor');
+          var box_encoding_4_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_4/box_encoding_predictor');
+          var class_predictor_4 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_4/class_predictor');
+          var box_encoding_5_predictor = extractConvParams(128, 24, 1, 'prediction_layer/box_predictor_5/box_encoding_predictor');
+          var class_predictor_5 = extractConvParams(128, 18, 1, 'prediction_layer/box_predictor_5/class_predictor');
+          var box_predictor_0 = {
+              box_encoding_predictor: box_encoding_0_predictor,
+              class_predictor: class_predictor_0
           };
-          var box_predictor_1_params = {
-              box_encoding_predictor_params: box_encoding_1_predictor_params,
-              class_predictor_params: class_predictor_1_params
+          var box_predictor_1 = {
+              box_encoding_predictor: box_encoding_1_predictor,
+              class_predictor: class_predictor_1
           };
-          var box_predictor_2_params = {
-              box_encoding_predictor_params: box_encoding_2_predictor_params,
-              class_predictor_params: class_predictor_2_params
+          var box_predictor_2 = {
+              box_encoding_predictor: box_encoding_2_predictor,
+              class_predictor: class_predictor_2
           };
-          var box_predictor_3_params = {
-              box_encoding_predictor_params: box_encoding_3_predictor_params,
-              class_predictor_params: class_predictor_3_params
+          var box_predictor_3 = {
+              box_encoding_predictor: box_encoding_3_predictor,
+              class_predictor: class_predictor_3
           };
-          var box_predictor_4_params = {
-              box_encoding_predictor_params: box_encoding_4_predictor_params,
-              class_predictor_params: class_predictor_4_params
+          var box_predictor_4 = {
+              box_encoding_predictor: box_encoding_4_predictor,
+              class_predictor: class_predictor_4
           };
-          var box_predictor_5_params = {
-              box_encoding_predictor_params: box_encoding_5_predictor_params,
-              class_predictor_params: class_predictor_5_params
+          var box_predictor_5 = {
+              box_encoding_predictor: box_encoding_5_predictor,
+              class_predictor: class_predictor_5
           };
           return {
-              conv_0_params: conv_0_params,
-              conv_1_params: conv_1_params,
-              conv_2_params: conv_2_params,
-              conv_3_params: conv_3_params,
-              conv_4_params: conv_4_params,
-              conv_5_params: conv_5_params,
-              conv_6_params: conv_6_params,
-              conv_7_params: conv_7_params,
-              box_predictor_0_params: box_predictor_0_params,
-              box_predictor_1_params: box_predictor_1_params,
-              box_predictor_2_params: box_predictor_2_params,
-              box_predictor_3_params: box_predictor_3_params,
-              box_predictor_4_params: box_predictor_4_params,
-              box_predictor_5_params: box_predictor_5_params
+              conv_0: conv_0,
+              conv_1: conv_1,
+              conv_2: conv_2,
+              conv_3: conv_3,
+              conv_4: conv_4,
+              conv_5: conv_5,
+              conv_6: conv_6,
+              conv_7: conv_7,
+              box_predictor_0: box_predictor_0,
+              box_predictor_1: box_predictor_1,
+              box_predictor_2: box_predictor_2,
+              box_predictor_3: box_predictor_3,
+              box_predictor_4: box_predictor_4,
+              box_predictor_5: box_predictor_5
           };
       }
       return {
@@ -1103,21 +1228,45 @@
       };
   }
   function extractParams(weights) {
+      var paramMappings = [];
       var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-      var _b = extractorsFactory(extractWeights), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
-      var mobilenetv1_params = extractMobilenetV1Params();
-      var prediction_layer_params = extractPredictionLayerParams();
+      var _b = extractorsFactory(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
+      var mobilenetv1 = extractMobilenetV1Params();
+      var prediction_layer = extractPredictionLayerParams();
       var extra_dim = tensor3d(extractWeights(5118 * 4), [1, 5118, 4]);
-      var output_layer_params = {
+      var output_layer = {
           extra_dim: extra_dim
       };
+      paramMappings.push({ paramPath: 'output_layer/extra_dim' });
       if (getRemainingWeights().length !== 0) {
           throw new Error("weights remaing after extract: " + getRemainingWeights().length);
       }
       return {
-          mobilenetv1_params: mobilenetv1_params,
-          prediction_layer_params: prediction_layer_params,
-          output_layer_params: output_layer_params
+          params: {
+              mobilenetv1: mobilenetv1,
+              prediction_layer: prediction_layer,
+              output_layer: output_layer
+          },
+          paramMappings: paramMappings
+      };
+  }
+
+  function disposeUnusedWeightTensors(weightMap, paramMappings) {
+      Object.keys(weightMap).forEach(function (path) {
+          if (!paramMappings.some(function (pm) { return pm.originalPath === path; })) {
+              weightMap[path].dispose();
+          }
+      });
+  }
+
+  function extractWeightEntryFactory(weightMap, paramMappings) {
+      return function (originalPath, paramRank, mappedPath) {
+          var tensor = weightMap[originalPath];
+          if (!isTensor(tensor, paramRank)) {
+              throw new Error("expected weightMap[" + originalPath + "] to be a Tensor" + paramRank + "D, instead have " + tensor);
+          }
+          paramMappings.push({ originalPath: originalPath, paramPath: mappedPath || originalPath });
+          return tensor;
       };
   }
 
@@ -1152,95 +1301,78 @@
   }
 
   var DEFAULT_MODEL_NAME = 'face_detection_model';
-  function extractorsFactory$1(weightMap) {
-      function extractPointwiseConvParams(prefix, idx) {
-          var pointwise_conv_params = {
-              filters: weightMap[prefix + "/Conv2d_" + idx + "_pointwise/weights"],
-              batch_norm_offset: weightMap[prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset"]
-          };
-          if (!isTensor4D(pointwise_conv_params.filters)) {
-              throw new Error("expected weightMap[" + prefix + "/Conv2d_" + idx + "_pointwise/weights] to be a Tensor4D, instead have " + pointwise_conv_params.filters);
-          }
-          if (!isTensor1D(pointwise_conv_params.batch_norm_offset)) {
-              throw new Error("expected weightMap[" + prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset] to be a Tensor1D, instead have " + pointwise_conv_params.batch_norm_offset);
-          }
-          return pointwise_conv_params;
+  function extractorsFactory$1(weightMap, paramMappings) {
+      var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+      function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
+          var filters = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/weights", 4, mappedPrefix + "/filters");
+          var batch_norm_offset = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset", 1, mappedPrefix + "/batch_norm_offset");
+          return { filters: filters, batch_norm_offset: batch_norm_offset };
       }
       function extractConvPairParams(idx) {
-          var depthwise_conv_params = {
-              filters: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/depthwise_weights"],
-              batch_norm_scale: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/gamma"],
-              batch_norm_offset: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/beta"],
-              batch_norm_mean: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_mean"],
-              batch_norm_variance: weightMap["MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_variance"],
-          };
-          if (!isTensor4D(depthwise_conv_params.filters)) {
-              throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/depthwise_weights] to be a Tensor4D, instead have " + depthwise_conv_params.filters);
-          }
-          if (!isTensor1D(depthwise_conv_params.batch_norm_scale)) {
-              throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/gamma] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_scale);
-          }
-          if (!isTensor1D(depthwise_conv_params.batch_norm_offset)) {
-              throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/beta] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_offset);
-          }
-          if (!isTensor1D(depthwise_conv_params.batch_norm_mean)) {
-              throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_mean] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_mean);
-          }
-          if (!isTensor1D(depthwise_conv_params.batch_norm_variance)) {
-              throw new Error("expected weightMap[MobilenetV1/Conv2d_" + idx + "_depthwise/BatchNorm/moving_variance] to be a Tensor1D, instead have " + depthwise_conv_params.batch_norm_variance);
-          }
+          var mappedPrefix = "mobilenetv1/conv_" + idx;
+          var prefixDepthwiseConv = "MobilenetV1/Conv2d_" + idx + "_depthwise";
+          var mappedPrefixDepthwiseConv = mappedPrefix + "/depthwise_conv";
+          var mappedPrefixPointwiseConv = mappedPrefix + "/pointwise_conv";
+          var filters = extractWeightEntry(prefixDepthwiseConv + "/depthwise_weights", 4, mappedPrefixDepthwiseConv + "/filters");
+          var batch_norm_scale = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/gamma", 1, mappedPrefixDepthwiseConv + "/batch_norm_scale");
+          var batch_norm_offset = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/beta", 1, mappedPrefixDepthwiseConv + "/batch_norm_offset");
+          var batch_norm_mean = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_mean", 1, mappedPrefixDepthwiseConv + "/batch_norm_mean");
+          var batch_norm_variance = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_variance", 1, mappedPrefixDepthwiseConv + "/batch_norm_variance");
           return {
-              depthwise_conv_params: depthwise_conv_params,
-              pointwise_conv_params: extractPointwiseConvParams('MobilenetV1', idx)
+              depthwise_conv: {
+                  filters: filters,
+                  batch_norm_scale: batch_norm_scale,
+                  batch_norm_offset: batch_norm_offset,
+                  batch_norm_mean: batch_norm_mean,
+                  batch_norm_variance: batch_norm_variance
+              },
+              pointwise_conv: extractPointwiseConvParams('MobilenetV1', idx, mappedPrefixPointwiseConv)
           };
       }
       function extractMobilenetV1Params() {
           return {
-              conv_0_params: extractPointwiseConvParams('MobilenetV1', 0),
-              conv_pair_params: Array(13).fill(0).map(function (_, i) { return extractConvPairParams(i + 1); })
+              conv_0: extractPointwiseConvParams('MobilenetV1', 0, 'mobilenetv1/conv_0'),
+              conv_1: extractConvPairParams(1),
+              conv_2: extractConvPairParams(2),
+              conv_3: extractConvPairParams(3),
+              conv_4: extractConvPairParams(4),
+              conv_5: extractConvPairParams(5),
+              conv_6: extractConvPairParams(6),
+              conv_7: extractConvPairParams(7),
+              conv_8: extractConvPairParams(8),
+              conv_9: extractConvPairParams(9),
+              conv_10: extractConvPairParams(10),
+              conv_11: extractConvPairParams(11),
+              conv_12: extractConvPairParams(12),
+              conv_13: extractConvPairParams(13)
           };
       }
+      function extractConvParams(prefix, mappedPrefix) {
+          var filters = extractWeightEntry(prefix + "/weights", 4, mappedPrefix + "/filters");
+          var bias = extractWeightEntry(prefix + "/biases", 1, mappedPrefix + "/bias");
+          return { filters: filters, bias: bias };
+      }
       function extractBoxPredictorParams(idx) {
-          var params = {
-              box_encoding_predictor_params: {
-                  filters: weightMap["Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/weights"],
-                  bias: weightMap["Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/biases"]
-              },
-              class_predictor_params: {
-                  filters: weightMap["Prediction/BoxPredictor_" + idx + "/ClassPredictor/weights"],
-                  bias: weightMap["Prediction/BoxPredictor_" + idx + "/ClassPredictor/biases"]
-              }
-          };
-          if (!isTensor4D(params.box_encoding_predictor_params.filters)) {
-              throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/weights] to be a Tensor4D, instead have " + params.box_encoding_predictor_params.filters);
-          }
-          if (!isTensor1D(params.box_encoding_predictor_params.bias)) {
-              throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor/biases] to be a Tensor1D, instead have " + params.box_encoding_predictor_params.bias);
-          }
-          if (!isTensor4D(params.class_predictor_params.filters)) {
-              throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/ClassPredictor/weights] to be a Tensor4D, instead have " + params.class_predictor_params.filters);
-          }
-          if (!isTensor1D(params.class_predictor_params.bias)) {
-              throw new Error("expected weightMap[Prediction/BoxPredictor_" + idx + "/ClassPredictor/biases] to be a Tensor1D, instead have " + params.class_predictor_params.bias);
-          }
-          return params;
+          var box_encoding_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor", "prediction_layer/box_predictor_" + idx + "/box_encoding_predictor");
+          var class_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/ClassPredictor", "prediction_layer/box_predictor_" + idx + "/class_predictor");
+          return { box_encoding_predictor: box_encoding_predictor, class_predictor: class_predictor };
       }
       function extractPredictionLayerParams() {
           return {
-              conv_0_params: extractPointwiseConvParams('Prediction', 0),
-              conv_1_params: extractPointwiseConvParams('Prediction', 1),
-              conv_2_params: extractPointwiseConvParams('Prediction', 2),
-              conv_3_params: extractPointwiseConvParams('Prediction', 3),
-              conv_4_params: extractPointwiseConvParams('Prediction', 4),
-              conv_5_params: extractPointwiseConvParams('Prediction', 5),
-              conv_6_params: extractPointwiseConvParams('Prediction', 6),
-              conv_7_params: extractPointwiseConvParams('Prediction', 7),
-              box_predictor_0_params: extractBoxPredictorParams(0),
-              box_predictor_1_params: extractBoxPredictorParams(1),
-              box_predictor_2_params: extractBoxPredictorParams(2),
-              box_predictor_3_params: extractBoxPredictorParams(3),
-              box_predictor_4_params: extractBoxPredictorParams(4),
-              box_predictor_5_params: extractBoxPredictorParams(5)
+              conv_0: extractPointwiseConvParams('Prediction', 0, 'prediction_layer/conv_0'),
+              conv_1: extractPointwiseConvParams('Prediction', 1, 'prediction_layer/conv_1'),
+              conv_2: extractPointwiseConvParams('Prediction', 2, 'prediction_layer/conv_2'),
+              conv_3: extractPointwiseConvParams('Prediction', 3, 'prediction_layer/conv_3'),
+              conv_4: extractPointwiseConvParams('Prediction', 4, 'prediction_layer/conv_4'),
+              conv_5: extractPointwiseConvParams('Prediction', 5, 'prediction_layer/conv_5'),
+              conv_6: extractPointwiseConvParams('Prediction', 6, 'prediction_layer/conv_6'),
+              conv_7: extractPointwiseConvParams('Prediction', 7, 'prediction_layer/conv_7'),
+              box_predictor_0: extractBoxPredictorParams(0),
+              box_predictor_1: extractBoxPredictorParams(1),
+              box_predictor_2: extractBoxPredictorParams(2),
+              box_predictor_3: extractBoxPredictorParams(3),
+              box_predictor_4: extractBoxPredictorParams(4),
+              box_predictor_5: extractBoxPredictorParams(5)
           };
       }
       return {
@@ -1250,24 +1382,28 @@
   }
   function loadQuantizedParams(uri) {
       return __awaiter$1(this, void 0, void 0, function () {
-          var weightMap, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim;
+          var weightMap, paramMappings, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim, params;
           return __generator$1(this, function (_b) {
               switch (_b.label) {
                   case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                   case 1:
                       weightMap = _b.sent();
-                      _a = extractorsFactory$1(weightMap), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
+                      paramMappings = [];
+                      _a = extractorsFactory$1(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
                       extra_dim = weightMap['Output/extra_dim'];
+                      paramMappings.push({ originalPath: 'Output/extra_dim', paramPath: 'output_layer/extra_dim' });
                       if (!isTensor3D(extra_dim)) {
                           throw new Error("expected weightMap['Output/extra_dim'] to be a Tensor3D, instead have " + extra_dim);
                       }
-                      return [2 /*return*/, {
-                              mobilenetv1_params: extractMobilenetV1Params(),
-                              prediction_layer_params: extractPredictionLayerParams(),
-                              output_layer_params: {
-                                  extra_dim: extra_dim
-                              }
-                          }];
+                      params = {
+                          mobilenetv1: extractMobilenetV1Params(),
+                          prediction_layer: extractPredictionLayerParams(),
+                          output_layer: {
+                              extra_dim: extra_dim
+                          }
+                      };
+                      disposeUnusedWeightTensors(weightMap, paramMappings);
+                      return [2 /*return*/, { params: params, paramMappings: paramMappings }];
               }
           });
       });
@@ -1295,12 +1431,27 @@
   function mobileNetV1(x, params) {
       return tidy(function () {
           var conv11 = null;
-          var out = pointwiseConvLayer(x, params.conv_0_params, [2, 2]);
-          params.conv_pair_params.forEach(function (param, i) {
+          var out = pointwiseConvLayer(x, params.conv_0, [2, 2]);
+          var convPairParams = [
+              params.conv_1,
+              params.conv_2,
+              params.conv_3,
+              params.conv_4,
+              params.conv_5,
+              params.conv_6,
+              params.conv_7,
+              params.conv_8,
+              params.conv_9,
+              params.conv_10,
+              params.conv_11,
+              params.conv_12,
+              params.conv_13
+          ];
+          convPairParams.forEach(function (param, i) {
               var layerIdx = i + 1;
               var depthwiseConvStrides = getStridesForLayerIdx(layerIdx);
-              out = depthwiseConvLayer(out, param.depthwise_conv_params, depthwiseConvStrides);
-              out = pointwiseConvLayer(out, param.pointwise_conv_params, [1, 1]);
+              out = depthwiseConvLayer(out, param.depthwise_conv, depthwiseConvStrides);
+              out = pointwiseConvLayer(out, param.pointwise_conv, [1, 1]);
               if (layerIdx === 11) {
                   conv11 = out;
               }
@@ -1426,8 +1577,8 @@
   function boxPredictionLayer(x, params) {
       return tidy(function () {
           var batchSize = x.shape[0];
-          var boxPredictionEncoding = reshape(convLayer(x, params.box_encoding_predictor_params), [batchSize, -1, 1, 4]);
-          var classPrediction = reshape(convLayer(x, params.class_predictor_params), [batchSize, -1, 3]);
+          var boxPredictionEncoding = reshape(convLayer(x, params.box_encoding_predictor), [batchSize, -1, 1, 4]);
+          var classPrediction = reshape(convLayer(x, params.class_predictor), [batchSize, -1, 3]);
           return {
               boxPredictionEncoding: boxPredictionEncoding,
               classPrediction: classPrediction
@@ -1437,20 +1588,20 @@
 
   function predictionLayer(x, conv11, params) {
       return tidy(function () {
-          var conv0 = pointwiseConvLayer(x, params.conv_0_params, [1, 1]);
-          var conv1 = pointwiseConvLayer(conv0, params.conv_1_params, [2, 2]);
-          var conv2 = pointwiseConvLayer(conv1, params.conv_2_params, [1, 1]);
-          var conv3 = pointwiseConvLayer(conv2, params.conv_3_params, [2, 2]);
-          var conv4 = pointwiseConvLayer(conv3, params.conv_4_params, [1, 1]);
-          var conv5 = pointwiseConvLayer(conv4, params.conv_5_params, [2, 2]);
-          var conv6 = pointwiseConvLayer(conv5, params.conv_6_params, [1, 1]);
-          var conv7 = pointwiseConvLayer(conv6, params.conv_7_params, [2, 2]);
-          var boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0_params);
-          var boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1_params);
-          var boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2_params);
-          var boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3_params);
-          var boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4_params);
-          var boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5_params);
+          var conv0 = pointwiseConvLayer(x, params.conv_0, [1, 1]);
+          var conv1 = pointwiseConvLayer(conv0, params.conv_1, [2, 2]);
+          var conv2 = pointwiseConvLayer(conv1, params.conv_2, [1, 1]);
+          var conv3 = pointwiseConvLayer(conv2, params.conv_3, [2, 2]);
+          var conv4 = pointwiseConvLayer(conv3, params.conv_4, [1, 1]);
+          var conv5 = pointwiseConvLayer(conv4, params.conv_5, [2, 2]);
+          var conv6 = pointwiseConvLayer(conv5, params.conv_6, [1, 1]);
+          var conv7 = pointwiseConvLayer(conv6, params.conv_7, [2, 2]);
+          var boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0);
+          var boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1);
+          var boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2);
+          var boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3);
+          var boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4);
+          var boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5);
           var boxPredictions = concat([
               boxPrediction0.boxPredictionEncoding,
               boxPrediction1.boxPredictionEncoding,
@@ -1474,45 +1625,22 @@
       });
   }
 
-  var FaceDetectionNet = /** @class */ (function () {
+  var FaceDetectionNet = /** @class */ (function (_super) {
+      __extends$1(FaceDetectionNet, _super);
       function FaceDetectionNet() {
+          return _super.call(this, 'FaceDetectionNet') || this;
       }
-      FaceDetectionNet.prototype.load = function (weightsOrUrl) {
-          return __awaiter$1(this, void 0, void 0, function () {
-              var _a;
-              return __generator$1(this, function (_b) {
-                  switch (_b.label) {
-                      case 0:
-                          if (weightsOrUrl instanceof Float32Array) {
-                              this.extractWeights(weightsOrUrl);
-                              return [2 /*return*/];
-                          }
-                          if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-                              throw new Error('FaceDetectionNet.load - expected model uri, or weights as Float32Array');
-                          }
-                          _a = this;
-                          return [4 /*yield*/, loadQuantizedParams(weightsOrUrl)];
-                      case 1:
-                          _a._params = _b.sent();
-                          return [2 /*return*/];
-                  }
-              });
-          });
-      };
-      FaceDetectionNet.prototype.extractWeights = function (weights) {
-          this._params = extractParams(weights);
-      };
       FaceDetectionNet.prototype.forwardInput = function (input) {
-          var _this = this;
-          if (!this._params) {
+          var params = this.params;
+          if (!params) {
               throw new Error('FaceDetectionNet - load model before inference');
           }
           return tidy(function () {
               var batchTensor = input.toBatchTensor(512, false);
               var x = sub(mul(batchTensor, scalar(0.007843137718737125)), scalar(1));
-              var features = mobileNetV1(x, _this._params.mobilenetv1_params);
-              var _a = predictionLayer(features.out, features.conv11, _this._params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-              return outputLayer(boxPredictions, classPredictions, _this._params.output_layer_params);
+              var features = mobileNetV1(x, params.mobilenetv1);
+              var _a = predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+              return outputLayer(boxPredictions, classPredictions, params.output_layer);
           });
       };
       FaceDetectionNet.prototype.forward = function (input) {
@@ -1575,8 +1703,14 @@
               });
           });
       };
+      FaceDetectionNet.prototype.loadQuantizedParams = function (uri) {
+          return loadQuantizedParams(uri);
+      };
+      FaceDetectionNet.prototype.extractParams = function (weights) {
+          return extractParams(weights);
+      };
       return FaceDetectionNet;
-  }());
+  }(NeuralNetwork));
 
   function faceDetectionNet(weights) {
       var net = new FaceDetectionNet();
@@ -1584,103 +1718,15 @@
       return net;
   }
 
-  var NeuralNetwork = /** @class */ (function () {
-      function NeuralNetwork() {
-          this._params = undefined;
-          this._paramMappings = [];
-      }
-      Object.defineProperty(NeuralNetwork.prototype, "params", {
-          get: function () {
-              return this._params;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(NeuralNetwork.prototype, "paramMappings", {
-          get: function () {
-              return this._paramMappings;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      NeuralNetwork.prototype.getParamFromPath = function (paramPath) {
-          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
-          return obj[objProp];
-      };
-      NeuralNetwork.prototype.reassignParamFromPath = function (paramPath, tensor$$1) {
-          var _a = this.traversePropertyPath(paramPath), obj = _a.obj, objProp = _a.objProp;
-          obj[objProp].dispose();
-          obj[objProp] = tensor$$1;
-      };
-      NeuralNetwork.prototype.getParamList = function () {
-          var _this = this;
-          return this._paramMappings.map(function (_a) {
-              var paramPath = _a.paramPath;
-              return ({
-                  path: paramPath,
-                  tensor: _this.getParamFromPath(paramPath)
-              });
-          });
-      };
-      NeuralNetwork.prototype.getTrainableParams = function () {
-          return this.getParamList().filter(function (param) { return param.tensor instanceof Variable; });
-      };
-      NeuralNetwork.prototype.getFrozenParams = function () {
-          return this.getParamList().filter(function (param) { return !(param.tensor instanceof Variable); });
-      };
-      NeuralNetwork.prototype.variable = function () {
-          var _this = this;
-          this.getFrozenParams().forEach(function (_a) {
-              var path = _a.path, tensor$$1 = _a.tensor;
-              _this.reassignParamFromPath(path, variable(tensor$$1));
-          });
-      };
-      NeuralNetwork.prototype.freeze = function () {
-          var _this = this;
-          this.getTrainableParams().forEach(function (_a) {
-              var path = _a.path, tensor$$1 = _a.tensor;
-              _this.reassignParamFromPath(path, tensor(tensor$$1));
-          });
-      };
-      NeuralNetwork.prototype.dispose = function () {
-          this.getParamList().forEach(function (param) { return param.tensor.dispose(); });
-          this._params = undefined;
-      };
-      NeuralNetwork.prototype.traversePropertyPath = function (paramPath) {
-          if (!this.params) {
-              throw new Error("traversePropertyPath - model has no loaded params");
-          }
-          var result = paramPath.split('/').reduce(function (res, objProp) {
-              if (!res.nextObj.hasOwnProperty(objProp)) {
-                  throw new Error("traversePropertyPath - object does not have property " + objProp + ", for path " + paramPath);
-              }
-              return { obj: res.nextObj, objProp: objProp, nextObj: res.nextObj[objProp] };
-          }, { nextObj: this.params });
-          var obj = result.obj, objProp = result.objProp;
-          if (!obj || !objProp || !(obj[objProp] instanceof Tensor)) {
-              throw new Error("traversePropertyPath - parameter is not a tensor, for path " + paramPath);
-          }
-          return { obj: obj, objProp: objProp };
-      };
-      return NeuralNetwork;
-  }());
-
-  function extractConvParamsFactory(extractWeights, paramMappings) {
-      return function (channelsIn, channelsOut, filterSize, mappedPrefix) {
-          var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
-          var bias = tensor1d(extractWeights(channelsOut));
-          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
-          return {
-              filters: filters,
-              bias: bias
-          };
-      };
-  }
-
   function extractParams$1(weights) {
       var paramMappings = [];
       var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-      var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+      function extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix) {
+          var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
+          var bias = tensor1d(extractWeights(channelsOut));
+          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
+          return { filters: filters, bias: bias };
+      }
       function extractFcParams(channelsIn, channelsOut, mappedPrefix) {
           var fc_weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
           var fc_bias = tensor1d(extractWeights(channelsOut));
@@ -1690,32 +1736,32 @@
               bias: fc_bias
           };
       }
-      var conv0_params = extractConvParams(3, 32, 3, 'conv0_params');
-      var conv1_params = extractConvParams(32, 64, 3, 'conv1_params');
-      var conv2_params = extractConvParams(64, 64, 3, 'conv2_params');
-      var conv3_params = extractConvParams(64, 64, 3, 'conv3_params');
-      var conv4_params = extractConvParams(64, 64, 3, 'conv4_params');
-      var conv5_params = extractConvParams(64, 128, 3, 'conv5_params');
-      var conv6_params = extractConvParams(128, 128, 3, 'conv6_params');
-      var conv7_params = extractConvParams(128, 256, 3, 'conv7_params');
-      var fc0_params = extractFcParams(6400, 1024, 'fc0_params');
-      var fc1_params = extractFcParams(1024, 136, 'fc1_params');
+      var conv0 = extractConvParams(3, 32, 3, 'conv0');
+      var conv1 = extractConvParams(32, 64, 3, 'conv1');
+      var conv2 = extractConvParams(64, 64, 3, 'conv2');
+      var conv3 = extractConvParams(64, 64, 3, 'conv3');
+      var conv4 = extractConvParams(64, 64, 3, 'conv4');
+      var conv5 = extractConvParams(64, 128, 3, 'conv5');
+      var conv6 = extractConvParams(128, 128, 3, 'conv6');
+      var conv7 = extractConvParams(128, 256, 3, 'conv7');
+      var fc0 = extractFcParams(6400, 1024, 'fc0');
+      var fc1 = extractFcParams(1024, 136, 'fc1');
       if (getRemainingWeights().length !== 0) {
           throw new Error("weights remaing after extract: " + getRemainingWeights().length);
       }
       return {
           paramMappings: paramMappings,
           params: {
-              conv0_params: conv0_params,
-              conv1_params: conv1_params,
-              conv2_params: conv2_params,
-              conv3_params: conv3_params,
-              conv4_params: conv4_params,
-              conv5_params: conv5_params,
-              conv6_params: conv6_params,
-              conv7_params: conv7_params,
-              fc0_params: fc0_params,
-              fc1_params: fc1_params
+              conv0: conv0,
+              conv1: conv1,
+              conv2: conv2,
+              conv3: conv3,
+              conv4: conv4,
+              conv5: conv5,
+              conv6: conv6,
+              conv7: conv7,
+              fc0: fc0,
+              fc1: fc1
           }
       };
   }
@@ -1826,33 +1872,18 @@
       });
   }
 
-  function extractWeightEntry(weightMap, path, paramRank) {
-      var tensor = weightMap[path];
-      if (!isTensor(tensor, paramRank)) {
-          throw new Error("expected weightMap[" + path + "] to be a Tensor" + paramRank + "D, instead have " + tensor);
-      }
-      return { path: path, tensor: tensor };
-  }
-
   var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
   function extractorsFactory$2(weightMap, paramMappings) {
+      var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
       function extractConvParams(prefix, mappedPrefix) {
-          var filtersEntry = extractWeightEntry(weightMap, prefix + "/kernel", 4);
-          var biasEntry = extractWeightEntry(weightMap, prefix + "/bias", 1);
-          paramMappings.push({ originalPath: filtersEntry.path, paramPath: mappedPrefix + "/filters" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
-          return {
-              filters: filtersEntry.tensor,
-              bias: biasEntry.tensor
-          };
+          var filters = extractWeightEntry(prefix + "/kernel", 4, mappedPrefix + "/filters");
+          var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+          return { filters: filters, bias: bias };
       }
       function extractFcParams(prefix, mappedPrefix) {
-          var weightsEntry = extractWeightEntry(weightMap, prefix + "/kernel", 2);
-          var biasEntry = extractWeightEntry(weightMap, prefix + "/bias", 1);
-          paramMappings.push({ originalPath: weightsEntry.path, paramPath: mappedPrefix + "/weights" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
-          return {
-              weights: weightsEntry.tensor,
-              bias: biasEntry.tensor
-          };
+          var weights = extractWeightEntry(prefix + "/kernel", 2, mappedPrefix + "/weights");
+          var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+          return { weights: weights, bias: bias };
       }
       return {
           extractConvParams: extractConvParams,
@@ -1870,17 +1901,18 @@
                       paramMappings = [];
                       _a = extractorsFactory$2(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
                       params = {
-                          conv0_params: extractConvParams('conv2d_0', 'conv0_params'),
-                          conv1_params: extractConvParams('conv2d_1', 'conv1_params'),
-                          conv2_params: extractConvParams('conv2d_2', 'conv2_params'),
-                          conv3_params: extractConvParams('conv2d_3', 'conv3_params'),
-                          conv4_params: extractConvParams('conv2d_4', 'conv4_params'),
-                          conv5_params: extractConvParams('conv2d_5', 'conv5_params'),
-                          conv6_params: extractConvParams('conv2d_6', 'conv6_params'),
-                          conv7_params: extractConvParams('conv2d_7', 'conv7_params'),
-                          fc0_params: extractFcParams('dense', 'fc0_params'),
-                          fc1_params: extractFcParams('logits', 'fc1_params')
+                          conv0: extractConvParams('conv2d_0', 'conv0'),
+                          conv1: extractConvParams('conv2d_1', 'conv1'),
+                          conv2: extractConvParams('conv2d_2', 'conv2'),
+                          conv3: extractConvParams('conv2d_3', 'conv3'),
+                          conv4: extractConvParams('conv2d_4', 'conv4'),
+                          conv5: extractConvParams('conv2d_5', 'conv5'),
+                          conv6: extractConvParams('conv2d_6', 'conv6'),
+                          conv7: extractConvParams('conv2d_7', 'conv7'),
+                          fc0: extractFcParams('dense', 'fc0'),
+                          fc1: extractFcParams('logits', 'fc1')
                       };
+                      disposeUnusedWeightTensors(weightMap, paramMappings);
                       return [2 /*return*/, { params: params, paramMappings: paramMappings }];
               }
           });
@@ -1897,57 +1929,29 @@
   var FaceLandmarkNet = /** @class */ (function (_super) {
       __extends$1(FaceLandmarkNet, _super);
       function FaceLandmarkNet() {
-          return _super !== null && _super.apply(this, arguments) || this;
+          return _super.call(this, 'FaceLandmarkNet') || this;
       }
-      FaceLandmarkNet.prototype.load = function (weightsOrUrl) {
-          return __awaiter$1(this, void 0, void 0, function () {
-              var _a, paramMappings, params;
-              return __generator$1(this, function (_b) {
-                  switch (_b.label) {
-                      case 0:
-                          if (weightsOrUrl instanceof Float32Array) {
-                              this.extractWeights(weightsOrUrl);
-                              return [2 /*return*/];
-                          }
-                          if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-                              throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
-                          }
-                          return [4 /*yield*/, loadQuantizedParams$1(weightsOrUrl)];
-                      case 1:
-                          _a = _b.sent(), paramMappings = _a.paramMappings, params = _a.params;
-                          this._paramMappings = paramMappings;
-                          this._params = params;
-                          return [2 /*return*/];
-                  }
-              });
-          });
-      };
-      FaceLandmarkNet.prototype.extractWeights = function (weights) {
-          var _a = extractParams$1(weights), paramMappings = _a.paramMappings, params = _a.params;
-          this._paramMappings = paramMappings;
-          this._params = params;
-      };
       FaceLandmarkNet.prototype.forwardInput = function (input) {
-          var params = this._params;
+          var params = this.params;
           if (!params) {
               throw new Error('FaceLandmarkNet - load model before inference');
           }
           return tidy(function () {
               var batchTensor = input.toBatchTensor(128, true);
-              var out = conv(batchTensor, params.conv0_params);
+              var out = conv(batchTensor, params.conv0);
               out = maxPool$1(out);
-              out = conv(out, params.conv1_params);
-              out = conv(out, params.conv2_params);
+              out = conv(out, params.conv1);
+              out = conv(out, params.conv2);
               out = maxPool$1(out);
-              out = conv(out, params.conv3_params);
-              out = conv(out, params.conv4_params);
+              out = conv(out, params.conv3);
+              out = conv(out, params.conv4);
               out = maxPool$1(out);
-              out = conv(out, params.conv5_params);
-              out = conv(out, params.conv6_params);
+              out = conv(out, params.conv5);
+              out = conv(out, params.conv6);
               out = maxPool$1(out, [1, 1]);
-              out = conv(out, params.conv7_params);
-              var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params));
-              var fc1 = fullyConnectedLayer(fc0, params.fc1_params);
+              out = conv(out, params.conv7);
+              var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
+              var fc1 = fullyConnectedLayer(fc0, params.fc1);
               var createInterleavedTensor = function (fillX, fillY) {
                   return stack([
                       fill([68], fillX),
@@ -2022,6 +2026,12 @@
               });
           });
       };
+      FaceLandmarkNet.prototype.loadQuantizedParams = function (uri) {
+          return loadQuantizedParams$1(uri);
+      };
+      FaceLandmarkNet.prototype.extractParams = function (weights) {
+          return extractParams$1(weights);
+      };
       return FaceLandmarkNet;
   }(NeuralNetwork));
 
@@ -2053,43 +2063,40 @@
       return convLayer$1(x, params, [2, 2], true, 'valid');
   }
 
-  function extractorsFactory$3(extractWeights) {
+  function extractorsFactory$3(extractWeights, paramMappings) {
       function extractFilterValues(numFilterValues, numFilters, filterSize) {
           var weights = extractWeights(numFilterValues);
           var depth = weights.length / (numFilters * filterSize * filterSize);
           if (isFloat(depth)) {
               throw new Error("depth has to be an integer: " + depth + ", weights.length: " + weights.length + ", numFilters: " + numFilters + ", filterSize: " + filterSize);
           }
-          return transpose(tensor4d(weights, [numFilters, depth, filterSize, filterSize]), [2, 3, 1, 0]);
+          return tidy(function () { return transpose(tensor4d(weights, [numFilters, depth, filterSize, filterSize]), [2, 3, 1, 0]); });
       }
-      function extractScaleLayerParams(numWeights) {
+      function extractConvParams(numFilterValues, numFilters, filterSize, mappedPrefix) {
+          var filters = extractFilterValues(numFilterValues, numFilters, filterSize);
+          var bias = tensor1d(extractWeights(numFilters));
+          paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
+          return { filters: filters, bias: bias };
+      }
+      function extractScaleLayerParams(numWeights, mappedPrefix) {
           var weights = tensor1d(extractWeights(numWeights));
           var biases = tensor1d(extractWeights(numWeights));
+          paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/biases" });
           return {
               weights: weights,
               biases: biases
           };
       }
-      function extractConvLayerParams(numFilterValues, numFilters, filterSize) {
-          var conv_filters = extractFilterValues(numFilterValues, numFilters, filterSize);
-          var conv_bias = tensor1d(extractWeights(numFilters));
-          var scale = extractScaleLayerParams(numFilters);
-          return {
-              conv: {
-                  filters: conv_filters,
-                  bias: conv_bias
-              },
-              scale: scale
-          };
+      function extractConvLayerParams(numFilterValues, numFilters, filterSize, mappedPrefix) {
+          var conv = extractConvParams(numFilterValues, numFilters, filterSize, mappedPrefix + "/conv");
+          var scale = extractScaleLayerParams(numFilters, mappedPrefix + "/scale");
+          return { conv: conv, scale: scale };
       }
-      function extractResidualLayerParams(numFilterValues, numFilters, filterSize, isDown) {
+      function extractResidualLayerParams(numFilterValues, numFilters, filterSize, mappedPrefix, isDown) {
           if (isDown === void 0) { isDown = false; }
-          var conv1 = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize);
-          var conv2 = extractConvLayerParams(numFilterValues, numFilters, filterSize);
-          return {
-              conv1: conv1,
-              conv2: conv2
-          };
+          var conv1 = extractConvLayerParams((isDown ? 0.5 : 1) * numFilterValues, numFilters, filterSize, mappedPrefix + "/conv1");
+          var conv2 = extractConvLayerParams(numFilterValues, numFilters, filterSize, mappedPrefix + "/conv2");
+          return { conv1: conv1, conv2: conv2 };
       }
       return {
           extractConvLayerParams: extractConvLayerParams,
@@ -2098,27 +2105,29 @@
   }
   function extractParams$2(weights) {
       var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-      var _b = extractorsFactory$3(extractWeights), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
-      var conv32_down = extractConvLayerParams(4704, 32, 7);
-      var conv32_1 = extractResidualLayerParams(9216, 32, 3);
-      var conv32_2 = extractResidualLayerParams(9216, 32, 3);
-      var conv32_3 = extractResidualLayerParams(9216, 32, 3);
-      var conv64_down = extractResidualLayerParams(36864, 64, 3, true);
-      var conv64_1 = extractResidualLayerParams(36864, 64, 3);
-      var conv64_2 = extractResidualLayerParams(36864, 64, 3);
-      var conv64_3 = extractResidualLayerParams(36864, 64, 3);
-      var conv128_down = extractResidualLayerParams(147456, 128, 3, true);
-      var conv128_1 = extractResidualLayerParams(147456, 128, 3);
-      var conv128_2 = extractResidualLayerParams(147456, 128, 3);
-      var conv256_down = extractResidualLayerParams(589824, 256, 3, true);
-      var conv256_1 = extractResidualLayerParams(589824, 256, 3);
-      var conv256_2 = extractResidualLayerParams(589824, 256, 3);
-      var conv256_down_out = extractResidualLayerParams(589824, 256, 3);
-      var fc = transpose(tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0]);
+      var paramMappings = [];
+      var _b = extractorsFactory$3(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
+      var conv32_down = extractConvLayerParams(4704, 32, 7, 'conv32_down');
+      var conv32_1 = extractResidualLayerParams(9216, 32, 3, 'conv32_1');
+      var conv32_2 = extractResidualLayerParams(9216, 32, 3, 'conv32_2');
+      var conv32_3 = extractResidualLayerParams(9216, 32, 3, 'conv32_3');
+      var conv64_down = extractResidualLayerParams(36864, 64, 3, 'conv64_down', true);
+      var conv64_1 = extractResidualLayerParams(36864, 64, 3, 'conv64_1');
+      var conv64_2 = extractResidualLayerParams(36864, 64, 3, 'conv64_2');
+      var conv64_3 = extractResidualLayerParams(36864, 64, 3, 'conv64_3');
+      var conv128_down = extractResidualLayerParams(147456, 128, 3, 'conv128_down', true);
+      var conv128_1 = extractResidualLayerParams(147456, 128, 3, 'conv128_1');
+      var conv128_2 = extractResidualLayerParams(147456, 128, 3, 'conv128_2');
+      var conv256_down = extractResidualLayerParams(589824, 256, 3, 'conv256_down', true);
+      var conv256_1 = extractResidualLayerParams(589824, 256, 3, 'conv256_1');
+      var conv256_2 = extractResidualLayerParams(589824, 256, 3, 'conv256_2');
+      var conv256_down_out = extractResidualLayerParams(589824, 256, 3, 'conv256_down_out');
+      var fc = tidy(function () { return transpose(tensor2d(extractWeights(256 * 128), [128, 256]), [1, 0]); });
+      paramMappings.push({ paramPath: "fc" });
       if (getRemainingWeights().length !== 0) {
           throw new Error("weights remaing after extract: " + getRemainingWeights().length);
       }
-      return {
+      var params = {
           conv32_down: conv32_down,
           conv32_1: conv32_1,
           conv32_2: conv32_2,
@@ -2136,38 +2145,22 @@
           conv256_down_out: conv256_down_out,
           fc: fc
       };
+      return { params: params, paramMappings: paramMappings };
   }
 
   var DEFAULT_MODEL_NAME$2 = 'face_recognition_model';
-  function extractorsFactory$4(weightMap) {
+  function extractorsFactory$4(weightMap, paramMappings) {
+      var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
       function extractScaleLayerParams(prefix) {
-          var params = {
-              weights: weightMap[prefix + "/scale/weights"],
-              biases: weightMap[prefix + "/scale/biases"]
-          };
-          if (!isTensor1D(params.weights)) {
-              throw new Error("expected weightMap[" + prefix + "/scale/weights] to be a Tensor1D, instead have " + params.weights);
-          }
-          if (!isTensor1D(params.biases)) {
-              throw new Error("expected weightMap[" + prefix + "/scale/biases] to be a Tensor1D, instead have " + params.biases);
-          }
-          return params;
+          var weights = extractWeightEntry(prefix + "/scale/weights", 1);
+          var biases = extractWeightEntry(prefix + "/scale/biases", 1);
+          return { weights: weights, biases: biases };
       }
       function extractConvLayerParams(prefix) {
-          var params = {
-              filters: weightMap[prefix + "/conv/filters"],
-              bias: weightMap[prefix + "/conv/bias"]
-          };
-          if (!isTensor4D(params.filters)) {
-              throw new Error("expected weightMap[" + prefix + "/conv/filters] to be a Tensor1D, instead have " + params.filters);
-          }
-          if (!isTensor1D(params.bias)) {
-              throw new Error("expected weightMap[" + prefix + "/conv/bias] to be a Tensor1D, instead have " + params.bias);
-          }
-          return {
-              conv: params,
-              scale: extractScaleLayerParams(prefix)
-          };
+          var filters = extractWeightEntry(prefix + "/conv/filters", 4);
+          var bias = extractWeightEntry(prefix + "/conv/bias", 1);
+          var scale = extractScaleLayerParams(prefix);
+          return { conv: { filters: filters, bias: bias }, scale: scale };
       }
       function extractResidualLayerParams(prefix) {
           return {
@@ -2182,13 +2175,14 @@
   }
   function loadQuantizedParams$2(uri) {
       return __awaiter$1(this, void 0, void 0, function () {
-          var weightMap, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc;
+          var weightMap, paramMappings, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc, params;
           return __generator$1(this, function (_b) {
               switch (_b.label) {
                   case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$2)];
                   case 1:
                       weightMap = _b.sent();
-                      _a = extractorsFactory$4(weightMap), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
+                      paramMappings = [];
+                      _a = extractorsFactory$4(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
                       conv32_down = extractConvLayerParams('conv32_down');
                       conv32_1 = extractResidualLayerParams('conv32_1');
                       conv32_2 = extractResidualLayerParams('conv32_2');
@@ -2205,27 +2199,30 @@
                       conv256_2 = extractResidualLayerParams('conv256_2');
                       conv256_down_out = extractResidualLayerParams('conv256_down_out');
                       fc = weightMap['fc'];
+                      paramMappings.push({ originalPath: 'fc', paramPath: 'fc' });
                       if (!isTensor2D(fc)) {
                           throw new Error("expected weightMap[fc] to be a Tensor2D, instead have " + fc);
                       }
-                      return [2 /*return*/, {
-                              conv32_down: conv32_down,
-                              conv32_1: conv32_1,
-                              conv32_2: conv32_2,
-                              conv32_3: conv32_3,
-                              conv64_down: conv64_down,
-                              conv64_1: conv64_1,
-                              conv64_2: conv64_2,
-                              conv64_3: conv64_3,
-                              conv128_down: conv128_down,
-                              conv128_1: conv128_1,
-                              conv128_2: conv128_2,
-                              conv256_down: conv256_down,
-                              conv256_1: conv256_1,
-                              conv256_2: conv256_2,
-                              conv256_down_out: conv256_down_out,
-                              fc: fc
-                          }];
+                      params = {
+                          conv32_down: conv32_down,
+                          conv32_1: conv32_1,
+                          conv32_2: conv32_2,
+                          conv32_3: conv32_3,
+                          conv64_down: conv64_down,
+                          conv64_1: conv64_1,
+                          conv64_2: conv64_2,
+                          conv64_3: conv64_3,
+                          conv128_down: conv128_down,
+                          conv128_1: conv128_1,
+                          conv128_2: conv128_2,
+                          conv256_down: conv256_down,
+                          conv256_1: conv256_1,
+                          conv256_2: conv256_2,
+                          conv256_down_out: conv256_down_out,
+                          fc: fc
+                      };
+                      disposeUnusedWeightTensors(weightMap, paramMappings);
+                      return [2 /*return*/, { params: params, paramMappings: paramMappings }];
               }
           });
       });
@@ -2271,60 +2268,37 @@
       return out;
   }
 
-  var FaceRecognitionNet = /** @class */ (function () {
+  var FaceRecognitionNet = /** @class */ (function (_super) {
+      __extends$1(FaceRecognitionNet, _super);
       function FaceRecognitionNet() {
+          return _super.call(this, 'FaceRecognitionNet') || this;
       }
-      FaceRecognitionNet.prototype.load = function (weightsOrUrl) {
-          return __awaiter$1(this, void 0, void 0, function () {
-              var _a;
-              return __generator$1(this, function (_b) {
-                  switch (_b.label) {
-                      case 0:
-                          if (weightsOrUrl instanceof Float32Array) {
-                              this.extractWeights(weightsOrUrl);
-                              return [2 /*return*/];
-                          }
-                          if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-                              throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
-                          }
-                          _a = this;
-                          return [4 /*yield*/, loadQuantizedParams$2(weightsOrUrl)];
-                      case 1:
-                          _a._params = _b.sent();
-                          return [2 /*return*/];
-                  }
-              });
-          });
-      };
-      FaceRecognitionNet.prototype.extractWeights = function (weights) {
-          this._params = extractParams$2(weights);
-      };
       FaceRecognitionNet.prototype.forwardInput = function (input) {
-          var _this = this;
-          if (!this._params) {
+          var params = this.params;
+          if (!params) {
               throw new Error('FaceRecognitionNet - load model before inference');
           }
           return tidy(function () {
               var batchTensor = input.toBatchTensor(150, true);
               var normalized = normalize(batchTensor);
-              var out = convDown(normalized, _this._params.conv32_down);
+              var out = convDown(normalized, params.conv32_down);
               out = maxPool(out, 3, 2, 'valid');
-              out = residual(out, _this._params.conv32_1);
-              out = residual(out, _this._params.conv32_2);
-              out = residual(out, _this._params.conv32_3);
-              out = residualDown(out, _this._params.conv64_down);
-              out = residual(out, _this._params.conv64_1);
-              out = residual(out, _this._params.conv64_2);
-              out = residual(out, _this._params.conv64_3);
-              out = residualDown(out, _this._params.conv128_down);
-              out = residual(out, _this._params.conv128_1);
-              out = residual(out, _this._params.conv128_2);
-              out = residualDown(out, _this._params.conv256_down);
-              out = residual(out, _this._params.conv256_1);
-              out = residual(out, _this._params.conv256_2);
-              out = residualDown(out, _this._params.conv256_down_out);
+              out = residual(out, params.conv32_1);
+              out = residual(out, params.conv32_2);
+              out = residual(out, params.conv32_3);
+              out = residualDown(out, params.conv64_down);
+              out = residual(out, params.conv64_1);
+              out = residual(out, params.conv64_2);
+              out = residual(out, params.conv64_3);
+              out = residualDown(out, params.conv128_down);
+              out = residual(out, params.conv128_1);
+              out = residual(out, params.conv128_2);
+              out = residualDown(out, params.conv256_down);
+              out = residual(out, params.conv256_1);
+              out = residual(out, params.conv256_2);
+              out = residualDown(out, params.conv256_down_out);
               var globalAvg = out.mean([1, 2]);
-              var fullyConnected = matMul(globalAvg, _this._params.fc);
+              var fullyConnected = matMul(globalAvg, params.fc);
               return fullyConnected;
           });
       };
@@ -2362,8 +2336,14 @@
               });
           });
       };
+      FaceRecognitionNet.prototype.loadQuantizedParams = function (uri) {
+          return loadQuantizedParams$2(uri);
+      };
+      FaceRecognitionNet.prototype.extractParams = function (weights) {
+          return extractParams$2(weights);
+      };
       return FaceRecognitionNet;
-  }());
+  }(NeuralNetwork));
 
   function faceRecognitionNet(weights) {
       var net = new FaceRecognitionNet();

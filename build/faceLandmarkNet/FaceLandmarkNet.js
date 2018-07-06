@@ -21,57 +21,29 @@ function maxPool(x, strides) {
 var FaceLandmarkNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceLandmarkNet, _super);
     function FaceLandmarkNet() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return _super.call(this, 'FaceLandmarkNet') || this;
     }
-    FaceLandmarkNet.prototype.load = function (weightsOrUrl) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _a, paramMappings, params;
-            return tslib_1.__generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (weightsOrUrl instanceof Float32Array) {
-                            this.extractWeights(weightsOrUrl);
-                            return [2 /*return*/];
-                        }
-                        if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-                            throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array');
-                        }
-                        return [4 /*yield*/, loadQuantizedParams_1.loadQuantizedParams(weightsOrUrl)];
-                    case 1:
-                        _a = _b.sent(), paramMappings = _a.paramMappings, params = _a.params;
-                        this._paramMappings = paramMappings;
-                        this._params = params;
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    FaceLandmarkNet.prototype.extractWeights = function (weights) {
-        var _a = extractParams_1.extractParams(weights), paramMappings = _a.paramMappings, params = _a.params;
-        this._paramMappings = paramMappings;
-        this._params = params;
-    };
     FaceLandmarkNet.prototype.forwardInput = function (input) {
-        var params = this._params;
+        var params = this.params;
         if (!params) {
             throw new Error('FaceLandmarkNet - load model before inference');
         }
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(128, true);
-            var out = conv(batchTensor, params.conv0_params);
+            var out = conv(batchTensor, params.conv0);
             out = maxPool(out);
-            out = conv(out, params.conv1_params);
-            out = conv(out, params.conv2_params);
+            out = conv(out, params.conv1);
+            out = conv(out, params.conv2);
             out = maxPool(out);
-            out = conv(out, params.conv3_params);
-            out = conv(out, params.conv4_params);
+            out = conv(out, params.conv3);
+            out = conv(out, params.conv4);
             out = maxPool(out);
-            out = conv(out, params.conv5_params);
-            out = conv(out, params.conv6_params);
+            out = conv(out, params.conv5);
+            out = conv(out, params.conv6);
             out = maxPool(out, [1, 1]);
-            out = conv(out, params.conv7_params);
-            var fc0 = tf.relu(fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params));
-            var fc1 = fullyConnectedLayer_1.fullyConnectedLayer(fc0, params.fc1_params);
+            out = conv(out, params.conv7);
+            var fc0 = tf.relu(fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
+            var fc1 = fullyConnectedLayer_1.fullyConnectedLayer(fc0, params.fc1);
             var createInterleavedTensor = function (fillX, fillY) {
                 return tf.stack([
                     tf.fill([68], fillX),
@@ -145,6 +117,12 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
                 }
             });
         });
+    };
+    FaceLandmarkNet.prototype.loadQuantizedParams = function (uri) {
+        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    };
+    FaceLandmarkNet.prototype.extractParams = function (weights) {
+        return extractParams_1.extractParams(weights);
     };
     return FaceLandmarkNet;
 }(NeuralNetwork_1.NeuralNetwork));

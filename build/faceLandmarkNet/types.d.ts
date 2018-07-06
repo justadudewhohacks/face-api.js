@@ -5,14 +5,14 @@ export declare type FCParams = {
     bias: tf.Tensor1D;
 };
 export declare type NetParams = {
-    conv0_params: ConvParams;
-    conv1_params: ConvParams;
-    conv2_params: ConvParams;
-    conv3_params: ConvParams;
-    conv4_params: ConvParams;
-    conv5_params: ConvParams;
-    conv6_params: ConvParams;
-    conv7_params: ConvParams;
-    fc0_params: FCParams;
-    fc1_params: FCParams;
+    conv0: ConvParams;
+    conv1: ConvParams;
+    conv2: ConvParams;
+    conv3: ConvParams;
+    conv4: ConvParams;
+    conv5: ConvParams;
+    conv6: ConvParams;
+    conv7: ConvParams;
+    fc0: FCParams;
+    fc1: FCParams;
 };

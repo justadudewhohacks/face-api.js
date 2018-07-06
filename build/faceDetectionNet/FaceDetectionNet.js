@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
+var NeuralNetwork_1 = require("../commons/NeuralNetwork");
 var Rect_1 = require("../Rect");
 var toNetInput_1 = require("../toNetInput");
 var extractParams_1 = require("./extractParams");
@@ -11,45 +12,22 @@ var mobileNetV1_1 = require("./mobileNetV1");
 var nonMaxSuppression_1 = require("./nonMaxSuppression");
 var outputLayer_1 = require("./outputLayer");
 var predictionLayer_1 = require("./predictionLayer");
-var FaceDetectionNet = /** @class */ (function () {
+var FaceDetectionNet = /** @class */ (function (_super) {
+    tslib_1.__extends(FaceDetectionNet, _super);
     function FaceDetectionNet() {
+        return _super.call(this, 'FaceDetectionNet') || this;
     }
-    FaceDetectionNet.prototype.load = function (weightsOrUrl) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _a;
-            return tslib_1.__generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (weightsOrUrl instanceof Float32Array) {
-                            this.extractWeights(weightsOrUrl);
-                            return [2 /*return*/];
-                        }
-                        if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-                            throw new Error('FaceDetectionNet.load - expected model uri, or weights as Float32Array');
-                        }
-                        _a = this;
-                        return [4 /*yield*/, loadQuantizedParams_1.loadQuantizedParams(weightsOrUrl)];
-                    case 1:
-                        _a._params = _b.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    FaceDetectionNet.prototype.extractWeights = function (weights) {
-        this._params = extractParams_1.extractParams(weights);
-    };
     FaceDetectionNet.prototype.forwardInput = function (input) {
-        var _this = this;
-        if (!this._params) {
+        var params = this.params;
+        if (!params) {
             throw new Error('FaceDetectionNet - load model before inference');
         }
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(512, false);
             var x = tf.sub(tf.mul(batchTensor, tf.scalar(0.007843137718737125)), tf.scalar(1));
-            var features = mobileNetV1_1.mobileNetV1(x, _this._params.mobilenetv1_params);
-            var _a = predictionLayer_1.predictionLayer(features.out, features.conv11, _this._params.prediction_layer_params), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-            return outputLayer_1.outputLayer(boxPredictions, classPredictions, _this._params.output_layer_params);
+            var features = mobileNetV1_1.mobileNetV1(x, params.mobilenetv1);
+            var _a = predictionLayer_1.predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+            return outputLayer_1.outputLayer(boxPredictions, classPredictions, params.output_layer);
         });
     };
     FaceDetectionNet.prototype.forward = function (input) {
@@ -112,7 +90,13 @@ var FaceDetectionNet = /** @class */ (function () {
             });
         });
     };
+    FaceDetectionNet.prototype.loadQuantizedParams = function (uri) {
+        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    };
+    FaceDetectionNet.prototype.extractParams = function (weights) {
+        return extractParams_1.extractParams(weights);
+    };
     return FaceDetectionNet;
-}());
+}(NeuralNetwork_1.NeuralNetwork));
 exports.FaceDetectionNet = FaceDetectionNet;
 //# sourceMappingURL=FaceDetectionNet.js.map

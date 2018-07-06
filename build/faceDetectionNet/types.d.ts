@@ -13,39 +13,51 @@ export declare namespace MobileNetV1 {
         batch_norm_variance: tf.Tensor1D;
     };
     type ConvPairParams = {
-        depthwise_conv_params: DepthwiseConvParams;
-        pointwise_conv_params: PointwiseConvParams;
+        depthwise_conv: DepthwiseConvParams;
+        pointwise_conv: PointwiseConvParams;
     };
     type Params = {
-        conv_0_params: PointwiseConvParams;
-        conv_pair_params: ConvPairParams[];
+        conv_0: PointwiseConvParams;
+        conv_1: ConvPairParams;
+        conv_2: ConvPairParams;
+        conv_3: ConvPairParams;
+        conv_4: ConvPairParams;
+        conv_5: ConvPairParams;
+        conv_6: ConvPairParams;
+        conv_7: ConvPairParams;
+        conv_8: ConvPairParams;
+        conv_9: ConvPairParams;
+        conv_10: ConvPairParams;
+        conv_11: ConvPairParams;
+        conv_12: ConvPairParams;
+        conv_13: ConvPairParams;
     };
 }
 export declare type BoxPredictionParams = {
-    box_encoding_predictor_params: ConvParams;
-    class_predictor_params: ConvParams;
+    box_encoding_predictor: ConvParams;
+    class_predictor: ConvParams;
 };
 export declare type PredictionLayerParams = {
-    conv_0_params: PointwiseConvParams;
-    conv_1_params: PointwiseConvParams;
-    conv_2_params: PointwiseConvParams;
-    conv_3_params: PointwiseConvParams;
-    conv_4_params: PointwiseConvParams;
-    conv_5_params: PointwiseConvParams;
-    conv_6_params: PointwiseConvParams;
-    conv_7_params: PointwiseConvParams;
-    box_predictor_0_params: BoxPredictionParams;
-    box_predictor_1_params: BoxPredictionParams;
-    box_predictor_2_params: BoxPredictionParams;
-    box_predictor_3_params: BoxPredictionParams;
-    box_predictor_4_params: BoxPredictionParams;
-    box_predictor_5_params: BoxPredictionParams;
+    conv_0: PointwiseConvParams;
+    conv_1: PointwiseConvParams;
+    conv_2: PointwiseConvParams;
+    conv_3: PointwiseConvParams;
+    conv_4: PointwiseConvParams;
+    conv_5: PointwiseConvParams;
+    conv_6: PointwiseConvParams;
+    conv_7: PointwiseConvParams;
+    box_predictor_0: BoxPredictionParams;
+    box_predictor_1: BoxPredictionParams;
+    box_predictor_2: BoxPredictionParams;
+    box_predictor_3: BoxPredictionParams;
+    box_predictor_4: BoxPredictionParams;
+    box_predictor_5: BoxPredictionParams;
 };
 export declare type OutputLayerParams = {
     extra_dim: tf.Tensor3D;
 };
 export declare type NetParams = {
-    mobilenetv1_params: MobileNetV1.Params;
-    prediction_layer_params: PredictionLayerParams;
-    output_layer_params: OutputLayerParams;
+    mobilenetv1: MobileNetV1.Params;
+    prediction_layer: PredictionLayerParams;
+    output_layer: OutputLayerParams;
 };

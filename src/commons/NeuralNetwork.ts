@@ -7,6 +7,8 @@ export class NeuralNetwork<TNetParams> {
   protected _params: TNetParams | undefined = undefined
   protected _paramMappings: ParamMapping[] = []
 
+  constructor(private _name: string) {}
+
   public get params(): TNetParams | undefined {
     return this._params
   }
@@ -53,9 +55,42 @@ export class NeuralNetwork<TNetParams> {
     })
   }
 
-  public dispose() {
-    this.getParamList().forEach(param => param.tensor.dispose())
+  public dispose(throwOnRedispose: boolean = true) {
+    this.getParamList().forEach(param => {
+      if (throwOnRedispose && param.tensor.isDisposed) {
+        throw new Error(`param tensor has already been disposed for path ${param.path}`)
+      }
+      param.tensor.dispose()
+    })
     this._params = undefined
+  }
+
+  public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
+    if (weightsOrUrl instanceof Float32Array) {
+      this.extractWeights(weightsOrUrl)
+      return
+    }
+
+    if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
+      throw new Error(`${this._name}.load - expected model uri, or weights as Float32Array`)
+    }
+    const {
+      paramMappings,
+      params
+    } = await this.loadQuantizedParams(weightsOrUrl)
+
+    this._paramMappings = paramMappings
+    this._params = params
+  }
+
+  public extractWeights(weights: Float32Array) {
+    const {
+      paramMappings,
+      params
+    } = this.extractParams(weights)
+
+    this._paramMappings = paramMappings
+    this._params = params
   }
 
   private traversePropertyPath(paramPath: string) {
@@ -77,5 +112,13 @@ export class NeuralNetwork<TNetParams> {
     }
 
     return { obj, objProp }
+  }
+
+  protected loadQuantizedParams(_: any): Promise<{ params: TNetParams, paramMappings: ParamMapping[] }> {
+    throw new Error(`${this._name}.loadQuantizedParams - not implemented`)
+  }
+
+  protected extractParams(_: any): { params: TNetParams, paramMappings: ParamMapping[] } {
+    throw new Error(`${this._name}.extractParams - not implemented`)
   }
 }

@@ -1,46 +1,33 @@
-import { isTensor1D, isTensor2D, isTensor4D } from '../commons/isTensor';
+import * as tf from '@tensorflow/tfjs-core';
+
+import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
+import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
+import { isTensor2D } from '../commons/isTensor';
 import { loadWeightMap } from '../commons/loadWeightMap';
-import { ConvLayerParams, ResidualLayerParams, ScaleLayerParams } from './types';
+import { ParamMapping } from '../commons/types';
+import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'face_recognition_model'
 
-function extractorsFactory(weightMap: any) {
+function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
+
+  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractScaleLayerParams(prefix: string): ScaleLayerParams {
-    const params = {
-      weights: weightMap[`${prefix}/scale/weights`],
-      biases: weightMap[`${prefix}/scale/biases`]
-    }
 
-    if (!isTensor1D(params.weights)) {
-      throw new Error(`expected weightMap[${prefix}/scale/weights] to be a Tensor1D, instead have ${params.weights}`)
-    }
+    const weights = extractWeightEntry<tf.Tensor1D>(`${prefix}/scale/weights`, 1)
+    const biases = extractWeightEntry<tf.Tensor1D>(`${prefix}/scale/biases`, 1)
 
-    if (!isTensor1D(params.biases)) {
-      throw new Error(`expected weightMap[${prefix}/scale/biases] to be a Tensor1D, instead have ${params.biases}`)
-    }
-
-    return params
+    return { weights, biases }
   }
 
   function extractConvLayerParams(prefix: string): ConvLayerParams {
-    const params = {
-      filters: weightMap[`${prefix}/conv/filters`],
-      bias: weightMap[`${prefix}/conv/bias`]
-    }
 
-    if (!isTensor4D(params.filters)) {
-      throw new Error(`expected weightMap[${prefix}/conv/filters] to be a Tensor1D, instead have ${params.filters}`)
-    }
+    const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/conv/filters`, 4)
+    const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/conv/bias`, 1)
+    const scale = extractScaleLayerParams(prefix)
 
-    if (!isTensor1D(params.bias)) {
-      throw new Error(`expected weightMap[${prefix}/conv/bias] to be a Tensor1D, instead have ${params.bias}`)
-    }
-
-    return {
-      conv: params,
-      scale: extractScaleLayerParams(prefix)
-    }
+    return { conv: { filters, bias }, scale }
   }
 
   function extractResidualLayerParams(prefix: string): ResidualLayerParams {
@@ -57,13 +44,17 @@ function extractorsFactory(weightMap: any) {
 
 }
 
-export async function loadQuantizedParams(uri: string | undefined): Promise<any> {
+export async function loadQuantizedParams(
+  uri: string | undefined
+): Promise<{ params: NetParams, paramMappings: ParamMapping[] }> {
+
   const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractConvLayerParams,
     extractResidualLayerParams
-  } = extractorsFactory(weightMap)
+  } = extractorsFactory(weightMap, paramMappings)
 
   const conv32_down = extractConvLayerParams('conv32_down')
   const conv32_1 = extractResidualLayerParams('conv32_1')
@@ -85,12 +76,13 @@ export async function loadQuantizedParams(uri: string | undefined): Promise<any>
   const conv256_down_out = extractResidualLayerParams('conv256_down_out')
 
   const fc = weightMap['fc']
+  paramMappings.push({ originalPath: 'fc', paramPath: 'fc' })
 
   if (!isTensor2D(fc)) {
     throw new Error(`expected weightMap[fc] to be a Tensor2D, instead have ${fc}`)
   }
 
-  return {
+  const params = {
     conv32_down,
     conv32_1,
     conv32_2,
@@ -108,4 +100,8 @@ export async function loadQuantizedParams(uri: string | undefined): Promise<any>
     conv256_down_out,
     fc
   }
+
+  disposeUnusedWeightTensors(weightMap, paramMappings)
+
+  return { params, paramMappings }
 }

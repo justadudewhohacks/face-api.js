@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { NetInput } from '../NetInput';
 import { Rect } from '../Rect';
 import { toNetInput } from '../toNetInput';
@@ -13,28 +14,17 @@ import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
 import { NetParams } from './types';
 
-export class FaceDetectionNet {
+export class FaceDetectionNet extends NeuralNetwork<NetParams> {
 
-  private _params: NetParams
-
-  public async load(weightsOrUrl?: Float32Array | string): Promise<void> {
-    if (weightsOrUrl instanceof Float32Array) {
-      this.extractWeights(weightsOrUrl)
-      return
-    }
-
-    if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-      throw new Error('FaceDetectionNet.load - expected model uri, or weights as Float32Array')
-    }
-    this._params = await loadQuantizedParams(weightsOrUrl)
-  }
-
-  public extractWeights(weights: Float32Array) {
-    this._params = extractParams(weights)
+  constructor() {
+    super('FaceDetectionNet')
   }
 
   public forwardInput(input: NetInput) {
-    if (!this._params) {
+
+    const { params } = this
+
+    if (!params) {
       throw new Error('FaceDetectionNet - load model before inference')
     }
 
@@ -42,14 +32,14 @@ export class FaceDetectionNet {
       const batchTensor = input.toBatchTensor(512, false)
 
       const x = tf.sub(tf.mul(batchTensor, tf.scalar(0.007843137718737125)), tf.scalar(1)) as tf.Tensor4D
-      const features = mobileNetV1(x, this._params.mobilenetv1_params)
+      const features = mobileNetV1(x, params.mobilenetv1)
 
       const {
         boxPredictions,
         classPredictions
-      } = predictionLayer(features.out, features.conv11, this._params.prediction_layer_params)
+      } = predictionLayer(features.out, features.conv11, params.prediction_layer)
 
-      return outputLayer(boxPredictions, classPredictions, this._params.output_layer_params)
+      return outputLayer(boxPredictions, classPredictions, params.output_layer)
     })
   }
 
@@ -91,7 +81,6 @@ export class FaceDetectionNet {
       minConfidence
     )
 
-
     const paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0)
     const paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0)
 
@@ -124,5 +113,13 @@ export class FaceDetectionNet {
     scores.dispose()
 
     return results
+  }
+
+  protected loadQuantizedParams(uri: string | undefined) {
+    return loadQuantizedParams(uri)
+  }
+
+  protected extractParams(weights: Float32Array) {
+    return extractParams(weights)
   }
 }

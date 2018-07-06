@@ -1,27 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var extractWeightEntry_1 = require("../commons/extractWeightEntry");
+var disposeUnusedWeightTensors_1 = require("../commons/disposeUnusedWeightTensors");
+var extractWeightEntryFactory_1 = require("../commons/extractWeightEntryFactory");
 var loadWeightMap_1 = require("../commons/loadWeightMap");
 var DEFAULT_MODEL_NAME = 'face_landmark_68_model';
 function extractorsFactory(weightMap, paramMappings) {
+    var extractWeightEntry = extractWeightEntryFactory_1.extractWeightEntryFactory(weightMap, paramMappings);
     function extractConvParams(prefix, mappedPrefix) {
-        var filtersEntry = extractWeightEntry_1.extractWeightEntry(weightMap, prefix + "/kernel", 4);
-        var biasEntry = extractWeightEntry_1.extractWeightEntry(weightMap, prefix + "/bias", 1);
-        paramMappings.push({ originalPath: filtersEntry.path, paramPath: mappedPrefix + "/filters" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
-        return {
-            filters: filtersEntry.tensor,
-            bias: biasEntry.tensor
-        };
+        var filters = extractWeightEntry(prefix + "/kernel", 4, mappedPrefix + "/filters");
+        var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+        return { filters: filters, bias: bias };
     }
     function extractFcParams(prefix, mappedPrefix) {
-        var weightsEntry = extractWeightEntry_1.extractWeightEntry(weightMap, prefix + "/kernel", 2);
-        var biasEntry = extractWeightEntry_1.extractWeightEntry(weightMap, prefix + "/bias", 1);
-        paramMappings.push({ originalPath: weightsEntry.path, paramPath: mappedPrefix + "/weights" }, { originalPath: biasEntry.path, paramPath: mappedPrefix + "/bias" });
-        return {
-            weights: weightsEntry.tensor,
-            bias: biasEntry.tensor
-        };
+        var weights = extractWeightEntry(prefix + "/kernel", 2, mappedPrefix + "/weights");
+        var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+        return { weights: weights, bias: bias };
     }
     return {
         extractConvParams: extractConvParams,
@@ -39,17 +33,18 @@ function loadQuantizedParams(uri) {
                     paramMappings = [];
                     _a = extractorsFactory(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
                     params = {
-                        conv0_params: extractConvParams('conv2d_0', 'conv0_params'),
-                        conv1_params: extractConvParams('conv2d_1', 'conv1_params'),
-                        conv2_params: extractConvParams('conv2d_2', 'conv2_params'),
-                        conv3_params: extractConvParams('conv2d_3', 'conv3_params'),
-                        conv4_params: extractConvParams('conv2d_4', 'conv4_params'),
-                        conv5_params: extractConvParams('conv2d_5', 'conv5_params'),
-                        conv6_params: extractConvParams('conv2d_6', 'conv6_params'),
-                        conv7_params: extractConvParams('conv2d_7', 'conv7_params'),
-                        fc0_params: extractFcParams('dense', 'fc0_params'),
-                        fc1_params: extractFcParams('logits', 'fc1_params')
+                        conv0: extractConvParams('conv2d_0', 'conv0'),
+                        conv1: extractConvParams('conv2d_1', 'conv1'),
+                        conv2: extractConvParams('conv2d_2', 'conv2'),
+                        conv3: extractConvParams('conv2d_3', 'conv3'),
+                        conv4: extractConvParams('conv2d_4', 'conv4'),
+                        conv5: extractConvParams('conv2d_5', 'conv5'),
+                        conv6: extractConvParams('conv2d_6', 'conv6'),
+                        conv7: extractConvParams('conv2d_7', 'conv7'),
+                        fc0: extractFcParams('dense', 'fc0'),
+                        fc1: extractFcParams('logits', 'fc1')
                     };
+                    disposeUnusedWeightTensors_1.disposeUnusedWeightTensors(weightMap, paramMappings);
                     return [2 /*return*/, { params: params, paramMappings: paramMappings }];
             }
         });

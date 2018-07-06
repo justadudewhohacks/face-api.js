@@ -24,36 +24,13 @@ function maxPool(x: tf.Tensor4D, strides: [number, number] = [2, 2]): tf.Tensor4
 
 export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
 
-  public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
-    if (weightsOrUrl instanceof Float32Array) {
-      this.extractWeights(weightsOrUrl)
-      return
-    }
-
-    if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-      throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array')
-    }
-    const {
-      paramMappings,
-      params
-    } = await loadQuantizedParams(weightsOrUrl)
-
-    this._paramMappings = paramMappings
-    this._params = params
-  }
-
-  public extractWeights(weights: Float32Array) {
-    const {
-      paramMappings,
-      params
-    } = extractParams(weights)
-
-    this._paramMappings = paramMappings
-    this._params = params
+  constructor() {
+    super('FaceLandmarkNet')
   }
 
   public forwardInput(input: NetInput): tf.Tensor2D {
-    const params = this._params
+
+    const { params } = this
 
     if (!params) {
       throw new Error('FaceLandmarkNet - load model before inference')
@@ -62,20 +39,20 @@ export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
     return tf.tidy(() => {
       const batchTensor = input.toBatchTensor(128, true)
 
-      let out = conv(batchTensor, params.conv0_params)
+      let out = conv(batchTensor, params.conv0)
       out = maxPool(out)
-      out = conv(out, params.conv1_params)
-      out = conv(out, params.conv2_params)
+      out = conv(out, params.conv1)
+      out = conv(out, params.conv2)
       out = maxPool(out)
-      out = conv(out, params.conv3_params)
-      out = conv(out, params.conv4_params)
+      out = conv(out, params.conv3)
+      out = conv(out, params.conv4)
       out = maxPool(out)
-      out = conv(out, params.conv5_params)
-      out = conv(out, params.conv6_params)
+      out = conv(out, params.conv5)
+      out = conv(out, params.conv6)
       out = maxPool(out, [1, 1])
-      out = conv(out, params.conv7_params)
-      const fc0 = tf.relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0_params))
-      const fc1 = fullyConnectedLayer(fc0, params.fc1_params)
+      out = conv(out, params.conv7)
+      const fc0 = tf.relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0))
+      const fc1 = fullyConnectedLayer(fc0, params.fc1)
 
       const createInterleavedTensor = (fillX: number, fillY: number) =>
         tf.stack([
@@ -144,5 +121,13 @@ export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
     return netInput.isBatchInput
       ? landmarksForBatch
       : landmarksForBatch[0]
+  }
+
+  protected loadQuantizedParams(uri: string | undefined) {
+    return loadQuantizedParams(uri)
+  }
+
+  protected extractParams(weights: Float32Array) {
+    return extractParams(weights)
   }
 }

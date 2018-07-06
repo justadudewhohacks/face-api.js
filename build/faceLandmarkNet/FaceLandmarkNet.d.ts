@@ -5,9 +5,22 @@ import { TNetInput } from '../types';
 import { FaceLandmarks } from './FaceLandmarks';
 import { NetParams } from './types';
 export declare class FaceLandmarkNet extends NeuralNetwork<NetParams> {
-    load(weightsOrUrl: Float32Array | string | undefined): Promise<void>;
-    extractWeights(weights: Float32Array): void;
+    constructor();
     forwardInput(input: NetInput): tf.Tensor2D;
     forward(input: TNetInput): Promise<tf.Tensor2D>;
     detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]>;
+    protected loadQuantizedParams(uri: string | undefined): Promise<{
+        params: NetParams;
+        paramMappings: {
+            originalPath?: string | undefined;
+            paramPath: string;
+        }[];
+    }>;
+    protected extractParams(weights: Float32Array): {
+        params: NetParams;
+        paramMappings: {
+            originalPath?: string | undefined;
+            paramPath: string;
+        }[];
+    };
 }

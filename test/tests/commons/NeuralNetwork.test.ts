@@ -1,5 +1,6 @@
-import { NeuralNetwork } from '../../../src/commons/NeuralNetwork';
 import * as tf from '@tensorflow/tfjs-core';
+
+import { NeuralNetwork } from '../../../src/commons/NeuralNetwork';
 
 class FakeNeuralNetwork extends NeuralNetwork<any> {
   constructor(
@@ -7,7 +8,7 @@ class FakeNeuralNetwork extends NeuralNetwork<any> {
     convBias: tf.Tensor = tf.tensor(0),
     fcWeights: tf.Tensor = tf.tensor(0)
   ) {
-    super()
+    super('FakeNeuralNetwork')
     this._params = {
       conv: {
         filter: convFilter,

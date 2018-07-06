@@ -5,7 +5,7 @@ import { isTensor3D } from '../../../src/commons/isTensor';
 import { FaceLandmarks } from '../../../src/faceLandmarkNet/FaceLandmarks';
 import { Point } from '../../../src/Point';
 import { Dimensions, TMediaElement } from '../../../src/types';
-import { expectMaxDelta, expectAllTensorsReleased, tensor3D } from '../../utils';
+import { expectMaxDelta, expectAllTensorsReleased, tensor3D, describeWithNets } from '../../utils';
 import { NetInput } from '../../../src/NetInput';
 import { toNetInput } from '../../../src';
 
@@ -38,15 +38,7 @@ describe('faceLandmarkNet', () => {
     faceLandmarkPositionsRect = await (await fetch('base/test/data/faceLandmarkPositionsRect.json')).json()
   })
 
-  describe('uncompressed weights', () => {
-
-    let faceLandmarkNet: faceapi.FaceLandmarkNet
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceLandmarkNet = faceapi.faceLandmarkNet(weights)
-    })
+  describeWithNets('uncompressed weights', { withFaceLandmarkNet: { quantized: false } }, ({ faceLandmarkNet }) => {
 
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
@@ -78,14 +70,7 @@ describe('faceLandmarkNet', () => {
 
   })
 
-  describe('quantized weights', () => {
-
-    let faceLandmarkNet: faceapi.FaceLandmarkNet
-
-    beforeAll(async () => {
-      faceLandmarkNet = new faceapi.FaceLandmarkNet()
-      await faceLandmarkNet.load('base/weights')
-    })
+  describeWithNets('quantized weights', { withFaceLandmarkNet: { quantized: true } }, ({ faceLandmarkNet }) => {
 
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
@@ -117,15 +102,7 @@ describe('faceLandmarkNet', () => {
 
   })
 
-  describe('batch inputs', () => {
-
-    let faceLandmarkNet: faceapi.FaceLandmarkNet
-
-    beforeAll(async () => {
-      const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
-      const weights = new Float32Array(await res.arrayBuffer())
-      faceLandmarkNet = faceapi.faceLandmarkNet(weights)
-    })
+  describeWithNets('batch inputs', { withFaceLandmarkNet: { quantized: false } }, ({ faceLandmarkNet }) => {
 
     it('computes face landmarks for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]
@@ -229,13 +206,31 @@ describe('faceLandmarkNet', () => {
 
   })
 
-  describe('no memory leaks', () => {
+  describeWithNets('no memory leaks', { withFaceLandmarkNet: { quantized: true } }, ({ faceLandmarkNet }) => {
 
-    let faceLandmarkNet: faceapi.FaceLandmarkNet
+    describe('NeuralNetwork, uncompressed model', () => {
 
-    beforeAll(async () => {
-      faceLandmarkNet = new faceapi.FaceLandmarkNet()
-      await faceLandmarkNet.load('base/weights')
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
+          const weights = new Float32Array(await res.arrayBuffer())
+          const net = faceapi.faceLandmarkNet(weights)
+          net.dispose()
+        })
+      })
+
+    })
+
+    describe('NeuralNetwork, quantized model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const net = new faceapi.FaceLandmarkNet()
+          await net.load('base/weights')
+          net.dispose()
+        })
+      })
+
     })
 
     describe('forwardInput', () => {
