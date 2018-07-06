@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
@@ -10,28 +11,17 @@ import { normalize } from './normalize';
 import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
 
-export class FaceRecognitionNet {
+export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
 
-  private _params: NetParams
-
-  public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
-    if (weightsOrUrl instanceof Float32Array) {
-      this.extractWeights(weightsOrUrl)
-      return
-    }
-
-    if (weightsOrUrl && typeof weightsOrUrl !== 'string') {
-      throw new Error('FaceLandmarkNet.load - expected model uri, or weights as Float32Array')
-    }
-    this._params = await loadQuantizedParams(weightsOrUrl)
-  }
-
-  public extractWeights(weights: Float32Array) {
-    this._params = extractParams(weights)
+  constructor() {
+    super('FaceRecognitionNet')
   }
 
   public forwardInput(input: NetInput): tf.Tensor2D {
-    if (!this._params) {
+
+    const { params } = this
+
+    if (!params) {
       throw new Error('FaceRecognitionNet - load model before inference')
     }
 
@@ -40,29 +30,29 @@ export class FaceRecognitionNet {
 
       const normalized = normalize(batchTensor)
 
-      let out = convDown(normalized, this._params.conv32_down)
+      let out = convDown(normalized, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')
 
-      out = residual(out, this._params.conv32_1)
-      out = residual(out, this._params.conv32_2)
-      out = residual(out, this._params.conv32_3)
+      out = residual(out, params.conv32_1)
+      out = residual(out, params.conv32_2)
+      out = residual(out, params.conv32_3)
 
-      out = residualDown(out, this._params.conv64_down)
-      out = residual(out, this._params.conv64_1)
-      out = residual(out, this._params.conv64_2)
-      out = residual(out, this._params.conv64_3)
+      out = residualDown(out, params.conv64_down)
+      out = residual(out, params.conv64_1)
+      out = residual(out, params.conv64_2)
+      out = residual(out, params.conv64_3)
 
-      out = residualDown(out, this._params.conv128_down)
-      out = residual(out, this._params.conv128_1)
-      out = residual(out, this._params.conv128_2)
+      out = residualDown(out, params.conv128_down)
+      out = residual(out, params.conv128_1)
+      out = residual(out, params.conv128_2)
 
-      out = residualDown(out, this._params.conv256_down)
-      out = residual(out, this._params.conv256_1)
-      out = residual(out, this._params.conv256_2)
-      out = residualDown(out, this._params.conv256_down_out)
+      out = residualDown(out, params.conv256_down)
+      out = residual(out, params.conv256_1)
+      out = residual(out, params.conv256_2)
+      out = residualDown(out, params.conv256_down_out)
 
       const globalAvg = out.mean([1, 2]) as tf.Tensor2D
-      const fullyConnected = tf.matMul(globalAvg, this._params.fc)
+      const fullyConnected = tf.matMul(globalAvg, params.fc)
 
       return fullyConnected
     })
@@ -88,5 +78,13 @@ export class FaceRecognitionNet {
     return netInput.isBatchInput
       ? faceDescriptorsForBatch
       : faceDescriptorsForBatch[0]
+  }
+
+  protected loadQuantizedParams(uri: string | undefined) {
+    return loadQuantizedParams(uri)
+  }
+
+  protected extractParams(weights: Float32Array) {
+    return extractParams(weights)
   }
 }

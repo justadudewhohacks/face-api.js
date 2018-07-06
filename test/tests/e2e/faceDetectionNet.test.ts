@@ -1,7 +1,7 @@
 import * as faceapi from '../../../src';
 import { FaceDetection } from '../../../src/faceDetectionNet/FaceDetection';
 import { IRect } from '../../../src/Rect';
-import { expectMaxDelta } from '../../utils';
+import { expectAllTensorsReleased, expectMaxDelta } from '../../utils';
 
 function expectRectClose(
   result: IRect,
@@ -106,6 +106,35 @@ describe('faceDetectionNet', () => {
         expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
         expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
       })
+    })
+
+  })
+
+  describe('no memory leaks', () => {
+
+    describe('NeuralNetwork, uncompressed model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const res = await fetch('base/weights/uncompressed/face_detection_model.weights')
+          const weights = new Float32Array(await res.arrayBuffer())
+          const net = faceapi.faceDetectionNet(weights)
+          net.dispose()
+        })
+      })
+
+    })
+
+    describe('NeuralNetwork, quantized model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const net = new faceapi.FaceDetectionNet()
+          await net.load('base/weights')
+          net.dispose()
+        })
+      })
+
     })
 
   })

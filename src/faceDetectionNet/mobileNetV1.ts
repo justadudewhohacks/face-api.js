@@ -34,13 +34,29 @@ export function mobileNetV1(x: tf.Tensor4D, params: MobileNetV1.Params) {
   return tf.tidy(() => {
 
     let conv11 = null
-    let out = pointwiseConvLayer(x, params.conv_0_params, [2, 2])
+    let out = pointwiseConvLayer(x, params.conv_0, [2, 2])
 
-    params.conv_pair_params.forEach((param, i) => {
+    const convPairParams = [
+      params.conv_1,
+      params.conv_2,
+      params.conv_3,
+      params.conv_4,
+      params.conv_5,
+      params.conv_6,
+      params.conv_7,
+      params.conv_8,
+      params.conv_9,
+      params.conv_10,
+      params.conv_11,
+      params.conv_12,
+      params.conv_13
+    ]
+
+    convPairParams.forEach((param, i) => {
       const layerIdx = i + 1
       const depthwiseConvStrides = getStridesForLayerIdx(layerIdx)
-      out = depthwiseConvLayer(out, param.depthwise_conv_params, depthwiseConvStrides)
-      out = pointwiseConvLayer(out, param.pointwise_conv_params, [1, 1])
+      out = depthwiseConvLayer(out, param.depthwise_conv, depthwiseConvStrides)
+      out = pointwiseConvLayer(out, param.pointwise_conv, [1, 1])
       if (layerIdx === 11) {
         conv11 = out
       }

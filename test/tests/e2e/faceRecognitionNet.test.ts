@@ -166,6 +166,35 @@ describe('faceRecognitionNet', () => {
       faceRecognitionNet = faceapi.faceRecognitionNet(weights)
     })
 
+    afterAll(async () => {
+      faceRecognitionNet.dispose()
+    })
+
+    describe('NeuralNetwork, uncompressed model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
+          const weights = new Float32Array(await res.arrayBuffer())
+          const net = faceapi.faceRecognitionNet(weights)
+          net.dispose()
+        })
+      })
+
+    })
+
+    describe('NeuralNetwork, quantized model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const net = new faceapi.FaceRecognitionNet()
+          await net.load('base/weights')
+          net.dispose()
+        })
+      })
+
+    })
+
     describe('forwardInput', () => {
 
       it('single image element', async () => {
@@ -291,6 +320,5 @@ describe('faceRecognitionNet', () => {
 
     })
   })
-
 
 })

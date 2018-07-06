@@ -32,6 +32,11 @@ export class Rect implements IRect {
     return new Rect(x, y, width, height)
   }
 
+  public pad(padX: number, padY: number): Rect {
+    let { x, y, width, height } = this
+    return new Rect(x - (padX / 2), y - (padY / 2), width + padX, height + padY)
+  }
+
   public floor(): Rect {
     return new Rect(
       Math.floor(this.x),

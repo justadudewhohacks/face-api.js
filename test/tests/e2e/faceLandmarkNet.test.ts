@@ -238,6 +238,31 @@ describe('faceLandmarkNet', () => {
       await faceLandmarkNet.load('base/weights')
     })
 
+    describe('NeuralNetwork, uncompressed model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
+          const weights = new Float32Array(await res.arrayBuffer())
+          const net = faceapi.faceLandmarkNet(weights)
+          net.dispose()
+        })
+      })
+
+    })
+
+    describe('NeuralNetwork, quantized model', () => {
+
+      it('disposes all param tensors', async () => {
+        await expectAllTensorsReleased(async () => {
+          const net = new faceapi.FaceLandmarkNet()
+          await net.load('base/weights')
+          net.dispose()
+        })
+      })
+
+    })
+
     describe('forwardInput', () => {
 
       it('single image element', async () => {

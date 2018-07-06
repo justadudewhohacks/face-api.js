@@ -11,21 +11,21 @@ export function predictionLayer(
 ) {
   return tf.tidy(() => {
 
-    const conv0 = pointwiseConvLayer(x, params.conv_0_params, [1, 1])
-    const conv1 = pointwiseConvLayer(conv0, params.conv_1_params, [2, 2])
-    const conv2 = pointwiseConvLayer(conv1, params.conv_2_params, [1, 1])
-    const conv3 = pointwiseConvLayer(conv2, params.conv_3_params, [2, 2])
-    const conv4 = pointwiseConvLayer(conv3, params.conv_4_params, [1, 1])
-    const conv5 = pointwiseConvLayer(conv4, params.conv_5_params, [2, 2])
-    const conv6 = pointwiseConvLayer(conv5, params.conv_6_params, [1, 1])
-    const conv7 = pointwiseConvLayer(conv6, params.conv_7_params, [2, 2])
+    const conv0 = pointwiseConvLayer(x, params.conv_0, [1, 1])
+    const conv1 = pointwiseConvLayer(conv0, params.conv_1, [2, 2])
+    const conv2 = pointwiseConvLayer(conv1, params.conv_2, [1, 1])
+    const conv3 = pointwiseConvLayer(conv2, params.conv_3, [2, 2])
+    const conv4 = pointwiseConvLayer(conv3, params.conv_4, [1, 1])
+    const conv5 = pointwiseConvLayer(conv4, params.conv_5, [2, 2])
+    const conv6 = pointwiseConvLayer(conv5, params.conv_6, [1, 1])
+    const conv7 = pointwiseConvLayer(conv6, params.conv_7, [2, 2])
 
-    const boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0_params)
-    const boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1_params)
-    const boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2_params)
-    const boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3_params)
-    const boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4_params)
-    const boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5_params)
+    const boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0)
+    const boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1)
+    const boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2)
+    const boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3)
+    const boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4)
+    const boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5)
 
     const boxPredictions = tf.concat([
       boxPrediction0.boxPredictionEncoding,
