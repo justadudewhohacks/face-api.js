@@ -40,7 +40,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
 
   function extractRNetParams(): RNetParams {
 
-    const sharedParams = extractSharedParams([3, 28, 48, 64], 'rnet')
+    const sharedParams = extractSharedParams([3, 28, 48, 64], 'rnet', true)
     const fc1 = extractFCParams(576, 128, 'rnet/fc1')
     const prelu4_alpha = extractPReluParams(128, 'rnet/prelu4_alpha')
     const fc2_1 = extractFCParams(128, 2, 'rnet/fc2_1')
@@ -89,6 +89,10 @@ export function extractParams(weights: Float32Array): { params: NetParams, param
   const pnet = extractPNetParams()
   const rnet = extractRNetParams()
   const onet = extractONetParams()
+
+  if (getRemainingWeights().length !== 0) {
+    throw new Error(`weights remaing after extract: ${getRemainingWeights().length}`)
+  }
 
   return { params: { pnet, rnet, onet }, paramMappings }
 }

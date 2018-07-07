@@ -4,7 +4,9 @@ import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
+import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { extractParams } from './extractParams';
+import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { NetParams } from './types';
 
@@ -14,7 +16,12 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     super('Mtcnn')
   }
 
-  public forwardInput(input: NetInput, minFaceSize: number = 20, scaleFactor: number = 0.709): tf.Tensor2D {
+  public forwardInput(
+    input: NetInput,
+    minFaceSize: number = 20,
+    scaleFactor: number = 0.709,
+    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+  ): tf.Tensor2D {
 
     const { params } = this
 
@@ -23,28 +30,14 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     }
 
     return tf.tidy(() => {
-      const imgTensor = tf.expandDims(input.inputs[0]).toFloat() as tf.Tensor4D
+      // TODO: expects bgr input?
+      let imgTensor = bgrToRgbTensor(
+        tf.expandDims(input.inputs[0]).toFloat() as tf.Tensor4D
+      )
 
-      function pyramidDown(minFaceSize: number, scaleFactor: number, dims: number[]): number[] {
+      const scales = pyramidDown(minFaceSize, scaleFactor, imgTensor.shape.slice(1))
 
-        const [height, width] = dims
-        const m = 12 / minFaceSize
-
-        const scales = []
-
-        let minLayer = Math.min(height, width) * m
-        let exp = 0
-        while (minLayer >= 12) {
-          scales.push(m * Math.pow(scaleFactor, exp))
-          minLayer = minLayer * scaleFactor
-          exp += 1
-        }
-
-        return scales
-      }
-
-      const scales = pyramidDown(minFaceSize, scaleFactor, imgTensor.shape)
-      const out1 = stage1(imgTensor, scales, params.pnet)
+      const out1 = stage1(imgTensor, scales, scoreThresholds[0], params.pnet)
 
       return tf.tensor2d([0], [1, 1])
     })

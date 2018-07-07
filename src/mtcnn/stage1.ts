@@ -1,78 +1,113 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { Point } from '../Point';
+import { CELL_SIZE, CELL_STRIDE } from './config';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
 
 function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
   return tf.tidy(() => {
-    const [height, width] = x.shape
-    const resized = tf.image.resizeBilinear(x, [height * scale, width * scale])
 
-    return tf.mul(tf.sub(resized, tf.scalar(127.5)), tf.scalar(0.0078125))
+    const [height, width] = x.shape.slice(1)
+    const resized = tf.image.resizeBilinear(x, [Math.floor(height * scale), Math.floor(width * scale)])
+    const normalized = tf.mul(tf.sub(resized, tf.scalar(127.5)), tf.scalar(0.0078125))
 
-    // TODO: ?
-    // img_x = np.expand_dims(scaled_image, 0)
-    // img_y = np.transpose(img_x, (0, 2, 1, 3))
-
+    return (tf.transpose(normalized, [0, 2, 1, 3]) as tf.Tensor4D)
   })
 }
 
-export function stage1(x: tf.Tensor4D, scales: number[], params: PNetParams) {
+
+function extractBoundingBoxes(
+  scores: tf.Tensor2D,
+  regions: tf.Tensor3D,
+  scale: number,
+  scoreThreshold: number
+) {
+
+  // TODO: fix this!, maybe better to use tf.gather here
+  const indices2D: Point[] = []
+  for (let y = 0; y < scores.shape[0]; y++) {
+    for (let x = 0; x < scores.shape[1]; x++) {
+      if (scores.get(y, x) >= scoreThreshold) {
+        indices2D.push(new Point(x, y))
+      }
+    }
+  }
+
+  if (!indices2D.length) {
+    return null
+  }
+
   return tf.tidy(() => {
 
-    const boxes = scales.map((scale) => {
-      const resized = rescaleAndNormalize(x, scale)
-      const { prob, convOut } = PNet(resized, params)
+    const indicesTensor = tf.tensor2d(
+      indices2D.map(pt => [pt.y, pt.x]),
+      [indices2D.length, 2]
+    )
+
+    const cellsStart = tf.round(
+      indicesTensor.mul(tf.scalar(CELL_STRIDE)).add(tf.scalar(1)).div(tf.scalar(scale))
+    ) as tf.Tensor2D
+    const cellsEnd = tf.round(
+      indicesTensor.mul(tf.scalar(CELL_STRIDE)).add(tf.scalar(CELL_SIZE)).div(tf.scalar(scale))
+    ) as tf.Tensor2D
+
+    const scoresTensor = tf.tensor1d(indices2D.map(pt => scores.get(pt.y, pt.x)))
+
+    const candidateRegions = indices2D.map(c => ({
+      left: regions.get(c.y, c.x, 0),
+      top: regions.get(c.y, c.x, 1),
+      right: regions.get(c.y, c.x, 2),
+      bottom: regions.get(c.y, c.x, 3)
+    }))
+
+    const regionsTensor = tf.tensor2d(
+      candidateRegions.map(r => [r.left, r.top, r.right, r.bottom]),
+      [candidateRegions.length, 4]
+    )
+
+    const boxesTensor = tf.concat2d([cellsStart, cellsEnd, scoresTensor.as2D(scoresTensor.size, 1), regionsTensor], 1)
+
+    return boxesTensor
+  })
+}
+
+// TODO: debug
+declare const window: any
+
+export function stage1(x: tf.Tensor4D, scales: number[], scoreThreshold: number, params: PNetParams) {
+  return tf.tidy(() => {
+
+    const boxes = scales.map((scale, i) => {
+      let resized = i === 0
+        // TODO: debug
+        ? tf.tensor4d(window.resizedData, [1, 820, 461, 3])
+
+        : rescaleAndNormalize(x, scale)
+
+      const { prob, regions } = PNet(resized, params)
+
+      const scores = tf.unstack(prob, 3)[1]
+      const [sh, sw] = scores.shape.slice(1)
+      const [rh, rw] = regions.shape.slice(1)
+
+
+      const boxes = extractBoundingBoxes(
+        scores.as2D(sh, sw),
+        regions.as3D(rh, rw, 4),
+        scale,
+        scoreThreshold
+      )
+
+      // TODO: debug
+      if (!boxes) {
+        console.log('no boxes for scale', scale)
+        return
+      }
+      // TODO: debug
+      i === 0 && (window.boxes = boxes.dataSync())
+
     })
 
   })
 }
-
-/*
-
-  for scale in scales:
-      scaled_image = self.__scale_image(image, scale)
-
-      img_x = np.expand_dims(scaled_image, 0)
-      img_y = np.transpose(img_x, (0, 2, 1, 3))
-
-      out = self.__pnet.feed(img_y)
-
-      out0 = np.transpose(out[0], (0, 2, 1, 3))
-      out1 = np.transpose(out[1], (0, 2, 1, 3))
-
-      boxes, _ = self.__generate_bounding_box(out1[0, :, :, 1].copy(),
-                                              out0[0, :, :, :].copy(), scale, self.__steps_threshold[0])
-
-      # inter-scale nms
-      pick = self.__nms(boxes.copy(), 0.5, 'Union')
-      if boxes.size > 0 and pick.size > 0:
-          boxes = boxes[pick, :]
-          total_boxes = np.append(total_boxes, boxes, axis=0)
-
-
-
-
-  numboxes = total_boxes.shape[0]
-
-  if numboxes > 0:
-      pick = self.__nms(total_boxes.copy(), 0.7, 'Union')
-      total_boxes = total_boxes[pick, :]
-
-      regw = total_boxes[:, 2] - total_boxes[:, 0]
-      regh = total_boxes[:, 3] - total_boxes[:, 1]
-
-      qq1 = total_boxes[:, 0] + total_boxes[:, 5] * regw
-      qq2 = total_boxes[:, 1] + total_boxes[:, 6] * regh
-      qq3 = total_boxes[:, 2] + total_boxes[:, 7] * regw
-      qq4 = total_boxes[:, 3] + total_boxes[:, 8] * regh
-
-      total_boxes = np.transpose(np.vstack([qq1, qq2, qq3, qq4, total_boxes[:, 4]]))
-      total_boxes = self.__rerec(total_boxes.copy())
-
-      total_boxes[:, 0:4] = np.fix(total_boxes[:, 0:4]).astype(np.int32)
-      status = StageStatus(self.__pad(total_boxes.copy(), stage_status.width, stage_status.height),
-                            width=stage_status.width, height=stage_status.height)
-
-  return total_boxes, status
-  */
