@@ -43,8 +43,18 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     })
   }
 
-  public async forward(input: TNetInput): Promise<tf.Tensor2D> {
-    return this.forwardInput(await toNetInput(input, true))
+  public async forward(
+    input: TNetInput,
+    minFaceSize: number = 20,
+    scaleFactor: number = 0.709,
+    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+  ): Promise<tf.Tensor2D> {
+    return this.forwardInput(
+      await toNetInput(input, true),
+      minFaceSize,
+      scaleFactor,
+      scoreThresholds
+    )
   }
 
   protected extractParams(weights: Float32Array) {

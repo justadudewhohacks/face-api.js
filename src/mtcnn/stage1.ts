@@ -1,7 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { Point } from '../Point';
+import { BoundingBox } from './BoundingBox';
 import { CELL_SIZE, CELL_STRIDE } from './config';
+import { nms } from './nms';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
 
@@ -18,96 +20,116 @@ function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
 
 
 function extractBoundingBoxes(
-  scores: tf.Tensor2D,
-  regions: tf.Tensor3D,
+  scoresTensor: tf.Tensor2D,
+  regionsTensor: tf.Tensor3D,
   scale: number,
   scoreThreshold: number
 ) {
 
   // TODO: fix this!, maybe better to use tf.gather here
-  const indices2D: Point[] = []
-  for (let y = 0; y < scores.shape[0]; y++) {
-    for (let x = 0; x < scores.shape[1]; x++) {
-      if (scores.get(y, x) >= scoreThreshold) {
-        indices2D.push(new Point(x, y))
+  const indices: Point[] = []
+  for (let y = 0; y < scoresTensor.shape[0]; y++) {
+    for (let x = 0; x < scoresTensor.shape[1]; x++) {
+      if (scoresTensor.get(y, x) >= scoreThreshold) {
+        indices.push(new Point(x, y))
       }
     }
   }
 
-  if (!indices2D.length) {
-    return null
-  }
-
-  return tf.tidy(() => {
-
-    const indicesTensor = tf.tensor2d(
-      indices2D.map(pt => [pt.y, pt.x]),
-      [indices2D.length, 2]
+  const boundingBoxes = indices.map(idx => {
+    const cell = new BoundingBox(
+      Math.round((idx.x * CELL_STRIDE + 1) / scale),
+      Math.round((idx.y * CELL_STRIDE + 1) / scale),
+      Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale),
+      Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale)
     )
 
-    const cellsStart = tf.round(
-      indicesTensor.mul(tf.scalar(CELL_STRIDE)).add(tf.scalar(1)).div(tf.scalar(scale))
-    ) as tf.Tensor2D
-    const cellsEnd = tf.round(
-      indicesTensor.mul(tf.scalar(CELL_STRIDE)).add(tf.scalar(CELL_SIZE)).div(tf.scalar(scale))
-    ) as tf.Tensor2D
+    const score = scoresTensor.get(idx.y, idx.x)
 
-    const scoresTensor = tf.tensor1d(indices2D.map(pt => scores.get(pt.y, pt.x)))
-
-    const candidateRegions = indices2D.map(c => ({
-      left: regions.get(c.y, c.x, 0),
-      top: regions.get(c.y, c.x, 1),
-      right: regions.get(c.y, c.x, 2),
-      bottom: regions.get(c.y, c.x, 3)
-    }))
-
-    const regionsTensor = tf.tensor2d(
-      candidateRegions.map(r => [r.left, r.top, r.right, r.bottom]),
-      [candidateRegions.length, 4]
+    const region = new BoundingBox(
+      regionsTensor.get(idx.y, idx.x, 0),
+      regionsTensor.get(idx.y, idx.x, 1),
+      regionsTensor.get(idx.y, idx.x, 2),
+      regionsTensor.get(idx.y, idx.x, 3)
     )
 
-    const boxesTensor = tf.concat2d([cellsStart, cellsEnd, scoresTensor.as2D(scoresTensor.size, 1), regionsTensor], 1)
-
-    return boxesTensor
+    return {
+      cell,
+      score,
+      region
+    }
   })
+
+  return boundingBoxes
 }
 
-// TODO: debug
-declare const window: any
+export function stage1(imgTensor: tf.Tensor4D, scales: number[], scoreThreshold: number, params: PNetParams) {
 
-export function stage1(x: tf.Tensor4D, scales: number[], scoreThreshold: number, params: PNetParams) {
-  return tf.tidy(() => {
+  const boxesForScale = scales.map((scale) => {
 
-    const boxes = scales.map((scale, i) => {
-      let resized = i === 0
-        // TODO: debug
-        ? tf.tensor4d(window.resizedData, [1, 820, 461, 3])
-
-        : rescaleAndNormalize(x, scale)
-
+    const { scoresTensor, regionsTensor } = tf.tidy(() => {
+      const resized = rescaleAndNormalize(imgTensor, scale)
       const { prob, regions } = PNet(resized, params)
 
       const scores = tf.unstack(prob, 3)[1]
       const [sh, sw] = scores.shape.slice(1)
       const [rh, rw] = regions.shape.slice(1)
 
-
-      const boxes = extractBoundingBoxes(
-        scores.as2D(sh, sw),
-        regions.as3D(rh, rw, 4),
-        scale,
-        scoreThreshold
-      )
-
-      // TODO: debug
-      if (!boxes) {
-        console.log('no boxes for scale', scale)
-        return
+      return {
+        scoresTensor: scores.as2D(sh, sw),
+        regionsTensor: regions.as3D(rh, rw, 4)
       }
-      // TODO: debug
-      i === 0 && (window.boxes = boxes.dataSync())
-
     })
 
+    const boundingBoxes = extractBoundingBoxes(
+      scoresTensor,
+      regionsTensor,
+      scale,
+      scoreThreshold
+    )
+
+    scoresTensor.dispose()
+    regionsTensor.dispose()
+
+    if (!boundingBoxes.length) {
+      return []
+    }
+
+    const indices = nms(
+      boundingBoxes.map(bbox => bbox.cell),
+      boundingBoxes.map(bbox => bbox.score),
+      0.5
+    )
+
+    return indices.map(boxIdx => boundingBoxes[boxIdx])
   })
+
+  const allBoxes = boxesForScale.reduce(
+    (all, boxes) => all.concat(boxes)
+  )
+
+  if (allBoxes.length > 0) {
+    const indices = nms(
+      allBoxes.map(bbox => bbox.cell),
+      allBoxes.map(bbox => bbox.score),
+      0.7
+    )
+
+    const finalBoxes = indices
+      .map(idx => allBoxes[idx])
+      .map(({ cell, region, score }) => ({
+        box: new BoundingBox(
+          cell.left + (region.left * cell.width),
+          cell.right + (region.right * cell.width),
+          cell.top + (region.top * cell.height),
+          cell.bottom + (region.bottom * cell.height),
+        ).toSquare().round(),
+        score
+      }))
+
+    return finalBoxes
+  }
+
+  return []
+
 }
