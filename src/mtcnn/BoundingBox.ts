@@ -89,4 +89,13 @@ export class BoundingBox {
 
     return { dy, edy, dx, edx, y, ey, x, ex, w, h }
   }
+
+  public calibrate(region: BoundingBox) {
+    return new BoundingBox(
+      this.left + (region.left * this.width),
+      this.top + (region.top * this.height),
+      this.right + (region.right * this.width),
+      this.bottom + (region.bottom * this.height)
+    ).toSquare().round()
+  }
 }

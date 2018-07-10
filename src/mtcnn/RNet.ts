@@ -5,7 +5,7 @@ import { prelu } from './prelu';
 import { sharedLayer } from './sharedLayers';
 import { RNetParams } from './types';
 
-export function RNet(x: tf.Tensor4D, params: RNetParams): { prob: tf.Tensor2D, regions: tf.Tensor2D } {
+export function RNet(x: tf.Tensor4D, params: RNetParams): { scores: tf.Tensor1D, regions: tf.Tensor2D } {
   return tf.tidy(() => {
 
     const convOut = sharedLayer(x, params)
@@ -17,6 +17,7 @@ export function RNet(x: tf.Tensor4D, params: RNetParams): { prob: tf.Tensor2D, r
     const prob = tf.softmax(tf.sub(fc2_1, max), 1) as tf.Tensor2D
     const regions = fullyConnectedLayer(prelu4, params.fc2_2)
 
-    return { prob, regions }
+    const scores = tf.unstack(prob, 1)[1] as tf.Tensor1D
+    return { scores, regions }
   })
 }

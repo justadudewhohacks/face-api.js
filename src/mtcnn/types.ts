@@ -1,5 +1,6 @@
-import { ConvParams, FCParams } from '../commons/types';
 import { tf } from '..';
+import { ConvParams, FCParams } from '../commons/types';
+import { BoundingBox } from './BoundingBox';
 
 export type SharedParams = {
   conv1: ConvParams

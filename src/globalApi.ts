@@ -4,7 +4,7 @@ import { allFacesFactory } from './allFacesFactory';
 import { FaceDetection } from './faceDetectionNet/FaceDetection';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
-import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
+import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { FullFaceDescription } from './FullFaceDescription';
 import { NetInput } from './NetInput';
@@ -44,7 +44,7 @@ export function locateFaces(
 
 export function detectLandmarks(
   input: TNetInput
-): Promise<FaceLandmarks | FaceLandmarks[]> {
+): Promise<FaceLandmarks68 | FaceLandmarks68[]> {
   return landmarkNet.detectLandmarks(input)
 }
 

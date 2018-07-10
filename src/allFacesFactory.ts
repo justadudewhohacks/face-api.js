@@ -1,7 +1,7 @@
 import { extractFaceTensors } from './extractFaceTensors';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
-import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
+import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { FullFaceDescription } from './FullFaceDescription';
 import { TNetInput } from './types';
@@ -22,10 +22,10 @@ export function allFacesFactory(
     const faceTensors = await extractFaceTensors(input, detections)
 
     const faceLandmarksByFace = useBatchProcessing
-      ? await landmarkNet.detectLandmarks(faceTensors) as FaceLandmarks[]
+      ? await landmarkNet.detectLandmarks(faceTensors) as FaceLandmarks68[]
       : await Promise.all(faceTensors.map(
         faceTensor => landmarkNet.detectLandmarks(faceTensor)
-      )) as FaceLandmarks[]
+      )) as FaceLandmarks68[]
 
     faceTensors.forEach(t => t.dispose())
 

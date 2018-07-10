@@ -115,6 +115,9 @@ export function stage1(
     (all, boxes) => all.concat(boxes)
   )
 
+  let finalBoxes: BoundingBox[] = []
+  let finalScores: number[] = []
+
   if (allBoxes.length > 0) {
     const indices = nms(
       allBoxes.map(bbox => bbox.cell),
@@ -122,21 +125,23 @@ export function stage1(
       0.7
     )
 
-    const finalBoxes = indices
+    finalScores = indices.map(idx => allBoxes[idx].score)
+    finalBoxes = indices
       .map(idx => allBoxes[idx])
-      .map(({ cell, region, score }) => ({
-        box: new BoundingBox(
+      .map(({ cell, region }) =>
+        new BoundingBox(
           cell.left + (region.left * cell.width),
           cell.top + (region.top * cell.height),
           cell.right + (region.right * cell.width),
           cell.bottom + (region.bottom * cell.height)
-        ).toSquare().round(),
-        score
-      }))
+        ).toSquare().round()
+      )
 
-    return finalBoxes
   }
 
-  return []
+  return {
+    boxes: finalBoxes,
+    scores: finalScores
+  }
 
 }

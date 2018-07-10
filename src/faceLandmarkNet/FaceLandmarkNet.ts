@@ -9,7 +9,7 @@ import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { isEven } from '../utils';
 import { extractParams } from './extractParams';
-import { FaceLandmarks } from './FaceLandmarks';
+import { FaceLandmarks68 } from './FaceLandmarks68';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { NetParams } from './types';
@@ -93,7 +93,7 @@ export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
     return this.forwardInput(await toNetInput(input, true))
   }
 
-  public async detectLandmarks(input: TNetInput): Promise<FaceLandmarks | FaceLandmarks[]> {
+  public async detectLandmarks(input: TNetInput): Promise<FaceLandmarks68 | FaceLandmarks68[]> {
     const netInput = await toNetInput(input, true)
 
     const landmarkTensors = tf.tidy(
@@ -106,7 +106,7 @@ export class FaceLandmarkNet extends NeuralNetwork<NetParams> {
         const xCoords = landmarksArray.filter((_, i) => isEven(i))
         const yCoords = landmarksArray.filter((_, i) => !isEven(i))
 
-        return new FaceLandmarks(
+        return new FaceLandmarks68(
           Array(68).fill(0).map((_, i) => new Point(xCoords[i], yCoords[i])),
           {
             height: netInput.getInputHeight(batchIdx),
