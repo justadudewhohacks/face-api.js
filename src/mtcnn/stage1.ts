@@ -79,13 +79,12 @@ export function stage1(
       const { prob, regions } = PNet(resized, params)
 
 
-      const scores = tf.unstack(prob, 3)[1]
-      const [sh, sw] = scores.shape.slice(1)
-      const [rh, rw] = regions.shape.slice(1)
+      const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
+      const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
 
       return {
-        scoresTensor: scores.as2D(sh, sw),
-        regionsTensor: regions.as3D(rh, rw, 4)
+        scoresTensor,
+        regionsTensor
       }
     })
 
