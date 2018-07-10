@@ -4,6 +4,7 @@ import { Point } from '../Point';
 import { BoundingBox } from './BoundingBox';
 import { CELL_SIZE, CELL_STRIDE } from './config';
 import { nms } from './nms';
+import { normalize } from './normalize';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
 
@@ -12,12 +13,11 @@ function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
 
     const [height, width] = x.shape.slice(1)
     const resized = tf.image.resizeBilinear(x, [Math.floor(height * scale), Math.floor(width * scale)])
-    const normalized = tf.mul(tf.sub(resized, tf.scalar(127.5)), tf.scalar(0.0078125))
+    const normalized = normalize(resized)
 
     return (tf.transpose(normalized, [0, 2, 1, 3]) as tf.Tensor4D)
   })
 }
-
 
 function extractBoundingBoxes(
   scoresTensor: tf.Tensor2D,
@@ -38,10 +38,10 @@ function extractBoundingBoxes(
 
   const boundingBoxes = indices.map(idx => {
     const cell = new BoundingBox(
-      Math.round((idx.x * CELL_STRIDE + 1) / scale),
       Math.round((idx.y * CELL_STRIDE + 1) / scale),
-      Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale),
-      Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale)
+      Math.round((idx.x * CELL_STRIDE + 1) / scale),
+      Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale),
+      Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale)
     )
 
     const score = scoresTensor.get(idx.y, idx.x)
@@ -63,13 +63,21 @@ function extractBoundingBoxes(
   return boundingBoxes
 }
 
-export function stage1(imgTensor: tf.Tensor4D, scales: number[], scoreThreshold: number, params: PNetParams) {
+export function stage1(
+  imgTensor: tf.Tensor4D,
+  scales: number[],
+  scoreThreshold: number,
+  params: PNetParams
+) {
 
-  const boxesForScale = scales.map((scale) => {
+  const boxesForScale = scales.map((scale, i) => {
 
     const { scoresTensor, regionsTensor } = tf.tidy(() => {
       const resized = rescaleAndNormalize(imgTensor, scale)
+
+
       const { prob, regions } = PNet(resized, params)
+
 
       const scores = tf.unstack(prob, 3)[1]
       const [sh, sw] = scores.shape.slice(1)
@@ -120,9 +128,9 @@ export function stage1(imgTensor: tf.Tensor4D, scales: number[], scoreThreshold:
       .map(({ cell, region, score }) => ({
         box: new BoundingBox(
           cell.left + (region.left * cell.width),
-          cell.right + (region.right * cell.width),
           cell.top + (region.top * cell.height),
-          cell.bottom + (region.bottom * cell.height),
+          cell.right + (region.right * cell.width),
+          cell.bottom + (region.bottom * cell.height)
         ).toSquare().round(),
         score
       }))
