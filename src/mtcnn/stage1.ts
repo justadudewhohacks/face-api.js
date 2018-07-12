@@ -7,12 +7,13 @@ import { nms } from './nms';
 import { normalize } from './normalize';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
+import { getSizesForScale } from './getSizesForScale';
 
 function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
   return tf.tidy(() => {
 
-    const [height, width] = x.shape.slice(1)
-    const resized = tf.image.resizeBilinear(x, [Math.floor(height * scale), Math.floor(width * scale)])
+    const { height, width } = getSizesForScale(scale, x.shape.slice(1))
+    const resized = tf.image.resizeBilinear(x, [height, width])
     const normalized = normalize(resized)
 
     return (tf.transpose(normalized, [0, 2, 1, 3]) as tf.Tensor4D)
@@ -67,17 +68,20 @@ export function stage1(
   imgTensor: tf.Tensor4D,
   scales: number[],
   scoreThreshold: number,
-  params: PNetParams
+  params: PNetParams,
+  stats: any
 ) {
+  stats.stage1 = []
 
-  const boxesForScale = scales.map((scale, i) => {
+  const boxesForScale = scales.map((scale) => {
+    const statsForScale: any = { scale }
 
     const { scoresTensor, regionsTensor } = tf.tidy(() => {
       const resized = rescaleAndNormalize(imgTensor, scale)
 
-
+      let ts = Date.now()
       const { prob, regions } = PNet(resized, params)
-
+      statsForScale.pnet = Date.now() - ts
 
       const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
       const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
@@ -99,15 +103,20 @@ export function stage1(
     regionsTensor.dispose()
 
     if (!boundingBoxes.length) {
+      stats.stage1.push(statsForScale)
       return []
     }
 
+    let ts = Date.now()
     const indices = nms(
       boundingBoxes.map(bbox => bbox.cell),
       boundingBoxes.map(bbox => bbox.score),
       0.5
     )
+    statsForScale.nms = Date.now() - ts
+    statsForScale.numBoxes = indices.length
 
+    stats.stage1.push(statsForScale)
     return indices.map(boxIdx => boundingBoxes[boxIdx])
   })
 
@@ -119,11 +128,13 @@ export function stage1(
   let finalScores: number[] = []
 
   if (allBoxes.length > 0) {
+    let ts = Date.now()
     const indices = nms(
       allBoxes.map(bbox => bbox.cell),
       allBoxes.map(bbox => bbox.score),
       0.7
     )
+    stats.stage1_nms = Date.now() - ts
 
     finalScores = indices.map(idx => allBoxes[idx].score)
     finalBoxes = indices

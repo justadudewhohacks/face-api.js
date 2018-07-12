@@ -9,25 +9,36 @@ export async function stage3(
   img: HTMLCanvasElement,
   inputBoxes: BoundingBox[],
   scoreThreshold: number,
-  params: ONetParams
+  params: ONetParams,
+  stats: any
 ) {
 
-  const onetInput = await extractImagePatches(img, inputBoxes, { width: 48, height: 48 })
-  const onetOut = ONet(onetInput, params)
+  let ts = Date.now()
+  const onetInputs = await extractImagePatches(img, inputBoxes, { width: 48, height: 48 })
+  stats.stage3_extractImagePatches = Date.now() - ts
 
-  onetInput.dispose()
+  ts = Date.now()
+  const onetOuts = onetInputs.map(
+    onetInput => {
+      const out = ONet(onetInput, params)
+      onetInput.dispose()
+      return out
+    }
+  )
+  stats.stage3_onet = Date.now() - ts
 
-  const scores = Array.from(await onetOut.scores.data())
+  const scoreDatas = await Promise.all(onetOuts.map(out => out.scores.data()))
+  const scores = scoreDatas.map(arr => Array.from(arr)).reduce((all, arr) => all.concat(arr))
   const indices = scores
     .map((score, idx) => ({ score, idx }))
     .filter(c => c.score > scoreThreshold)
     .map(({ idx }) => idx)
 
   const filteredRegions = indices.map(idx => new BoundingBox(
-    onetOut.regions.get(idx, 0),
-    onetOut.regions.get(idx, 1),
-    onetOut.regions.get(idx, 2),
-    onetOut.regions.get(idx, 3)
+    onetOuts[idx].regions.get(0, 0),
+    onetOuts[idx].regions.get(0, 1),
+    onetOuts[idx].regions.get(0, 2),
+    onetOuts[idx].regions.get(0, 3)
   ))
   const filteredBoxes = indices
     .map((idx, i) => inputBoxes[idx].calibrate(filteredRegions[i]))
@@ -39,28 +50,32 @@ export async function stage3(
 
   if (filteredBoxes.length > 0) {
 
+    ts = Date.now()
     const indicesNms = nms(
       filteredBoxes,
       filteredScores,
       0.7,
       false
     )
+    stats.stage3_nms = Date.now() - ts
 
     finalBoxes = indicesNms.map(idx => filteredBoxes[idx])
     finalScores = indicesNms.map(idx => filteredScores[idx])
     points = indicesNms.map((idx, i) =>
       Array(5).fill(0).map((_, ptIdx) =>
         new Point(
-          ((onetOut.points.get(idx, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
-          ((onetOut.points.get(idx, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
+          ((onetOuts[idx].points.get(0, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
+          ((onetOuts[idx].points.get(0, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
         )
       )
     )
   }
 
-  onetOut.regions.dispose()
-  onetOut.scores.dispose()
-  onetOut.points.dispose()
+  onetOuts.forEach(t => {
+    t.regions.dispose()
+    t.scores.dispose()
+    t.points.dispose()
+  })
 
   return {
     boxes: finalBoxes,

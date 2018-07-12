@@ -1,6 +1,7 @@
 import { tf } from '..';
 import { ConvParams, FCParams } from '../commons/types';
-import { BoundingBox } from './BoundingBox';
+import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceLandmarks5 } from './FaceLandmarks5';
 
 export type SharedParams = {
   conv1: ConvParams
@@ -37,4 +38,9 @@ export type NetParams = {
   pnet: PNetParams
   rnet: RNetParams
   onet: ONetParams
+}
+
+export type MtcnnResult = {
+  faceDetection: FaceDetection,
+  faceLandmarks: FaceLandmarks5
 }

@@ -10,7 +10,7 @@ export async function extractImagePatches(
   img: HTMLCanvasElement,
   boxes: BoundingBox[],
   { width, height }: Dimensions
-): Promise<tf.Tensor4D> {
+): Promise<tf.Tensor4D[]> {
 
 
   const imgCtx = getContext2dOrThrow(img)
@@ -26,7 +26,7 @@ export async function extractImagePatches(
     return createImageBitmap(imgData)
   }))
 
-  const imagePatchesData: number[] = []
+  const imagePatchesDatas: number[][] = []
 
   bitmaps.forEach(bmp => {
     const patch = createCanvas({ width, height })
@@ -34,18 +34,24 @@ export async function extractImagePatches(
     patchCtx.drawImage(bmp, 0, 0, width, height)
     const { data } = patchCtx.getImageData(0, 0, width, height)
 
+    const currData = []
     for(let i = 0; i < data.length; i++) {
       if ((i + 1) % 4 === 0) continue
-      imagePatchesData.push(data[i])
+      currData.push(data[i])
     }
+    imagePatchesDatas.push(currData)
   })
 
-  return tf.tidy(() => {
-    const imagePatchTensor = bgrToRgbTensor(tf.transpose(
-      tf.tensor4d(imagePatchesData, [boxes.length, width, height, 3]),
-      [0, 2, 1, 3]
-    ).toFloat()) as tf.Tensor4D
 
-    return normalize(imagePatchTensor)
+  return imagePatchesDatas.map(data => {
+    const t = tf.tidy(() => {
+      const imagePatchTensor = bgrToRgbTensor(tf.transpose(
+        tf.tensor4d(data, [1, width, height, 3]),
+        [0, 2, 1, 3]
+      ).toFloat()) as tf.Tensor4D
+
+      return normalize(imagePatchTensor)
+    })
+    return t
   })
 }

@@ -8,15 +8,26 @@ export async function stage2(
   img: HTMLCanvasElement,
   inputBoxes: BoundingBox[],
   scoreThreshold: number,
-  params: RNetParams
+  params: RNetParams,
+  stats: any
 ) {
 
-  const rnetInput = await extractImagePatches(img, inputBoxes, { width: 24, height: 24 })
-  const rnetOut = RNet(rnetInput, params)
+  let ts = Date.now()
+  const rnetInputs = await extractImagePatches(img, inputBoxes, { width: 24, height: 24 })
+  stats.stage2_extractImagePatches = Date.now() - ts
 
-  rnetInput.dispose()
+  ts = Date.now()
+  const rnetOuts = rnetInputs.map(
+    rnetInput => {
+      const out = RNet(rnetInput, params)
+      rnetInput.dispose()
+      return out
+    }
+  )
+  stats.stage2_rnet = Date.now() - ts
 
-  const scores = Array.from(await rnetOut.scores.data())
+  const scoreDatas = await Promise.all(rnetOuts.map(out => out.scores.data()))
+  const scores = scoreDatas.map(arr => Array.from(arr)).reduce((all, arr) => all.concat(arr))
   const indices = scores
     .map((score, idx) => ({ score, idx }))
     .filter(c => c.score > scoreThreshold)
@@ -29,18 +40,20 @@ export async function stage2(
   let finalScores: number[] = []
 
   if (filteredBoxes.length > 0) {
+    ts = Date.now()
     const indicesNms = nms(
       filteredBoxes,
       filteredScores,
       0.7
     )
+    stats.stage2_nms = Date.now() - ts
 
     const regions = indicesNms.map(idx =>
       new BoundingBox(
-        rnetOut.regions.get(indices[idx], 0),
-        rnetOut.regions.get(indices[idx], 1),
-        rnetOut.regions.get(indices[idx], 2),
-        rnetOut.regions.get(indices[idx], 3)
+        rnetOuts[indices[idx]].regions.get(0, 0),
+        rnetOuts[indices[idx]].regions.get(0, 1),
+        rnetOuts[indices[idx]].regions.get(0, 2),
+        rnetOuts[indices[idx]].regions.get(0, 3)
       )
     )
 
@@ -48,8 +61,10 @@ export async function stage2(
     finalBoxes = indicesNms.map((idx, i) => filteredBoxes[idx].calibrate(regions[i]))
   }
 
-  rnetOut.regions.dispose()
-  rnetOut.scores.dispose()
+  rnetOuts.forEach(t => {
+    t.regions.dispose()
+    t.scores.dispose()
+  })
 
   return {
     boxes: finalBoxes,

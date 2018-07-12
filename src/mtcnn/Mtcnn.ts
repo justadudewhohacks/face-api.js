@@ -10,11 +10,12 @@ import { TNetInput } from '../types';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { extractParams } from './extractParams';
 import { FaceLandmarks5 } from './FaceLandmarks5';
+import { getSizesForScale } from './getSizesForScale';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
-import { NetParams } from './types';
+import { MtcnnResult, NetParams } from './types';
 
 export class Mtcnn extends NeuralNetwork<NetParams> {
 
@@ -26,8 +27,9 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     input: NetInput,
     minFaceSize: number = 20,
     scaleFactor: number = 0.709,
+    maxNumScales: number = 10,
     scoreThresholds: number[] = [0.6, 0.7, 0.7]
-  ): Promise<any> {
+  ): Promise<{ results: MtcnnResult[], stats: any }> {
 
     const { params } = this
 
@@ -42,6 +44,10 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       throw new Error('Mtcnn - inputCanvas is not defined, note that passing tensors into Mtcnn.forwardInput is not supported yet.')
     }
 
+    const stats: any = {}
+
+    const tsTotal = Date.now()
+
     const imgTensor = tf.tidy(() =>
       bgrToRgbTensor(
         tf.expandDims(inputTensor).toFloat() as tf.Tensor4D
@@ -51,18 +57,47 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     const [height, width] = imgTensor.shape.slice(1)
 
     const scales = pyramidDown(minFaceSize, scaleFactor, [height, width])
-    const out1 = await stage1(imgTensor, scales, scoreThresholds[0], params.pnet)
+      .filter(scale => {
+        const sizes = getSizesForScale(scale, [height, width])
+        return Math.min(sizes.width, sizes.height) > 48
+      })
+      .slice(0, maxNumScales)
 
+    stats.scales = scales
+    stats.pyramid = scales.map(scale => getSizesForScale(scale, [height, width]))
+
+    let ts = Date.now()
+    const out1 = await stage1(imgTensor, scales, scoreThresholds[0], params.pnet, stats)
+    stats.total_stage1 = Date.now() - ts
+
+    if (!out1.boxes.length) {
+      stats.total = Date.now() - tsTotal
+      return { results: [], stats }
+    }
+
+    stats.stage2_numInputBoxes = out1.boxes.length
     // using the inputCanvas to extract and resize the image patches, since it is faster
     // than doing this on the gpu
-    const out2 = await stage2(inputCanvas, out1.boxes, scoreThresholds[1], params.rnet)
-    const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet)
+    ts = Date.now()
+    const out2 = await stage2(inputCanvas, out1.boxes, scoreThresholds[1], params.rnet, stats)
+    stats.total_stage2 = Date.now() - ts
+
+    if (!out2.boxes.length) {
+      stats.total = Date.now() - tsTotal
+      return { results: [], stats }
+    }
+
+    stats.stage3_numInputBoxes = out2.boxes.length
+
+    ts = Date.now()
+    const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
+    stats.total_stage3 = Date.now() - ts
 
     imgTensor.dispose()
     input.dispose()
 
-    const faceDetections = out3.boxes.map((box, idx) =>
-      new FaceDetection(
+    const results = out3.boxes.map((box, idx) => ({
+      faceDetection: new FaceDetection(
         out3.scores[idx],
         new Rect(
           box.left / width,
@@ -74,32 +109,47 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
           height,
           width
         }
-      )
-    )
-
-    const faceLandmarks = out3.points.map(pts =>
-      new FaceLandmarks5(
-        pts.map(pt => pt.div(new Point(width, height))),
+      ),
+      faceLandmarks: new FaceLandmarks5(
+        out3.points[idx].map(pt => pt.div(new Point(width, height))),
         { width, height }
       )
-    )
+    }))
 
-    return {
-      faceDetections,
-      faceLandmarks
-    }
+    stats.total = Date.now() - tsTotal
+    return { results, stats }
   }
 
   public async forward(
     input: TNetInput,
     minFaceSize: number = 20,
     scaleFactor: number = 0.709,
+    maxNumScales: number = 10,
     scoreThresholds: number[] = [0.6, 0.7, 0.7]
-  ): Promise<tf.Tensor2D> {
+  ): Promise<MtcnnResult[]> {
+    return (
+      await this.forwardInput(
+        await toNetInput(input, true, true),
+        minFaceSize,
+        scaleFactor,
+        maxNumScales,
+        scoreThresholds
+      )
+    ).results
+  }
+
+  public async forwardWithStats(
+    input: TNetInput,
+    minFaceSize: number = 20,
+    scaleFactor: number = 0.709,
+    maxNumScales: number = 10,
+    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+  ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input, true, true),
       minFaceSize,
       scaleFactor,
+      maxNumScales,
       scoreThresholds
     )
   }
