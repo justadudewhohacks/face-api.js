@@ -115,6 +115,14 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Detect and Recognize Faces'
     },
     {
+      uri: 'mtcnn_face_detection',
+      name: 'MTCNN Face Detection'
+    },
+    {
+      uri: 'mtcnn_face_detection_video',
+      name: 'MTCNN Face Detection Video'
+    },
+    {
       uri: 'batch_face_landmarks',
       name: 'Batch Face Landmarks'
     },
