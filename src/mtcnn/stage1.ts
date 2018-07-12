@@ -73,25 +73,26 @@ export function stage1(
 ) {
   stats.stage1 = []
 
-  const boxesForScale = scales.map((scale) => {
+  const pnetOutputs = scales.map((scale) => tf.tidy(() => {
     const statsForScale: any = { scale }
+    const resized = rescaleAndNormalize(imgTensor, scale)
 
-    const { scoresTensor, regionsTensor } = tf.tidy(() => {
-      const resized = rescaleAndNormalize(imgTensor, scale)
+    let ts = Date.now()
+    const { prob, regions } = PNet(resized, params)
+    statsForScale.pnet = Date.now() - ts
 
-      let ts = Date.now()
-      const { prob, regions } = PNet(resized, params)
-      statsForScale.pnet = Date.now() - ts
+    const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
+    const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
 
-      const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
-      const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
+    return {
+      scoresTensor,
+      regionsTensor,
+      scale,
+      statsForScale
+    }
+  }))
 
-      return {
-        scoresTensor,
-        regionsTensor
-      }
-    })
-
+  const boxesForScale = pnetOutputs.map(({ scoresTensor, regionsTensor, scale, statsForScale }) => {
     const boundingBoxes = extractBoundingBoxes(
       scoresTensor,
       regionsTensor,
@@ -121,7 +122,7 @@ export function stage1(
   })
 
   const allBoxes = boxesForScale.reduce(
-    (all, boxes) => all.concat(boxes)
+    (all, boxes) => all.concat(boxes), []
   )
 
   let finalBoxes: BoundingBox[] = []

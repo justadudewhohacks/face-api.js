@@ -2,7 +2,6 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { Dimensions } from '../types';
 import { createCanvas, getContext2dOrThrow } from '../utils';
-import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { BoundingBox } from './BoundingBox';
 import { normalize } from './normalize';
 
@@ -35,8 +34,10 @@ export async function extractImagePatches(
     const { data } = patchCtx.getImageData(0, 0, width, height)
 
     const currData = []
-    for(let i = 0; i < data.length; i++) {
-      if ((i + 1) % 4 === 0) continue
+    // RGBA -> BGR
+    for(let i = 0; i < data.length; i+=4) {
+      currData.push(data[i + 2])
+      currData.push(data[i + 1])
       currData.push(data[i])
     }
     imagePatchesDatas.push(currData)
@@ -45,10 +46,10 @@ export async function extractImagePatches(
 
   return imagePatchesDatas.map(data => {
     const t = tf.tidy(() => {
-      const imagePatchTensor = bgrToRgbTensor(tf.transpose(
+      const imagePatchTensor = tf.transpose(
         tf.tensor4d(data, [1, width, height, 3]),
         [0, 2, 1, 3]
-      ).toFloat()) as tf.Tensor4D
+      ).toFloat() as tf.Tensor4D
 
       return normalize(imagePatchTensor)
     })
