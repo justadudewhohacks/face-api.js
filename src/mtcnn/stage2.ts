@@ -1,3 +1,4 @@
+import { tf } from '..';
 import { BoundingBox } from './BoundingBox';
 import { extractImagePatches } from './extractImagePatches';
 import { nms } from './nms';
@@ -26,8 +27,12 @@ export async function stage2(
   )
   stats.stage2_rnet = Date.now() - ts
 
-  const scoreDatas = await Promise.all(rnetOuts.map(out => out.scores.data()))
-  const scores = scoreDatas.map(arr => Array.from(arr)).reduce((all, arr) => all.concat(arr))
+  const scoresTensor = rnetOuts.length > 1
+    ? tf.concat(rnetOuts.map(out => out.scores))
+    : rnetOuts[0].scores
+  const scores = Array.from(await scoresTensor.data())
+  scoresTensor.dispose()
+
   const indices = scores
     .map((score, idx) => ({ score, idx }))
     .filter(c => c.score > scoreThreshold)

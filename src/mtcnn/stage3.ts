@@ -4,6 +4,7 @@ import { extractImagePatches } from './extractImagePatches';
 import { nms } from './nms';
 import { ONet } from './ONet';
 import { ONetParams } from './types';
+import { tf } from '..';
 
 export async function stage3(
   img: HTMLCanvasElement,
@@ -27,8 +28,12 @@ export async function stage3(
   )
   stats.stage3_onet = Date.now() - ts
 
-  const scoreDatas = await Promise.all(onetOuts.map(out => out.scores.data()))
-  const scores = scoreDatas.map(arr => Array.from(arr)).reduce((all, arr) => all.concat(arr))
+  const scoresTensor = onetOuts.length > 1
+    ? tf.concat(onetOuts.map(out => out.scores))
+    : onetOuts[0].scores
+  const scores = Array.from(await scoresTensor.data())
+  scoresTensor.dispose()
+
   const indices = scores
     .map((score, idx) => ({ score, idx }))
     .filter(c => c.score > scoreThreshold)
