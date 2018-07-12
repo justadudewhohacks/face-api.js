@@ -54,6 +54,14 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       )
     )
 
+    const onReturn = (results: any) => {
+      // dispose tensors on return
+      imgTensor.dispose()
+      input.dispose()
+      stats.total = Date.now() - tsTotal
+      return results
+    }
+
     const [height, width] = imgTensor.shape.slice(1)
 
     const scales = pyramidDown(minFaceSize, scaleFactor, [height, width])
@@ -71,8 +79,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     stats.total_stage1 = Date.now() - ts
 
     if (!out1.boxes.length) {
-      stats.total = Date.now() - tsTotal
-      return { results: [], stats }
+      return onReturn({ results: [], stats })
     }
 
     stats.stage2_numInputBoxes = out1.boxes.length
@@ -83,8 +90,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     stats.total_stage2 = Date.now() - ts
 
     if (!out2.boxes.length) {
-      stats.total = Date.now() - tsTotal
-      return { results: [], stats }
+      return onReturn({ results: [], stats })
     }
 
     stats.stage3_numInputBoxes = out2.boxes.length
@@ -92,9 +98,6 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     ts = Date.now()
     const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
     stats.total_stage3 = Date.now() - ts
-
-    imgTensor.dispose()
-    input.dispose()
 
     const results = out3.boxes.map((box, idx) => ({
       faceDetection: new FaceDetection(
@@ -116,8 +119,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       )
     }))
 
-    stats.total = Date.now() - tsTotal
-    return { results, stats }
+    return onReturn({ results, stats })
   }
 
   public async forward(
