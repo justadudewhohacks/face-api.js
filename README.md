@@ -16,7 +16,7 @@ Check out my article **[face-api.js — JavaScript API for Face Recognition 
   * **[Loading the Models](#usage-load-models)**
   * **[Face Detection - SSD Mobilenet v1](#usage-face-detection-ssd)**
   * **[Face Detection & 5 Point Face Landmarks - MTCNN](#usage-face-detection-mtcnn)**
-  * **[Face Recognition - FaceNet](#usage-face-recognition)**
+  * **[Face Recognition](#usage-face-recognition)**
   * **[68 Point Face Landmark Detection](#usage-face-landmark-detection)**
   * **[Full Face Detection and Recognition Pipeline](#usage-full-face-detection-and-recognition-pipeline)**
 
@@ -86,7 +86,7 @@ MTCNN has been presented in the paper [Joint Face Detection and Alignment using 
 
 <a name="about-face-recognition"></a>
 
-### Face Recognition - FaceNet
+### Face Recognition
 
 For face recognition, a ResNet-34 like architecture is implemented to compute a face descriptor (a feature vector with 128 values) from any given face image, which is used to describe the characteristics of a persons face. The model is **not** limited to the set of faces used for training, meaning you can use it for face recognition of any person, for example yourself. You can determine the similarity of two arbitrary faces by comparing their face descriptors, for example by computing the euclidean distance or using any other classifier of your choice.
 

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
-var FaceDetection_1 = require("./faceDetectionNet/FaceDetection");
+var FaceDetection_1 = require("./FaceDetection");
 var toNetInput_1 = require("./toNetInput");
 /**
  * Extracts the tensors of the image regions containing the detected faces.

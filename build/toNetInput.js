@@ -14,8 +14,9 @@ var utils_1 = require("./utils");
  * determines, whether to set the NetInput as managed or not.
  * @returns A NetInput instance, which can be passed into one of the neural networks.
  */
-function toNetInput(inputs, manageCreatedInput) {
+function toNetInput(inputs, manageCreatedInput, keepCanvases) {
     if (manageCreatedInput === void 0) { manageCreatedInput = false; }
+    if (keepCanvases === void 0) { keepCanvases = false; }
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var afterCreate, inputArgArray, getIdxHint, inputArray;
         return tslib_1.__generator(this, function (_a) {
@@ -58,7 +59,7 @@ function toNetInput(inputs, manageCreatedInput) {
                 case 1:
                     // wait for all media elements being loaded
                     _a.sent();
-                    return [2 /*return*/, afterCreate(new NetInput_1.NetInput(inputArray, Array.isArray(inputs)))];
+                    return [2 /*return*/, afterCreate(new NetInput_1.NetInput(inputArray, Array.isArray(inputs), keepCanvases))];
             }
         });
     });

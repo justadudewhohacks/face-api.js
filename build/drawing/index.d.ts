@@ -1,5 +1,5 @@
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
-import { FaceLandmarks } from '../faceLandmarkNet/FaceLandmarks';
+import { FaceDetection } from '../FaceDetection';
+import { FaceLandmarks } from '../FaceLandmarks';
 import { DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
 export declare function getDefaultDrawOptions(): DrawOptions;
 export declare function drawBox(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, options: DrawBoxOptions): void;

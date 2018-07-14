@@ -8,7 +8,7 @@ var Point_1 = require("../Point");
 var toNetInput_1 = require("../toNetInput");
 var utils_1 = require("../utils");
 var extractParams_1 = require("./extractParams");
-var FaceLandmarks_1 = require("./FaceLandmarks");
+var FaceLandmarks68_1 = require("./FaceLandmarks68");
 var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
 var loadQuantizedParams_1 = require("./loadQuantizedParams");
 function conv(x, params) {
@@ -101,7 +101,7 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
                                             landmarksArray = _b.apply(_a, [_c.sent()]);
                                             xCoords = landmarksArray.filter(function (_, i) { return utils_1.isEven(i); });
                                             yCoords = landmarksArray.filter(function (_, i) { return !utils_1.isEven(i); });
-                                            return [2 /*return*/, new FaceLandmarks_1.FaceLandmarks(Array(68).fill(0).map(function (_, i) { return new Point_1.Point(xCoords[i], yCoords[i]); }), {
+                                            return [2 /*return*/, new FaceLandmarks68_1.FaceLandmarks68(Array(68).fill(0).map(function (_, i) { return new Point_1.Point(xCoords[i], yCoords[i]); }), {
                                                     height: netInput.getInputHeight(batchIdx),
                                                     width: netInput.getInputWidth(batchIdx),
                                                 })];

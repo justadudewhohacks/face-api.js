@@ -9,4 +9,4 @@ import { TNetInput } from './types';
  * determines, whether to set the NetInput as managed or not.
  * @returns A NetInput instance, which can be passed into one of the neural networks.
  */
-export declare function toNetInput(inputs: TNetInput, manageCreatedInput?: boolean): Promise<NetInput>;
+export declare function toNetInput(inputs: TNetInput, manageCreatedInput?: boolean, keepCanvases?: boolean): Promise<NetInput>;

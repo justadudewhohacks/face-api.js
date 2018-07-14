@@ -3,12 +3,14 @@ import { Point } from './Point';
 import { TResolvedNetInput } from './types';
 export declare class NetInput {
     private _inputs;
+    private _canvases;
     private _isManaged;
     private _isBatchInput;
     private _inputDimensions;
     private _paddings;
-    constructor(inputs: tf.Tensor4D | Array<TResolvedNetInput>, isBatchInput?: boolean);
+    constructor(inputs: tf.Tensor4D | Array<TResolvedNetInput>, isBatchInput?: boolean, keepCanvases?: boolean);
     readonly inputs: tf.Tensor3D[];
+    readonly canvases: HTMLCanvasElement[];
     readonly isManaged: boolean;
     readonly isBatchInput: boolean;
     readonly batchSize: number;
