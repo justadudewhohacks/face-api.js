@@ -1,19 +1,5 @@
 import * as faceapi from '../../../src';
-import { FaceDetection } from '../../../src/faceDetectionNet/FaceDetection';
-import { IRect } from '../../../src/Rect';
-import { describeWithNets, expectAllTensorsReleased, expectMaxDelta } from '../../utils';
-
-function expectRectClose(
-  result: IRect,
-  expectedBox: IRect,
-  maxDelta: number
-) {
-  const { x, y, width, height } = result
-  expectMaxDelta(x, expectedBox.x, maxDelta)
-  expectMaxDelta(y, expectedBox.y, maxDelta)
-  expectMaxDelta(width, expectedBox.width, maxDelta)
-  expectMaxDelta(height, expectedBox.height, maxDelta)
-}
+import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
 
 const expectedBoxes = [
   { x: 48, y: 253, width: 104, height: 129 },
@@ -39,7 +25,7 @@ describe('faceDetectionNet', () => {
     const maxBoxDelta = 1
 
     it('scores > 0.8', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(3)
       detections.forEach((det, i) => {
@@ -51,7 +37,7 @@ describe('faceDetectionNet', () => {
     })
 
     it('scores > 0.5', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
       detections.forEach((det, i) => {
@@ -70,7 +56,7 @@ describe('faceDetectionNet', () => {
     const maxBoxDelta = 5
 
     it('scores > 0.8', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl) as FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(4)
       detections.forEach((det, i) => {
@@ -82,7 +68,7 @@ describe('faceDetectionNet', () => {
     })
 
     it('scores > 0.5', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
       detections.forEach((det, i) => {
@@ -103,7 +89,7 @@ describe('faceDetectionNet', () => {
         await expectAllTensorsReleased(async () => {
           const res = await fetch('base/weights/uncompressed/face_detection_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
-          const net = faceapi.faceDetectionNet(weights)
+          const net = faceapi.createFaceDetectionNet(weights)
           net.dispose()
         })
       })

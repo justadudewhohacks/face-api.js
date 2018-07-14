@@ -72,7 +72,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       scaleSteps
     } = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams)
 
-    const scales = scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width])
+    const scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
       .filter(scale => {
         const sizes = getSizesForScale(scale, [height, width])
         return Math.min(sizes.width, sizes.height) > CELL_SIZE

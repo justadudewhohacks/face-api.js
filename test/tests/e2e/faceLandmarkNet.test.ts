@@ -2,7 +2,6 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import * as faceapi from '../../../src';
 import { isTensor3D } from '../../../src/commons/isTensor';
-import { FaceLandmarks } from '../../../src/faceLandmarkNet/FaceLandmarks';
 import { Point } from '../../../src/Point';
 import { Dimensions, TMediaElement } from '../../../src/types';
 import { expectMaxDelta, expectAllTensorsReleased, tensor3D, describeWithNets } from '../../utils';
@@ -43,7 +42,7 @@ describe('faceLandmarkNet', () => {
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
 
-      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as FaceLandmarks
+      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as faceapi.FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
@@ -57,7 +56,7 @@ describe('faceLandmarkNet', () => {
     it('computes face landmarks for rectangular input', async () => {
       const { width, height } = imgElRect
 
-      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as FaceLandmarks
+      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as faceapi.FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
@@ -75,7 +74,7 @@ describe('faceLandmarkNet', () => {
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
 
-      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as FaceLandmarks
+      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as faceapi.FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
@@ -89,7 +88,7 @@ describe('faceLandmarkNet', () => {
     it('computes face landmarks for rectangular input', async () => {
       const { width, height } = imgElRect
 
-      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as FaceLandmarks
+      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as faceapi.FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
@@ -113,7 +112,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
+      const results = await faceLandmarkNet.detectLandmarks(inputs) as faceapi.FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -138,7 +137,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
+      const results = await faceLandmarkNet.detectLandmarks(inputs) as faceapi.FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -163,7 +162,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(tf.stack(inputs) as tf.Tensor4D) as FaceLandmarks[]
+      const results = await faceLandmarkNet.detectLandmarks(tf.stack(inputs) as tf.Tensor4D) as faceapi.FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(2)
       results.forEach((result, batchIdx) => {
@@ -188,7 +187,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks[]
+      const results = await faceLandmarkNet.detectLandmarks(inputs) as faceapi.FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -214,7 +213,7 @@ describe('faceLandmarkNet', () => {
         await expectAllTensorsReleased(async () => {
           const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
-          const net = faceapi.faceLandmarkNet(weights)
+          const net = faceapi.createFaceLandmarkNet(weights)
           net.dispose()
         })
       })

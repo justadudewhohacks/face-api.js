@@ -1,7 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { IRect } from '../build/Rect';
 import * as faceapi from '../src/';
 import { NeuralNetwork } from '../src/commons/NeuralNetwork';
+import { IPoint } from '../src/';
 
 export function zeros(length: number): Float32Array {
   return new Float32Array(length)
@@ -25,6 +27,27 @@ export function tensor3D() {
   return tf.tensor3d([[[0]]])
 }
 
+export function expectPointClose(
+  result: IPoint,
+  expectedPoint: IPoint,
+  maxDelta: number
+) {
+  const { x, y } = result
+  expectMaxDelta(x, expectedPoint.x, maxDelta)
+  expectMaxDelta(y, expectedPoint.y, maxDelta)
+}
+
+export function expectRectClose(
+  result: IRect,
+  expectedBox: IRect,
+  maxDelta: number
+) {
+  const { width, height } = result
+  expectPointClose(result, expectedBox, maxDelta)
+  expectMaxDelta(width, expectedBox.width, maxDelta)
+  expectMaxDelta(height, expectedBox.height, maxDelta)
+}
+
 export type WithNetOptions = {
   quantized?: boolean
 }
@@ -33,12 +56,14 @@ export type InjectNetArgs = {
   faceDetectionNet: faceapi.FaceDetectionNet
   faceLandmarkNet: faceapi.FaceLandmarkNet
   faceRecognitionNet: faceapi.FaceRecognitionNet
+  mtcnn: faceapi.Mtcnn
 }
 
 export type DescribeWithNetsOptions = {
   withFaceDetectionNet?: WithNetOptions
   withFaceLandmarkNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
+  withMtcnn?: WithNetOptions
 }
 
 async function loadNetWeights(uri: string): Promise<Float32Array> {
@@ -63,16 +88,17 @@ export function describeWithNets(
 ) {
 
   describe(description, () => {
-
     let faceDetectionNet: faceapi.FaceDetectionNet = new faceapi.FaceDetectionNet()
     let faceLandmarkNet: faceapi.FaceLandmarkNet = new faceapi.FaceLandmarkNet()
     let faceRecognitionNet: faceapi.FaceRecognitionNet = new faceapi.FaceRecognitionNet()
+    let mtcnn: faceapi.Mtcnn = new faceapi.Mtcnn()
 
     beforeAll(async () => {
       const {
         withFaceDetectionNet,
         withFaceLandmarkNet,
-        withFaceRecognitionNet
+        withFaceRecognitionNet,
+        withMtcnn
       } = options
 
       if (withFaceDetectionNet) {
@@ -93,15 +119,22 @@ export function describeWithNets(
           !withFaceRecognitionNet.quantized && 'face_recognition_model.weights'
         )
       }
+      if (withMtcnn) {
+        await initNet<faceapi.Mtcnn>(
+          mtcnn,
+          !withMtcnn.quantized && 'mtcnn_model.weights'
+        )
+      }
     })
 
     afterAll(() => {
       faceDetectionNet && faceDetectionNet.dispose()
       faceLandmarkNet && faceLandmarkNet.dispose()
       faceRecognitionNet && faceRecognitionNet.dispose()
+      mtcnn && mtcnn.dispose()
     })
 
-    specDefinitions({ faceDetectionNet, faceLandmarkNet, faceRecognitionNet })
+    specDefinitions({ faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn })
   })
 }
 

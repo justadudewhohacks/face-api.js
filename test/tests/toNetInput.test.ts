@@ -1,4 +1,5 @@
-import { tf } from '../../src';
+import * as tf from '@tensorflow/tfjs-core';
+
 import { NetInput } from '../../src/NetInput';
 import { toNetInput } from '../../src/toNetInput';
 import { bufferToImage, createCanvasFromMedia } from '../../src/utils';

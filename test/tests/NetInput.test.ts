@@ -1,9 +1,6 @@
-import * as tf from '@tensorflow/tfjs-core';
-
 import { NetInput } from '../../src/NetInput';
-import { bufferToImage, createCanvasFromMedia } from '../../src/utils';
+import { bufferToImage } from '../../src/utils';
 import { expectAllTensorsReleased, tensor3D } from '../utils';
-
 
 describe('NetInput', () => {
 
