@@ -8,6 +8,7 @@ import { createCanvasFromMedia } from './utils';
 
 export class NetInput {
   private _inputs: tf.Tensor3D[] = []
+  private _canvases: HTMLCanvasElement[] = []
   private _isManaged: boolean = false
   private _isBatchInput: boolean = false
 
@@ -16,14 +17,15 @@ export class NetInput {
 
   constructor(
     inputs: tf.Tensor4D | Array<TResolvedNetInput>,
-    isBatchInput: boolean = false
+    isBatchInput: boolean = false,
+    keepCanvases: boolean = false
   ) {
     if (isTensor4D(inputs)) {
       this._inputs = tf.unstack(inputs as tf.Tensor4D) as tf.Tensor3D[]
     }
 
     if (Array.isArray(inputs)) {
-      this._inputs = inputs.map(input => {
+      this._inputs = inputs.map((input, idx) => {
         if (isTensor3D(input)) {
           // TODO: make sure not to dispose original tensors passed in by the user
           return tf.clone(input as tf.Tensor3D)
@@ -39,9 +41,11 @@ export class NetInput {
           return (input as tf.Tensor4D).reshape(shape.slice(1) as [number, number, number]) as tf.Tensor3D
         }
 
-        return tf.fromPixels(
-          input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input as HTMLImageElement | HTMLVideoElement)
-        )
+        const canvas = input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input as HTMLImageElement | HTMLVideoElement)
+        if (keepCanvases) {
+          this._canvases[idx] = canvas
+        }
+        return tf.fromPixels(canvas)
       })
     }
 
@@ -51,6 +55,10 @@ export class NetInput {
 
   public get inputs(): tf.Tensor3D[] {
     return this._inputs
+  }
+
+  public get canvases(): HTMLCanvasElement[] {
+    return this._canvases
   }
 
   public get isManaged(): boolean {

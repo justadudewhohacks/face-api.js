@@ -1,10 +1,10 @@
-import { FaceDetection } from './faceDetectionNet/FaceDetection';
-import { FaceLandmarks } from './faceLandmarkNet/FaceLandmarks';
+import { FaceDetection } from './FaceDetection';
+import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
 
 export class FullFaceDescription {
   constructor(
     private _detection: FaceDetection,
-    private _landmarks: FaceLandmarks,
+    private _landmarks: FaceLandmarks68,
     private _descriptor: Float32Array
   ) {}
 
@@ -12,7 +12,7 @@ export class FullFaceDescription {
     return this._detection
   }
 
-  public get landmarks(): FaceLandmarks {
+  public get landmarks(): FaceLandmarks68 {
     return this._landmarks
   }
 

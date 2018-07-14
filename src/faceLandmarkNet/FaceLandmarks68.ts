@@ -1,56 +1,15 @@
 import { getCenterPoint } from '../commons/getCenterPoint';
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceDetection } from '../FaceDetection';
+import { FaceLandmarks } from '../FaceLandmarks';
 import { IPoint, Point } from '../Point';
 import { Rect } from '../Rect';
-import { Dimensions } from '../types';
 
 // face alignment constants
 const relX = 0.5
 const relY = 0.43
 const relScale = 0.45
 
-export class FaceLandmarks {
-  private _imageWidth: number
-  private _imageHeight: number
-  private _shift: Point
-  private _faceLandmarks: Point[]
-
-  constructor(
-    relativeFaceLandmarkPositions: Point[],
-    imageDims: Dimensions,
-    shift: Point = new Point(0, 0)
-  ) {
-    const { width, height } = imageDims
-    this._imageWidth = width
-    this._imageHeight = height
-    this._shift = shift
-    this._faceLandmarks = relativeFaceLandmarkPositions.map(
-      pt => pt.mul(new Point(width, height)).add(shift)
-    )
-  }
-
-  public getShift(): Point {
-    return new Point(this._shift.x, this._shift.y)
-  }
-
-  public getImageWidth(): number {
-    return this._imageWidth
-  }
-
-  public getImageHeight(): number {
-    return this._imageHeight
-  }
-
-  public getPositions(): Point[] {
-    return this._faceLandmarks
-  }
-
-  public getRelativePositions(): Point[] {
-    return this._faceLandmarks.map(
-      pt => pt.sub(this._shift).div(new Point(this._imageWidth, this._imageHeight))
-    )
-  }
-
+export class FaceLandmarks68 extends FaceLandmarks {
   public getJawOutline(): Point[] {
     return this._faceLandmarks.slice(0, 17)
   }
@@ -79,22 +38,22 @@ export class FaceLandmarks {
     return this._faceLandmarks.slice(48, 68)
   }
 
-  public forSize(width: number, height: number): FaceLandmarks {
-    return new FaceLandmarks(
+  public forSize(width: number, height: number): FaceLandmarks68 {
+    return new FaceLandmarks68(
       this.getRelativePositions(),
       { width, height }
     )
   }
 
-  public shift(x: number, y: number): FaceLandmarks {
-    return new FaceLandmarks(
+  public shift(x: number, y: number): FaceLandmarks68 {
+    return new FaceLandmarks68(
       this.getRelativePositions(),
       { width: this._imageWidth, height: this._imageHeight },
       new Point(x, y)
     )
   }
 
-  public shiftByPoint(pt: IPoint): FaceLandmarks {
+  public shiftByPoint(pt: IPoint): FaceLandmarks68 {
     return this.shift(pt.x, pt.y)
   }
 
@@ -110,7 +69,7 @@ export class FaceLandmarks {
    * @returns The bounding box of the aligned face.
    */
   public align(
-    detection?: Rect
+    detection?: FaceDetection | Rect
   ): Rect {
     if (detection) {
       const box = detection instanceof FaceDetection

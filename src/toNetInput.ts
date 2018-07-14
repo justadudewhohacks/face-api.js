@@ -17,7 +17,8 @@ import { awaitMediaLoaded, resolveInput } from './utils';
  */
 export async function toNetInput(
   inputs: TNetInput,
-  manageCreatedInput: boolean = false
+  manageCreatedInput: boolean = false,
+  keepCanvases: boolean = false
 ): Promise<NetInput> {
   if (inputs instanceof NetInput) {
     return inputs
@@ -67,5 +68,5 @@ export async function toNetInput(
     inputArray.map(input => isMediaElement(input) && awaitMediaLoaded(input))
   )
 
-  return afterCreate(new NetInput(inputArray, Array.isArray(inputs)))
+  return afterCreate(new NetInput(inputArray, Array.isArray(inputs), keepCanvases))
 }

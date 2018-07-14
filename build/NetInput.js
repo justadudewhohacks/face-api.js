@@ -6,9 +6,12 @@ var padToSquare_1 = require("./padToSquare");
 var Point_1 = require("./Point");
 var utils_1 = require("./utils");
 var NetInput = /** @class */ (function () {
-    function NetInput(inputs, isBatchInput) {
+    function NetInput(inputs, isBatchInput, keepCanvases) {
         if (isBatchInput === void 0) { isBatchInput = false; }
+        if (keepCanvases === void 0) { keepCanvases = false; }
+        var _this = this;
         this._inputs = [];
+        this._canvases = [];
         this._isManaged = false;
         this._isBatchInput = false;
         this._inputDimensions = [];
@@ -17,7 +20,7 @@ var NetInput = /** @class */ (function () {
             this._inputs = tf.unstack(inputs);
         }
         if (Array.isArray(inputs)) {
-            this._inputs = inputs.map(function (input) {
+            this._inputs = inputs.map(function (input, idx) {
                 if (isTensor_1.isTensor3D(input)) {
                     // TODO: make sure not to dispose original tensors passed in by the user
                     return tf.clone(input);
@@ -30,7 +33,11 @@ var NetInput = /** @class */ (function () {
                     }
                     return input.reshape(shape.slice(1));
                 }
-                return tf.fromPixels(input instanceof HTMLCanvasElement ? input : utils_1.createCanvasFromMedia(input));
+                var canvas = input instanceof HTMLCanvasElement ? input : utils_1.createCanvasFromMedia(input);
+                if (keepCanvases) {
+                    _this._canvases[idx] = canvas;
+                }
+                return tf.fromPixels(canvas);
             });
         }
         this._isBatchInput = this.batchSize > 1 || isBatchInput;
@@ -39,6 +46,13 @@ var NetInput = /** @class */ (function () {
     Object.defineProperty(NetInput.prototype, "inputs", {
         get: function () {
             return this._inputs;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NetInput.prototype, "canvases", {
+        get: function () {
+            return this._canvases;
         },
         enumerable: true,
         configurable: true

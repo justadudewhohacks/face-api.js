@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <img id="inputImg" src="" style="max-width: 800px;" />
+      <canvas id="overlay" />
+    </div>
+    <div class="row side-by-side">
+      <div id="selectList"></div>
+      <div class="row">
+        <label for="imgUrlInput">Get image from URL:</label>
+        <input id="imgUrlInput" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadImageFromUrl()"
+      >
+        Ok
+      </button>
+    </div>
+    <div class="row side-by-side">
+      <div class="row">
+        <label for="minConfidence">Min Confidence:</label>
+        <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onDecreaseThreshold()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onIncreaseThreshold()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let minFaceSize = 50
+    let scaleFactor = 0.709
+    let maxNumScales = 10
+    let stage1Threshold = 0.7
+    let stage2Threshold = 0.7
+    let stage3Threshold = 0.7
+    let mtcnn
+
+    function onIncreaseThreshold() {
+      minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    function onDecreaseThreshold() {
+      minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
+      $('#minConfidence').val(minConfidence)
+      updateResults()
+    }
+
+    async function loadImageFromUrl(url) {
+      const img = await requestExternalImage($('#imgUrlInput').val())
+      $('#inputImg').get(0).src = img.src
+      updateResults()
+    }
+
+    async function updateResults() {
+      const inputImgEl = $('#inputImg').get(0)
+      const { width, height } = inputImgEl
+      const canvas = $('#overlay').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      const mtcnnParams = {
+        minFaceSize,
+        scaleFactor,
+        maxNumScales,
+        scoreThresholds: [stage1Threshold, stage2Threshold, stage3Threshold]
+      }
+      const results = await faceapi.mtcnn(inputImgEl, mtcnnParams)
+
+      if (results) {
+        results.forEach(({ faceDetection, faceLandmarks }) => {
+          faceapi.drawDetection('overlay', faceDetection.forSize(width, height))
+          faceapi.drawLandmarks('overlay', faceLandmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
+        })
+      }
+    }
+
+    async function onSelectionChanged(uri) {
+      const imgBuf = await fetchImage(uri)
+      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
+      updateResults()
+    }
+
+    async function run() {
+      await faceapi.loadMtcnnModel('/')
+      $('#loader').hide()
+      onSelectionChanged($('#selectList select').val())
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'mtcnn_face_detection')
+      renderImageSelectList(
+        '#selectList',
+        async (uri) => {
+          await onSelectionChanged(uri)
+        },
+        'bbt1.jpg'
+      )
+      run()
+    })
+  </script>
+</body>
+</html>

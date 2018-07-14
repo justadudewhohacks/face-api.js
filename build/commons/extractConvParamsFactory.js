@@ -6,10 +6,7 @@ function extractConvParamsFactory(extractWeights, paramMappings) {
         var filters = tf.tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
         var bias = tf.tensor1d(extractWeights(channelsOut));
         paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
-        return {
-            filters: filters,
-            bias: bias
-        };
+        return { filters: filters, bias: bias };
     };
 }
 exports.extractConvParamsFactory = extractConvParamsFactory;

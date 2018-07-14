@@ -1,0 +1,1 @@
+{"version":3,"file":"getSizesForScale.js","sourceRoot":"","sources":["../../src/mtcnn/getSizesForScale.ts"],"names":[],"mappings":";;AAAA,0BAAiC,KAAa,EAAE,EAAyB;QAAxB,cAAM,EAAE,aAAK;IAC5D,OAAO;QACL,MAAM,EAAE,IAAI,CAAC,KAAK,CAAC,MAAM,GAAG,KAAK,CAAC;QAClC,KAAK,EAAE,IAAI,CAAC,KAAK,CAAC,KAAK,GAAG,KAAK,CAAC;KACjC,CAAA;AACH,CAAC;AALD,4CAKC"}

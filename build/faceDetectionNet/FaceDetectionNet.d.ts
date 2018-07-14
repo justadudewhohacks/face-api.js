@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork } from '../commons/NeuralNetwork';
+import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { TNetInput } from '../types';
-import { FaceDetection } from './FaceDetection';
 import { NetParams } from './types';
 export declare class FaceDetectionNet extends NeuralNetwork<NetParams> {
     constructor();

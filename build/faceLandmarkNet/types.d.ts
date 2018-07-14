@@ -1,9 +1,4 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams } from '../commons/types';
-export declare type FCParams = {
-    weights: tf.Tensor2D;
-    bias: tf.Tensor1D;
-};
+import { ConvParams, FCParams } from '../commons/types';
 export declare type NetParams = {
     conv0: ConvParams;
     conv1: ConvParams;

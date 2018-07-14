@@ -1,5 +1,5 @@
-import { Rect } from '../Rect';
-import { Dimensions } from '../types';
+import { Rect } from './Rect';
+import { Dimensions } from './types';
 
 export class FaceDetection {
   private _score: number
@@ -24,29 +24,49 @@ export class FaceDetection {
     )
   }
 
-  public getScore() {
+  public get score(): number {
     return this._score
   }
 
-  public getBox() {
+  public get box(): Rect {
     return this._box
   }
 
-  public getImageWidth() {
+  public get imageWidth(): number {
     return this._imageWidth
   }
 
-  public getImageHeight() {
+  public get imageHeight(): number {
     return this._imageHeight
   }
 
-  public getRelativeBox() {
+  public get relativeBox(): Rect {
     return new Rect(
       this._box.x / this._imageWidth,
       this._box.y / this._imageHeight,
       this._box.width / this._imageWidth,
       this._box.height / this._imageHeight
     )
+  }
+
+  public getScore() {
+    return this.score
+  }
+
+  public getBox() {
+    return this.box
+  }
+
+  public getImageWidth() {
+    return this.imageWidth
+  }
+
+  public getImageHeight() {
+    return this.imageHeight
+  }
+
+  public getRelativeBox() {
+    return this.relativeBox
   }
 
   public forSize(width: number, height: number): FaceDetection {

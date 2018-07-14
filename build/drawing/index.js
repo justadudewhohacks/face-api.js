@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var faceLandmarkNet_1 = require("../faceLandmarkNet");
 var utils_1 = require("../utils");
 function getDefaultDrawOptions() {
     return {
@@ -76,7 +77,7 @@ function drawLandmarks(canvasArg, faceLandmarks, options) {
     var lineWidth = drawOptions.lineWidth, color = drawOptions.color;
     var faceLandmarksArray = Array.isArray(faceLandmarks) ? faceLandmarks : [faceLandmarks];
     faceLandmarksArray.forEach(function (landmarks) {
-        if (drawLines) {
+        if (drawLines && landmarks instanceof faceLandmarkNet_1.FaceLandmarks68) {
             ctx.strokeStyle = color;
             ctx.lineWidth = lineWidth;
             drawContour(ctx, landmarks.getJawOutline());

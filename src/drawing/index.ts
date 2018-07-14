@@ -1,5 +1,6 @@
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
-import { FaceLandmarks } from '../faceLandmarkNet/FaceLandmarks';
+import { FaceDetection } from '../FaceDetection';
+import { FaceLandmarks68 } from '../faceLandmarkNet';
+import { FaceLandmarks } from '../FaceLandmarks';
 import { Point } from '../Point';
 import { getContext2dOrThrow, resolveInput, round } from '../utils';
 import { DrawBoxOptions, DrawLandmarksOptions, DrawOptions, DrawTextOptions } from './types';
@@ -150,7 +151,7 @@ export function drawLandmarks(
   const faceLandmarksArray = Array.isArray(faceLandmarks) ? faceLandmarks : [faceLandmarks]
 
   faceLandmarksArray.forEach(landmarks => {
-    if (drawLines) {
+    if (drawLines && landmarks instanceof FaceLandmarks68) {
       ctx.strokeStyle = color
       ctx.lineWidth = lineWidth
       drawContour(ctx, landmarks.getJawOutline())

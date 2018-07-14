@@ -115,6 +115,18 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Detect and Recognize Faces'
     },
     {
+      uri: 'mtcnn_face_detection',
+      name: 'MTCNN Face Detection'
+    },
+    {
+      uri: 'mtcnn_face_detection_video',
+      name: 'MTCNN Face Detection Video'
+    },
+    {
+      uri: 'mtcnn_face_detection_webcam',
+      name: 'MTCNN Face Detection Webcam'
+    },
+    {
       uri: 'batch_face_landmarks',
       name: 'Batch Face Landmarks'
     },
@@ -151,7 +163,7 @@ function renderNavBar(navbarId, exampleUri) {
   githubLink.id = 'github-link'
   githubLink.href = 'https://github.com/justadudewhohacks/face-api.js'
   const h5 = document.createElement('h5')
-  h5.innerHTML = 'face-api.js'//'If you like this project, feel free to leave a star on github :)'
+  h5.innerHTML = 'face-api.js'
   githubLink.appendChild(h5)
   const githubLinkIcon = document.createElement('img')
   githubLinkIcon.src = 'github_link_icon.png'
@@ -168,7 +180,10 @@ function renderNavBar(navbarId, exampleUri) {
       const a = document.createElement('a')
       a.classList.add('waves-effect', 'waves-light')
       a.href = ex.uri
-      a.innerHTML = ex.name
+      const span = document.createElement('span')
+      span.innerHTML = ex.name
+      span.style.whiteSpace = 'nowrap'
+      a.appendChild(span)
       li.appendChild(a)
       menuContent.appendChild(li)
     })

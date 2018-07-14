@@ -1,12 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { NeuralNetwork } from '../commons/NeuralNetwork';
+import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { Rect } from '../Rect';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { extractParams } from './extractParams';
-import { FaceDetection } from './FaceDetection';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';

@@ -3,8 +3,8 @@ import * as tf from '@tensorflow/tfjs-core';
 import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
 import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
 import { loadWeightMap } from '../commons/loadWeightMap';
-import { ConvParams, ParamMapping } from '../commons/types';
-import { FCParams, NetParams } from './types';
+import { ConvParams, FCParams, ParamMapping } from '../commons/types';
+import { NetParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'face_landmark_68_model'
 

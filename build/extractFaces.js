@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var FaceDetection_1 = require("./faceDetectionNet/FaceDetection");
+var FaceDetection_1 = require("./FaceDetection");
 var toNetInput_1 = require("./toNetInput");
 var utils_1 = require("./utils");
 /**

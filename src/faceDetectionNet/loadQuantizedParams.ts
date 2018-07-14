@@ -1,7 +1,8 @@
-import { tf } from '..';
+import * as tf from '@tensorflow/tfjs-core';
+
 import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
 import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
-import { isTensor1D, isTensor3D, isTensor4D } from '../commons/isTensor';
+import { isTensor3D } from '../commons/isTensor';
 import { loadWeightMap } from '../commons/loadWeightMap';
 import { ConvParams, ParamMapping } from '../commons/types';
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
