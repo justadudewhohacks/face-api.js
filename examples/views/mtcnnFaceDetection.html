@@ -52,10 +52,10 @@
   </div>
 
   <script>
-    let minFaceSize = 50 //20 //
-    let scaleFactor = 0.709 // 0.2
-    let maxNumScales = 10 // 0.2
-    let stage1Threshold = 0.6
+    let minFaceSize = 50
+    let scaleFactor = 0.709
+    let maxNumScales = 10
+    let stage1Threshold = 0.7
     let stage2Threshold = 0.7
     let stage3Threshold = 0.7
     let mtcnn
@@ -85,13 +85,15 @@
       canvas.width = width
       canvas.height = height
 
-      const scoreThresholds = [stage1Threshold, stage2Threshold, stage3Threshold]
-      const { results, stats } = await mtcnn.forwardWithStats(inputImgEl, minFaceSize, scaleFactor, maxNumScales, scoreThresholds)
-
-      console.log(stats)
+      const mtcnnParams = {
+        minFaceSize,
+        scaleFactor,
+        maxNumScales,
+        scoreThresholds: [stage1Threshold, stage2Threshold, stage3Threshold]
+      }
+      const results = await faceapi.mtcnn(inputImgEl, mtcnnParams)
 
       if (results) {
-        const { faceDetection, faceLandmarks } = results
         results.forEach(({ faceDetection, faceLandmarks }) => {
           faceapi.drawDetection('overlay', faceDetection.forSize(width, height))
           faceapi.drawLandmarks('overlay', faceLandmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
@@ -106,8 +108,7 @@
     }
 
     async function run() {
-      const weightsBuffer = await (await fetch('/uncompressed/mtcnn_model.weights')).arrayBuffer()
-      mtcnn = faceapi.mtcnn(new Float32Array(weightsBuffer))
+      await faceapi.loadMtcnnModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }

@@ -15,13 +15,13 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <video src="media/bbt.mp4" onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
+      <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
       <canvas id="overlay" />
     </div>
     <div class="row side-by-side">
       <div class="row">
         <label for="minFaceSize">Minimum Face Size:</label>
-        <input disabled value="80" id="minFaceSize" type="text" class="bold">
+        <input disabled value="200" id="minFaceSize" type="text" class="bold">
       </div>
       <button
         class="waves-effect waves-light btn"
@@ -50,17 +50,17 @@
 
   <script>
     let modelLoaded = false
-    let minFaceSize = 80
+    let minFaceSize = 200
     let minConfidence = 0.9
     let forwardTimes = []
 
     function onIncreaseMinFaceSize() {
-      minFaceSize = Math.min(faceapi.round(minFaceSize + 20), 200)
+      minFaceSize = Math.min(faceapi.round(minFaceSize + 50), 300)
       $('#minFaceSize').val(minFaceSize)
     }
 
     function onDecreaseMinFaceSize() {
-      minFaceSize = Math.max(faceapi.round(minFaceSize - 20), 20)
+      minFaceSize = Math.max(faceapi.round(minFaceSize - 50), 50)
       $('#minFaceSize').val(minFaceSize)
     }
 
@@ -84,9 +84,11 @@
         minFaceSize
       }
 
-      const ts = Date.now()
-      const results = await faceapi.mtcnn(videoEl, mtcnnParams)
-      updateTimeStats(Date.now() - ts)
+      const c = faceapi.createCanvas({ width: width , height: height })
+      c.getContext('2d').drawImage(videoEl, 0, 0)
+
+      const { results, stats } = await faceapi.nets.mtcnn.forwardWithStats(c, mtcnnParams)
+      updateTimeStats(stats.total)
 
       if (results) {
         results.forEach(({ faceDetection, faceLandmarks }) => {
@@ -103,12 +105,18 @@
     async function run() {
       await faceapi.loadMtcnnModel('/')
       modelLoaded = true
-      onPlay($('#inputVideo').get(0))
+
+      const videoEl = $('#inputVideo').get(0)
+      navigator.getUserMedia(
+        { video: {} },
+        stream => videoEl.srcObject = stream,
+        err => console.error(err)
+      )
       $('#loader').hide()
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'mtcnn_face_detection_video')
+      renderNavBar('#navbar', 'mtcnn_face_detection_webcam')
       run()
     })
   </script>
