@@ -28,7 +28,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardInput(
     input: NetInput,
-    { minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps } = getDefaultMtcnnForwardParams()
+    forwardParams: MtcnnForwardParams
   ): Promise<{ results: MtcnnResult[], stats: any }> {
 
     const { params } = this
@@ -63,6 +63,14 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     }
 
     const [height, width] = imgTensor.shape.slice(1)
+
+    const {
+      minFaceSize,
+      scaleFactor,
+      maxNumScales,
+      scoreThresholds,
+      scaleSteps
+    } = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams)
 
     const scales = scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width])
       .filter(scale => {
@@ -124,23 +132,23 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forward(
     input: TNetInput,
-    forwardParameters: MtcnnForwardParams = getDefaultMtcnnForwardParams()
+    forwardParams: MtcnnForwardParams
   ): Promise<MtcnnResult[]> {
     return (
       await this.forwardInput(
         await toNetInput(input, true, true),
-        forwardParameters
+        forwardParams
       )
     ).results
   }
 
   public async forwardWithStats(
     input: TNetInput,
-    forwardParameters: MtcnnForwardParams = getDefaultMtcnnForwardParams()
+    forwardParams: MtcnnForwardParams
   ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input, true, true),
-      forwardParameters
+      forwardParams
     )
   }
 

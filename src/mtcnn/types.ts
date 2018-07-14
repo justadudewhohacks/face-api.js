@@ -47,9 +47,9 @@ export type MtcnnResult = {
 }
 
 export type MtcnnForwardParams = {
-  minFaceSize: number
-  scaleFactor: number
-  maxNumScales: number
-  scoreThresholds: number[]
+  minFaceSize?: number
+  scaleFactor?: number
+  maxNumScales?: number
+  scoreThresholds?: number[]
   scaleSteps?: number[]
 }

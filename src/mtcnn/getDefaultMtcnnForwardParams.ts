@@ -1,6 +1,4 @@
-import { MtcnnForwardParams } from './types';
-
-export function getDefaultMtcnnForwardParams(): MtcnnForwardParams {
+export function getDefaultMtcnnForwardParams() {
   return {
     minFaceSize: 20,
     scaleFactor: 0.709,

@@ -73,9 +73,9 @@ export function computeFaceDescriptor(
 
 export function mtcnn(
   input: TNetInput,
-  forwardParameters: MtcnnForwardParams = getDefaultMtcnnForwardParams()
+  forwardParams: MtcnnForwardParams
 ): Promise<MtcnnResult[]> {
-  return nets.mtcnn.forward(input, forwardParameters)
+  return nets.mtcnn.forward(input, forwardParams)
 }
 
 export const allFaces: (
