@@ -1,6 +1,7 @@
-import { tf } from '..';
+import * as tf from '@tensorflow/tfjs-core';
+
 import { ConvParams, FCParams } from '../commons/types';
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceDetection } from '../FaceDetection';
 import { FaceLandmarks5 } from './FaceLandmarks5';
 
 export type SharedParams = {
@@ -43,4 +44,12 @@ export type NetParams = {
 export type MtcnnResult = {
   faceDetection: FaceDetection,
   faceLandmarks: FaceLandmarks5
+}
+
+export type MtcnnForwardParams = {
+  minFaceSize: number
+  scaleFactor: number
+  maxNumScales: number
+  scoreThresholds: number[]
+  scaleSteps?: number[]
 }

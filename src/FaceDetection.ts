@@ -1,5 +1,5 @@
-import { Rect } from '../Rect';
-import { Dimensions } from '../types';
+import { Rect } from './Rect';
+import { Dimensions } from './types';
 
 export class FaceDetection {
   private _score: number

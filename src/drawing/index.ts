@@ -1,4 +1,4 @@
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceDetection } from '../FaceDetection';
 import { FaceLandmarks68 } from '../faceLandmarkNet';
 import { FaceLandmarks } from '../FaceLandmarks';
 import { Point } from '../Point';

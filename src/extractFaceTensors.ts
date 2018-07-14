@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceDetection } from './faceDetectionNet/FaceDetection';
+import { FaceDetection } from './FaceDetection';
 import { Rect } from './Rect';
 import { toNetInput } from './toNetInput';
 import { TNetInput } from './types';

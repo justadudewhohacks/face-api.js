@@ -1,21 +1,24 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
 import { Rect } from '../Rect';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
+import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
 import { FaceLandmarks5 } from './FaceLandmarks5';
+import { getDefaultMtcnnForwardParams } from './getDefaultMtcnnForwardParams';
 import { getSizesForScale } from './getSizesForScale';
+import { loadQuantizedParams } from './loadQuantizedParams';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
-import { MtcnnResult, NetParams } from './types';
+import { MtcnnForwardParams, MtcnnResult, NetParams } from './types';
 
 export class Mtcnn extends NeuralNetwork<NetParams> {
 
@@ -25,10 +28,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardInput(
     input: NetInput,
-    minFaceSize: number = 20,
-    scaleFactor: number = 0.709,
-    maxNumScales: number = 10,
-    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+    { minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps } = getDefaultMtcnnForwardParams()
   ): Promise<{ results: MtcnnResult[], stats: any }> {
 
     const { params } = this
@@ -64,10 +64,10 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
     const [height, width] = imgTensor.shape.slice(1)
 
-    const scales = pyramidDown(minFaceSize, scaleFactor, [height, width])
+    const scales = scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width])
       .filter(scale => {
         const sizes = getSizesForScale(scale, [height, width])
-        return Math.min(sizes.width, sizes.height) > 48
+        return Math.min(sizes.width, sizes.height) > CELL_SIZE
       })
       .slice(0, maxNumScales)
 
@@ -124,36 +124,29 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forward(
     input: TNetInput,
-    minFaceSize: number = 20,
-    scaleFactor: number = 0.709,
-    maxNumScales: number = 10,
-    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+    forwardParameters: MtcnnForwardParams = getDefaultMtcnnForwardParams()
   ): Promise<MtcnnResult[]> {
     return (
       await this.forwardInput(
         await toNetInput(input, true, true),
-        minFaceSize,
-        scaleFactor,
-        maxNumScales,
-        scoreThresholds
+        forwardParameters
       )
     ).results
   }
 
   public async forwardWithStats(
     input: TNetInput,
-    minFaceSize: number = 20,
-    scaleFactor: number = 0.709,
-    maxNumScales: number = 10,
-    scoreThresholds: number[] = [0.6, 0.7, 0.7]
+    forwardParameters: MtcnnForwardParams = getDefaultMtcnnForwardParams()
   ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input, true, true),
-      minFaceSize,
-      scaleFactor,
-      maxNumScales,
-      scoreThresholds
+      forwardParameters
     )
+  }
+
+  // none of the param tensors are quantized yet
+  protected loadQuantizedParams(uri: string | undefined) {
+    return loadQuantizedParams(uri)
   }
 
   protected extractParams(weights: Float32Array) {

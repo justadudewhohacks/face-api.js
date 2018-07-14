@@ -55,10 +55,10 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     const conv4 = extractConvParams(64, 128, 2, 'onet/conv4')
     const prelu4_alpha = extractPReluParams(128, 'onet/prelu4_alpha')
     const fc1 = extractFCParams(1152, 256, 'onet/fc1')
-    const prelu5_alpha = extractPReluParams(256, 'onet/prelu4_alpha')
+    const prelu5_alpha = extractPReluParams(256, 'onet/prelu5_alpha')
     const fc2_1 = extractFCParams(256, 2, 'onet/fc2_1')
     const fc2_2 = extractFCParams(256, 4, 'onet/fc2_2')
-    const fc2_3 = extractFCParams(256, 10, 'onet/fc2_2')
+    const fc2_3 = extractFCParams(256, 10, 'onet/fc2_3')
 
     return { ...sharedParams, conv4, prelu4_alpha, fc1, prelu5_alpha, fc2_1, fc2_2, fc2_3 }
   }

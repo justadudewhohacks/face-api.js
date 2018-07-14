@@ -1,10 +1,11 @@
+import * as tf from '@tensorflow/tfjs-core';
+
 import { Point } from '../Point';
 import { BoundingBox } from './BoundingBox';
 import { extractImagePatches } from './extractImagePatches';
 import { nms } from './nms';
 import { ONet } from './ONet';
 import { ONetParams } from './types';
-import { tf } from '..';
 
 export async function stage3(
   img: HTMLCanvasElement,

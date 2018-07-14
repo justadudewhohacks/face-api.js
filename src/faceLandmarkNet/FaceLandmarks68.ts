@@ -1,9 +1,8 @@
 import { getCenterPoint } from '../commons/getCenterPoint';
-import { FaceDetection } from '../faceDetectionNet/FaceDetection';
+import { FaceDetection } from '../FaceDetection';
 import { FaceLandmarks } from '../FaceLandmarks';
 import { IPoint, Point } from '../Point';
 import { Rect } from '../Rect';
-import { Dimensions } from '../types';
 
 // face alignment constants
 const relX = 0.5
@@ -70,7 +69,7 @@ export class FaceLandmarks68 extends FaceLandmarks {
    * @returns The bounding box of the aligned face.
    */
   public align(
-    detection?: Rect
+    detection?: FaceDetection | Rect
   ): Rect {
     if (detection) {
       const box = detection instanceof FaceDetection

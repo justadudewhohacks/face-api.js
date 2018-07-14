@@ -4,6 +4,8 @@ export {
   tf
 }
 
+
+export * from './FaceDetection';
 export * from './FullFaceDescription';
 export * from './NetInput';
 export * from './Point';
