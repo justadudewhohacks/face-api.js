@@ -18,7 +18,6 @@
       <img id="inputImg" src="" style="max-width: 800px;" />
       <canvas id="overlay" />
     </div>
-    <div id="facesContainer"></div>
     <div class="row side-by-side">
       <div id="selectList"></div>
       <div class="row">
@@ -33,34 +32,74 @@
       </button>
     </div>
     <div class="row side-by-side">
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="minFaceSize">Minimum Face Size:</label>
+          <input disabled value="40" id="minFaceSize" type="text" class="bold">
+        </div>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onDecreaseMinFaceSize()"
+        >
+          <i class="material-icons left">-</i>
+        </button>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onIncreaseMinFaceSize()"
+        >
+          <i class="material-icons left">+</i>
+        </button>
+      </div>
       <div class="row">
         <label for="minConfidence">Min Confidence:</label>
         <input disabled value="0.7" id="minConfidence" type="text" class="bold">
       </div>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onDecreaseMinConfidence()"
       >
         <i class="material-icons left">-</i>
       </button>
       <button
-        class="waves-effect waves-light btn"
+        class="waves-effect waves-light btn button-sm"
         onclick="onIncreaseMinConfidence()"
       >
         <i class="material-icons left">+</i>
       </button>
-    </div>
-    <div class="row">
-      <p>
-        <input type="checkbox" id="drawLinesCheckbox" onchange="onChangeUseMtcnn(event)" />
-        <label for="drawLinesCheckbox">Use Mtcnn</label>
-      </p>
+      <div class="row">
+        <label for="maxDistance">Max Descriptor Distance:</label>
+        <input disabled value="0.6" id="maxDistance" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn button-sm"
+        onclick="onDecreaseMaxDistance()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn button-sm"
+        onclick="onIncreaseMaxDistance()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
     </div>
   </div>
 
   <script>
+    let maxDistance = 0.6
     let minConfidence = 0.7
-    let useMtcnn = false
+    let minFaceSize = 40
+    let trainDescriptorsByClass = []
+
+    function onIncreaseMinFaceSize() {
+      minFaceSize = Math.min(faceapi.round(minFaceSize + 20), 200)
+      $('#minFaceSize').val(minFaceSize)
+    }
+
+    function onDecreaseMinFaceSize() {
+      minFaceSize = Math.max(faceapi.round(minFaceSize - 20), 20)
+      $('#minFaceSize').val(minFaceSize)
+    }
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -74,8 +113,15 @@
       updateResults()
     }
 
-    function onChangeUseMtcnn(e) {
-      useMtcnn = $(e.target).prop('checked')
+    function onIncreaseMaxDistance() {
+      maxDistance = Math.min(faceapi.round(maxDistance + 0.1), 1.0)
+      $('#maxDistance').val(maxDistance)
+      updateResults()
+    }
+
+    function onDecreaseMaxDistance() {
+      maxDistance = Math.max(faceapi.round(maxDistance - 0.1), 0.1)
+      $('#maxDistance').val(maxDistance)
       updateResults()
     }
 
@@ -85,59 +131,6 @@
       updateResults()
     }
 
-    async function locateAndAlignFacesWithMtcnn(inputImgEl) {
-      const input = await faceapi.toNetInput(
-        inputImgEl,
-        // dispose input manually
-        false,
-        // keep canvases (required for mtcnn)
-        true
-      )
-
-      const results = await faceapi.mtcnn(input, { minFaceSize: 100 })
-
-      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], results.map(res => res.faceDetection))
-
-      const alignedFaceBoxes = results
-        .filter(res => res.faceDetection.score > minConfidence)
-        .map(res => res.faceLandmarks.align())
-
-      const alignedFaceImages = await faceapi.extractFaces(input.inputs[0], alignedFaceBoxes)
-
-      // free memory for input tensors
-      input.dispose()
-
-      return {
-        unalignedFaceImages,
-        alignedFaceImages
-      }
-    }
-
-    async function locateAndAlignFacesWithSSD(inputImgEl) {
-      const input = await faceapi.toNetInput(inputImgEl)
-
-      const locations = await faceapi.locateFaces(input, minConfidence)
-
-      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], locations)
-
-      // detect landmarks and get the aligned face image bounding boxes
-      const alignedFaceBoxes = await Promise.all(unalignedFaceImages.map(
-        async (faceCanvas, i) => {
-          const faceLandmarks = await faceapi.detectLandmarks(faceCanvas)
-          return faceLandmarks.align(locations[i])
-        }
-      ))
-      const alignedFaceImages = await faceapi.extractFaces(input.inputs[0], alignedFaceBoxes)
-
-      // free memory for input tensors
-      input.dispose()
-
-      return {
-        unalignedFaceImages,
-        alignedFaceImages
-      }
-    }
-
     async function updateResults() {
       const inputImgEl = $('#inputImg').get(0)
       const { width, height } = inputImgEl
@@ -145,17 +138,26 @@
       canvas.width = width
       canvas.height = height
 
-      const {
-        unalignedFaceImages,
-        alignedFaceImages
-      } = useMtcnn
-        ? await locateAndAlignFacesWithMtcnn(inputImgEl)
-        : await locateAndAlignFacesWithSSD(inputImgEl)
+      const mtcnnParams = {
+        minFaceSize
+      }
 
-      $('#facesContainer').empty()
-      unalignedFaceImages.forEach(async (faceCanvas, i) => {
-        $('#facesContainer').append(faceCanvas)
-        $('#facesContainer').append(alignedFaceImages[i])
+      const fullFaceDescriptions = (await faceapi.allFacesMtcnn(inputImgEl, mtcnnParams))
+        .map(fd => fd.forSize(width, height))
+
+      fullFaceDescriptions.forEach(({ detection, landmarks, descriptor }) => {
+        faceapi.drawDetection('overlay', [detection], { withScore: false })
+        faceapi.drawLandmarks('overlay', landmarks, { lineWidth: 4, color: 'red' })
+        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
+        const { x, y, height: boxHeight } = detection.getBox()
+        faceapi.drawText(
+          canvas.getContext('2d'),
+          x,
+          y + boxHeight,
+          text,
+          Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
+        )
       })
     }
 
@@ -166,15 +168,17 @@
     }
 
     async function run() {
-      await faceapi.loadFaceDetectionModel('/')
-      await faceapi.loadFaceLandmarkModel('/')
       await faceapi.loadMtcnnModel('/')
+      await faceapi.loadFaceRecognitionModel('/')
+
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet, 1)
+
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_alignment')
+      renderNavBar('#navbar', 'mtcnn_face_recognition')
       renderImageSelectList(
         '#selectList',
         async (uri) => {
