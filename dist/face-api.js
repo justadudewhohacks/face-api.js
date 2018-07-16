@@ -1030,6 +1030,10 @@
           .div(new Point(pts.length, pts.length));
   }
 
+  // face alignment constants
+  var relX = 0.5;
+  var relY = 0.43;
+  var relScale = 0.45;
   var FaceLandmarks = /** @class */ (function () {
       function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
           if (shift === void 0) { shift = new Point(0, 0); }
@@ -1055,13 +1059,50 @@
           var _this = this;
           return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
       };
+      FaceLandmarks.prototype.forSize = function (width, height) {
+          return new this.constructor(this.getRelativePositions(), { width: width, height: height });
+      };
+      FaceLandmarks.prototype.shift = function (x, y) {
+          return new this.constructor(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+      };
+      FaceLandmarks.prototype.shiftByPoint = function (pt) {
+          return this.shift(pt.x, pt.y);
+      };
+      /**
+       * Aligns the face landmarks after face detection from the relative positions of the faces
+       * bounding box, or it's current shift. This function should be used to align the face images
+       * after face detection has been performed, before they are passed to the face recognition net.
+       * This will make the computed face descriptor more accurate.
+       *
+       * @param detection (optional) The bounding box of the face or the face detection result. If
+       * no argument was passed the position of the face landmarks are assumed to be relative to
+       * it's current shift.
+       * @returns The bounding box of the aligned face.
+       */
+      FaceLandmarks.prototype.align = function (detection) {
+          if (detection) {
+              var box = detection instanceof FaceDetection
+                  ? detection.getBox().floor()
+                  : detection;
+              return this.shift(box.x, box.y).align();
+          }
+          var centers = this.getRefPointsForAlignment();
+          var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
+          var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
+          var eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2;
+          var size = Math.floor(eyeToMouthDist / relScale);
+          var refPoint = getCenterPoint(centers);
+          // TODO: pad in case rectangle is out of image bounds
+          var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
+          var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
+          return new Rect(x, y, Math.min(size, this._imageWidth - x), Math.min(size, this._imageHeight - y));
+      };
+      FaceLandmarks.prototype.getRefPointsForAlignment = function () {
+          throw new Error('getRefPointsForAlignment not implemented by base class');
+      };
       return FaceLandmarks;
   }());
 
-  // face alignment constants
-  var relX = 0.5;
-  var relY = 0.43;
-  var relScale = 0.45;
   var FaceLandmarks68 = /** @class */ (function (_super) {
       __extends$1(FaceLandmarks68, _super);
       function FaceLandmarks68() {
@@ -1088,47 +1129,12 @@
       FaceLandmarks68.prototype.getMouth = function () {
           return this._faceLandmarks.slice(48, 68);
       };
-      FaceLandmarks68.prototype.forSize = function (width, height) {
-          return new FaceLandmarks68(this.getRelativePositions(), { width: width, height: height });
-      };
-      FaceLandmarks68.prototype.shift = function (x, y) {
-          return new FaceLandmarks68(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
-      };
-      FaceLandmarks68.prototype.shiftByPoint = function (pt) {
-          return this.shift(pt.x, pt.y);
-      };
-      /**
-       * Aligns the face landmarks after face detection from the relative positions of the faces
-       * bounding box, or it's current shift. This function should be used to align the face images
-       * after face detection has been performed, before they are passed to the face recognition net.
-       * This will make the computed face descriptor more accurate.
-       *
-       * @param detection (optional) The bounding box of the face or the face detection result. If
-       * no argument was passed the position of the face landmarks are assumed to be relative to
-       * it's current shift.
-       * @returns The bounding box of the aligned face.
-       */
-      FaceLandmarks68.prototype.align = function (detection) {
-          if (detection) {
-              var box = detection instanceof FaceDetection
-                  ? detection.getBox().floor()
-                  : detection;
-              return this.shift(box.x, box.y).align();
-          }
-          var centers = [
+      FaceLandmarks68.prototype.getRefPointsForAlignment = function () {
+          return [
               this.getLeftEye(),
               this.getRightEye(),
               this.getMouth()
           ].map(getCenterPoint);
-          var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
-          var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
-          var eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2;
-          var size = Math.floor(eyeToMouthDist / relScale);
-          var refPoint = getCenterPoint(centers);
-          // TODO: pad in case rectangle is out of image bounds
-          var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
-          var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-          return new Rect(x, y, size, size);
       };
       return FaceLandmarks68;
   }(FaceLandmarks));
@@ -2437,49 +2443,63 @@
       return createFaceRecognitionNet(weights);
   }
 
-  function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
+  function allFacesFactory(detectionNet, landmarkNet, computeDescriptors) {
       return function (input, minConfidence, useBatchProcessing) {
           if (useBatchProcessing === void 0) { useBatchProcessing = false; }
           return __awaiter$1(this, void 0, void 0, function () {
-              var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, alignedFaceTensors, descriptors, _b;
-              return __generator$1(this, function (_c) {
-                  switch (_c.label) {
+              var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
                       case 0: return [4 /*yield*/, detectionNet.locateFaces(input, minConfidence)];
                       case 1:
-                          detections = _c.sent();
+                          detections = _b.sent();
                           return [4 /*yield*/, extractFaceTensors(input, detections)];
                       case 2:
-                          faceTensors = _c.sent();
+                          faceTensors = _b.sent();
                           if (!useBatchProcessing) return [3 /*break*/, 4];
                           return [4 /*yield*/, landmarkNet.detectLandmarks(faceTensors)];
                       case 3:
-                          _a = _c.sent();
+                          _a = _b.sent();
                           return [3 /*break*/, 6];
                       case 4: return [4 /*yield*/, Promise.all(faceTensors.map(function (faceTensor) { return landmarkNet.detectLandmarks(faceTensor); }))];
                       case 5:
-                          _a = _c.sent();
-                          _c.label = 6;
+                          _a = _b.sent();
+                          _b.label = 6;
                       case 6:
                           faceLandmarksByFace = _a;
                           faceTensors.forEach(function (t) { return t.dispose(); });
                           alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
-                          return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
+                          return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
                       case 7:
-                          alignedFaceTensors = _c.sent();
-                          if (!useBatchProcessing) return [3 /*break*/, 9];
-                          return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
-                      case 8:
-                          _b = _c.sent();
-                          return [3 /*break*/, 11];
-                      case 9: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
-                      case 10:
-                          _b = _c.sent();
-                          _c.label = 11;
-                      case 11:
-                          descriptors = _b;
-                          alignedFaceTensors.forEach(function (t) { return t.dispose(); });
+                          descriptors = _b.sent();
                           return [2 /*return*/, detections.map(function (detection, i) {
                                   return new FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(detection.getBox()), descriptors[i]);
+                              })];
+                  }
+              });
+          });
+      };
+  }
+  function allFacesMtcnnFactory(mtcnn, computeDescriptors) {
+      return function (input, mtcnnForwardParams, useBatchProcessing) {
+          if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+          return __awaiter$1(this, void 0, void 0, function () {
+              var results, alignedFaceBoxes, descriptors;
+              return __generator$1(this, function (_a) {
+                  switch (_a.label) {
+                      case 0: return [4 /*yield*/, mtcnn.forward(input, mtcnnForwardParams)];
+                      case 1:
+                          results = _a.sent();
+                          alignedFaceBoxes = results.map(function (_a) {
+                              var faceLandmarks = _a.faceLandmarks;
+                              return faceLandmarks.align();
+                          });
+                          return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
+                      case 2:
+                          descriptors = _a.sent();
+                          return [2 /*return*/, results.map(function (_a, i) {
+                                  var faceDetection = _a.faceDetection, faceLandmarks = _a.faceLandmarks;
+                                  return new FullFaceDescription(faceDetection, faceLandmarks, descriptors[i]);
                               })];
                   }
               });
@@ -2561,14 +2581,13 @@
       function FaceLandmarks5() {
           return _super !== null && _super.apply(this, arguments) || this;
       }
-      FaceLandmarks5.prototype.forSize = function (width, height) {
-          return new FaceLandmarks5(this.getRelativePositions(), { width: width, height: height });
-      };
-      FaceLandmarks5.prototype.shift = function (x, y) {
-          return new FaceLandmarks5(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
-      };
-      FaceLandmarks5.prototype.shiftByPoint = function (pt) {
-          return this.shift(pt.x, pt.y);
+      FaceLandmarks5.prototype.getRefPointsForAlignment = function () {
+          var pts = this.getPositions();
+          return [
+              pts[0],
+              pts[1],
+              getCenterPoint([pts[3], pts[4]])
+          ];
       };
       return FaceLandmarks5;
   }(FaceLandmarks));
@@ -3268,7 +3287,7 @@
   var nets = {
       ssdMobilenet: detectionNet,
       faceLandmark68Net: landmarkNet,
-      faceNet: recognitionNet,
+      faceRecognitionNet: recognitionNet,
       mtcnn: new Mtcnn()
   };
   function loadFaceDetectionModel(url) {
@@ -3278,7 +3297,7 @@
       return nets.faceLandmark68Net.load(url);
   }
   function loadFaceRecognitionModel(url) {
-      return nets.faceNet.load(url);
+      return nets.faceRecognitionNet.load(url);
   }
   function loadMtcnnModel(url) {
       return nets.mtcnn.load(url);
@@ -3298,12 +3317,40 @@
       return nets.faceLandmark68Net.detectLandmarks(input);
   }
   function computeFaceDescriptor(input) {
-      return nets.faceNet.computeFaceDescriptor(input);
+      return nets.faceRecognitionNet.computeFaceDescriptor(input);
   }
   function mtcnn(input, forwardParams) {
       return nets.mtcnn.forward(input, forwardParams);
   }
-  var allFaces = allFacesFactory(detectionNet, landmarkNet, recognitionNet);
+  var allFaces = allFacesFactory(detectionNet, landmarkNet, computeDescriptorsFactory(nets.faceRecognitionNet));
+  var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, computeDescriptorsFactory(nets.faceRecognitionNet));
+  function computeDescriptorsFactory(recognitionNet) {
+      return function (input, alignedFaceBoxes, useBatchProcessing) {
+          return __awaiter$1(this, void 0, void 0, function () {
+              var alignedFaceTensors, descriptors, _a;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
+                      case 0: return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
+                      case 1:
+                          alignedFaceTensors = _b.sent();
+                          if (!useBatchProcessing) return [3 /*break*/, 3];
+                          return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                      case 2:
+                          _a = _b.sent();
+                          return [3 /*break*/, 5];
+                      case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                      case 4:
+                          _a = _b.sent();
+                          _b.label = 5;
+                      case 5:
+                          descriptors = _a;
+                          alignedFaceTensors.forEach(function (t) { return t.dispose(); });
+                          return [2 /*return*/, descriptors];
+                  }
+              });
+          });
+      };
+  }
 
   function createMtcnn(weights) {
       var net = new Mtcnn();
@@ -3349,6 +3396,7 @@
   exports.computeFaceDescriptor = computeFaceDescriptor;
   exports.mtcnn = mtcnn;
   exports.allFaces = allFaces;
+  exports.allFacesMtcnn = allFacesMtcnn;
   exports.createMtcnn = createMtcnn;
   exports.Mtcnn = Mtcnn;
   exports.FaceLandmarks5 = FaceLandmarks5;

@@ -15,7 +15,7 @@ export declare const recognitionNet: FaceRecognitionNet;
 export declare const nets: {
     ssdMobilenet: FaceDetectionNet;
     faceLandmark68Net: FaceLandmarkNet;
-    faceNet: FaceRecognitionNet;
+    faceRecognitionNet: FaceRecognitionNet;
     mtcnn: Mtcnn;
 };
 export declare function loadFaceDetectionModel(url: string): Promise<void>;
@@ -28,3 +28,4 @@ export declare function detectLandmarks(input: TNetInput): Promise<FaceLandmarks
 export declare function computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
 export declare function mtcnn(input: TNetInput, forwardParams: MtcnnForwardParams): Promise<MtcnnResult[]>;
 export declare const allFaces: (input: tf.Tensor | NetInput | TNetInput, minConfidence: number, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
+export declare const allFacesMtcnn: (input: tf.Tensor | NetInput | TNetInput, mtcnnForwardParams: MtcnnForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;

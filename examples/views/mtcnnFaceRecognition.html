@@ -31,7 +31,7 @@
         Ok
       </button>
     </div>
-    <div class="row side-by-side">
+    <div class="row">
       <div class="row side-by-side">
         <div class="row">
           <label for="minFaceSize">Minimum Face Size:</label>
@@ -50,38 +50,42 @@
           <i class="material-icons left">+</i>
         </button>
       </div>
-      <div class="row">
-        <label for="minConfidence">Min Confidence:</label>
-        <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="minConfidence">Min Confidence:</label>
+          <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+        </div>
+        <button
+          class="waves-effect waves-light btn button-sm"
+          onclick="onDecreaseMinConfidence()"
+        >
+          <i class="material-icons left">-</i>
+        </button>
+        <button
+          class="waves-effect waves-light btn button-sm"
+          onclick="onIncreaseMinConfidence()"
+        >
+          <i class="material-icons left">+</i>
+        </button>
       </div>
-      <button
-        class="waves-effect waves-light btn button-sm"
-        onclick="onDecreaseMinConfidence()"
-      >
-        <i class="material-icons left">-</i>
-      </button>
-      <button
-        class="waves-effect waves-light btn button-sm"
-        onclick="onIncreaseMinConfidence()"
-      >
-        <i class="material-icons left">+</i>
-      </button>
-      <div class="row">
-        <label for="maxDistance">Max Descriptor Distance:</label>
-        <input disabled value="0.6" id="maxDistance" type="text" class="bold">
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="maxDistance">Max Descriptor Distance:</label>
+          <input disabled value="0.6" id="maxDistance" type="text" class="bold">
+        </div>
+        <button
+          class="waves-effect waves-light btn button-sm"
+          onclick="onDecreaseMaxDistance()"
+        >
+          <i class="material-icons left">-</i>
+        </button>
+        <button
+          class="waves-effect waves-light btn button-sm"
+          onclick="onIncreaseMaxDistance()"
+        >
+          <i class="material-icons left">+</i>
+        </button>
       </div>
-      <button
-        class="waves-effect waves-light btn button-sm"
-        onclick="onDecreaseMaxDistance()"
-      >
-        <i class="material-icons left">-</i>
-      </button>
-      <button
-        class="waves-effect waves-light btn button-sm"
-        onclick="onIncreaseMaxDistance()"
-      >
-        <i class="material-icons left">+</i>
-      </button>
     </div>
   </div>
 
