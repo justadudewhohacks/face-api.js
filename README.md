@@ -38,7 +38,7 @@ Check out my article **[face-api.js — JavaScript API for Face Recognition 
 
 ![preview_face_landmarks](https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png)
 
-### Live Video Face Detection
+### Live Face Detection
 
 **SSD Mobilenet v1**
 
