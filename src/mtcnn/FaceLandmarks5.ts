@@ -1,24 +1,15 @@
+import { getCenterPoint } from '../commons/getCenterPoint';
 import { FaceLandmarks } from '../FaceLandmarks';
-import { IPoint, Point } from '../Point';
+import { Point } from '../Point';
 
 export class FaceLandmarks5 extends FaceLandmarks {
 
-  public forSize(width: number, height: number): FaceLandmarks5 {
-    return new FaceLandmarks5(
-      this.getRelativePositions(),
-      { width, height }
-    )
-  }
-
-  public shift(x: number, y: number): FaceLandmarks5 {
-    return new FaceLandmarks5(
-      this.getRelativePositions(),
-      { width: this._imageWidth, height: this._imageHeight },
-      new Point(x, y)
-    )
-  }
-
-  public shiftByPoint(pt: IPoint): FaceLandmarks5 {
-    return this.shift(pt.x, pt.y)
+  protected getRefPointsForAlignment(): Point[] {
+    const pts = this.getPositions()
+    return [
+      pts[0],
+      pts[1],
+      getCenterPoint([pts[3], pts[4]])
+    ]
   }
 }

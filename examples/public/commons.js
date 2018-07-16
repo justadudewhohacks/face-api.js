@@ -127,6 +127,14 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'MTCNN Face Detection Webcam'
     },
     {
+      uri: 'mtcnn_face_recognition',
+      name: 'MTCNN Face Recognition'
+    },
+    {
+      uri: 'mtcnn_face_recognition_webcam',
+      name: 'MTCNN Face Recognition Webcam'
+    },
+    {
       uri: 'batch_face_landmarks',
       name: 'Batch Face Landmarks'
     },

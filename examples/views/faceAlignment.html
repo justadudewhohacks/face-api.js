@@ -50,11 +50,17 @@
         <i class="material-icons left">+</i>
       </button>
     </div>
+    <div class="row">
+      <p>
+        <input type="checkbox" id="drawLinesCheckbox" onchange="onChangeUseMtcnn(event)" />
+        <label for="drawLinesCheckbox">Use Mtcnn</label>
+      </p>
+    </div>
   </div>
 
   <script>
     let minConfidence = 0.7
-    let drawLines = true
+    let useMtcnn = false
 
     function onIncreaseMinConfidence() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
@@ -68,26 +74,54 @@
       updateResults()
     }
 
+    function onChangeUseMtcnn(e) {
+      useMtcnn = $(e.target).prop('checked')
+      updateResults()
+    }
+
     async function loadImageFromUrl(url) {
       const img = await requestExternalImage($('#imgUrlInput').val())
       $('#inputImg').get(0).src = img.src
       updateResults()
     }
 
-    async function updateResults() {
-      const inputImgEl = $('#inputImg').get(0)
-      const { width, height } = inputImgEl
-      const canvas = $('#overlay').get(0)
-      canvas.width = width
-      canvas.height = height
+    async function locateAndAlignFacesWithMtcnn(inputImgEl) {
+      const input = await faceapi.toNetInput(
+        inputImgEl,
+        // dispose input manually
+        false,
+        // keep canvases (required for mtcnn)
+        true
+      )
 
+      const results = await faceapi.mtcnn(input, { minFaceSize: 100 })
+
+      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], results.map(res => res.faceDetection))
+
+      const alignedFaceBoxes = results
+        .filter(res => res.faceDetection.score > minConfidence)
+        .map(res => res.faceLandmarks.align())
+
+      const alignedFaceImages = await faceapi.extractFaces(input.inputs[0], alignedFaceBoxes)
+
+      // free memory for input tensors
+      input.dispose()
+
+      return {
+        unalignedFaceImages,
+        alignedFaceImages
+      }
+    }
+
+    async function locateAndAlignFacesWithSSD(inputImgEl) {
       const input = await faceapi.toNetInput(inputImgEl)
+
       const locations = await faceapi.locateFaces(input, minConfidence)
 
-      const faceImages = await faceapi.extractFaces(input.inputs[0], locations)
+      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], locations)
 
       // detect landmarks and get the aligned face image bounding boxes
-      const alignedFaceBoxes = await Promise.all(faceImages.map(
+      const alignedFaceBoxes = await Promise.all(unalignedFaceImages.map(
         async (faceCanvas, i) => {
           const faceLandmarks = await faceapi.detectLandmarks(faceCanvas)
           return faceLandmarks.align(locations[i])
@@ -98,8 +132,28 @@
       // free memory for input tensors
       input.dispose()
 
+      return {
+        unalignedFaceImages,
+        alignedFaceImages
+      }
+    }
+
+    async function updateResults() {
+      const inputImgEl = $('#inputImg').get(0)
+      const { width, height } = inputImgEl
+      const canvas = $('#overlay').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      const {
+        unalignedFaceImages,
+        alignedFaceImages
+      } = useMtcnn
+        ? await locateAndAlignFacesWithMtcnn(inputImgEl)
+        : await locateAndAlignFacesWithSSD(inputImgEl)
+
       $('#facesContainer').empty()
-      faceImages.forEach(async (faceCanvas, i) => {
+      unalignedFaceImages.forEach(async (faceCanvas, i) => {
         $('#facesContainer').append(faceCanvas)
         $('#facesContainer').append(alignedFaceImages[i])
       })
@@ -114,6 +168,7 @@
     async function run() {
       await faceapi.loadFaceDetectionModel('/')
       await faceapi.loadFaceLandmarkModel('/')
+      await faceapi.loadMtcnnModel('/')
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
