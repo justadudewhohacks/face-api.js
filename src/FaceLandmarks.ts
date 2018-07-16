@@ -1,5 +1,13 @@
-import { Point } from './Point';
+import { getCenterPoint } from './commons/getCenterPoint';
+import { FaceDetection } from './FaceDetection';
+import { IPoint, Point } from './Point';
+import { Rect } from './Rect';
 import { Dimensions } from './types';
+
+// face alignment constants
+const relX = 0.5
+const relY = 0.43
+const relScale = 0.45
 
 export class FaceLandmarks {
   protected _imageWidth: number
@@ -41,5 +49,66 @@ export class FaceLandmarks {
     return this._faceLandmarks.map(
       pt => pt.sub(this._shift).div(new Point(this._imageWidth, this._imageHeight))
     )
+  }
+
+  public forSize<T extends FaceLandmarks>(width: number, height: number): T {
+    return new (this.constructor as any)(
+      this.getRelativePositions(),
+      { width, height }
+    )
+  }
+
+  public shift<T extends FaceLandmarks>(x: number, y: number): T {
+    return new (this.constructor as any)(
+      this.getRelativePositions(),
+      { width: this._imageWidth, height: this._imageHeight },
+      new Point(x, y)
+    )
+  }
+
+  public shiftByPoint<T extends FaceLandmarks>(pt: IPoint): T {
+    return this.shift(pt.x, pt.y)
+  }
+
+  /**
+   * Aligns the face landmarks after face detection from the relative positions of the faces
+   * bounding box, or it's current shift. This function should be used to align the face images
+   * after face detection has been performed, before they are passed to the face recognition net.
+   * This will make the computed face descriptor more accurate.
+   *
+   * @param detection (optional) The bounding box of the face or the face detection result. If
+   * no argument was passed the position of the face landmarks are assumed to be relative to
+   * it's current shift.
+   * @returns The bounding box of the aligned face.
+   */
+  public align(
+    detection?: FaceDetection | Rect
+  ): Rect {
+    if (detection) {
+      const box = detection instanceof FaceDetection
+        ? detection.getBox().floor()
+        : detection
+
+      return this.shift(box.x, box.y).align()
+    }
+
+    const centers = this.getRefPointsForAlignment()
+
+    const [leftEyeCenter, rightEyeCenter, mouthCenter] = centers
+    const distToMouth = (pt: Point) => mouthCenter.sub(pt).magnitude()
+    const eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2
+
+    const size = Math.floor(eyeToMouthDist / relScale)
+
+    const refPoint = getCenterPoint(centers)
+    // TODO: pad in case rectangle is out of image bounds
+    const x = Math.floor(Math.max(0, refPoint.x - (relX * size)))
+    const y = Math.floor(Math.max(0, refPoint.y - (relY * size)))
+
+    return new Rect(x, y, Math.min(size, this._imageWidth - x), Math.min(size, this._imageHeight - y))
+  }
+
+  protected getRefPointsForAlignment(): Point[] {
+    throw new Error('getRefPointsForAlignment not implemented by base class')
   }
 }
