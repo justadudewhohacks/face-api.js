@@ -46,7 +46,7 @@ Check out my article **[face-api.js — JavaScript API for Face Recognition 
 
 **MTCNN**
 
-![preview_mtcnn_video](https://user-images.githubusercontent.com/31125521/42725487-857adfd4-8784-11e8-8de2-4faae81e7ea2.jpg)
+![mtcnn-preview](https://user-images.githubusercontent.com/31125521/42756818-0a41edaa-88fe-11e8-9033-8cd141b0fa09.gif)
 
 ### Face Alignment
 
