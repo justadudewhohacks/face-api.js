@@ -4,6 +4,8 @@ import { IRect } from '../build/Rect';
 import * as faceapi from '../src/';
 import { NeuralNetwork } from '../src/commons/NeuralNetwork';
 import { IPoint } from '../src/';
+import { allFacesFactory, allFacesMtcnnFactory } from '../src/allFacesFactory';
+import { allFacesMtcnnFunction, allFacesFunction } from '../src/globalApi';
 
 export function zeros(length: number): Float32Array {
   return new Float32Array(length)
@@ -57,9 +59,14 @@ export type InjectNetArgs = {
   faceLandmarkNet: faceapi.FaceLandmarkNet
   faceRecognitionNet: faceapi.FaceRecognitionNet
   mtcnn: faceapi.Mtcnn
+  allFaces: allFacesFunction
+  allFacesMtcnn: allFacesMtcnnFunction
 }
 
+
 export type DescribeWithNetsOptions = {
+  withAllFaces?: boolean
+  withAllFacesMtcnn?: boolean
   withFaceDetectionNet?: WithNetOptions
   withFaceLandmarkNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
@@ -92,37 +99,43 @@ export function describeWithNets(
     let faceLandmarkNet: faceapi.FaceLandmarkNet = new faceapi.FaceLandmarkNet()
     let faceRecognitionNet: faceapi.FaceRecognitionNet = new faceapi.FaceRecognitionNet()
     let mtcnn: faceapi.Mtcnn = new faceapi.Mtcnn()
+    let allFaces = allFacesFactory(faceDetectionNet, faceLandmarkNet, faceRecognitionNet)
+    let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
 
     beforeAll(async () => {
       const {
         withFaceDetectionNet,
         withFaceLandmarkNet,
         withFaceRecognitionNet,
-        withMtcnn
+        withMtcnn,
+        withAllFaces,
+        withAllFacesMtcnn
       } = options
 
-      if (withFaceDetectionNet) {
+      if (withFaceDetectionNet || withAllFaces) {
         await initNet<faceapi.FaceDetectionNet>(
           faceDetectionNet,
-          !withFaceDetectionNet.quantized && 'face_detection_model.weights'
+          !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'face_detection_model.weights'
         )
       }
-      if (withFaceLandmarkNet) {
+      if (withFaceLandmarkNet || withAllFaces) {
         await initNet<faceapi.FaceLandmarkNet>(
           faceLandmarkNet,
-          !withFaceLandmarkNet.quantized && 'face_landmark_68_model.weights'
+          !!withFaceLandmarkNet && !withFaceLandmarkNet.quantized && 'face_landmark_68_model.weights'
         )
       }
-      if (withFaceRecognitionNet) {
+
+      if (withFaceRecognitionNet || withAllFaces || withAllFacesMtcnn) {
         await initNet<faceapi.FaceRecognitionNet>(
           faceRecognitionNet,
-          !withFaceRecognitionNet.quantized && 'face_recognition_model.weights'
+          // TODO: figure out why quantized weights results in NaNs in testcases
+          'face_recognition_model.weights'
         )
       }
-      if (withMtcnn) {
+      if (withMtcnn || withAllFacesMtcnn) {
         await initNet<faceapi.Mtcnn>(
           mtcnn,
-          !withMtcnn.quantized && 'mtcnn_model.weights'
+          !!withMtcnn && !withMtcnn.quantized && 'mtcnn_model.weights'
         )
       }
     })
@@ -134,7 +147,7 @@ export function describeWithNets(
       mtcnn && mtcnn.dispose()
     })
 
-    specDefinitions({ faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn })
+    specDefinitions({ faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn, allFaces, allFacesMtcnn })
   })
 }
 
