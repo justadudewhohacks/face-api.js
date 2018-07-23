@@ -69,7 +69,7 @@ var FaceLandmarks = /** @class */ (function () {
         // TODO: pad in case rectangle is out of image bounds
         var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
         var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-        return new Rect_1.Rect(x, y, Math.min(size, this._imageWidth - x), Math.min(size, this._imageHeight - y));
+        return new Rect_1.Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y));
     };
     FaceLandmarks.prototype.getRefPointsForAlignment = function () {
         throw new Error('getRefPointsForAlignment not implemented by base class');

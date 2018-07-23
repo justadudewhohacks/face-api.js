@@ -27,5 +27,7 @@ export declare function locateFaces(input: TNetInput, minConfidence?: number, ma
 export declare function detectLandmarks(input: TNetInput): Promise<FaceLandmarks68 | FaceLandmarks68[]>;
 export declare function computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
 export declare function mtcnn(input: TNetInput, forwardParams: MtcnnForwardParams): Promise<MtcnnResult[]>;
-export declare const allFaces: (input: tf.Tensor | NetInput | TNetInput, minConfidence: number, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
-export declare const allFacesMtcnn: (input: tf.Tensor | NetInput | TNetInput, mtcnnForwardParams: MtcnnForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
+export declare type allFacesFunction = (input: tf.Tensor | NetInput | TNetInput, minConfidence?: number, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
+export declare const allFaces: allFacesFunction;
+export declare type allFacesMtcnnFunction = (input: tf.Tensor | NetInput | TNetInput, mtcnnForwardParams?: MtcnnForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
+export declare const allFacesMtcnn: allFacesMtcnnFunction;
