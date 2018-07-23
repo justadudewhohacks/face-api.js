@@ -1,14 +1,6 @@
 import * as faceapi from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-
-const expectedBoxes = [
-  { x: 48, y: 253, width: 104, height: 129 },
-  { x: 260, y: 227, width: 76, height: 117 },
-  { x: 466, y: 165, width: 88, height: 130 },
-  { x: 234, y: 36, width: 84, height: 119 },
-  { x: 577, y: 65, width: 84, height: 105 },
-  { x: 84, y: 14, width: 79, height: 132 }
-]
+import { expectedSsdBoxes } from './expectedResults';
 
 describe('faceDetectionNet', () => {
 
@@ -32,7 +24,7 @@ describe('faceDetectionNet', () => {
         expect(det.getImageWidth()).toEqual(imgEl.width)
         expect(det.getImageHeight()).toEqual(imgEl.height)
         expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
       })
     })
 
@@ -44,7 +36,7 @@ describe('faceDetectionNet', () => {
         expect(det.getImageWidth()).toEqual(imgEl.width)
         expect(det.getImageHeight()).toEqual(imgEl.height)
         expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
       })
     })
 
@@ -63,7 +55,7 @@ describe('faceDetectionNet', () => {
         expect(det.getImageWidth()).toEqual(imgEl.width)
         expect(det.getImageHeight()).toEqual(imgEl.height)
         expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
       })
     })
 
@@ -75,7 +67,7 @@ describe('faceDetectionNet', () => {
         expect(det.getImageWidth()).toEqual(imgEl.width)
         expect(det.getImageHeight()).toEqual(imgEl.height)
         expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedBoxes[i], maxBoxDelta)
+        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
       })
     })
 

@@ -4,7 +4,7 @@ import * as faceapi from '../../../src';
 import { isTensor3D } from '../../../src/commons/isTensor';
 import { Point } from '../../../src/Point';
 import { Dimensions, TMediaElement } from '../../../src/types';
-import { expectMaxDelta, expectAllTensorsReleased, tensor3D, describeWithNets } from '../../utils';
+import { expectMaxDelta, expectAllTensorsReleased, describeWithNets } from '../../utils';
 import { NetInput } from '../../../src/NetInput';
 import { toNetInput } from '../../../src';
 

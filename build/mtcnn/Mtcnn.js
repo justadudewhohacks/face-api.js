@@ -24,6 +24,7 @@ var Mtcnn = /** @class */ (function (_super) {
         return _super.call(this, 'Mtcnn') || this;
     }
     Mtcnn.prototype.forwardInput = function (input, forwardParams) {
+        if (forwardParams === void 0) { forwardParams = {}; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var params, inputTensor, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
             return tslib_1.__generator(this, function (_c) {
@@ -98,6 +99,7 @@ var Mtcnn = /** @class */ (function (_super) {
         });
     };
     Mtcnn.prototype.forward = function (input, forwardParams) {
+        if (forwardParams === void 0) { forwardParams = {}; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var _a;
             return tslib_1.__generator(this, function (_b) {
@@ -113,6 +115,7 @@ var Mtcnn = /** @class */ (function (_super) {
         });
     };
     Mtcnn.prototype.forwardWithStats = function (input, forwardParams) {
+        if (forwardParams === void 0) { forwardParams = {}; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var _a;
             return tslib_1.__generator(this, function (_b) {

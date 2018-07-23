@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { allFacesFactory, allFacesMtcnnFactory } from './allFacesFactory';
-import { extractFaceTensors } from './extractFaceTensors';
 import { FaceDetection } from './FaceDetection';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
@@ -11,7 +10,6 @@ import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams, MtcnnResult } from './mtcnn/types';
 import { NetInput } from './NetInput';
-import { Rect } from './Rect';
 import { TNetInput } from './types';
 
 export const detectionNet = new FaceDetectionNet()
@@ -79,39 +77,25 @@ export function mtcnn(
   return nets.mtcnn.forward(input, forwardParams)
 }
 
-export const allFaces: (
+export type allFacesFunction = (
   input: tf.Tensor | NetInput | TNetInput,
-  minConfidence: number,
+  minConfidence?: number,
   useBatchProcessing?: boolean
-) => Promise<FullFaceDescription[]> = allFacesFactory(
-  detectionNet,
-  landmarkNet,
-  computeDescriptorsFactory(nets.faceRecognitionNet)
+) => Promise<FullFaceDescription[]>
+
+export const allFaces: allFacesFunction = allFacesFactory(
+  nets.ssdMobilenet,
+  nets.faceLandmark68Net,
+  nets.faceRecognitionNet
 )
 
-export const allFacesMtcnn: (
+export type allFacesMtcnnFunction = (
   input: tf.Tensor | NetInput | TNetInput,
-  mtcnnForwardParams: MtcnnForwardParams,
+  mtcnnForwardParams?: MtcnnForwardParams,
   useBatchProcessing?: boolean
-) => Promise<FullFaceDescription[]> = allFacesMtcnnFactory(
+) => Promise<FullFaceDescription[]>
+
+export const allFacesMtcnn: allFacesMtcnnFunction = allFacesMtcnnFactory(
   nets.mtcnn,
-  computeDescriptorsFactory(nets.faceRecognitionNet)
+  nets.faceRecognitionNet
 )
-
-function computeDescriptorsFactory(
-  recognitionNet: FaceRecognitionNet
-) {
-  return async function(input: TNetInput, alignedFaceBoxes: Rect[], useBatchProcessing: boolean) {
-    const alignedFaceTensors = await extractFaceTensors(input, alignedFaceBoxes)
-
-    const descriptors = useBatchProcessing
-      ? await recognitionNet.computeFaceDescriptor(alignedFaceTensors) as Float32Array[]
-      : await Promise.all(alignedFaceTensors.map(
-        faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
-      )) as Float32Array[]
-
-    alignedFaceTensors.forEach(t => t.dispose())
-
-    return descriptors
-  }
-}

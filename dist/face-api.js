@@ -1095,7 +1095,7 @@
           // TODO: pad in case rectangle is out of image bounds
           var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
           var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-          return new Rect(x, y, Math.min(size, this._imageWidth - x), Math.min(size, this._imageHeight - y));
+          return new Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y));
       };
       FaceLandmarks.prototype.getRefPointsForAlignment = function () {
           throw new Error('getRefPointsForAlignment not implemented by base class');
@@ -2443,8 +2443,37 @@
       return createFaceRecognitionNet(weights);
   }
 
-  function allFacesFactory(detectionNet, landmarkNet, computeDescriptors) {
+  function computeDescriptorsFactory(recognitionNet) {
+      return function (input, alignedFaceBoxes, useBatchProcessing) {
+          return __awaiter$1(this, void 0, void 0, function () {
+              var alignedFaceTensors, descriptors, _a;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
+                      case 0: return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
+                      case 1:
+                          alignedFaceTensors = _b.sent();
+                          if (!useBatchProcessing) return [3 /*break*/, 3];
+                          return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                      case 2:
+                          _a = _b.sent();
+                          return [3 /*break*/, 5];
+                      case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                      case 4:
+                          _a = _b.sent();
+                          _b.label = 5;
+                      case 5:
+                          descriptors = _a;
+                          alignedFaceTensors.forEach(function (t) { return t.dispose(); });
+                          return [2 /*return*/, descriptors];
+                  }
+              });
+          });
+      };
+  }
+  function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
+      var computeDescriptors = computeDescriptorsFactory(recognitionNet);
       return function (input, minConfidence, useBatchProcessing) {
+          if (minConfidence === void 0) { minConfidence = 0.8; }
           if (useBatchProcessing === void 0) { useBatchProcessing = false; }
           return __awaiter$1(this, void 0, void 0, function () {
               var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
@@ -2480,8 +2509,10 @@
           });
       };
   }
-  function allFacesMtcnnFactory(mtcnn, computeDescriptors) {
+  function allFacesMtcnnFactory(mtcnn, recognitionNet) {
+      var computeDescriptors = computeDescriptorsFactory(recognitionNet);
       return function (input, mtcnnForwardParams, useBatchProcessing) {
+          if (mtcnnForwardParams === void 0) { mtcnnForwardParams = {}; }
           if (useBatchProcessing === void 0) { useBatchProcessing = false; }
           return __awaiter$1(this, void 0, void 0, function () {
               var results, alignedFaceBoxes, descriptors;
@@ -3167,6 +3198,7 @@
           return _super.call(this, 'Mtcnn') || this;
       }
       Mtcnn.prototype.forwardInput = function (input, forwardParams) {
+          if (forwardParams === void 0) { forwardParams = {}; }
           return __awaiter$1(this, void 0, void 0, function () {
               var params, inputTensor, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
               return __generator$1(this, function (_c) {
@@ -3241,6 +3273,7 @@
           });
       };
       Mtcnn.prototype.forward = function (input, forwardParams) {
+          if (forwardParams === void 0) { forwardParams = {}; }
           return __awaiter$1(this, void 0, void 0, function () {
               var _a;
               return __generator$1(this, function (_b) {
@@ -3256,6 +3289,7 @@
           });
       };
       Mtcnn.prototype.forwardWithStats = function (input, forwardParams) {
+          if (forwardParams === void 0) { forwardParams = {}; }
           return __awaiter$1(this, void 0, void 0, function () {
               var _a;
               return __generator$1(this, function (_b) {
@@ -3322,35 +3356,8 @@
   function mtcnn(input, forwardParams) {
       return nets.mtcnn.forward(input, forwardParams);
   }
-  var allFaces = allFacesFactory(detectionNet, landmarkNet, computeDescriptorsFactory(nets.faceRecognitionNet));
-  var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, computeDescriptorsFactory(nets.faceRecognitionNet));
-  function computeDescriptorsFactory(recognitionNet) {
-      return function (input, alignedFaceBoxes, useBatchProcessing) {
-          return __awaiter$1(this, void 0, void 0, function () {
-              var alignedFaceTensors, descriptors, _a;
-              return __generator$1(this, function (_b) {
-                  switch (_b.label) {
-                      case 0: return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
-                      case 1:
-                          alignedFaceTensors = _b.sent();
-                          if (!useBatchProcessing) return [3 /*break*/, 3];
-                          return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
-                      case 2:
-                          _a = _b.sent();
-                          return [3 /*break*/, 5];
-                      case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
-                      case 4:
-                          _a = _b.sent();
-                          _b.label = 5;
-                      case 5:
-                          descriptors = _a;
-                          alignedFaceTensors.forEach(function (t) { return t.dispose(); });
-                          return [2 /*return*/, descriptors];
-                  }
-              });
-          });
-      };
-  }
+  var allFaces = allFacesFactory(nets.ssdMobilenet, nets.faceLandmark68Net, nets.faceRecognitionNet);
+  var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, nets.faceRecognitionNet);
 
   function createMtcnn(weights) {
       var net = new Mtcnn();

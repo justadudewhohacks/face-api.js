@@ -28,7 +28,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardInput(
     input: NetInput,
-    forwardParams: MtcnnForwardParams
+    forwardParams: MtcnnForwardParams = {}
   ): Promise<{ results: MtcnnResult[], stats: any }> {
 
     const { params } = this
@@ -132,7 +132,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forward(
     input: TNetInput,
-    forwardParams: MtcnnForwardParams
+    forwardParams: MtcnnForwardParams = {}
   ): Promise<MtcnnResult[]> {
     return (
       await this.forwardInput(
@@ -144,7 +144,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardWithStats(
     input: TNetInput,
-    forwardParams: MtcnnForwardParams
+    forwardParams: MtcnnForwardParams = {}
   ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input, true, true),

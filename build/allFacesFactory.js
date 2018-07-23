@@ -3,8 +3,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var extractFaceTensors_1 = require("./extractFaceTensors");
 var FullFaceDescription_1 = require("./FullFaceDescription");
-function allFacesFactory(detectionNet, landmarkNet, computeDescriptors) {
+function computeDescriptorsFactory(recognitionNet) {
+    return function (input, alignedFaceBoxes, useBatchProcessing) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var alignedFaceTensors, descriptors, _a;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, alignedFaceBoxes)];
+                    case 1:
+                        alignedFaceTensors = _b.sent();
+                        if (!useBatchProcessing) return [3 /*break*/, 3];
+                        return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                    case 2:
+                        _a = _b.sent();
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                    case 4:
+                        _a = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        descriptors = _a;
+                        alignedFaceTensors.forEach(function (t) { return t.dispose(); });
+                        return [2 /*return*/, descriptors];
+                }
+            });
+        });
+    };
+}
+function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
+    var computeDescriptors = computeDescriptorsFactory(recognitionNet);
     return function (input, minConfidence, useBatchProcessing) {
+        if (minConfidence === void 0) { minConfidence = 0.8; }
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
@@ -41,8 +70,10 @@ function allFacesFactory(detectionNet, landmarkNet, computeDescriptors) {
     };
 }
 exports.allFacesFactory = allFacesFactory;
-function allFacesMtcnnFactory(mtcnn, computeDescriptors) {
+function allFacesMtcnnFactory(mtcnn, recognitionNet) {
+    var computeDescriptors = computeDescriptorsFactory(recognitionNet);
     return function (input, mtcnnForwardParams, useBatchProcessing) {
+        if (mtcnnForwardParams === void 0) { mtcnnForwardParams = {}; }
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var results, alignedFaceBoxes, descriptors;
