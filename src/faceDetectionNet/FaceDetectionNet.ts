@@ -50,7 +50,7 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
   public async locateFaces(
     input: TNetInput,
     minConfidence: number = 0.8,
-    maxResults: number = 100,
+    maxResults: number = 100
   ): Promise<FaceDetection[]> {
 
     const netInput = await toNetInput(input, true)

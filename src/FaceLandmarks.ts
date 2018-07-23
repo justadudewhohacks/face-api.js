@@ -105,7 +105,7 @@ export class FaceLandmarks {
     const x = Math.floor(Math.max(0, refPoint.x - (relX * size)))
     const y = Math.floor(Math.max(0, refPoint.y - (relY * size)))
 
-    return new Rect(x, y, Math.min(size, this._imageWidth - x), Math.min(size, this._imageHeight - y))
+    return new Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y))
   }
 
   protected getRefPointsForAlignment(): Point[] {
