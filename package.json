@@ -1,6 +1,6 @@
 {
   "name": "face-api.js",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
