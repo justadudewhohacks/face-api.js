@@ -5,7 +5,6 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "^0.12.7",
     "express": "^4.16.3",
     "request": "^2.87.0"
   }
