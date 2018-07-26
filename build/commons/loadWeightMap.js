@@ -3,17 +3,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 function getModelUris(uri, defaultModelName) {
-    var parts = (uri || '').split('/');
-    var modelBaseUri = ((uri || '').endsWith('.json')
-        ? parts.slice(0, parts.length - 1)
-        : parts).filter(function (s) { return s; }).join('/');
     var defaultManifestFilename = defaultModelName + "-weights_manifest.json";
-    var manifestUri = !uri || !modelBaseUri
-        ? defaultManifestFilename
-        : (uri.endsWith('.json')
-            ? uri
-            : modelBaseUri + "/" + defaultManifestFilename);
-    return { manifestUri: manifestUri, modelBaseUri: modelBaseUri };
+    if (!uri) {
+        return {
+            modelBaseUri: '',
+            manifestUri: defaultManifestFilename
+        };
+    }
+    if (uri === '/') {
+        return {
+            modelBaseUri: '/',
+            manifestUri: "/" + defaultManifestFilename
+        };
+    }
+    var parts = uri.split('/').filter(function (s) { return s; });
+    var manifestFile = uri.endsWith('.json')
+        ? parts[parts.length - 1]
+        : defaultManifestFilename;
+    var modelBaseUri = (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/');
+    modelBaseUri = uri.startsWith('/') ? "/" + modelBaseUri : modelBaseUri;
+    return {
+        modelBaseUri: modelBaseUri,
+        manifestUri: modelBaseUri === '/' ? "/" + manifestFile : modelBaseUri + "/" + manifestFile
+    };
 }
 exports.getModelUris = getModelUris;
 function loadWeightMap(uri, defaultModelName) {
