@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { BoundingBox } from './BoundingBox';
+import { BoundingBox } from '../BoundingBox';
+import { nonMaxSuppression } from '../commons/nonMaxSuppression';
 import { extractImagePatches } from './extractImagePatches';
-import { nms } from './nms';
 import { RNet } from './RNet';
 import { RNetParams } from './types';
 
@@ -47,7 +47,7 @@ export async function stage2(
 
   if (filteredBoxes.length > 0) {
     ts = Date.now()
-    const indicesNms = nms(
+    const indicesNms = nonMaxSuppression(
       filteredBoxes,
       filteredScores,
       0.7

@@ -23,3 +23,15 @@ export type NetParams = {
   conv7: ConvWithBatchNorm
   conv8: ConvParams
 }
+
+export enum SizeType {
+  XS = 'xs',
+  SM = 'sm',
+  MD = 'md',
+  LG = 'lg'
+}
+
+export type TinyYolov2ForwardParams = {
+  sizeType?: SizeType
+  scoreThreshold?: number
+}

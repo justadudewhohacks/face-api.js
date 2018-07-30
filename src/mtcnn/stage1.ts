@@ -1,13 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { BoundingBox } from '../BoundingBox';
+import { nonMaxSuppression } from '../commons/nonMaxSuppression';
 import { Point } from '../Point';
-import { BoundingBox } from './BoundingBox';
 import { CELL_SIZE, CELL_STRIDE } from './config';
-import { nms } from './nms';
+import { getSizesForScale } from './getSizesForScale';
 import { normalize } from './normalize';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
-import { getSizesForScale } from './getSizesForScale';
 
 function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
   return tf.tidy(() => {
@@ -109,7 +109,7 @@ export function stage1(
     }
 
     let ts = Date.now()
-    const indices = nms(
+    const indices = nonMaxSuppression(
       boundingBoxes.map(bbox => bbox.cell),
       boundingBoxes.map(bbox => bbox.score),
       0.5
@@ -130,7 +130,7 @@ export function stage1(
 
   if (allBoxes.length > 0) {
     let ts = Date.now()
-    const indices = nms(
+    const indices = nonMaxSuppression(
       allBoxes.map(bbox => bbox.cell),
       allBoxes.map(bbox => bbox.score),
       0.7

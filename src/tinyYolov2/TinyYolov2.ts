@@ -1,14 +1,18 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { BoundingBox } from '../BoundingBox';
 import { convLayer } from '../commons/convLayer';
 import { NeuralNetwork } from '../commons/NeuralNetwork';
+import { nonMaxSuppression } from '../commons/nonMaxSuppression';
+import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
+import { BOX_ANCHORS, INPUT_SIZES, NUM_BOXES, NUM_CELLS } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
-import { NetParams } from './types';
-
+import { getDefaultParams } from './getDefaultParams';
+import { NetParams, TinyYolov2ForwardParams } from './types';
 
 export class TinyYolov2 extends NeuralNetwork<NetParams> {
 
@@ -16,7 +20,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     super('TinyYolov2')
   }
 
-  public async forwardInput(input: NetInput): Promise<any> {
+  public forwardInput(input: NetInput, inputSize: number): tf.Tensor4D {
 
     const { params } = this
 
@@ -25,10 +29,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     }
 
     const out = tf.tidy(() => {
-      //const batchTensor = input.toBatchTensor(416).div(tf.scalar(255)).toFloat() as tf.Tensor4D
-
-      // TODO: fix boxes after padding
-      const batchTensor = tf.image.resizeBilinear(input.inputs[0], [416, 416]).toFloat().div(tf.scalar(255)).expandDims() as tf.Tensor4D
+      const batchTensor = input.toBatchTensor(inputSize, false).div(tf.scalar(255)).toFloat() as tf.Tensor4D
 
       let out = convWithBatchNorm(batchTensor, params.conv0)
       out = tf.maxPool(out, [2, 2], [2, 2], 'same')
@@ -52,8 +53,75 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     return out
   }
 
-  public async forward(input: TNetInput): Promise<any> {
-    return await this.forwardInput(await toNetInput(input, true, true))
+  public async forward(input: TNetInput, inputSize: number): Promise<tf.Tensor4D> {
+    return await this.forwardInput(await toNetInput(input, true, true), inputSize)
+  }
+
+  public async locateFaces(input: TNetInput, forwardParams: TinyYolov2ForwardParams = {}): Promise<FaceDetection[]> {
+
+    const { sizeType, scoreThreshold } = getDefaultParams(forwardParams)
+
+
+    const inputSize = INPUT_SIZES[sizeType]
+    const numCells = NUM_CELLS[sizeType]
+
+    if (!inputSize) {
+      throw new Error(`TinyYolov2 - unkown sizeType: ${sizeType}, expected one of: xs | sm | md | lg`)
+    }
+
+    const netInput = await toNetInput(input, true)
+    const out = await this.forwardInput(netInput, inputSize)
+
+    const [boxesTensor, scoresTensor] = tf.tidy(() => {
+      const reshaped = out.reshape([numCells, numCells, NUM_BOXES, 6])
+      out.dispose()
+
+      const boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, NUM_BOXES, 4])
+      const scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, NUM_BOXES, 1])
+      return [boxes, scores]
+    })
+
+    const expit = (x: number): number => 1 / (1 + Math.exp(-x))
+
+    const paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0)
+    const paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0)
+
+    const boxes: BoundingBox[] = []
+    const scores: number[] = []
+
+    for (let row = 0; row < numCells; row ++) {
+      for (let col = 0; col < numCells; col ++) {
+        for (let box = 0; box < NUM_BOXES; box ++) {
+          const score = expit(scoresTensor.get(row, col, box, 0))
+          if (score > scoreThreshold) {
+            const ctX = ((col + expit(boxesTensor.get(row, col, box, 0))) / numCells) * paddedWidthRelative
+            const ctY = ((row + expit(boxesTensor.get(row, col, box, 1))) / numCells) * paddedHeightRelative
+            const width = ((Math.exp(boxesTensor.get(row, col, box, 2)) * BOX_ANCHORS[box].x) / numCells) * paddedWidthRelative
+            const height = ((Math.exp(boxesTensor.get(row, col, box, 3)) * BOX_ANCHORS[box].y) / numCells) * paddedHeightRelative
+
+            const x = (ctX - (width / 2))
+            const y = (ctY - (height / 2))
+            boxes.push(new BoundingBox(x, y, x + width, y + height))
+            scores.push(score)
+          }
+        }
+      }
+    }
+
+    boxesTensor.dispose()
+    scoresTensor.dispose()
+
+    const indices = nonMaxSuppression(boxes, scores, 0.4, true)
+
+    const detections = indices.map(idx =>
+      new FaceDetection(
+        scores[idx],
+        boxes[idx].toRect(),
+        { width: netInput.getInputWidth(0), height: netInput.getInputHeight(0) }
+      )
+    )
+
+    return detections
   }
 
   /* TODO

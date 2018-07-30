@@ -1,3 +1,5 @@
+import { Rect } from './Rect';
+
 export class BoundingBox {
   constructor(
     private _left: number,
@@ -30,7 +32,6 @@ export class BoundingBox {
   public get height() : number {
     return this.bottom - this.top
   }
-
 
   public toSquare(): BoundingBox {
     let { left, top, right, bottom } = this
@@ -97,5 +98,9 @@ export class BoundingBox {
       this.right + (region.right * this.width),
       this.bottom + (region.bottom * this.height)
     ).toSquare().round()
+  }
+
+  public toRect(): Rect {
+    return new Rect(this.left, this.top, this.width, this.height)
   }
 }

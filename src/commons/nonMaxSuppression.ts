@@ -1,6 +1,6 @@
-import { BoundingBox } from './BoundingBox';
+import { BoundingBox } from '../BoundingBox';
 
-export function nms(
+export function nonMaxSuppression(
   boxes: BoundingBox[],
   scores: number[],
   iouThreshold: number,
