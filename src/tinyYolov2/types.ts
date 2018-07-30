@@ -32,6 +32,6 @@ export enum SizeType {
 }
 
 export type TinyYolov2ForwardParams = {
-  sizeType?: SizeType
+  inputSize?: SizeType | number
   scoreThreshold?: number
 }

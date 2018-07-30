@@ -1,7 +1,6 @@
 import { Point } from '../Point';
 
 export const INPUT_SIZES = { xs: 224, sm: 320, md: 416, lg: 608 }
-export const NUM_CELLS = { xs: 7, sm: 10, md: 13, lg: 19 }
 export const NUM_BOXES = 5
 export const IOU_THRESHOLD = 0.4
 

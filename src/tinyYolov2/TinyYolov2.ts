@@ -8,7 +8,7 @@ import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
-import { BOX_ANCHORS, INPUT_SIZES, IOU_THRESHOLD, NUM_BOXES, NUM_CELLS } from './config';
+import { BOX_ANCHORS, INPUT_SIZES, IOU_THRESHOLD, NUM_BOXES } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
 import { getDefaultParams } from './getDefaultParams';
@@ -59,18 +59,19 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
 
   public async locateFaces(input: TNetInput, forwardParams: TinyYolov2ForwardParams = {}): Promise<FaceDetection[]> {
 
-    const { sizeType, scoreThreshold } = getDefaultParams(forwardParams)
+    const { inputSize: _inputSize, scoreThreshold } = getDefaultParams(forwardParams)
 
+    const inputSize = typeof _inputSize === 'string'
+      ? INPUT_SIZES[_inputSize]
+      : _inputSize
 
-    const inputSize = INPUT_SIZES[sizeType]
-    const numCells = NUM_CELLS[sizeType]
-
-    if (!inputSize) {
-      throw new Error(`TinyYolov2 - unkown sizeType: ${sizeType}, expected one of: xs | sm | md | lg`)
+    if (typeof inputSize !== 'number') {
+      throw new Error(`TinyYolov2 - unkown inputSize: ${inputSize}, expected number or one of xs | sm | md | lg`)
     }
 
     const netInput = await toNetInput(input, true)
     const out = await this.forwardInput(netInput, inputSize)
+    const numCells = out.shape[1]
 
     const [boxesTensor, scoresTensor] = tf.tidy(() => {
       const reshaped = out.reshape([numCells, numCells, NUM_BOXES, 6])
