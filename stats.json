@@ -1,0 +1,80 @@
+{
+  "assetsByChunkName": {
+    "component---src-pages-face-recognition-tsx": [
+      "component---src-pages-face-recognition-tsx-eb79b2df5bf3746e8346.js",
+      "component---src-pages-face-recognition-tsx-eb79b2df5bf3746e8346.js.map"
+    ],
+    "path---face-detection-webcam-mtcnn": [
+      "path---face-detection-webcam-mtcnn-a0e39f21c11f6a62c5ab.js",
+      "path---face-detection-webcam-mtcnn-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---face-recognition-mtcnn": [
+      "path---face-recognition-mtcnn-a0e39f21c11f6a62c5ab.js",
+      "path---face-recognition-mtcnn-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---face-recognition": [
+      "path---face-recognition-a0e39f21c11f6a62c5ab.js",
+      "path---face-recognition-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "component---src-pages-face-detection-webcam-mtcnn-tsx": [
+      "component---src-pages-face-detection-webcam-mtcnn-tsx-25b6ea7132e5f4a352ad.js",
+      "component---src-pages-face-detection-webcam-mtcnn-tsx-25b6ea7132e5f4a352ad.js.map"
+    ],
+    "component---src-pages-face-detection-tsx": [
+      "component---src-pages-face-detection-tsx-84223b5ad5d5705e3b90.js",
+      "component---src-pages-face-detection-tsx-84223b5ad5d5705e3b90.js.map"
+    ],
+    "path---face-detection": [
+      "path---face-detection-a0e39f21c11f6a62c5ab.js",
+      "path---face-detection-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "component---src-pages-face-recognition-mtcnn-tsx": [
+      "component---src-pages-face-recognition-mtcnn-tsx-f7c118ef0729fc8e86cf.js",
+      "component---src-pages-face-recognition-mtcnn-tsx-f7c118ef0729fc8e86cf.js.map"
+    ],
+    "path---index": [
+      "path---index-a0e39f21c11f6a62c5ab.js",
+      "path---index-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---face-landmarks": [
+      "path---face-landmarks-a0e39f21c11f6a62c5ab.js",
+      "path---face-landmarks-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "component---src-pages-face-similarity-tsx": [
+      "component---src-pages-face-similarity-tsx-a444cb338842b980c865.js",
+      "component---src-pages-face-similarity-tsx-a444cb338842b980c865.js.map"
+    ],
+    "commons": [
+      "commons-baa8d7f055de2a8afd1c.js",
+      "commons-baa8d7f055de2a8afd1c.js.map"
+    ],
+    "component---src-pages-404-tsx": [
+      "component---src-pages-404-tsx-0ef59857f65b5d25df45.js",
+      "component---src-pages-404-tsx-0ef59857f65b5d25df45.js.map"
+    ],
+    "path---404-html": [
+      "path---404-html-a0e39f21c11f6a62c5ab.js",
+      "path---404-html-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "component---src-pages-face-landmarks-tsx": [
+      "component---src-pages-face-landmarks-tsx-0e6a3b20f8ad70b96e0c.js",
+      "component---src-pages-face-landmarks-tsx-0e6a3b20f8ad70b96e0c.js.map"
+    ],
+    "path---face-similarity": [
+      "path---face-similarity-a0e39f21c11f6a62c5ab.js",
+      "path---face-similarity-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "component---src-pages-index-tsx": [
+      "component---src-pages-index-tsx-9eff1478bd67f8b4520c.js",
+      "component---src-pages-index-tsx-9eff1478bd67f8b4520c.js.map"
+    ],
+    "app": [
+      "app-2abfe28f4403cf1ea2de.js",
+      "app-2abfe28f4403cf1ea2de.js.map"
+    ],
+    "path---404": [
+      "path---404-a0e39f21c11f6a62c5ab.js",
+      "path---404-a0e39f21c11f6a62c5ab.js.map"
+    ]
+  }
+}
