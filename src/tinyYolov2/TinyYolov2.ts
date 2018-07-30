@@ -8,7 +8,7 @@ import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
-import { BOX_ANCHORS, INPUT_SIZES, NUM_BOXES, NUM_CELLS } from './config';
+import { BOX_ANCHORS, INPUT_SIZES, IOU_THRESHOLD, NUM_BOXES, NUM_CELLS } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
 import { getDefaultParams } from './getDefaultParams';
@@ -111,7 +111,17 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     boxesTensor.dispose()
     scoresTensor.dispose()
 
-    const indices = nonMaxSuppression(boxes, scores, 0.4, true)
+    const indices = nonMaxSuppression(
+      boxes.map(box => new BoundingBox(
+        box.left * inputSize,
+        box.top * inputSize,
+        box.right * inputSize,
+        box.bottom * inputSize
+      )),
+      scores,
+      IOU_THRESHOLD,
+      true
+    )
 
     const detections = indices.map(idx =>
       new FaceDetection(
