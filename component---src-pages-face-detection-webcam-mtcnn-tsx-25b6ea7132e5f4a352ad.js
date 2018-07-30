@@ -62,7 +62,7 @@ webpackJsonp([64362231949834],{
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(36);
 	var React = __webpack_require__(2);
-	var styled_components_1 = __webpack_require__(48);
+	var styled_components_1 = __webpack_require__(49);
 	var SideBySide_1 = __webpack_require__(119);
 	exports.StyledFormControl = styled_components_1.default(core_1.FormControl)(_templateObject);
 	exports.StyledButton = styled_components_1.default(core_1.Button)(_templateObject2);
@@ -233,7 +233,7 @@ webpackJsonp([64362231949834],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var faceapi = __webpack_require__(40);
-	var gatsby_link_1 = __webpack_require__(56);
+	var gatsby_link_1 = __webpack_require__(48);
 	var React = __webpack_require__(2);
 	var MtcnnParamControls_1 = __webpack_require__(174);
 	var WebcamVideoWithOverlay_1 = __webpack_require__(639);

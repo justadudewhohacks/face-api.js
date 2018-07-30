@@ -109,7 +109,7 @@ webpackJsonp([190863916522640],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Mui = __webpack_require__(36);
-	var gatsby_link_1 = __webpack_require__(56);
+	var gatsby_link_1 = __webpack_require__(48);
 	var React = __webpack_require__(2);
 	var DisplayResults_1 = __webpack_require__(118);
 	var ModalLoader_1 = __webpack_require__(29);
@@ -242,7 +242,7 @@ webpackJsonp([190863916522640],{
 	function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var styled_components_1 = __webpack_require__(48);
+	var styled_components_1 = __webpack_require__(49);
 	exports.MarginTop = styled_components_1.default.div(_templateObject);
 
 /***/ })
