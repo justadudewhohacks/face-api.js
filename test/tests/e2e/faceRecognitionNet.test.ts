@@ -139,7 +139,7 @@ describe('faceRecognitionNet', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const res = await fetch('base/weights/uncompressed/face_recognition_model.weights')
+          const res = await fetch('base/weights_uncompressed/face_recognition_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
           const net = faceapi.createFaceRecognitionNet(weights)
           net.dispose()

@@ -67,7 +67,7 @@ describe('mtcnn', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const res = await fetch('base/weights/uncompressed/mtcnn_model.weights')
+          const res = await fetch('base/weights_uncompressed/mtcnn_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
           const net = faceapi.createMtcnn(weights)
           net.dispose()

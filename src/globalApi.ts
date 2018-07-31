@@ -10,6 +10,8 @@ import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams, MtcnnResult } from './mtcnn/types';
 import { NetInput } from './NetInput';
+import { TinyYolov2 } from './tinyYolov2/TinyYolov2';
+import { TinyYolov2ForwardParams } from './tinyYolov2/types';
 import { TNetInput } from './types';
 
 export const detectionNet = new FaceDetectionNet()
@@ -22,7 +24,8 @@ export const nets = {
   ssdMobilenet: detectionNet,
   faceLandmark68Net: landmarkNet,
   faceRecognitionNet: recognitionNet,
-  mtcnn: new Mtcnn()
+  mtcnn: new Mtcnn(),
+  tinyYolov2: new TinyYolov2()
 }
 
 export function loadFaceDetectionModel(url: string) {
@@ -41,12 +44,17 @@ export function loadMtcnnModel(url: string) {
   return nets.mtcnn.load(url)
 }
 
+export function loadTinyYolov2Model(url: string) {
+  return nets.tinyYolov2.load(url)
+}
+
 export function loadModels(url: string) {
   return Promise.all([
     loadFaceDetectionModel(url),
     loadFaceLandmarkModel(url),
     loadFaceRecognitionModel(url),
-    loadMtcnnModel(url)
+    loadMtcnnModel(url),
+    loadTinyYolov2Model(url)
   ])
 }
 
@@ -75,6 +83,13 @@ export function mtcnn(
   forwardParams: MtcnnForwardParams
 ): Promise<MtcnnResult[]> {
   return nets.mtcnn.forward(input, forwardParams)
+}
+
+export function tinyYolov2(
+  input: TNetInput,
+  forwardParams: TinyYolov2ForwardParams
+): Promise<FaceDetection[]> {
+  return nets.tinyYolov2.locateFaces(input, forwardParams)
 }
 
 export type allFacesFunction = (

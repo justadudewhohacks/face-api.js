@@ -1,3 +1,4 @@
+import { Rect } from '../Rect';
 export declare class BoundingBox {
     private _left;
     private _top;
@@ -25,4 +26,5 @@ export declare class BoundingBox {
         h: number;
     };
     calibrate(region: BoundingBox): BoundingBox;
+    toRect(): Rect;
 }

@@ -1728,7 +1728,7 @@
       };
   }
 
-  var DEFAULT_MODEL_NAME$1 = 'face_detection_model';
+  var DEFAULT_MODEL_NAME$1 = 'ssd_mobilenetv1_model';
   function extractorsFactory$2(weightMap, paramMappings) {
       var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
       function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
@@ -2839,10 +2839,13 @@
       BoundingBox.prototype.calibrate = function (region) {
           return new BoundingBox(this.left + (region.left * this.width), this.top + (region.top * this.height), this.right + (region.right * this.width), this.bottom + (region.bottom * this.height)).toSquare().round();
       };
+      BoundingBox.prototype.toRect = function () {
+          return new Rect(this.left, this.top, this.width, this.height);
+      };
       return BoundingBox;
   }());
 
-  function nms(boxes, scores, iouThreshold, isIOU) {
+  function nonMaxSuppression$1(boxes, scores, iouThreshold, isIOU) {
       if (isIOU === void 0) { isIOU = true; }
       var areas = boxes.map(function (box) { return (box.width + 1) * (box.height + 1); });
       var indicesSortedByScore = scores
@@ -2968,7 +2971,7 @@
               return [];
           }
           var ts = Date.now();
-          var indices = nms(boundingBoxes.map(function (bbox) { return bbox.cell; }), boundingBoxes.map(function (bbox) { return bbox.score; }), 0.5);
+          var indices = nonMaxSuppression$1(boundingBoxes.map(function (bbox) { return bbox.cell; }), boundingBoxes.map(function (bbox) { return bbox.score; }), 0.5);
           statsForScale.nms = Date.now() - ts;
           statsForScale.numBoxes = indices.length;
           stats.stage1.push(statsForScale);
@@ -2979,7 +2982,7 @@
       var finalScores = [];
       if (allBoxes.length > 0) {
           var ts = Date.now();
-          var indices = nms(allBoxes.map(function (bbox) { return bbox.cell; }), allBoxes.map(function (bbox) { return bbox.score; }), 0.7);
+          var indices = nonMaxSuppression$1(allBoxes.map(function (bbox) { return bbox.cell; }), allBoxes.map(function (bbox) { return bbox.score; }), 0.7);
           stats.stage1_nms = Date.now() - ts;
           finalScores = indices.map(function (idx) { return allBoxes[idx].score; });
           finalBoxes = indices
@@ -3097,7 +3100,7 @@
                       finalScores = [];
                       if (filteredBoxes.length > 0) {
                           ts = Date.now();
-                          indicesNms = nms(filteredBoxes, filteredScores, 0.7);
+                          indicesNms = nonMaxSuppression$1(filteredBoxes, filteredScores, 0.7);
                           stats.stage2_nms = Date.now() - ts;
                           regions_1 = indicesNms.map(function (idx) {
                               return new BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
@@ -3179,7 +3182,7 @@
                       points = [];
                       if (filteredBoxes.length > 0) {
                           ts = Date.now();
-                          indicesNms = nms(filteredBoxes, filteredScores, 0.7, false);
+                          indicesNms = nonMaxSuppression$1(filteredBoxes, filteredScores, 0.7, false);
                           stats.stage3_nms = Date.now() - ts;
                           finalBoxes = indicesNms.map(function (idx) { return filteredBoxes[idx]; });
                           finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
@@ -3325,6 +3328,253 @@
       return Mtcnn;
   }(NeuralNetwork));
 
+  var INPUT_SIZES = { xs: 224, sm: 320, md: 416, lg: 608 };
+  var NUM_BOXES = 5;
+  var IOU_THRESHOLD = 0.4;
+  var BOX_ANCHORS = [
+      new Point(0.738768, 0.874946),
+      new Point(2.42204, 2.65704),
+      new Point(4.30971, 7.04493),
+      new Point(10.246, 4.59428),
+      new Point(12.6868, 11.8741)
+  ];
+
+  function leaky(x) {
+      return tidy(function () {
+          return maximum(x, mul(x, scalar(0.10000000149011612)));
+      });
+  }
+
+  function convWithBatchNorm(x, params) {
+      return tidy(function () {
+          var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
+          out = conv2d(out, params.conv.filters, [1, 1], 'valid');
+          out = sub(out, params.bn.sub);
+          out = mul(out, params.bn.truediv);
+          out = add(out, params.conv.bias);
+          return leaky(out);
+      });
+  }
+
+  function extractorsFactory$7(extractWeights, paramMappings) {
+      var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+      function extractBatchNormParams(size, mappedPrefix) {
+          var sub$$1 = tensor1d(extractWeights(size));
+          var truediv = tensor1d(extractWeights(size));
+          paramMappings.push({ paramPath: mappedPrefix + "/sub" }, { paramPath: mappedPrefix + "/truediv" });
+          return { sub: sub$$1, truediv: truediv };
+      }
+      function extractConvWithBatchNormParams(channelsIn, channelsOut, mappedPrefix) {
+          var conv = extractConvParams(channelsIn, channelsOut, 3, mappedPrefix + "/conv");
+          var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
+          return { conv: conv, bn: bn };
+      }
+      return {
+          extractConvParams: extractConvParams,
+          extractConvWithBatchNormParams: extractConvWithBatchNormParams
+      };
+  }
+  function extractParams$4(weights) {
+      var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+      var paramMappings = [];
+      var _b = extractorsFactory$7(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams;
+      var conv0 = extractConvWithBatchNormParams(3, 16, 'conv0');
+      var conv1 = extractConvWithBatchNormParams(16, 32, 'conv1');
+      var conv2 = extractConvWithBatchNormParams(32, 64, 'conv2');
+      var conv3 = extractConvWithBatchNormParams(64, 128, 'conv3');
+      var conv4 = extractConvWithBatchNormParams(128, 256, 'conv4');
+      var conv5 = extractConvWithBatchNormParams(256, 512, 'conv5');
+      var conv6 = extractConvWithBatchNormParams(512, 1024, 'conv6');
+      var conv7 = extractConvWithBatchNormParams(1024, 1024, 'conv7');
+      var conv8 = extractConvParams(1024, 30, 1, 'conv8');
+      if (getRemainingWeights().length !== 0) {
+          throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+      }
+      var params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
+      return { params: params, paramMappings: paramMappings };
+  }
+
+  var SizeType;
+  (function (SizeType) {
+      SizeType["XS"] = "xs";
+      SizeType["SM"] = "sm";
+      SizeType["MD"] = "md";
+      SizeType["LG"] = "lg";
+  })(SizeType || (SizeType = {}));
+
+  function getDefaultParams(params) {
+      return Object.assign({}, {
+          sizeType: SizeType.MD,
+          scoreThreshold: 0.5
+      }, params);
+  }
+
+  var DEFAULT_MODEL_NAME$4 = 'tiny_yolov2_model';
+  function extractorsFactory$8(weightMap, paramMappings) {
+      var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+      function extractBatchNormParams(prefix) {
+          var sub = extractWeightEntry(prefix + "/sub", 1);
+          var truediv = extractWeightEntry(prefix + "/truediv", 1);
+          return { sub: sub, truediv: truediv };
+      }
+      function extractConvParams(prefix) {
+          var filters = extractWeightEntry(prefix + "/filters", 4);
+          var bias = extractWeightEntry(prefix + "/bias", 1);
+          return { filters: filters, bias: bias };
+      }
+      function extractConvWithBatchNormParams(prefix) {
+          var conv = extractConvParams(prefix + "/conv");
+          var bn = extractBatchNormParams(prefix + "/bn");
+          return { conv: conv, bn: bn };
+      }
+      return {
+          extractConvParams: extractConvParams,
+          extractConvWithBatchNormParams: extractConvWithBatchNormParams
+      };
+  }
+  function loadQuantizedParams$4(uri) {
+      return __awaiter$1(this, void 0, void 0, function () {
+          var weightMap, paramMappings, _a, extractConvParams, extractConvWithBatchNormParams, params;
+          return __generator$1(this, function (_b) {
+              switch (_b.label) {
+                  case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$4)];
+                  case 1:
+                      weightMap = _b.sent();
+                      paramMappings = [];
+                      _a = extractorsFactory$8(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams;
+                      params = {
+                          conv0: extractConvWithBatchNormParams('conv0'),
+                          conv1: extractConvWithBatchNormParams('conv1'),
+                          conv2: extractConvWithBatchNormParams('conv2'),
+                          conv3: extractConvWithBatchNormParams('conv3'),
+                          conv4: extractConvWithBatchNormParams('conv4'),
+                          conv5: extractConvWithBatchNormParams('conv5'),
+                          conv6: extractConvWithBatchNormParams('conv6'),
+                          conv7: extractConvWithBatchNormParams('conv7'),
+                          conv8: extractConvParams('conv8')
+                      };
+                      disposeUnusedWeightTensors(weightMap, paramMappings);
+                      return [2 /*return*/, { params: params, paramMappings: paramMappings }];
+              }
+          });
+      });
+  }
+
+  var TinyYolov2 = /** @class */ (function (_super) {
+      __extends$1(TinyYolov2, _super);
+      function TinyYolov2() {
+          return _super.call(this, 'TinyYolov2') || this;
+      }
+      TinyYolov2.prototype.forwardInput = function (input, inputSize) {
+          var params = this.params;
+          if (!params) {
+              throw new Error('TinyYolov2 - load model before inference');
+          }
+          var out = tidy(function () {
+              var batchTensor = input.toBatchTensor(inputSize, false).div(scalar(255)).toFloat();
+              var out = convWithBatchNorm(batchTensor, params.conv0);
+              out = maxPool(out, [2, 2], [2, 2], 'same');
+              out = convWithBatchNorm(out, params.conv1);
+              out = maxPool(out, [2, 2], [2, 2], 'same');
+              out = convWithBatchNorm(out, params.conv2);
+              out = maxPool(out, [2, 2], [2, 2], 'same');
+              out = convWithBatchNorm(out, params.conv3);
+              out = maxPool(out, [2, 2], [2, 2], 'same');
+              out = convWithBatchNorm(out, params.conv4);
+              out = maxPool(out, [2, 2], [2, 2], 'same');
+              out = convWithBatchNorm(out, params.conv5);
+              out = maxPool(out, [2, 2], [1, 1], 'same');
+              out = convWithBatchNorm(out, params.conv6);
+              out = convWithBatchNorm(out, params.conv7);
+              out = convLayer(out, params.conv8, 'valid', false);
+              return out;
+          });
+          return out;
+      };
+      TinyYolov2.prototype.forward = function (input, inputSize) {
+          return __awaiter$1(this, void 0, void 0, function () {
+              var _a;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
+                      case 0:
+                          _a = this.forwardInput;
+                          return [4 /*yield*/, toNetInput(input, true, true)];
+                      case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(), inputSize])];
+                      case 2: return [2 /*return*/, _b.sent()];
+                  }
+              });
+          });
+      };
+      TinyYolov2.prototype.locateFaces = function (input, forwardParams) {
+          if (forwardParams === void 0) { forwardParams = {}; }
+          return __awaiter$1(this, void 0, void 0, function () {
+              var _a, _inputSize, scoreThreshold, inputSize, netInput, out, numCells, _b, boxesTensor, scoresTensor, expit, paddedHeightRelative, paddedWidthRelative, boxes, scores, row, col, box, score, ctX, ctY, width, height, x, y, indices, detections;
+              return __generator$1(this, function (_c) {
+                  switch (_c.label) {
+                      case 0:
+                          _a = getDefaultParams(forwardParams), _inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
+                          inputSize = typeof _inputSize === 'string'
+                              ? INPUT_SIZES[_inputSize]
+                              : _inputSize;
+                          if (typeof inputSize !== 'number') {
+                              throw new Error("TinyYolov2 - unkown inputSize: " + inputSize + ", expected number or one of xs | sm | md | lg");
+                          }
+                          return [4 /*yield*/, toNetInput(input, true)];
+                      case 1:
+                          netInput = _c.sent();
+                          return [4 /*yield*/, this.forwardInput(netInput, inputSize)];
+                      case 2:
+                          out = _c.sent();
+                          numCells = out.shape[1];
+                          _b = tidy(function () {
+                              var reshaped = out.reshape([numCells, numCells, NUM_BOXES, 6]);
+                              out.dispose();
+                              var boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, NUM_BOXES, 4]);
+                              var scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, NUM_BOXES, 1]);
+                              return [boxes, scores];
+                          }), boxesTensor = _b[0], scoresTensor = _b[1];
+                          expit = function (x) { return 1 / (1 + Math.exp(-x)); };
+                          paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0);
+                          paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0);
+                          boxes = [];
+                          scores = [];
+                          for (row = 0; row < numCells; row++) {
+                              for (col = 0; col < numCells; col++) {
+                                  for (box = 0; box < NUM_BOXES; box++) {
+                                      score = expit(scoresTensor.get(row, col, box, 0));
+                                      if (score > scoreThreshold) {
+                                          ctX = ((col + expit(boxesTensor.get(row, col, box, 0))) / numCells) * paddedWidthRelative;
+                                          ctY = ((row + expit(boxesTensor.get(row, col, box, 1))) / numCells) * paddedHeightRelative;
+                                          width = ((Math.exp(boxesTensor.get(row, col, box, 2)) * BOX_ANCHORS[box].x) / numCells) * paddedWidthRelative;
+                                          height = ((Math.exp(boxesTensor.get(row, col, box, 3)) * BOX_ANCHORS[box].y) / numCells) * paddedHeightRelative;
+                                          x = (ctX - (width / 2));
+                                          y = (ctY - (height / 2));
+                                          boxes.push(new BoundingBox(x, y, x + width, y + height));
+                                          scores.push(score);
+                                      }
+                                  }
+                              }
+                          }
+                          boxesTensor.dispose();
+                          scoresTensor.dispose();
+                          indices = nonMaxSuppression$1(boxes.map(function (box) { return new BoundingBox(box.left * inputSize, box.top * inputSize, box.right * inputSize, box.bottom * inputSize); }), scores, IOU_THRESHOLD, true);
+                          detections = indices.map(function (idx) {
+                              return new FaceDetection(scores[idx], boxes[idx].toRect(), { width: netInput.getInputWidth(0), height: netInput.getInputHeight(0) });
+                          });
+                          return [2 /*return*/, detections];
+                  }
+              });
+          });
+      };
+      TinyYolov2.prototype.loadQuantizedParams = function (uri) {
+          return loadQuantizedParams$4(uri);
+      };
+      TinyYolov2.prototype.extractParams = function (weights) {
+          return extractParams$4(weights);
+      };
+      return TinyYolov2;
+  }(NeuralNetwork));
+
   var detectionNet = new FaceDetectionNet();
   var landmarkNet = new FaceLandmarkNet();
   var recognitionNet = new FaceRecognitionNet();
@@ -3334,7 +3584,8 @@
       ssdMobilenet: detectionNet,
       faceLandmark68Net: landmarkNet,
       faceRecognitionNet: recognitionNet,
-      mtcnn: new Mtcnn()
+      mtcnn: new Mtcnn(),
+      tinyYolov2: new TinyYolov2()
   };
   function loadFaceDetectionModel(url) {
       return nets.ssdMobilenet.load(url);
@@ -3348,12 +3599,16 @@
   function loadMtcnnModel(url) {
       return nets.mtcnn.load(url);
   }
+  function loadTinyYolov2Model(url) {
+      return nets.tinyYolov2.load(url);
+  }
   function loadModels(url) {
       return Promise.all([
           loadFaceDetectionModel(url),
           loadFaceLandmarkModel(url),
           loadFaceRecognitionModel(url),
-          loadMtcnnModel(url)
+          loadMtcnnModel(url),
+          loadTinyYolov2Model(url)
       ]);
   }
   function locateFaces(input, minConfidence, maxResults) {
@@ -3368,11 +3623,20 @@
   function mtcnn(input, forwardParams) {
       return nets.mtcnn.forward(input, forwardParams);
   }
+  function tinyYolov2(input, forwardParams) {
+      return nets.tinyYolov2.locateFaces(input, forwardParams);
+  }
   var allFaces = allFacesFactory(nets.ssdMobilenet, nets.faceLandmark68Net, nets.faceRecognitionNet);
   var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, nets.faceRecognitionNet);
 
   function createMtcnn(weights) {
       var net = new Mtcnn();
+      net.extractWeights(weights);
+      return net;
+  }
+
+  function createTinyYolov2(weights) {
+      var net = new TinyYolov2();
       net.extractWeights(weights);
       return net;
   }
@@ -3409,17 +3673,21 @@
   exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
   exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
   exports.loadMtcnnModel = loadMtcnnModel;
+  exports.loadTinyYolov2Model = loadTinyYolov2Model;
   exports.loadModels = loadModels;
   exports.locateFaces = locateFaces;
   exports.detectLandmarks = detectLandmarks;
   exports.computeFaceDescriptor = computeFaceDescriptor;
   exports.mtcnn = mtcnn;
+  exports.tinyYolov2 = tinyYolov2;
   exports.allFaces = allFaces;
   exports.allFacesMtcnn = allFacesMtcnn;
   exports.createMtcnn = createMtcnn;
   exports.Mtcnn = Mtcnn;
   exports.FaceLandmarks5 = FaceLandmarks5;
   exports.padToSquare = padToSquare;
+  exports.createTinyYolov2 = createTinyYolov2;
+  exports.TinyYolov2 = TinyYolov2;
   exports.toNetInput = toNetInput;
   exports.isFloat = isFloat;
   exports.isEven = isEven;

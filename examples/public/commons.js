@@ -135,6 +135,18 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'MTCNN Face Recognition Webcam'
     },
     {
+      uri: 'tiny_yolov2_face_detection',
+      name: 'Tiny Yolov2 Face Detection'
+    },
+    {
+      uri: 'tiny_yolov2_face_detection_video',
+      name: 'Tiny Yolov2 Face Detection Video'
+    },
+    {
+      uri: 'tiny_yolov2_face_detection_webcam',
+      name: 'Tiny Yolov2 Face Detection Webcam'
+    },
+    {
       uri: 'batch_face_landmarks',
       name: 'Batch Face Landmarks'
     },
@@ -197,7 +209,7 @@ function renderNavBar(navbarId, exampleUri) {
     })
 
   $('.button-collapse').sideNav({
-    menuWidth: 250
+    menuWidth: 280
   })
 }
 

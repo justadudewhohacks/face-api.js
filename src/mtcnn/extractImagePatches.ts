@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { BoundingBox } from '../BoundingBox';
 import { Dimensions } from '../types';
 import { createCanvas, getContext2dOrThrow } from '../utils';
-import { BoundingBox } from './BoundingBox';
 import { normalize } from './normalize';
 
 export async function extractImagePatches(

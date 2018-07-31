@@ -9,25 +9,27 @@ Check out my face-api.js tutorials:
 * **[face-api.js — JavaScript API for Face Recognition in the Browser with tensorflow.js](https://itnext.io/face-api-js-javascript-api-for-face-recognition-in-the-browser-with-tensorflow-js-bcc2a6c4cf07)**
 * **[Realtime JavaScript Face Tracking and Face Recognition using face-api.js’ MTCNN Face Detector](https://itnext.io/realtime-javascript-face-tracking-and-face-recognition-using-face-api-js-mtcnn-face-detector-d924dd8b5740)**
 
+**Check out the live demos [here](https://justadudewhohacks.github.io/face-api.js/)!**
+
 Table of Contents:
 
 * **[Running the Examples](#running-the-examples)**
 * **[About the Package](#about-the-package)**
   * **[Face Detection - SSD Mobilenet v1](#about-face-detection-ssd)**
+  * **[Face Detection - Tiny Yolo v2](#about-face-detection-yolo)**
   * **[Face Detection & 5 Point Face Landmarks - MTCNN](#about-face-detection-mtcnn)**
   * **[Face Recognition](#about-face-recognition)**
   * **[68 Point Face Landmark Detection](#about-face-landmark-detection)**
 * **[Usage](#usage)**
   * **[Loading the Models](#usage-load-models)**
   * **[Face Detection - SSD Mobilenet v1](#usage-face-detection-ssd)**
+  * **[Face Detection - Tiny Yolo v2](#usage-face-detection-yolo)**
   * **[Face Detection & 5 Point Face Landmarks - MTCNN](#usage-face-detection-mtcnn)**
   * **[Face Recognition](#usage-face-recognition)**
   * **[68 Point Face Landmark Detection](#usage-face-landmark-detection)**
   * **[Full Face Detection and Recognition Pipeline](#usage-full-face-detection-and-recognition-pipeline)**
 
 ## Examples
-
-### **Check out the live demos [here](https://justadudewhohacks.github.io/face-api.js/)!**
 
 ### Face Recognition
 
@@ -83,11 +85,19 @@ For face detection, this project implements a SSD (Single Shot Multibox Detector
 
 The face detection model has been trained on the [WIDERFACE dataset](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and the weights are provided by [yeephycho](https://github.com/yeephycho) in [this](https://github.com/yeephycho/tensorflow-face-detection) repo.
 
+<a name="about-face-detection-yolo"></a>
+
+### Face Detection - Tiny Yolo v2
+
+The Tiny Yolo v2 based face detector can easily adapt to different input image sizes, thus can be used as an alternative to SSD Mobilenet v1 to trade off accuracy for performance (inference time). In general the model is not as accurate as SSD Mobilenet v1 but can achieve faster inference for lower image sizes.
+
+The Tiny Yolo v2 implementation is still experimental, meaning there is room for optimization (future work). The trained model weights are provided in the [azFace](https://github.com/azmathmoosa/azFace) project.
+
 <a name="about-face-detection-mtcnn"></a>
 
 ### Face Detection & 5 Point Face Landmarks - MTCNN
 
-MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative to SSD Mobilenet v1, which offers much more room for configuration and is able to achieve much lower processing times. MTCNN is a 3 stage cascaded CNN, which simultanously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with 2MB, the size of the weights file is only a third of the size of the quantized SSD Mobilenet v1 model (~6MB).
+MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration and is able to achieve much lower processing times. MTCNN is a 3 stage cascaded CNN, which simultanously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with 2MB, the size of the weights file is only a third of the size of the quantized SSD Mobilenet v1 model (~6MB).
 
 MTCNN has been presented in the paper [Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf) by Zhang et al. and the model weights are provided in the official [repo](https://github.com/kpzhang93/MTCNN_face_detection_alignment) of the MTCNN implementation.
 
@@ -137,6 +147,7 @@ await faceapi.loadFaceDetectionModel('/models')
 // await faceapi.loadFaceLandmarkModel('/models')
 // await faceapi.loadFaceRecognitionModel('/models')
 // await faceapi.loadMtcnnModel('/models')
+// await faceapi.loadTinyYolov2Model('/models')
 ```
 
 As an alternative, you can also create instance of the neural nets:
@@ -147,11 +158,13 @@ const net = new faceapi.FaceDetectionNet()
 // const net = new faceapi.FaceLandmarkNet()
 // const net = new faceapi.FaceRecognitionNet()
 // const net = new faceapi.Mtcnn()
+// const net = new faceapi.TinyYolov2()
 
 await net.load('/models/face_detection_model-weights_manifest.json')
 // await net.load('/models/face_landmark_68_model-weights_manifest.json')
 // await net.load('/models/face_recognition_model-weights_manifest.json')
 // await net.load('/models/mtcnn_model-weights_manifest.json')
+// await net.load('/models/tiny_yolov2_model-weights_manifest.json')
 
 // or simply load all models
 await net.load('/models')
@@ -202,6 +215,24 @@ You can also obtain the tensors of the unfiltered bounding boxes and scores for 
 
 ``` javascript
 const { boxes, scores } = await net.forward('myImg')
+```
+
+<a name="usage-face-detection-yolo"></a>
+
+### Face Detection - Tiny Yolo v2
+
+Detect faces and get the bounding boxes and scores:
+
+``` javascript
+// defaults parameters shown:
+const forwardParams = {
+  scoreThreshold: 0.5,
+  // any number or one of the predifened sizes:
+  // 'xs' (224 x 224) | 'sm' (320 x 320) | 'md' (416 x 416) | 'lg' (608 x 608)
+  inputSize: 'md'
+}
+
+const detections = await faceapi.tinyYolov2(document.getElementById('myImg'), forwardParams)
 ```
 
 <a name="usage-face-detection-mtcnn"></a>

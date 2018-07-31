@@ -18,6 +18,7 @@ tslib_1.__exportStar(require("./faceRecognitionNet"), exports);
 tslib_1.__exportStar(require("./globalApi"), exports);
 tslib_1.__exportStar(require("./mtcnn"), exports);
 tslib_1.__exportStar(require("./padToSquare"), exports);
+tslib_1.__exportStar(require("./tinyYolov2"), exports);
 tslib_1.__exportStar(require("./toNetInput"), exports);
 tslib_1.__exportStar(require("./utils"), exports);
 //# sourceMappingURL=index.js.map

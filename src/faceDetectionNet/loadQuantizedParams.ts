@@ -7,7 +7,7 @@ import { loadWeightMap } from '../commons/loadWeightMap';
 import { ConvParams, ParamMapping } from '../commons/types';
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
-const DEFAULT_MODEL_NAME = 'face_detection_model'
+const DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
