@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
-var BoundingBox_1 = require("./BoundingBox");
+var BoundingBox_1 = require("../BoundingBox");
+var nonMaxSuppression_1 = require("../commons/nonMaxSuppression");
 var extractImagePatches_1 = require("./extractImagePatches");
-var nms_1 = require("./nms");
 var RNet_1 = require("./RNet");
 function stage2(img, inputBoxes, scoreThreshold, params, stats) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
@@ -45,7 +45,7 @@ function stage2(img, inputBoxes, scoreThreshold, params, stats) {
                     finalScores = [];
                     if (filteredBoxes.length > 0) {
                         ts = Date.now();
-                        indicesNms = nms_1.nms(filteredBoxes, filteredScores, 0.7);
+                        indicesNms = nonMaxSuppression_1.nonMaxSuppression(filteredBoxes, filteredScores, 0.7);
                         stats.stage2_nms = Date.now() - ts;
                         regions_1 = indicesNms.map(function (idx) {
                             return new BoundingBox_1.BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));

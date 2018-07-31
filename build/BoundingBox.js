@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Rect_1 = require("../Rect");
+var Rect_1 = require("./Rect");
 var BoundingBox = /** @class */ (function () {
     function BoundingBox(_left, _top, _right, _bottom) {
         this._left = _left;

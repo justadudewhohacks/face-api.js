@@ -15,5 +15,6 @@ export * from './faceRecognitionNet';
 export * from './globalApi';
 export * from './mtcnn';
 export * from './padToSquare';
+export * from './tinyYolov2';
 export * from './toNetInput';
 export * from './utils';

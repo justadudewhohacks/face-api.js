@@ -5,7 +5,7 @@ var disposeUnusedWeightTensors_1 = require("../commons/disposeUnusedWeightTensor
 var extractWeightEntryFactory_1 = require("../commons/extractWeightEntryFactory");
 var isTensor_1 = require("../commons/isTensor");
 var loadWeightMap_1 = require("../commons/loadWeightMap");
-var DEFAULT_MODEL_NAME = 'face_detection_model';
+var DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model';
 function extractorsFactory(weightMap, paramMappings) {
     var extractWeightEntry = extractWeightEntryFactory_1.extractWeightEntryFactory(weightMap, paramMappings);
     function extractPointwiseConvParams(prefix, idx, mappedPrefix) {

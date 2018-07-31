@@ -1,4 +1,4 @@
-import { Rect } from '../Rect';
+import { Rect } from './Rect';
 export declare class BoundingBox {
     private _left;
     private _top;

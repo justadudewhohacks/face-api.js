@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
+var BoundingBox_1 = require("../BoundingBox");
+var nonMaxSuppression_1 = require("../commons/nonMaxSuppression");
 var Point_1 = require("../Point");
-var BoundingBox_1 = require("./BoundingBox");
 var config_1 = require("./config");
-var nms_1 = require("./nms");
+var getSizesForScale_1 = require("./getSizesForScale");
 var normalize_1 = require("./normalize");
 var PNet_1 = require("./PNet");
-var getSizesForScale_1 = require("./getSizesForScale");
 function rescaleAndNormalize(x, scale) {
     return tf.tidy(function () {
         var _a = getSizesForScale_1.getSizesForScale(scale, x.shape.slice(1)), height = _a.height, width = _a.width;
@@ -65,7 +65,7 @@ function stage1(imgTensor, scales, scoreThreshold, params, stats) {
             return [];
         }
         var ts = Date.now();
-        var indices = nms_1.nms(boundingBoxes.map(function (bbox) { return bbox.cell; }), boundingBoxes.map(function (bbox) { return bbox.score; }), 0.5);
+        var indices = nonMaxSuppression_1.nonMaxSuppression(boundingBoxes.map(function (bbox) { return bbox.cell; }), boundingBoxes.map(function (bbox) { return bbox.score; }), 0.5);
         statsForScale.nms = Date.now() - ts;
         statsForScale.numBoxes = indices.length;
         stats.stage1.push(statsForScale);
@@ -76,7 +76,7 @@ function stage1(imgTensor, scales, scoreThreshold, params, stats) {
     var finalScores = [];
     if (allBoxes.length > 0) {
         var ts = Date.now();
-        var indices = nms_1.nms(allBoxes.map(function (bbox) { return bbox.cell; }), allBoxes.map(function (bbox) { return bbox.score; }), 0.7);
+        var indices = nonMaxSuppression_1.nonMaxSuppression(allBoxes.map(function (bbox) { return bbox.cell; }), allBoxes.map(function (bbox) { return bbox.score; }), 0.7);
         stats.stage1_nms = Date.now() - ts;
         finalScores = indices.map(function (idx) { return allBoxes[idx].score; });
         finalBoxes = indices
