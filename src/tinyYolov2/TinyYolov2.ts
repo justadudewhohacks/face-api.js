@@ -12,6 +12,7 @@ import { BOX_ANCHORS, INPUT_SIZES, IOU_THRESHOLD, NUM_BOXES } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
 import { getDefaultParams } from './getDefaultParams';
+import { loadQuantizedParams } from './loadQuantizedParams';
 import { NetParams, TinyYolov2ForwardParams } from './types';
 
 export class TinyYolov2 extends NeuralNetwork<NetParams> {
@@ -135,11 +136,9 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     return detections
   }
 
-  /* TODO
   protected loadQuantizedParams(uri: string | undefined) {
     return loadQuantizedParams(uri)
   }
-  */
 
   protected extractParams(weights: Float32Array) {
     return extractParams(weights)
