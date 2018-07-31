@@ -211,7 +211,7 @@ describe('faceLandmarkNet', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const res = await fetch('base/weights/uncompressed/face_landmark_68_model.weights')
+          const res = await fetch('base/weights_uncompressed/face_landmark_68_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
           const net = faceapi.createFaceLandmarkNet(weights)
           net.dispose()

@@ -1,5 +1,4 @@
 import * as faceapi from '../../../src';
-import { FaceLandmarks5 } from '../../../src/mtcnn/FaceLandmarks5';
 import { Point } from '../../../src/Point';
 import { expectMaxDelta, expectPointClose, expectRectClose } from '../../utils';
 

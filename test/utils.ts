@@ -83,7 +83,7 @@ async function initNet<TNet extends NeuralNetwork<any>>(
 ) {
   await net.load(
     uncompressedFilename
-      ? await loadNetWeights(`base/weights/uncompressed/${uncompressedFilename}`)
+      ? await loadNetWeights(`base/weights_uncompressed/${uncompressedFilename}`)
       : 'base/weights'
   )
 }
@@ -115,7 +115,7 @@ export function describeWithNets(
       if (withFaceDetectionNet || withAllFaces) {
         await initNet<faceapi.FaceDetectionNet>(
           faceDetectionNet,
-          !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'face_detection_model.weights'
+          !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'ssd_mobilenetv1_model.weights'
         )
       }
       if (withFaceLandmarkNet || withAllFaces) {
