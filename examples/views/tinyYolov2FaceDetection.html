@@ -32,9 +32,19 @@
       </button>
     </div>
     <div class="row side-by-side">
+      <div class="row input-field" style="margin-right: 20px;">
+        <select id="sizeType">
+          <option value="" disabled selected>Input Size:</option>
+          <option value="xs">XS: 224 x 224</option>
+          <option value="sm">SM: 320 x 320</option>
+          <option value="md">MD: 416 x 416</option>
+          <option value="lg">LG: 608 x 608</option>
+        </select>
+        <label>Input Size</label>
+      </div>
       <div class="row">
-        <label for="minConfidence">Min Confidence:</label>
-        <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+        <label for="scoreThreshold">Score Threshold:</label>
+        <input disabled value="0.5" id="scoreThreshold" type="text" class="bold">
       </div>
       <button
         class="waves-effect waves-light btn"
@@ -52,22 +62,24 @@
   </div>
 
   <script>
-    let minFaceSize = 50
-    let scaleFactor = 0.709
-    let maxNumScales = 10
-    let stage1Threshold = 0.7
-    let stage2Threshold = 0.7
-    let stage3Threshold = 0.7
+    let scoreThreshold = 0.5
+    let sizeType = 'lg'
 
     function onIncreaseThreshold() {
-      minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
-      $('#minConfidence').val(minConfidence)
+      scoreThreshold = Math.min(faceapi.round(scoreThreshold + 0.1), 1.0)
+      $('#scoreThreshold').val(scoreThreshold)
       updateResults()
     }
 
     function onDecreaseThreshold() {
-      minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
-      $('#minConfidence').val(minConfidence)
+      scoreThreshold = Math.max(faceapi.round(scoreThreshold - 0.1), 0.1)
+      $('#scoreThreshold').val(scoreThreshold)
+      updateResults()
+    }
+
+    function onSizeTypeChanged(e, c) {
+      sizeType = e.target.value
+      $('#sizeType').val(sizeType)
       updateResults()
     }
 
@@ -84,20 +96,14 @@
       canvas.width = width
       canvas.height = height
 
-      const mtcnnParams = {
-        minFaceSize,
-        scaleFactor,
-        maxNumScales,
-        scoreThresholds: [stage1Threshold, stage2Threshold, stage3Threshold]
+      const forwardParams = {
+        inputSize: sizeType,
+        scoreThreshold
       }
-      const results = await faceapi.mtcnn(inputImgEl, mtcnnParams)
 
-      if (results) {
-        results.forEach(({ faceDetection, faceLandmarks }) => {
-          faceapi.drawDetection('overlay', faceDetection.forSize(width, height))
-          faceapi.drawLandmarks('overlay', faceLandmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
-        })
-      }
+      const detections = await faceapi.tinyYolov2(inputImgEl, forwardParams)
+
+      faceapi.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
     }
 
     async function onSelectionChanged(uri) {
@@ -107,13 +113,14 @@
     }
 
     async function run() {
-      await faceapi.loadMtcnnModel('/')
+      await faceapi.loadTinyYolov2Model('/')
+
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'mtcnn_face_detection')
+      renderNavBar('#navbar', 'tiny_yolov2_face_detection')
       renderImageSelectList(
         '#selectList',
         async (uri) => {
@@ -121,6 +128,11 @@
         },
         'bbt1.jpg'
       )
+
+      const sizeTypeSelect = $('#sizeType')
+      sizeTypeSelect.val(sizeType)
+      sizeTypeSelect.on('change', onSizeTypeChanged)
+      sizeTypeSelect.material_select()
       run()
     })
   </script>
