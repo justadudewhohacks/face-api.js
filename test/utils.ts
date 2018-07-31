@@ -5,7 +5,8 @@ import * as faceapi from '../src/';
 import { NeuralNetwork } from '../src/commons/NeuralNetwork';
 import { IPoint } from '../src/';
 import { allFacesFactory, allFacesMtcnnFactory } from '../src/allFacesFactory';
-import { allFacesMtcnnFunction, allFacesFunction } from '../src/globalApi';
+import { allFacesMtcnnFunction, allFacesFunction, tinyYolov2 } from '../src/globalApi';
+import { TinyYolov2 } from '../src/tinyYolov2/TinyYolov2';
 
 export function zeros(length: number): Float32Array {
   return new Float32Array(length)
@@ -55,12 +56,13 @@ export type WithNetOptions = {
 }
 
 export type InjectNetArgs = {
+  allFaces: allFacesFunction
+  allFacesMtcnn: allFacesMtcnnFunction
   faceDetectionNet: faceapi.FaceDetectionNet
   faceLandmarkNet: faceapi.FaceLandmarkNet
   faceRecognitionNet: faceapi.FaceRecognitionNet
   mtcnn: faceapi.Mtcnn
-  allFaces: allFacesFunction
-  allFacesMtcnn: allFacesMtcnnFunction
+  tinyYolov2: faceapi.TinyYolov2
 }
 
 
@@ -71,6 +73,7 @@ export type DescribeWithNetsOptions = {
   withFaceLandmarkNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
   withMtcnn?: WithNetOptions
+  withTinyYolov2?: WithNetOptions
 }
 
 async function loadNetWeights(uri: string): Promise<Float32Array> {
@@ -99,17 +102,19 @@ export function describeWithNets(
     let faceLandmarkNet: faceapi.FaceLandmarkNet = new faceapi.FaceLandmarkNet()
     let faceRecognitionNet: faceapi.FaceRecognitionNet = new faceapi.FaceRecognitionNet()
     let mtcnn: faceapi.Mtcnn = new faceapi.Mtcnn()
+    let tinyYolov2: faceapi.TinyYolov2 = new faceapi.TinyYolov2()
     let allFaces = allFacesFactory(faceDetectionNet, faceLandmarkNet, faceRecognitionNet)
     let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
 
     beforeAll(async () => {
       const {
+        withAllFaces,
+        withAllFacesMtcnn,
         withFaceDetectionNet,
         withFaceLandmarkNet,
         withFaceRecognitionNet,
         withMtcnn,
-        withAllFaces,
-        withAllFacesMtcnn
+        withTinyYolov2
       } = options
 
       if (withFaceDetectionNet || withAllFaces) {
@@ -118,6 +123,7 @@ export function describeWithNets(
           !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'ssd_mobilenetv1_model.weights'
         )
       }
+
       if (withFaceLandmarkNet || withAllFaces) {
         await initNet<faceapi.FaceLandmarkNet>(
           faceLandmarkNet,
@@ -132,10 +138,18 @@ export function describeWithNets(
           'face_recognition_model.weights'
         )
       }
+
       if (withMtcnn || withAllFacesMtcnn) {
         await initNet<faceapi.Mtcnn>(
           mtcnn,
           !!withMtcnn && !withMtcnn.quantized && 'mtcnn_model.weights'
+        )
+      }
+
+      if (withTinyYolov2) {
+        await initNet<faceapi.TinyYolov2>(
+          tinyYolov2,
+          !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights'
         )
       }
     })
@@ -144,10 +158,11 @@ export function describeWithNets(
       faceDetectionNet && faceDetectionNet.dispose()
       faceLandmarkNet && faceLandmarkNet.dispose()
       faceRecognitionNet && faceRecognitionNet.dispose()
-      mtcnn && mtcnn.dispose()
+      mtcnn && mtcnn.dispose(),
+      tinyYolov2 && tinyYolov2.dispose()
     })
 
-    specDefinitions({ faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn, allFaces, allFacesMtcnn })
+    specDefinitions({ allFaces, allFacesMtcnn, faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn, tinyYolov2 })
   })
 }
 
