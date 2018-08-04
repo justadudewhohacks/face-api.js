@@ -1,4 +1,5 @@
 import { BoundingBox } from '../BoundingBox';
+import { iou } from '../iou';
 
 export function nonMaxSuppression(
   boxes: BoundingBox[],
@@ -6,10 +7,6 @@ export function nonMaxSuppression(
   iouThreshold: number,
   isIOU: boolean = true
 ): number[] {
-
-  const areas = boxes.map(
-    box => (box.width + 1) * (box.height + 1)
-  )
 
   let indicesSortedByScore = scores
     .map((score, boxIndex) => ({ score, boxIndex }))
@@ -31,15 +28,7 @@ export function nonMaxSuppression(
       const currBox = boxes[curr]
       const idxBox = boxes[idx]
 
-      const width = Math.max(0.0, Math.min(currBox.right, idxBox.right) - Math.max(currBox.left, idxBox.left) + 1)
-      const height = Math.max(0.0, Math.min(currBox.bottom, idxBox.bottom) - Math.max(currBox.top, idxBox.top) + 1)
-      const interSection = width * height
-
-      const out = isIOU
-        ? interSection / (areas[curr] + areas[idx] - interSection)
-        : interSection / Math.min(areas[curr], areas[idx])
-
-      outputs.push(out)
+      outputs.push(iou(currBox, idxBox, isIOU))
     }
 
     indicesSortedByScore = indicesSortedByScore.filter(

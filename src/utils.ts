@@ -15,6 +15,14 @@ export function round(num: number) {
   return Math.floor(num * 100) / 100
 }
 
+export function sigmoid(x: number) {
+  return 1 / (1 + Math.exp(-x))
+}
+
+export function isDimensions(obj: any): boolean {
+  return obj && obj.width && obj.height
+}
+
 export function resolveInput(arg: string | any) {
   if (typeof arg === 'string') {
     return document.getElementById(arg)

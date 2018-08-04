@@ -19,6 +19,7 @@ export * from './faceDetectionNet';
 export * from './faceLandmarkNet';
 export * from './faceRecognitionNet';
 export * from './globalApi';
+export * from './iou';
 export * from './mtcnn';
 export * from './padToSquare';
 export * from './tinyYolov2';
