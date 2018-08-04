@@ -1,4 +1,12 @@
+async function promiseSequential(promises) {
+  const curr = promises[0]
+  if (!curr) {
+    return
+  }
 
+  await curr()
+  return promiseSequential(promises.slice(1))
+}
 
 // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
 function shuffle(a) {

@@ -1,13 +1,3 @@
-async function promiseSequential(promises) {
-  const curr = promises[0]
-  if (!curr) {
-    return
-  }
-
-  await curr()
-  return promiseSequential(promises.slice(1))
-}
-
 async function trainStep(batchCreators) {
   await promiseSequential(batchCreators.map((batchCreator, dataIdx) => async () => {
 

@@ -29,16 +29,16 @@
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
     }
 
-    async function getTrainData() {
-      // TBD
+    async function fetchDetectionFilenames() {
+      return fetch('/detection_filenames').then(res => res.json())
     }
 
     async function run() {
       const weights = await loadNetWeights(weightsUrl)
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
-      window.trainData = await getTrainData()
       window.net.variable()
+      window.detectionFilenames = await fetchDetectionFilenames()
     }
 
 /*
@@ -68,7 +68,7 @@
     async function train(batchSize = 1) {
       for (let i = 0; i < trainSteps; i++) {
         console.log('step', i)
-        const batchCreators = createBatchCreators(shuffle(window.trainData), batchSize)
+        const batchCreators = createBatchCreators(shuffle(detectionFilenames), batchSize)
         let ts = Date.now()
         await trainStep(batchCreators)
         ts = Date.now() - ts
