@@ -31,11 +31,10 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
   }
 
   function extractSeparableConvParams(channelsIn: number, channelsOut: number, mappedPrefix: string): SeparableConvParams {
-    console.log(mappedPrefix)
     const depthwise_filter = tf.tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1])
     const pointwise_filter = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut])
     const bias = tf.tensor1d(extractWeights(channelsOut))
-    console.log('done')
+
     paramMappings.push(
       { paramPath: `${mappedPrefix}/depthwise_filter` },
       { paramPath: `${mappedPrefix}/pointwise_filter` },

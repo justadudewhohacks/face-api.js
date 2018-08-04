@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { isTensor3D, isTensor4D } from './commons/isTensor';
 import { padToSquare } from './padToSquare';
 import { Point } from './Point';
-import { TResolvedNetInput } from './types';
+import { TResolvedNetInput, Dimensions } from './types';
 import { createCanvasFromMedia } from './utils';
 
 export class NetInput {
@@ -14,6 +14,7 @@ export class NetInput {
 
   private _inputDimensions: number[][] = []
   private _paddings: Point[] = []
+  private _inputSize: number = 0
 
   constructor(
     inputs: tf.Tensor4D | Array<TResolvedNetInput>,
@@ -81,6 +82,10 @@ export class NetInput {
     return this._paddings
   }
 
+  public get inputSize(): number {
+    return this._inputSize
+  }
+
   public getInputDimensions(batchIdx: number): number[] {
     return this._inputDimensions[batchIdx]
   }
@@ -97,7 +102,25 @@ export class NetInput {
     return this._paddings[batchIdx]
   }
 
+  public getRelativePaddings(batchIdx: number): Point {
+    return new Point(
+      (this.getPaddings(batchIdx).x + this.getInputWidth(batchIdx)) / this.getInputWidth(batchIdx),
+      (this.getPaddings(batchIdx).y + this.getInputHeight(batchIdx)) / this.getInputHeight(batchIdx)
+    )
+  }
+
+  public getReshapedInputDimensions(batchIdx: number): Dimensions {
+    const [h, w] = [this.getInputHeight(batchIdx), this.getInputWidth(batchIdx)]
+    const f = this.inputSize / Math.max(h, w)
+    return {
+      height: Math.floor(h * f),
+      width: Math.floor(w * f)
+    }
+  }
+
   public toBatchTensor(inputSize: number, isCenterInputs: boolean = true): tf.Tensor4D {
+
+    this._inputSize = inputSize
 
     return tf.tidy(() => {
 

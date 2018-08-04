@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <script src="FileSaver.js"></script>
+  <script src="trainUtils.js"></script>
+</head>
+<body>
+
+  <script>
+    tf = faceapi.tf
+
+    const weightsUrl = '/tmp/initial_tiny_yolov2_glorot_normal.weights'
+
+    window.saveEveryNthIteration = 2
+    window.trainSteps = 100
+    window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
+
+    function lossFunction(labels, out) {
+      return tf.losses.meanSquaredError(labels, out)
+    }
+
+    async function loadNetWeights(uri) {
+      return new Float32Array(await (await fetch(uri)).arrayBuffer())
+    }
+
+    async function getTrainData() {
+      // TBD
+    }
+
+    async function run() {
+      const weights = await loadNetWeights(weightsUrl)
+      window.net = new faceapi.TinyYolov2(true)
+      window.net.load(weights)
+      window.trainData = await getTrainData()
+      window.net.variable()
+    }
+
+/*
+
+  const outTensor = await window.net.forward(netInput, 608)
+  const detections = await window.net.locateFaces(netInput, forwardParams)
+  const outBoxesByAnchor = window.net.postProcess(
+    outTensor,
+    {
+      scoreThreshold: 0,
+      paddings: netInput.getRelativePaddings(0)
+    }
+  )
+
+  const groundTruth = detections.map(det => det.forSize(1, 1).box)
+
+  console.log(computeLoss(
+    outBoxesByAnchor,
+    groundTruth,
+    netInput.inputSize,
+    netInput.getReshapedInputDimensions(0)
+  ))
+
+
+*/
+
+    async function train(batchSize = 1) {
+      for (let i = 0; i < trainSteps; i++) {
+        console.log('step', i)
+        const batchCreators = createBatchCreators(shuffle(window.trainData), batchSize)
+        let ts = Date.now()
+        await trainStep(batchCreators)
+        ts = Date.now() - ts
+        console.log('step %s done (%s ms)', i, ts)
+        if (((i + 1) % saveEveryNthIteration) === 0) {
+          saveWeights(i)
+        }
+      }
+    }
+
+    run()
+
+  </script>
+
+</body>
+</html>

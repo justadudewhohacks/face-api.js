@@ -4,13 +4,14 @@ import { BoundingBox } from '../BoundingBox';
 import { convLayer } from '../commons/convLayer';
 import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { nonMaxSuppression } from '../commons/nonMaxSuppression';
+import { normalize } from '../commons/normalize';
 import { FaceDetection } from '../FaceDetection';
 import { NetInput } from '../NetInput';
 import { Point } from '../Point';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { sigmoid } from '../utils';
-import { BOX_ANCHORS, BOX_ANCHORS_SEPARABLE, INPUT_SIZES, IOU_THRESHOLD, NUM_BOXES } from './config';
+import { BOX_ANCHORS, BOX_ANCHORS_SEPARABLE, INPUT_SIZES, IOU_THRESHOLD, MEAN_RGB, NUM_BOXES } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
 import { getDefaultParams } from './getDefaultParams';
@@ -45,7 +46,12 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     }
 
     const out = tf.tidy(() => {
-      const batchTensor = input.toBatchTensor(inputSize, false).div(tf.scalar(255)) as tf.Tensor4D
+
+      let batchTensor = input.toBatchTensor(inputSize, false)
+      batchTensor = this.hasSeparableConvs
+        ? normalize(batchTensor, MEAN_RGB)
+        : batchTensor
+      batchTensor = batchTensor.div(tf.scalar(256)) as tf.Tensor4D
 
       let out = convWithBatchNorm(batchTensor, params.conv0)
       out = tf.maxPool(out, [2, 2], [2, 2], 'same')
@@ -87,22 +93,23 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
 
     const netInput = await toNetInput(input, true)
     const out = await this.forwardInput(netInput, inputSize)
+    const out0 = tf.tidy(() => tf.unstack(out)[0].expandDims()) as tf.Tensor4D
+
+    console.log(out0.shape)
 
     const inputDimensions = {
       width: netInput.getInputWidth(0),
       height: netInput.getInputHeight(0)
     }
 
-    const paddings = new Point(
-      (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0),
-      (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0)
-    )
+    const paddings = netInput.getRelativePaddings(0)
 
-    const results = this.postProcess(out, { scoreThreshold, paddings })
+    const results = this.postProcess(out0, { scoreThreshold, paddings })
     const boxes = results.map(res => res.box)
     const scores = results.map(res => res.score)
 
     out.dispose()
+    out0.dispose()
 
     const indices = nonMaxSuppression(
       boxes.map(box => box.rescale(inputSize)),
