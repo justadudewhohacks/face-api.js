@@ -1,27 +1,50 @@
-async function trainStep(batchCreators) {
+async function trainStep(batchCreators, inputSize) {
+
   await promiseSequential(batchCreators.map((batchCreator, dataIdx) => async () => {
 
-    const { batchInput, groundTruthBoxes } = await batchCreator()
-    /*
+    // TODO: skip if groundTruthBoxes are too tiny
+    const { imgs, groundTruthBoxes } = await batchCreator()
+
+    const batchInput = (await faceapi.toNetInput(imgs)).managed()
+
     let ts = Date.now()
-    const cost = optimizer.minimize(() => {
-      const out = window.trainNet.forwardInput(batchInput.managed())
-      const loss = lossFunction(
-        landmarksBatchTensor,
-        out
+    const loss = optimizer.minimize(() => {
+      const outTensor = window.net.forwardInput(batchInput, inputSize)
+      const outTensorsByBatch = tf.tidy(() => outTensor.unstack().expandDims())
+      outTensor.dispose()
+
+      const losses = outTensorsByBatch.map(
+        (out, batchIdx) => {
+          const outBoxesByAnchor = window.net.postProcess(
+            out,
+            {
+              scoreThreshold: -1,
+              paddings: batchInput.getRelativePaddings(batchIdx)
+            }
+          )
+
+          const loss = computeLoss(
+            outBoxesByAnchor,
+            groundTruthBoxes[batchIdx],
+            netInput.getReshapedInputDimensions(batchIdx)
+          )
+
+          console.log(`loss for batch ${batchIdx}: ${loss}`)
+
+          return loss
+        }
       )
-      return loss
+
+      outTensorsByBatch.forEach(t => t.dispose())
+
+      return losses.reduce((sum, loss) => sum + loss, 0)
     }, true)
 
     ts = Date.now() - ts
-    console.log(`loss[${dataIdx}]: ${await cost.data()}, ${ts} ms (${ts / batchInput.batchSize} ms / batch element)`)
-
-    landmarksBatchTensor.dispose()
-    cost.dispose()
+    console.log(`loss[${dataIdx}]: ${loss}, ${ts} ms (${ts / batchInput.batchSize} ms / batch element)`)
 
     await tf.nextFrame()
   }))
-  */
 }
 
 function createBatchCreators(batchSize) {
@@ -42,17 +65,16 @@ function createBatchCreators(batchSize) {
   pushToBatch(window.detectionFilenames)
 
   const batchCreators = batches.map(detectionFilenames => async () => {
-    const imgs = detectionFilenames.map(
+    const groundTruthBoxes = detectionFilenames.map(
       detectionFilenames.map(file => fetch(file).then(res => res.json()))
     )
-    const groundTruthBoxes = await Promise.all(
+
+    const imgs = await Promise.all(
       detectionFilenames.map(async file => await faceapi.bufferToImage(await fetchImage(file.replace('.json', ''))))
     )
 
-    const batchInput = await faceapi.toNetInput(imgs)
-
     return {
-      batchInput,
+      imgs,
       groundTruthBoxes
     }
   })

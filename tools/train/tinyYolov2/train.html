@@ -17,7 +17,7 @@
 
     const weightsUrl = '/tmp/initial_tiny_yolov2_glorot_normal.weights'
 
-    window.saveEveryNthIteration = 2
+    window.saveEveryNthIteration = 1
     window.trainSteps = 100
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
 
@@ -41,38 +41,27 @@
       window.detectionFilenames = await fetchDetectionFilenames()
     }
 
-/*
-
-  const outTensor = await window.net.forward(netInput, 608)
-  const detections = await window.net.locateFaces(netInput, forwardParams)
-  const outBoxesByAnchor = window.net.postProcess(
-    outTensor,
-    {
-      scoreThreshold: 0,
-      paddings: netInput.getRelativePaddings(0)
-    }
-  )
-
-  const groundTruth = detections.map(det => det.forSize(1, 1).box)
-
-  console.log(computeLoss(
-    outBoxesByAnchor,
-    groundTruth,
-    netInput.inputSize,
-    netInput.getReshapedInputDimensions(0)
-  ))
-
-
-*/
+    const trainSizes = [608, 416, 320, 224]
 
     async function train(batchSize = 1) {
       for (let i = 0; i < trainSteps; i++) {
         console.log('step', i)
-        const batchCreators = createBatchCreators(shuffle(detectionFilenames), batchSize)
         let ts = Date.now()
-        await trainStep(batchCreators)
+
+        const batchCreators = createBatchCreators(shuffle(detectionFilenames), batchSize)
+
+        for (let s = 0; s < trainSizes.length; s++) {
+          let ts2 = Date.now()
+
+          await trainStep(batchCreators, trainSizes[s])
+
+          ts2 = Date.now() - ts2
+          console.log('train for size %s done (%s ms)', trainSizes[s], ts2)
+        }
+
         ts = Date.now() - ts
         console.log('step %s done (%s ms)', i, ts)
+
         if (((i + 1) % saveEveryNthIteration) === 0) {
           saveWeights(i)
         }

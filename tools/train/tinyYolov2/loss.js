@@ -37,9 +37,10 @@ function computeCoordLoss({ groundTruth, pred }, imgDims) {
     + squared(getHeightCorrections(groundTruth.box) - getHeightCorrections(pred.box))
 }
 
-function computeLoss(outBoxesByAnchor, groundTruth, inputSize, imgDims) {
+function computeLoss(outBoxesByAnchor, groundTruth, imgDims) {
 
   const { anchors } = window.net
+  const inputSize = Math.max(imgDims.width, imgDims.height)
   const numCells = inputSize / 32
 
   const groundTruthByAnchor = groundTruth.map(rect => {
