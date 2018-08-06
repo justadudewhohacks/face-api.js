@@ -95,8 +95,6 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     const out = await this.forwardInput(netInput, inputSize)
     const out0 = tf.tidy(() => tf.unstack(out)[0].expandDims()) as tf.Tensor4D
 
-    console.log(out0.shape)
-
     const inputDimensions = {
       width: netInput.getInputWidth(0),
       height: netInput.getInputHeight(0)
@@ -147,7 +145,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
       for (let col = 0; col < numCells; col ++) {
         for (let anchor = 0; anchor < NUM_BOXES; anchor ++) {
           const score = sigmoid(scoresTensor.get(row, col, anchor, 0))
-          if (score > scoreThreshold) {
+          if (!scoreThreshold || score > scoreThreshold) {
             const ctX = ((col + sigmoid(boxesTensor.get(row, col, anchor, 0))) / numCells) * paddings.x
             const ctY = ((row + sigmoid(boxesTensor.get(row, col, anchor, 1))) / numCells) * paddings.y
             const width = ((Math.exp(boxesTensor.get(row, col, anchor, 2)) * this.anchors[anchor].x) / numCells) * paddings.x

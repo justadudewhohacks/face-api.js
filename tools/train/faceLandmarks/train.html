@@ -70,18 +70,9 @@
         ts = Date.now() - ts
         console.log('step %s done (%s ms)', i, ts)
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(i)
+          saveWeights(window.trainNet, 'landmark_trained_weights_' + idx + '.weights')
         }
       }
-    }
-
-    function saveWeights(idx = 0) {
-      const binaryWeights = new Float32Array(
-        window.trainNet.getParamList()
-          .map(({ tensor }) => Array.from(tensor.dataSync()))
-          .reduce((flat, arr) => flat.concat(arr))
-      )
-      saveAs(new Blob([binaryWeights]), 'landmark_trained_weights_' + idx + '.weights')
     }
 
   </script>

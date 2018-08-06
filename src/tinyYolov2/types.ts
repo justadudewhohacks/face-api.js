@@ -46,6 +46,6 @@ export type TinyYolov2ForwardParams = {
 }
 
 export type PostProcessingParams = {
-  scoreThreshold: number
+  scoreThreshold?: number
   paddings: Point
 }

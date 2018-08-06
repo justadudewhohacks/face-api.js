@@ -19,3 +19,12 @@ function shuffle(a) {
   }
   return a;
 }
+
+function saveWeights(net, filename = 'train_tmp') {
+  const binaryWeights = new Float32Array(
+    net.getParamList()
+      .map(({ tensor }) => Array.from(tensor.dataSync()))
+      .reduce((flat, arr) => flat.concat(arr))
+  )
+  saveAs(new Blob([binaryWeights]), filename)
+}

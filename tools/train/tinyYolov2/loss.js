@@ -3,104 +3,195 @@ const objectScale = 1
 const noObjectScale = 0.5
 const coordScale = 5
 
-const squared = e => Math.pow(e, 2)
+const CELL_SIZE = 32
 
-const isSameAnchor = (p1, p2) =>
-  p1.row === p2.row
-    && p1.col === p2.col
-    && p1.anchor === p2.anchor
+const getNumCells = inputSize => inputSize / CELL_SIZE
 
-const sum = vals => vals.reduce((sum, val) => sum + val, 0)
-
-function computeNoObjectLoss(negative) {
-  return squared(0 - negative.score)
+function getAnchors() {
+  return window.net.anchors
 }
 
-function computeObjectLoss({ groundTruth, pred }) {
-  return squared(
-    faceapi.iou(
-      groundTruth.box,
-      pred.box
-    )
-    - pred.score
-  )
-}
+function assignBoxesToAnchors(groundTruthBoxes, reshapedImgDims) {
 
-function computeCoordLoss({ groundTruth, pred }, imgDims) {
-  const anchor = window.net.anchors[groundTruth.anchor]
-  const getWidthCorrections = box => Math.log((box.width / imgDims.width) / anchor.x)
-  const getHeightCorrections = box => Math.log((box.height / imgDims.height) / anchor.y)
+  const inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height)
+  const numCells = getNumCells(inputSize)
 
-  return squared((groundTruth.box.left - pred.box.left) / imgDims.width)
-    + squared((groundTruth.box.top - pred.box.top) / imgDims.height)
-    + squared(getWidthCorrections(groundTruth.box) - getWidthCorrections(pred.box))
-    + squared(getHeightCorrections(groundTruth.box) - getHeightCorrections(pred.box))
-}
-
-function computeLoss(outBoxesByAnchor, groundTruth, imgDims) {
-
-  const { anchors } = window.net
-  const inputSize = Math.max(imgDims.width, imgDims.height)
-  const numCells = inputSize / 32
-
-  const groundTruthByAnchor = groundTruth.map(rect => {
-    const x = rect.x * imgDims.width
-    const y = rect.y * imgDims.height
-    const width = rect.width * imgDims.width
-    const height = rect.height * imgDims.height
+  return groundTruthBoxes.map(box => {
+    const { left: x, top: y, width, height } = box.rescale(reshapedImgDims)
 
     const row = Math.round((y / inputSize) * numCells)
     const col = Math.round((x / inputSize) * numCells)
-    const anchorsByIou = anchors.map((a, idx) => ({
+
+    const anchorsByIou = getAnchors().map((anchor, idx) => ({
       idx,
       iou: faceapi.iou(
-        new faceapi.BoundingBox(0, 0, a.x * 32, a.y * 32),
+        new faceapi.BoundingBox(0, 0, anchor.x * CELL_SIZE, anchor.y * CELL_SIZE),
         new faceapi.BoundingBox(0, 0, width, height)
       )
     })).sort((a1, a2) => a2.iou - a1.iou)
 
-    console.log('anchorsByIou', anchorsByIou)
-
     const anchor = anchorsByIou[0].idx
 
-    return {
-      box: new faceapi.BoundingBox(x, y, x + width, y + height),
-      row,
-      col,
-      anchor
+    return { row, col, anchor, box }
+  })
+}
+
+function getGroundTruthMask(groundTruthBoxes, inputSize) {
+
+  const numCells = getNumCells(inputSize)
+
+  const mask = tf.zeros([numCells, numCells, 25])
+  const buf = mask.buffer()
+
+  groundTruthBoxes.forEach(({ row, col, anchor }) => {
+    const anchorOffset = anchor * 5
+    for (let i = 0; i < 5; i++) {
+      buf.set(1, row, col, anchorOffset + i)
     }
   })
 
-  console.log('outBoxesByAnchor', outBoxesByAnchor.filter(o => o.score > 0.5).map(o => o))
-  console.log('outBoxesByAnchor', outBoxesByAnchor.filter(o => o.score > 0.5).map(o => o.box.rescale(imgDims)))
-  console.log('groundTruthByAnchor', groundTruthByAnchor)
+   return mask
+}
 
-  const negatives = outBoxesByAnchor.filter(pred => !groundTruthByAnchor.find(gt => isSameAnchor(gt, pred)))
-  const positives = outBoxesByAnchor
-    .map(pred => ({
-      groundTruth: groundTruthByAnchor.find(gt => isSameAnchor(gt, pred)),
-      pred: {
-        ...pred,
-        box: pred.box.rescale(imgDims)
-      }
-    }))
-    .filter(pos => !!pos.groundTruth)
+function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
 
+  const inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height)
+  const numCells = getNumCells(inputSize)
 
-  console.log('negatives', negatives)
-  console.log('positives', positives)
+  const adjustments = tf.zeros([numCells, numCells, 25])
+  const buf = adjustments.buffer()
 
-  const noObjectLoss = sum(negatives.map(computeNoObjectLoss))
-  const objectLoss = sum(positives.map(computeObjectLoss))
-  const coordLoss = sum(positives.map(positive => computeCoordLoss(positive, imgDims)))
+  groundTruthBoxes.forEach(({ row, col, anchor, box }) => {
+    const { left, top, right, bottom, width, height } = box.rescale(reshapedImgDims)
 
-  console.log('noObjectLoss', noObjectLoss)
-  console.log('objectLoss', objectLoss)
-  console.log('coordLoss', coordLoss)
+    const centerX = (left + right) / 2
+    const centerY = (top + bottom) / 2
+    const dx = (centerX - (col * CELL_SIZE + (CELL_SIZE / 2))) / inputSize
+    const dy = (centerY - (row * CELL_SIZE + (CELL_SIZE / 2))) / inputSize
+    const dw = Math.log(width / getAnchors()[anchor].x)
+    const dh = Math.log(height / getAnchors()[anchor].y)
 
-  return noObjectScale * noObjectLoss
-    + objectScale * objectLoss
-    + coordScale * coordLoss
-    // we don't compute a class loss, since we only have 1 class
-    // + class_scale * sum(class_loss)
+    const anchorOffset = anchor * 5
+    buf.set(dx, row, col, anchorOffset + 0)
+    buf.set(dy, row, col, anchorOffset + 1)
+    buf.set(dw, row, col, anchorOffset + 2)
+    buf.set(dh, row, col, anchorOffset + 3)
+  })
+
+  return adjustments
+}
+
+function computeIous(predBoxes, groundTruthBoxes, reshapedImgDims) {
+
+  const numCells = getNumCells(Math.max(reshapedImgDims.width, reshapedImgDims.height))
+
+  const isSameAnchor = p1 => p2 =>
+    p1.row === p2.row
+      && p1.col === p2.col
+      && p1.anchor === p2.anchor
+
+  const ious = tf.zeros([numCells, numCells, 25])
+  const buf = ious.buffer()
+
+  groundTruthBoxes.forEach(({ row, col, anchor, box }) => {
+    const predBox = predBoxes.find(isSameAnchor({ row, col, anchor }))
+
+    if (!predBox) {
+      console.log(groundTruthBoxes)
+      console.log(predBoxes)
+      throw new Error(`no output box found for: row ${row}, col ${col}, anchor ${anchor}`)
+    }
+
+    const iou = faceapi.iou(
+      box.rescale(reshapedImgDims),
+      predBox.box.rescale(reshapedImgDims)
+    )
+
+    const anchorOffset = anchor * 5
+    buf.set(iou, row, col, anchorOffset + 4)
+  })
+
+  return ious
+}
+
+function computeNoObjectLoss(outTensor) {
+  return tf.tidy(() => tf.square(tf.sigmoid(outTensor)))
+}
+
+function computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings) {
+  return tf.tidy(() => {
+    const predBoxes = window.net.postProcess(
+      outTensor,
+      { paddings }
+    )
+    const ious = computeIous(
+      predBoxes,
+      groundTruthBoxes,
+      reshapedImgDims
+    )
+
+    return tf.square(tf.sub(ious, tf.sigmoid(outTensor)))
+  })
+}
+
+function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims) {
+  return tf.tidy(() => {
+    const boxAdjustments = computeBoxAdjustments(
+      groundTruthBoxes,
+      reshapedImgDims
+    )
+
+    return tf.square(tf.sub(boxAdjustments, outTensor))
+  })
+}
+
+function computeLoss(outTensor, groundTruth, reshapedImgDims, paddings) {
+
+  const inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height)
+
+  if (!inputSize) {
+    throw new Error(`invalid inputSize: ${inputSize}`)
+  }
+
+  let groundTruthBoxes = assignBoxesToAnchors(
+    groundTruth
+      .map(({ x, y, width, height }) => new faceapi.Rect(x, y, width, height))
+      .map(rect => rect.toBoundingBox()),
+    reshapedImgDims
+  )
+
+  const mask = getGroundTruthMask(
+    groundTruthBoxes,
+    inputSize
+  )
+  const inverseMask =  tf.tidy(() => tf.sub(tf.scalar(1), mask))
+
+  const noObjectLoss = tf.tidy(() =>
+    tf.mul(
+      tf.scalar(noObjectScale),
+      tf.sum(tf.mul(inverseMask, computeNoObjectLoss(outTensor)))
+    )
+  )
+  const objectLoss = tf.tidy(() =>
+    tf.mul(
+      tf.scalar(objectScale),
+      tf.sum(tf.mul(mask, computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings)))
+    )
+  )
+
+  const coordLoss = tf.tidy(() =>
+    tf.mul(
+      tf.scalar(coordScale),
+      tf.sum(tf.mul(mask, computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims)))
+    )
+  )
+
+  const totalLoss = tf.tidy(() => noObjectLoss.add(objectLoss).add(coordLoss))
+
+  return {
+    noObjectLoss,
+    objectLoss,
+    coordLoss,
+    totalLoss
+  }
 }

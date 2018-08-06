@@ -1,3 +1,4 @@
+import { BoundingBox } from './BoundingBox';
 export interface IRect {
   x: number
   y: number
@@ -44,5 +45,9 @@ export class Rect implements IRect {
       Math.floor(this.width),
       Math.floor(this.height)
     )
+  }
+
+  public toBoundingBox(): BoundingBox {
+    return new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height)
   }
 }

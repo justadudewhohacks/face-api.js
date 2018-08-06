@@ -9,6 +9,8 @@
   <script src="commons.js"></script>
   <script src="FileSaver.js"></script>
   <script src="trainUtils.js"></script>
+  <script src="train.js"></script>
+  <script src="loss.js"></script>
 </head>
 <body>
 
@@ -39,6 +41,8 @@
       window.net.load(weights)
       window.net.variable()
       window.detectionFilenames = await fetchDetectionFilenames()
+
+      console.log('ready')
     }
 
     const trainSizes = [608, 416, 320, 224]
@@ -48,7 +52,7 @@
         console.log('step', i)
         let ts = Date.now()
 
-        const batchCreators = createBatchCreators(shuffle(detectionFilenames), batchSize)
+        const batchCreators = createBatchCreators(shuffle(window.detectionFilenames), batchSize)
 
         for (let s = 0; s < trainSizes.length; s++) {
           let ts2 = Date.now()
@@ -63,7 +67,7 @@
         console.log('step %s done (%s ms)', i, ts)
 
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(i)
+          saveWeights(window.net, 'tiny_yolov2_separable_model_' + i)
         }
       }
     }

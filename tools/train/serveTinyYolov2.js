@@ -17,6 +17,9 @@ app.use(express.static(path.join(__dirname, '../../dist')))
 const trainDataPath = path.resolve(process.env.TRAIN_DATA_PATH)
 const imagesPath = path.join(trainDataPath, './final_images')
 const detectionsPath = path.join(trainDataPath, './final_detections')
+app.use(express.static(imagesPath))
+app.use(express.static(detectionsPath))
+
 const detectionFilenames = fs.readdirSync(detectionsPath)
 
 app.use(express.static(trainDataPath))
