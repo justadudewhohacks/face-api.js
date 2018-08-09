@@ -1,14 +1,15 @@
-// hyper parameters
-const objectScale = 1
-const noObjectScale = 0.5
-const coordScale = 5
-
 const CELL_SIZE = 32
 
 const getNumCells = inputSize => inputSize / CELL_SIZE
 
+const inverseSigmoid = x => Math.log(x / (1 - x))
+
 function getAnchors() {
   return window.net.anchors
+}
+
+function squaredSumOverMask(lossTensors, mask) {
+  return tf.tidy(() => tf.sum(tf.square(tf.mul(mask, lossTensors))))
 }
 
 function assignBoxesToAnchors(groundTruthBoxes, reshapedImgDims) {
@@ -53,6 +54,30 @@ function getGroundTruthMask(groundTruthBoxes, inputSize) {
    return mask
 }
 
+function getCoordAndScoreMasks(inputSize) {
+
+  const numCells = getNumCells(inputSize)
+
+  const coordMask = tf.zeros([numCells, numCells, 25])
+  const scoreMask = tf.zeros([numCells, numCells, 25])
+  const coordBuf = coordMask.buffer()
+  const scoreBuf = scoreMask.buffer()
+
+  for (let row = 0; row < numCells; row++) {
+    for (let col = 0; col < numCells; col++) {
+      for (let anchor = 0; anchor < 5; anchor++) {
+        const anchorOffset = 5 * anchor
+        for (let i = 0; i < 4; i++) {
+          coordBuf.set(1, row, col, anchorOffset + i)
+        }
+        scoreBuf.set(1, row, col, anchorOffset + 4)
+      }
+    }
+  }
+
+  return { coordMask, scoreMask }
+}
+
 function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
 
   const inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height)
@@ -66,10 +91,14 @@ function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
 
     const centerX = (left + right) / 2
     const centerY = (top + bottom) / 2
-    const dx = (centerX - (col * CELL_SIZE + (CELL_SIZE / 2))) / inputSize
-    const dy = (centerY - (row * CELL_SIZE + (CELL_SIZE / 2))) / inputSize
-    const dw = Math.log(width / getAnchors()[anchor].x)
-    const dh = Math.log(height / getAnchors()[anchor].y)
+
+    const dCenterX = centerX - (col * CELL_SIZE + (CELL_SIZE / 2))
+    const dCenterY = centerY - (row * CELL_SIZE + (CELL_SIZE / 2))
+
+    const dx = inverseSigmoid(dCenterX / inputSize)
+    const dy = inverseSigmoid(dCenterY / inputSize)
+    const dw = Math.log((width / CELL_SIZE) / getAnchors()[anchor].x)
+    const dh = Math.log((height / CELL_SIZE) / getAnchors()[anchor].y)
 
     const anchorOffset = anchor * 5
     buf.set(dx, row, col, anchorOffset + 0)
@@ -83,7 +112,8 @@ function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
 
 function computeIous(predBoxes, groundTruthBoxes, reshapedImgDims) {
 
-  const numCells = getNumCells(Math.max(reshapedImgDims.width, reshapedImgDims.height))
+  const inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height)
+  const numCells = getNumCells(inputSize)
 
   const isSameAnchor = p1 => p2 =>
     p1.row === p2.row
@@ -104,8 +134,14 @@ function computeIous(predBoxes, groundTruthBoxes, reshapedImgDims) {
 
     const iou = faceapi.iou(
       box.rescale(reshapedImgDims),
-      predBox.box.rescale(reshapedImgDims)
+      predBox.box
     )
+
+    if (window.debug) {
+      console.log('ground thruth box:', box.rescale(reshapedImgDims))
+      console.log('predicted box:', predBox.box)
+      console.log(iou)
+    }
 
     const anchorOffset = anchor * 5
     buf.set(iou, row, col, anchorOffset + 4)
@@ -114,34 +150,114 @@ function computeIous(predBoxes, groundTruthBoxes, reshapedImgDims) {
   return ious
 }
 
-function computeNoObjectLoss(outTensor) {
-  return tf.tidy(() => tf.square(tf.sigmoid(outTensor)))
+window.computeNoObjectLoss = function(outTensor, mask) {
+  return tf.tidy(() => {
+    const lossTensor = tf.sigmoid(outTensor)
+    return squaredSumOverMask(lossTensor, mask)
+  })
 }
 
-function computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings) {
+function computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings, mask) {
   return tf.tidy(() => {
     const predBoxes = window.net.postProcess(
       outTensor,
       { paddings }
     )
+
+    if (window.debug) {
+      console.log(predBoxes)
+      console.log(predBoxes.filter(b => b.score > 0.1))
+    }
+
+    // debug
+
+    const numCells = getNumCells(Math.max(reshapedImgDims.width, reshapedImgDims.height))
+    if (predBoxes.length !== (numCells * numCells * getAnchors().length)) {
+      console.log(predBoxes.length)
+      throw new Error('predBoxes.length !== (numCells * numCells * 25)')
+    }
+
+    const isInvalid = num => !num && num !== 0
+
+
+    predBoxes.forEach(({ row, col, anchor }) => {
+      if ([row, col, anchor].some(isInvalid)) {
+        console.log(row, col, anchor)
+        throw new Error('row, col, anchor invalid')
+      }
+    })
+
+    // debug
+
     const ious = computeIous(
       predBoxes,
       groundTruthBoxes,
       reshapedImgDims
     )
 
-    return tf.square(tf.sub(ious, tf.sigmoid(outTensor)))
+    const lossTensor = tf.sub(ious, tf.sigmoid(outTensor))
+
+    return squaredSumOverMask(lossTensor, mask)
   })
 }
 
-function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims) {
+function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims, mask, paddings) {
   return tf.tidy(() => {
     const boxAdjustments = computeBoxAdjustments(
       groundTruthBoxes,
       reshapedImgDims
     )
 
-    return tf.square(tf.sub(boxAdjustments, outTensor))
+    // debug
+    if (window.debug) {
+      const indToPos = []
+      const numCells = outTensor.shape[1]
+      for (let row = 0; row < numCells; row++) {
+        for (let col = 0; col < numCells; col++) {
+          for (let anchor = 0; anchor < 25; anchor++) {
+            indToPos.push({ row, col, anchor: parseInt(anchor / 5) })
+          }
+        }
+      }
+
+      const m = Array.from(mask.dataSync())
+      const ind = m.map((val, ind) => ({ val, ind })).filter(v => v.val !== 0).map(v => v.ind)
+      const gt = Array.from(boxAdjustments.dataSync())
+      const out = Array.from(outTensor.dataSync())
+
+      const comp = ind.map(i => (
+        {
+          pos: indToPos[i],
+          gt: gt[i],
+          out: out[i]
+        }
+      ))
+      console.log(comp)
+      console.log(comp.map(c => `gt: ${c.gt}, out: ${c.out}`))
+
+      const printBbox = (which) => {
+        const { col, row, anchor } = comp[0].pos
+        console.log(col, row, anchor)
+        const ctX = ((col + faceapi.sigmoid(comp[0][which])) / numCells) * paddings.x
+        const ctY = ((row + faceapi.sigmoid(comp[1][which])) / numCells) * paddings.y
+        const width = ((Math.exp(comp[2][which]) * getAnchors()[anchor].x) / numCells) * paddings.x
+        const height = ((Math.exp(comp[3][which]) * getAnchors()[anchor].y) / numCells) * paddings.y
+
+        const x = (ctX - (width / 2))
+        const y = (ctY - (height / 2))
+        console.log(which, x * reshapedImgDims.width, y * reshapedImgDims.height, width * reshapedImgDims.width, height * reshapedImgDims.height)
+      }
+
+
+      printBbox('out')
+      printBbox('gt')
+
+    }
+    // debug
+
+    const lossTensor = tf.sub(boxAdjustments, outTensor)
+
+    return squaredSumOverMask(lossTensor, mask)
   })
 }
 
@@ -160,29 +276,30 @@ function computeLoss(outTensor, groundTruth, reshapedImgDims, paddings) {
     reshapedImgDims
   )
 
-  const mask = getGroundTruthMask(
-    groundTruthBoxes,
-    inputSize
-  )
-  const inverseMask =  tf.tidy(() => tf.sub(tf.scalar(1), mask))
+  const groundTruthMask = getGroundTruthMask(groundTruthBoxes, inputSize)
+  const { coordMask, scoreMask } = getCoordAndScoreMasks(inputSize)
+
+  const noObjectLossMask = tf.tidy(() => tf.mul(scoreMask, tf.sub(tf.scalar(1), groundTruthMask)))
+  const objectLossMask = tf.tidy(() => tf.mul(scoreMask, groundTruthMask))
+  const coordLossMask = tf.tidy(() => tf.mul(coordMask, groundTruthMask))
 
   const noObjectLoss = tf.tidy(() =>
     tf.mul(
       tf.scalar(noObjectScale),
-      tf.sum(tf.mul(inverseMask, computeNoObjectLoss(outTensor)))
+      computeNoObjectLoss(outTensor, noObjectLossMask)
     )
   )
   const objectLoss = tf.tidy(() =>
     tf.mul(
       tf.scalar(objectScale),
-      tf.sum(tf.mul(mask, computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings)))
+      computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, paddings, objectLossMask)
     )
   )
 
   const coordLoss = tf.tidy(() =>
     tf.mul(
       tf.scalar(coordScale),
-      tf.sum(tf.mul(mask, computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims)))
+      computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims, coordLossMask, paddings)
     )
   )
 

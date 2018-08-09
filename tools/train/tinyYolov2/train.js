@@ -3,10 +3,9 @@ async function trainStep(batchCreators, inputSize) {
   await promiseSequential(batchCreators.map((batchCreator, dataIdx) => async () => {
 
     // TODO: skip if groundTruthBoxes are too tiny
-    const { imgs, groundTruthBoxes } = await batchCreator()
+    const { imgs, groundTruthBoxes, filenames } = await batchCreator()
 
     const batchInput = (await faceapi.toNetInput(imgs)).managed()
-
     let ts = Date.now()
     const loss = optimizer.minimize(() => {
       // TBD: batch loss
@@ -27,21 +26,32 @@ async function trainStep(batchCreators, inputSize) {
       )
 
 
-      console.log('ground truth boxes:', groundTruthBoxes[batchIdx].length)
-      console.log(`noObjectLoss[${dataIdx}]: ${noObjectLoss.dataSync()}`)
-      console.log(`objectLoss[${dataIdx}]: ${objectLoss.dataSync()}`)
-      console.log(`coordLoss[${dataIdx}]: ${coordLoss.dataSync()}`)
-      console.log(`totalLoss[${dataIdx}]: ${totalLoss.dataSync()}`)
+      const total = totalLoss.dataSync()[0]
+
+      if (window.logTrainSteps) {
+        log(`ground truth boxes: ${groundTruthBoxes[batchIdx].length}`)
+        log(`noObjectLoss[${dataIdx}]: ${noObjectLoss.dataSync()}`)
+        log(`objectLoss[${dataIdx}]: ${objectLoss.dataSync()}`)
+        log(`coordLoss[${dataIdx}]: ${coordLoss.dataSync()}`)
+        log(`totalLoss[${dataIdx}]: ${total}`)
+
+        if (window.lossMap[filenames]) {
+          log(`loss change: ${total - window.lossMap[filenames]}`)
+        }
+      }
+
+      window.lossMap[filenames] = total
 
       return totalLoss
     }, true)
 
     ts = Date.now() - ts
-    console.log(`trainStep time for dataIdx ${dataIdx} (${inputSize}): ${ts} ms (${ts / batchInput.batchSize} ms / batch element)`)
-
+    if (window.logTrainSteps) {
+      log(`trainStep time for dataIdx ${dataIdx} (${inputSize}): ${ts} ms (${ts / batchInput.batchSize} ms / batch element)`)
+    }
     loss.dispose()
-
     await tf.nextFrame()
+    //console.log(tf.memory())
   }))
 }
 
@@ -61,18 +71,19 @@ function createBatchCreators(detectionFilenames, batchSize) {
 
   pushToBatch(detectionFilenames)
 
-  const batchCreators = batches.map(filenameForBatch => async () => {
-    const groundTruthBoxes = await Promise.all(filenameForBatch.map(
+  const batchCreators = batches.map(filenamesForBatch => async () => {
+    const groundTruthBoxes = await Promise.all(filenamesForBatch.map(
       file => fetch(file).then(res => res.json())
     ))
 
-    const imgs = await Promise.all(filenameForBatch.map(
+    const imgs = await Promise.all(filenamesForBatch.map(
       async file => await faceapi.bufferToImage(await fetchImage(file.replace('.json', '')))
     ))
 
     return {
       imgs,
-      groundTruthBoxes
+      groundTruthBoxes,
+      filenames: filenamesForBatch
     }
   })
 

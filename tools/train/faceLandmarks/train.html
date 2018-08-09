@@ -61,7 +61,7 @@
       await train()
     }
 
-    async function train(batchSize = 10) {
+    async function train(batchSize = 1) {
       for (let i = 0; i < trainSteps; i++) {
         console.log('step', i)
         const batchCreators = createBatchCreators(shuffle(window.trainData), batchSize)
@@ -70,7 +70,7 @@
         ts = Date.now() - ts
         console.log('step %s done (%s ms)', i, ts)
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(window.trainNet, 'landmark_trained_weights_' + idx + '.weights')
+          //saveWeights(window.trainNet, 'landmark_trained_weights_' + idx + '.weights')
         }
       }
     }

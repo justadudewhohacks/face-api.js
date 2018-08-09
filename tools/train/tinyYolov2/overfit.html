@@ -17,22 +17,20 @@
   <script>
     tf = faceapi.tf
 
-    const weightsUrl = '/tmp/.weights'
+    const weightsUrl = '/tmp/test.weights'
+    const fromEpoch = 800
 
     // hyper parameters
     window.objectScale = 5
     window.noObjectScale = 0.5
     window.coordScale = 1
 
-
-    window.saveEveryNthIteration = 1
-    window.trainSteps = 100
-    //window.optimizer = tf.train.sgd(learningRate)
+    window.saveEveryNthIteration = 50
+    window.trainSteps = 4000
+    //window.optimizer = tf.train.sgd(0.001)
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
 
-    function lossFunction(labels, out) {
-      return tf.losses.meanSquaredError(labels, out)
-    }
+    const numTrainSamples = 1
 
     async function loadNetWeights(uri) {
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
@@ -47,16 +45,17 @@
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
       window.net.variable()
-      window.detectionFilenames = await fetchDetectionFilenames()
+      window.detectionFilenames = (await fetchDetectionFilenames()).slice(0, numTrainSamples)
+      window.lossMap = {}
 
       console.log('ready')
     }
 
-    const trainSizes = [608, 416, 320, 224]
+    const trainSizes = [608]
 
     async function train(batchSize = 1) {
-      for (let i = 0; i < trainSteps; i++) {
-        console.log('step', i)
+      for (let i = fromEpoch; i < trainSteps; i++) {
+        log('step', i)
         let ts = Date.now()
 
         const batchCreators = createBatchCreators(shuffle(window.detectionFilenames), batchSize)
@@ -67,14 +66,31 @@
           await trainStep(batchCreators, trainSizes[s])
 
           ts2 = Date.now() - ts2
-          console.log('train for size %s done (%s ms)', trainSizes[s], ts2)
+          //log('train for size %s done (%s ms)', trainSizes[s], ts2)
         }
 
         ts = Date.now() - ts
-        console.log('step %s done (%s ms)', i, ts)
+
+        log()
+        log('--------------------')
+        log()
+        log('step %s done (%s ms)', i, ts)
+
+        const currentLoss = Object.keys(lossMap).map(k => lossMap[k]).reduce((sum, l) => sum + l)
+        if (window.prevLoss) {
+          log('prevLoss:', window.prevLoss)
+          log('currentLoss:', currentLoss)
+          log('loss change:', currentLoss - window.prevLoss)
+        }
+        log()
+        log('--------------------')
+        log()
+
+        window.prevLoss = currentLoss
+
 
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(window.net, 'tiny_yolov2_separable_model_' + i)
+          saveWeights(window.net, 'adam_511_n1_' + i + '.weights')
         }
       }
     }

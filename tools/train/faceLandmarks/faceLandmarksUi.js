@@ -60,7 +60,7 @@ async function init() {
   //window.nets.push(await loadNet('retrained/landmarks_v0.weights'))
   //window.nets.push(await loadNet('retrained/landmarks_v2.weights'))
 
-  window.trainNet = await loadNet('retrained/landmarks_v6.weights')
+  window.trainNet = await loadNet('/tmp/retrained/landmarks_v9.weights')
   window.nets.push(trainNet)
 
   $('#loader').hide()

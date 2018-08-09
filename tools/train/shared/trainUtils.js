@@ -28,3 +28,5 @@ function saveWeights(net, filename = 'train_tmp') {
   )
   saveAs(new Blob([binaryWeights]), filename)
 }
+
+const log = (str, ...args) => console.log(`[${[(new Date()).toTimeString().substr(0, 8)]}] ${str || ''}`, ...args)

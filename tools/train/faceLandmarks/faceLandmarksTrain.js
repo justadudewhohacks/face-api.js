@@ -2,6 +2,7 @@ async function trainStep(batchCreators) {
   await promiseSequential(batchCreators.map((batchCreator, dataIdx) => async () => {
 
     const { batchInput, landmarksBatchTensor } = await batchCreator()
+
     let ts = Date.now()
     const cost = optimizer.minimize(() => {
       const out = window.trainNet.forwardInput(batchInput.managed())
@@ -9,7 +10,7 @@ async function trainStep(batchCreators) {
         landmarksBatchTensor,
         out
       )
-      return loss
+      return tf.sum(out)
     }, true)
 
     ts = Date.now() - ts
@@ -19,6 +20,7 @@ async function trainStep(batchCreators) {
     cost.dispose()
 
     await tf.nextFrame()
+    console.log(tf.memory())
   }))
 }
 
@@ -63,7 +65,7 @@ function landmarkPositionsToArray(landmarks) {
 }
 
 function toFaceLandmarks(landmarks, { naturalWidth, naturalHeight }) {
-  return new faceapi.FaceLandmarks(
+  return new faceapi.FaceLandmarks68(
     landmarks.map(l => new faceapi.Point(l.x / naturalWidth, l.y / naturalHeight)),
     { width: naturalWidth, height: naturalHeight }
   )
@@ -90,8 +92,11 @@ async function getTrainData() {
     (_, i) => landmarksJson[i]
   )
 
+  return await loadImagesInBatch(allLandmarks.slice(0, 100))
+/**
   const batch1 = await loadImagesInBatch(allLandmarks.slice(0, 4000))
   const batch2 = await loadImagesInBatch(allLandmarks.slice(4000), 4000)
 
   return batch1.concat(batch2)
+  */
 }
