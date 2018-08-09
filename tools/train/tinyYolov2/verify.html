@@ -138,7 +138,7 @@
 
     async function run() {
       $('#imgByNr').keydown(onKeyDown)
-      const weights = await loadNetWeights('/tmp/test.weights')
+      const weights = await loadNetWeights('/tmp/test2.weights')
       window.net = new faceapi.TinyYolov2(true)
       await window.net.load(weights)
 

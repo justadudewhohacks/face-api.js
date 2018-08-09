@@ -18,10 +18,13 @@ function assignBoxesToAnchors(groundTruthBoxes, reshapedImgDims) {
   const numCells = getNumCells(inputSize)
 
   return groundTruthBoxes.map(box => {
-    const { left: x, top: y, width, height } = box.rescale(reshapedImgDims)
+    const { left, top, width, height } = box.rescale(reshapedImgDims)
 
-    const row = Math.round((y / inputSize) * numCells)
-    const col = Math.round((x / inputSize) * numCells)
+    const ctX = left + (width / 2)
+    const ctY = top + (height / 2)
+
+    const col = Math.floor((ctX / inputSize) * numCells)
+    const row = Math.floor((ctY / inputSize) * numCells)
 
     const anchorsByIou = getAnchors().map((anchor, idx) => ({
       idx,
@@ -92,11 +95,13 @@ function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
     const centerX = (left + right) / 2
     const centerY = (top + bottom) / 2
 
-    const dCenterX = centerX - (col * CELL_SIZE + (CELL_SIZE / 2))
-    const dCenterY = centerY - (row * CELL_SIZE + (CELL_SIZE / 2))
+    //const dCenterX = centerX - (col * CELL_SIZE + (CELL_SIZE / 2))
+    //const dCenterY = centerY - (row * CELL_SIZE + (CELL_SIZE / 2))
+    const dCenterX = centerX - (col * CELL_SIZE)
+    const dCenterY = centerY - (row * CELL_SIZE)
 
-    const dx = inverseSigmoid(dCenterX / inputSize)
-    const dy = inverseSigmoid(dCenterY / inputSize)
+    const dx = inverseSigmoid(dCenterX / CELL_SIZE)
+    const dy = inverseSigmoid(dCenterY / CELL_SIZE)
     const dw = Math.log((width / CELL_SIZE) / getAnchors()[anchor].x)
     const dh = Math.log((height / CELL_SIZE) / getAnchors()[anchor].y)
 
@@ -134,13 +139,14 @@ function computeIous(predBoxes, groundTruthBoxes, reshapedImgDims) {
 
     const iou = faceapi.iou(
       box.rescale(reshapedImgDims),
-      predBox.box
+      predBox.box.rescale(reshapedImgDims)
     )
 
     if (window.debug) {
-      console.log('ground thruth box:', box.rescale(reshapedImgDims))
-      console.log('predicted box:', predBox.box)
-      console.log(iou)
+      console.log('ground thruth box:', box.rescale(reshapedImgDims).toRect())
+      console.log('predicted box:', predBox.box.rescale(reshapedImgDims).toRect())
+      console.log('predicted score:', predBox.score)
+      console.log('iou:', iou)
     }
 
     const anchorOffset = anchor * 5
@@ -164,31 +170,6 @@ function computeObjectLoss(outTensor, groundTruthBoxes, reshapedImgDims, padding
       { paddings }
     )
 
-    if (window.debug) {
-      console.log(predBoxes)
-      console.log(predBoxes.filter(b => b.score > 0.1))
-    }
-
-    // debug
-
-    const numCells = getNumCells(Math.max(reshapedImgDims.width, reshapedImgDims.height))
-    if (predBoxes.length !== (numCells * numCells * getAnchors().length)) {
-      console.log(predBoxes.length)
-      throw new Error('predBoxes.length !== (numCells * numCells * 25)')
-    }
-
-    const isInvalid = num => !num && num !== 0
-
-
-    predBoxes.forEach(({ row, col, anchor }) => {
-      if ([row, col, anchor].some(isInvalid)) {
-        console.log(row, col, anchor)
-        throw new Error('row, col, anchor invalid')
-      }
-    })
-
-    // debug
-
     const ious = computeIous(
       predBoxes,
       groundTruthBoxes,
@@ -208,7 +189,6 @@ function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims, mask, pa
       reshapedImgDims
     )
 
-    // debug
     if (window.debug) {
       const indToPos = []
       const numCells = outTensor.shape[1]
@@ -220,24 +200,22 @@ function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims, mask, pa
         }
       }
 
-      const m = Array.from(mask.dataSync())
-      const ind = m.map((val, ind) => ({ val, ind })).filter(v => v.val !== 0).map(v => v.ind)
+      const indices = Array.from(mask.dataSync()).map((val, ind) => ({ val, ind })).filter(v => v.val !== 0).map(v => v.ind)
       const gt = Array.from(boxAdjustments.dataSync())
       const out = Array.from(outTensor.dataSync())
 
-      const comp = ind.map(i => (
+      const comp = indices.map(i => (
         {
           pos: indToPos[i],
           gt: gt[i],
           out: out[i]
         }
       ))
-      console.log(comp)
       console.log(comp.map(c => `gt: ${c.gt}, out: ${c.out}`))
 
-      const printBbox = (which) => {
-        const { col, row, anchor } = comp[0].pos
-        console.log(col, row, anchor)
+      const getBbox = (which) => {
+        const { row, col, anchor } = comp[0].pos
+
         const ctX = ((col + faceapi.sigmoid(comp[0][which])) / numCells) * paddings.x
         const ctY = ((row + faceapi.sigmoid(comp[1][which])) / numCells) * paddings.y
         const width = ((Math.exp(comp[2][which]) * getAnchors()[anchor].x) / numCells) * paddings.x
@@ -245,15 +223,16 @@ function computeCoordLoss(groundTruthBoxes, outTensor, reshapedImgDims, mask, pa
 
         const x = (ctX - (width / 2))
         const y = (ctY - (height / 2))
-        console.log(which, x * reshapedImgDims.width, y * reshapedImgDims.height, width * reshapedImgDims.width, height * reshapedImgDims.height)
+
+        return new faceapi.BoundingBox(x, y, x + width, y + height)
       }
 
-
-      printBbox('out')
-      printBbox('gt')
-
+      const outRect = getBbox('out').rescale(reshapedImgDims).toRect()
+      const gtRect = getBbox('gt').rescale(reshapedImgDims).toRect()
+      console.log('out', outRect)
+      console.log('gtRect', gtRect)
     }
-    // debug
+
 
     const lossTensor = tf.sub(boxAdjustments, outTensor)
 

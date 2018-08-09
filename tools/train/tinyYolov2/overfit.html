@@ -20,9 +20,14 @@
     const weightsUrl = '/tmp/test.weights'
     const fromEpoch = 800
 
+
+    window.debug = true
+    window.logTrainSteps = true
+
+
     // hyper parameters
     window.objectScale = 5
-    window.noObjectScale = 0.5
+    window.noObjectScale = 1
     window.coordScale = 1
 
     window.saveEveryNthIteration = 50
@@ -45,7 +50,7 @@
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
       window.net.variable()
-      window.detectionFilenames = (await fetchDetectionFilenames()).slice(0, numTrainSamples)
+      window.detectionFilenames = (await fetchDetectionFilenames()).slice(1, numTrainSamples + 1)
       window.lossMap = {}
 
       console.log('ready')
@@ -90,7 +95,7 @@
 
 
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(window.net, 'adam_511_n1_' + i + '.weights')
+          saveWeights(window.net, 'adam_511_' + i + '.weights')
         }
       }
     }
