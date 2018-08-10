@@ -17,12 +17,12 @@
   <script>
     tf = faceapi.tf
 
-    const weightsUrl = '/tmp/test.weights'
-    const fromEpoch = 800
+    const weightsUrl = '/tmp/initial_tiny_yolov2_glorot_normal.weights'
+    const fromEpoch = 0
 
 
-    window.debug = true
-    window.logTrainSteps = true
+    window.debug = false
+    window.logTrainSteps = false
 
 
     // hyper parameters
@@ -30,12 +30,13 @@
     window.noObjectScale = 1
     window.coordScale = 1
 
-    window.saveEveryNthIteration = 50
+    window.saveEveryNthIteration = 1
     window.trainSteps = 4000
     //window.optimizer = tf.train.sgd(0.001)
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
 
-    const numTrainSamples = 1
+    // all samples
+    const numTrainSamples = Infinity
 
     async function loadNetWeights(uri) {
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
@@ -50,13 +51,18 @@
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
       window.net.variable()
-      window.detectionFilenames = (await fetchDetectionFilenames()).slice(1, numTrainSamples + 1)
+      window.detectionFilenames = (await fetchDetectionFilenames()).slice(0, numTrainSamples)
       window.lossMap = {}
 
       console.log('ready')
     }
 
-    const trainSizes = [608]
+    const trainSizes = [320]
+
+    function logLossChange(lossType) {
+      const { currentLoss, prevLoss, detectionFilenames } = window
+      log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
+    }
 
     async function train(batchSize = 1) {
       for (let i = fromEpoch; i < trainSteps; i++) {
@@ -81,21 +87,30 @@
         log()
         log('step %s done (%s ms)', i, ts)
 
-        const currentLoss = Object.keys(lossMap).map(k => lossMap[k]).reduce((sum, l) => sum + l)
+        window.prevLoss = window.currentLoss
+        window.currentLoss = Object.keys(lossMap)
+          .map(filename => lossMap[filename])
+          .reduce((accumulatedLosses, losses) =>
+            Object.keys(losses)
+              .map(key => ({
+                [key]: (accumulatedLosses[key] || 0) + losses[key]
+              }))
+              .reduce((map, curr) => ({ ...map, ...curr }), {}),
+            {}
+          )
+
         if (window.prevLoss) {
-          log('prevLoss:', window.prevLoss)
-          log('currentLoss:', currentLoss)
-          log('loss change:', currentLoss - window.prevLoss)
+          logLossChange('noObjectLoss')
+          logLossChange('objectLoss')
+          logLossChange('coordLoss')
+          logLossChange('totalLoss')
         }
         log()
         log('--------------------')
         log()
 
-        window.prevLoss = currentLoss
-
-
         if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(window.net, 'adam_511_' + i + '.weights')
+          saveWeights(window.net, 'adam_511_' + (i + 1) + '.weights')
         }
       }
     }

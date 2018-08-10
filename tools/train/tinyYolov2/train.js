@@ -25,22 +25,26 @@ async function trainStep(batchCreators, inputSize) {
         batchInput.getRelativePaddings(batchIdx)
       )
 
-
-      const total = totalLoss.dataSync()[0]
+      const losses = {
+        totalLoss: totalLoss.dataSync()[0],
+        noObjectLoss: noObjectLoss.dataSync()[0],
+        objectLoss: objectLoss.dataSync()[0],
+        coordLoss: coordLoss.dataSync()[0]
+      }
 
       if (window.logTrainSteps) {
         log(`ground truth boxes: ${groundTruthBoxes[batchIdx].length}`)
-        log(`noObjectLoss[${dataIdx}]: ${noObjectLoss.dataSync()}`)
-        log(`objectLoss[${dataIdx}]: ${objectLoss.dataSync()}`)
-        log(`coordLoss[${dataIdx}]: ${coordLoss.dataSync()}`)
-        log(`totalLoss[${dataIdx}]: ${total}`)
+        log(`noObjectLoss[${dataIdx}]: ${losses.noObjectLoss}`)
+        log(`objectLoss[${dataIdx}]: ${losses.objectLoss}`)
+        log(`coordLoss[${dataIdx}]: ${losses.coordLoss}`)
+        log(`totalLoss[${dataIdx}]: ${losses.totalLoss}`)
 
         if (window.lossMap[filenames]) {
-          log(`loss change: ${total - window.lossMap[filenames]}`)
+          log(`loss change: ${losses.totalLoss - window.lossMap[filenames].totalLoss}`)
         }
       }
 
-      window.lossMap[filenames] = total
+      window.lossMap[filenames] = losses
 
       return totalLoss
     }, true)
