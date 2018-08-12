@@ -25,7 +25,7 @@ const detectionFilenames = fs.readdirSync(detectionsPath)
 app.use(express.static(trainDataPath))
 
 app.get('/detection_filenames', (req, res) => res.status(202).send(detectionFilenames))
-app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'overfit.html')))
+app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'train.html')))
 app.get('/verify', (req, res) => res.sendFile(path.join(publicDir, 'verify.html')))
 
 app.listen(3000, () => console.log('Listening on port 3000!'))

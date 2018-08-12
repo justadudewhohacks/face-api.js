@@ -17,22 +17,32 @@
   <script>
     tf = faceapi.tf
 
-    const weightsUrl = '/tmp/.weights'
+    const startIdx224 = 3220
+    const startIdx320 = 20688
+    const startIdx416 = 950
+    const startIdx608 = 15220
+
+    const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+    const fromEpoch = 0
+
+
+    window.debug = false
+    window.logTrainSteps = true
+
 
     // hyper parameters
     window.objectScale = 5
-    window.noObjectScale = 0.5
+    window.noObjectScale = 1
     window.coordScale = 1
 
-
-    window.saveEveryNthIteration = 1
-    window.trainSteps = 100
-    //window.optimizer = tf.train.sgd(learningRate)
+    const rescaleEveryNthBatch = Infinity
+    window.saveEveryNthDataIdx = 100
+    window.trainSteps = 4000
+    //window.optimizer = tf.train.sgd(0.001)
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
 
-    function lossFunction(labels, out) {
-      return tf.losses.meanSquaredError(labels, out)
-    }
+    // all samples
+    const numTrainSamples = Infinity
 
     async function loadNetWeights(uri) {
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
@@ -47,36 +57,69 @@
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
       window.net.variable()
-      window.detectionFilenames = await fetchDetectionFilenames()
+      window.detectionFilenames = (await fetchDetectionFilenames()).slice(0, numTrainSamples)
+      window.lossMap = {}
 
       console.log('ready')
     }
 
-    const trainSizes = [608, 416, 320, 224]
+    //const trainSizes = [224, 320, 416, 608]
+    const trainSizes = [608]
 
-    async function train(batchSize = 1) {
-      for (let i = 0; i < trainSteps; i++) {
-        console.log('step', i)
-        let ts = Date.now()
+    function logLossChange(lossType) {
+      const { currentLoss, prevLoss, detectionFilenames } = window
+      log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
+    }
+
+    function onBatchProcessed(dataIdx, inputSize) {
+      if (((dataIdx + 1) % saveEveryNthDataIdx) === 0) {
+        saveWeights(window.net, `tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608 + dataIdx + 1}.weights`)
+      }
+    }
+
+    async function train() {
+
+      const batchSize = 1
+
+      for (let i = fromEpoch; i < trainSteps; i++) {
+        log('step', i)
+        let ts2 = Date.now()
 
         const batchCreators = createBatchCreators(shuffle(window.detectionFilenames), batchSize)
 
-        for (let s = 0; s < trainSizes.length; s++) {
-          let ts2 = Date.now()
+        await trainStep(batchCreators, trainSizes, rescaleEveryNthBatch, onBatchProcessed)
 
-          await trainStep(batchCreators, trainSizes[s])
-
-          ts2 = Date.now() - ts2
-          console.log('train for size %s done (%s ms)', trainSizes[s], ts2)
-        }
-
-        ts = Date.now() - ts
-        console.log('step %s done (%s ms)', i, ts)
-
-        if (((i + 1) % saveEveryNthIteration) === 0) {
-          saveWeights(window.net, 'tiny_yolov2_separable_model_' + i)
-        }
+        ts2 = Date.now() - ts2
       }
+
+      ts = Date.now() - ts
+
+      log()
+      log('--------------------')
+      log()
+      log('step %s done (%s ms)', i, ts)
+
+      window.prevLoss = window.currentLoss
+      window.currentLoss = Object.keys(lossMap)
+        .map(filename => lossMap[filename])
+        .reduce((accumulatedLosses, losses) =>
+          Object.keys(losses)
+            .map(key => ({
+              [key]: (accumulatedLosses[key] || 0) + losses[key]
+            }))
+            .reduce((map, curr) => ({ ...map, ...curr }), {}),
+          {}
+        )
+
+      if (window.prevLoss) {
+        logLossChange('noObjectLoss')
+        logLossChange('objectLoss')
+        logLossChange('coordLoss')
+        logLossChange('totalLoss')
+      }
+      log()
+      log('--------------------')
+      log()
     }
 
     run()
