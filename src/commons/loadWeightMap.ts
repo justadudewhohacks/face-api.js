@@ -16,6 +16,8 @@ export function getModelUris(uri: string | undefined, defaultModelName: string) 
       manifestUri: `/${defaultManifestFilename}`
     }
   }
+  const protocol = uri.startsWith('http://') ? 'http://' : uri.startsWith('https://') ? 'https://' : '';
+  uri = uri.replace(protocol, '');
 
   const parts = uri.split('/').filter(s => s)
 
@@ -23,7 +25,7 @@ export function getModelUris(uri: string | undefined, defaultModelName: string) 
     ? parts[parts.length - 1]
     : defaultManifestFilename
 
-  let modelBaseUri = (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/')
+  let modelBaseUri = protocol + (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/')
   modelBaseUri = uri.startsWith('/') ? `/${modelBaseUri}` : modelBaseUri
 
   return {
