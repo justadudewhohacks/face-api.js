@@ -60,10 +60,10 @@ describe('loadWeightMap', () => {
     })
 
     it('returns correct uris, given external path', () => {
-      const uri = 'https://example.com/path/to/modelfiles/';
+      const uri = 'https://example.com/path/to/modelfiles';
       const result = getModelUris(uri, FAKE_DEFAULT_MODEL_NAME)
 
-      expect(result.manifestUri).toEqual(uri + 'model-weights_manifest.json')
+      expect(result.manifestUri).toEqual(`${uri}/${FAKE_DEFAULT_MODEL_NAME}-weights_manifest.json`)
       expect(result.modelBaseUri).toEqual(uri)
     })
 
