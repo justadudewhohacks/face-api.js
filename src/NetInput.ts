@@ -86,6 +86,18 @@ export class NetInput {
     return this._inputSize
   }
 
+  public get relativePaddings(): Point[] {
+    return Array(this.inputs.length).fill(0).map(
+      (_, batchIdx) => this.getRelativePaddings(batchIdx)
+    )
+  }
+
+  public get reshapedInputDimensions(): Dimensions[] {
+    return Array(this.inputs.length).fill(0).map(
+      (_, batchIdx) => this.getReshapedInputDimensions(batchIdx)
+    )
+  }
+
   public getInputDimensions(batchIdx: number): number[] {
     return this._inputDimensions[batchIdx]
   }
