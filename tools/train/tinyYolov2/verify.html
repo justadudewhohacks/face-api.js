@@ -138,10 +138,11 @@
 
     async function run() {
       $('#imgByNr').keydown(onKeyDown)
-      const startIdx224 = 3220
-      const startIdx320 = 20688
-      const startIdx416 = 950
-      const startIdx608 = 15220
+
+      const startIdx224 = 35060
+      const startIdx320 = 41188
+      const startIdx416 = 31050
+      const startIdx608 = 16520
 
       const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
 
@@ -149,7 +150,7 @@
       window.net = new faceapi.TinyYolov2(true)
       await window.net.load(weights)
 
-      window.imgs = (await fetchDetectionFilenames()).slice(0, 100).map(f => f.replace('.json', ''))
+      window.imgs = (await fetchDetectionFilenames()).map(f => f.replace('.json', ''))
 
       $('#loader').hide()
       onSelectionChanged($('#selectList select').val())

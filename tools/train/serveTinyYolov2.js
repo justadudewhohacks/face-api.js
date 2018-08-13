@@ -21,10 +21,12 @@ app.use(express.static(imagesPath))
 app.use(express.static(detectionsPath))
 
 const detectionFilenames = fs.readdirSync(detectionsPath)
+const detectionFilenamesMultibox = JSON.parse(fs.readFileSync(path.join(__dirname, './tinyYolov2/multibox.json')))
 
 app.use(express.static(trainDataPath))
 
 app.get('/detection_filenames', (req, res) => res.status(202).send(detectionFilenames))
+app.get('/detection_filenames_multibox', (req, res) => res.status(202).send(detectionFilenamesMultibox))
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'train.html')))
 app.get('/verify', (req, res) => res.sendFile(path.join(publicDir, 'verify.html')))
 

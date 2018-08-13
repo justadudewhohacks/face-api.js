@@ -73,15 +73,17 @@ async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatc
             .rescale({ height: imgHeight, width: imgWidth })
             .rescale(scaleFactor)
 
-          const isTooTiny = box.width < 50 || box.height < 50
-          if (isTooTiny) {
+          const isTooTiny = box.width < 40 || box.height < 40
+          if (isTooTiny && window.debug) {
             log(`skipping box for input size ${inputSize}: (${Math.floor(box.width)} x ${Math.floor(box.height)})`)
           }
           return !isTooTiny
         })
 
         if (!filteredGroundTruthBoxes.length) {
-          log(`no boxes for input size ${inputSize}, ${groundTruthBoxes[batchIdx].length} boxes were too small`)
+          if (window.debug) {
+            log(`no boxes for input size ${inputSize}, ${groundTruthBoxes[batchIdx].length} boxes were too small`)
+          }
           batchInput.dispose()
           onBatchProcessed(dataIdx, inputSize)
           return
@@ -89,7 +91,6 @@ async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatc
 
         let ts = Date.now()
         const loss = minimize(filteredGroundTruthBoxes, batchInput, inputSize, batch)
-
         ts = Date.now() - ts
         if (window.logTrainSteps) {
           log(`trainStep time for dataIdx ${dataIdx} (${inputSize}): ${ts} ms`)
@@ -109,7 +110,15 @@ async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatc
   await step(batchCreators.next(rescaleEveryNthBatch))
 }
 
-function createBatchCreators(detectionFilenames, batchSize, ) {
+async function fetchGroundTruthBoxesForFile(file) {
+  const boxes = await fetch(file).then(res => res.json())
+  return {
+    file,
+    boxes
+  }
+}
+
+function createBatchCreators(detectionFilenames, batchSize) {
   if (batchSize < 1) {
     throw new Error('invalid batch size: ' + batchSize)
   }
@@ -126,9 +135,8 @@ function createBatchCreators(detectionFilenames, batchSize, ) {
   pushToBatch(detectionFilenames)
 
   const batchCreators = batches.map((filenamesForBatch, dataIdx) => async () => {
-    const groundTruthBoxes = await Promise.all(filenamesForBatch.map(
-      file => fetch(file).then(res => res.json())
-    ))
+    const groundTruthBoxes = (await Promise.all(filenamesForBatch.map(fetchGroundTruthBoxesForFile)))
+      .map(({ boxes }) => boxes)
 
     const imgs = await Promise.all(filenamesForBatch.map(
       async file => await faceapi.bufferToImage(await fetchImage(file.replace('.json', '')))

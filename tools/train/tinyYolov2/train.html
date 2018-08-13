@@ -17,14 +17,17 @@
   <script>
     tf = faceapi.tf
 
-    const startIdx224 = 3220
-    const startIdx320 = 20688
-    const startIdx416 = 950
-    const startIdx608 = 15220
+    const startIdx224 = 35060
+    const startIdx320 = 41188
+    const startIdx416 = 31050
+    const startIdx608 = 16520
 
     const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+
+    //const weightsUrl = '/tmp/tmp_2_count_41000.weights'
     const fromEpoch = 0
 
+    const trainOnlyMultibox = false
 
     window.debug = false
     window.logTrainSteps = true
@@ -42,6 +45,8 @@
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
 
     // all samples
+    //const dataStartIdx = 8000
+    const dataStartIdx = 0
     const numTrainSamples = Infinity
 
     async function loadNetWeights(uri) {
@@ -52,18 +57,28 @@
       return fetch('/detection_filenames').then(res => res.json())
     }
 
+    async function fetchDetectionFilenamesMultibox() {
+      return fetch('/detection_filenames_multibox').then(res => res.json())
+    }
+
     async function run() {
       const weights = await loadNetWeights(weightsUrl)
       window.net = new faceapi.TinyYolov2(true)
       window.net.load(weights)
       window.net.variable()
-      window.detectionFilenames = (await fetchDetectionFilenames()).slice(0, numTrainSamples)
+
+      const fetchDetectionsFn = trainOnlyMultibox
+        ? fetchDetectionFilenamesMultibox
+        : fetchDetectionFilenames
+
+      window.detectionFilenames = (await fetchDetectionsFn()).slice(dataStartIdx, dataStartIdx + numTrainSamples)
+
       window.lossMap = {}
 
       console.log('ready')
     }
 
-    //const trainSizes = [224, 320, 416, 608]
+    //const trainSizes = [224, 320, 416]
     const trainSizes = [608]
 
     function logLossChange(lossType) {
@@ -71,9 +86,22 @@
       log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
     }
 
+    window.count = 0
+
+    function _onBatchProcessed(dataIdx, inputSize) {
+      window.count++
+      const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
+      console.log('dataIdx', dataIdx)
+      if ((window.count % saveEveryNthDataIdx) === 0) {
+        saveWeights(window.net, `tmp_2_count_${window.count}.weights`)
+      }
+    }
+
     function onBatchProcessed(dataIdx, inputSize) {
-      if (((dataIdx + 1) % saveEveryNthDataIdx) === 0) {
-        saveWeights(window.net, `tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608 + dataIdx + 1}.weights`)
+      const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
+      console.log('idx', idx)
+      if ((idx % saveEveryNthDataIdx) === 0) {
+        saveWeights(window.net, `tmp__224_${startIdx224 + (inputSize === 224 ? idx : 0)}__320_${startIdx320 + (inputSize === 320 ? idx : 0)}__416_${startIdx416 + (inputSize === 416 ? idx : 0)}__608_${startIdx608 + (inputSize === 608 ? idx : 0)}.weights`)
       }
     }
 
@@ -82,6 +110,7 @@
       const batchSize = 1
 
       for (let i = fromEpoch; i < trainSteps; i++) {
+        window.epoch = i
         log('step', i)
         let ts2 = Date.now()
 
