@@ -2,7 +2,8 @@ node_modules
 .rpt2_cache
 
 examples
-test
 proto
 weights
+weights_uncompressed
+test
 tools
