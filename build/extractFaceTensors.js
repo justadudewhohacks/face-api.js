@@ -32,8 +32,9 @@ function extractFaceTensors(input, detections) {
                             var imgTensor = netInput.inputs[0].expandDims().toFloat();
                             var _a = imgTensor.shape.slice(1), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
                             var boxes = detections.map(function (det) { return det instanceof FaceDetection_1.FaceDetection
-                                ? det.forSize(imgWidth, imgHeight).getBox().floor()
-                                : det; });
+                                ? det.forSize(imgWidth, imgHeight).getBox()
+                                : det; })
+                                .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
                             var faceTensors = boxes.map(function (_a) {
                                 var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                                 return tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);

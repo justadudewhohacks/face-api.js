@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function iou(box1, box2, isIOU) {
+    if (isIOU === void 0) { isIOU = true; }
+    var width = Math.max(0.0, Math.min(box1.right, box2.right) - Math.max(box1.left, box2.left) + 1);
+    var height = Math.max(0.0, Math.min(box1.bottom, box2.bottom) - Math.max(box1.top, box2.top) + 1);
+    var interSection = width * height;
+    return isIOU
+        ? interSection / (box1.area + box2.area - interSection)
+        : interSection / Math.min(box1.area, box2.area);
+}
+exports.iou = iou;
+//# sourceMappingURL=iou.js.map
