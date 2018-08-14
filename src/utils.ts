@@ -45,14 +45,14 @@ export function awaitMediaLoaded(media: HTMLImageElement | HTMLVideoElement | HT
       if (!e.currentTarget) return
       e.currentTarget.removeEventListener('load', onLoad)
       e.currentTarget.removeEventListener('error', onError)
-      resolve()
+      resolve(e)
     }
 
     function onError(e: Event) {
       if (!e.currentTarget) return
       e.currentTarget.removeEventListener('load', onLoad)
       e.currentTarget.removeEventListener('error', onError)
-      reject()
+      reject(e)
     }
 
     media.addEventListener('load', onLoad)
