@@ -144,7 +144,8 @@
       const startIdx416 = 31050
       const startIdx608 = 16520
 
-      const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+      //const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+      const weightsUrl = `/tmp/overfit_count_1500.weights`
 
       const weights = await loadNetWeights(weightsUrl)
       window.net = new faceapi.TinyYolov2(true)

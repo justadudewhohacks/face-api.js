@@ -24,10 +24,12 @@
 
     const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
 
-    //const weightsUrl = '/tmp/tmp_2_count_41000.weights'
     const fromEpoch = 0
 
     const trainOnlyMultibox = false
+
+    const trainSizes = [160, 224, 320, 416]
+    //const trainSizes = [608]
 
     window.debug = false
     window.logTrainSteps = true
@@ -38,8 +40,8 @@
     window.noObjectScale = 1
     window.coordScale = 1
 
-    const rescaleEveryNthBatch = Infinity
-    window.saveEveryNthDataIdx = 100
+    const rescaleEveryNthBatch = 100
+    window.saveEveryNthDataIdx = trainSizes.length * rescaleEveryNthBatch
     window.trainSteps = 4000
     //window.optimizer = tf.train.sgd(0.001)
     window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
@@ -78,9 +80,6 @@
       console.log('ready')
     }
 
-    //const trainSizes = [224, 320, 416]
-    const trainSizes = [608]
-
     function logLossChange(lossType) {
       const { currentLoss, prevLoss, detectionFilenames } = window
       log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
@@ -88,16 +87,16 @@
 
     window.count = 0
 
-    function _onBatchProcessed(dataIdx, inputSize) {
+    function onBatchProcessed(dataIdx, inputSize) {
       window.count++
       const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
       console.log('dataIdx', dataIdx)
       if ((window.count % saveEveryNthDataIdx) === 0) {
-        saveWeights(window.net, `tmp_2_count_${window.count}.weights`)
+        saveWeights(window.net, `tmp_multiscale_count_${window.count}.weights`)
       }
     }
 
-    function onBatchProcessed(dataIdx, inputSize) {
+    function _onBatchProcessed(dataIdx, inputSize) {
       const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
       console.log('idx', idx)
       if ((idx % saveEveryNthDataIdx) === 0) {

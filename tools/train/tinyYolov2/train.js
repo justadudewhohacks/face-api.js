@@ -1,6 +1,6 @@
 const batchIdx = 0
 
-function minimize(groundTruthBoxes, batchInput, inputSize, batch) {
+function minimize(groundTruthBoxes, batchInput, inputSize, batch, { reshapedImgDims, paddings }) {
   const filename = batch.filenames[batchIdx]
   const { dataIdx } = batch
 
@@ -16,8 +16,8 @@ function minimize(groundTruthBoxes, batchInput, inputSize, batch) {
     } = computeLoss(
       outTensor,
       groundTruthBoxes,
-      batchInput.getReshapedInputDimensions(batchIdx),
-      batchInput.getRelativePaddings(batchIdx)
+      reshapedImgDims,
+      paddings
     )
 
     const losses = {
@@ -47,6 +47,35 @@ function minimize(groundTruthBoxes, batchInput, inputSize, batch) {
   }, true)
 }
 
+function imageToSquare(img) {
+  const scale = 608 / Math.max(img.height, img.width)
+  const width = scale * img.width
+  const height = scale * img.height
+
+  const canvas1 = faceapi.createCanvasFromMedia(img)
+  const targetCanvas = faceapi.createCanvas({ width: 608, height: 608 })
+  targetCanvas.getContext('2d').putImageData(canvas1.getContext('2d').getImageData(0, 0, width, height), 0, 0)
+  return targetCanvas
+}
+
+function getPaddingsAndReshapedSize(img, inputSize) {
+  const [h, w] = [img.height, img.width]
+  const maxDim = Math.max(h, w)
+
+  const f = inputSize / maxDim
+  const reshapedImgDims = {
+    height: Math.floor(h * f),
+    width: Math.floor(w * f)
+  }
+
+  const paddings = new faceapi.Point(
+    maxDim / img.width,
+    maxDim / img.height
+  )
+
+  return { paddings, reshapedImgDims }
+}
+
 async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatchProcessed = () => {}) {
 
   async function step(currentBatchCreators) {
@@ -61,7 +90,11 @@ async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatc
         const batch = await batchCreator()
         const { imgs, groundTruthBoxes, filenames, dataIdx } = batch
 
-        const batchInput = await faceapi.toNetInput(imgs)
+        const img = imgs[0]
+        const { reshapedImgDims, paddings } = getPaddingsAndReshapedSize(img, inputSize)
+        const squareImg = imageToSquare(img)
+
+        const batchInput = await faceapi.toNetInput(squareImg)
 
         const [imgHeight, imgWidth] = batchInput.inputs[batchIdx].shape
 
@@ -90,7 +123,8 @@ async function trainStep(batchCreators, inputSizes, rescaleEveryNthBatch, onBatc
         }
 
         let ts = Date.now()
-        const loss = minimize(filteredGroundTruthBoxes, batchInput, inputSize, batch)
+        const loss = minimize(filteredGroundTruthBoxes, batchInput, inputSize, batch, { reshapedImgDims, paddings })
+
         ts = Date.now() - ts
         if (window.logTrainSteps) {
           log(`trainStep time for dataIdx ${dataIdx} (${inputSize}): ${ts} ms`)
