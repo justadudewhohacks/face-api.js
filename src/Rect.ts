@@ -19,6 +19,14 @@ export class Rect implements IRect {
     this.height = height
   }
 
+  public get right() {
+    return this.x + this.width
+  }
+
+  public get bottom() {
+    return this.y + this.height
+  }
+
   public toSquare(): Rect {
     let { x, y, width, height } = this
     const diff = Math.abs(width - height)
@@ -49,5 +57,18 @@ export class Rect implements IRect {
 
   public toBoundingBox(): BoundingBox {
     return new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height)
+  }
+
+  public clipAtImageBorders(imgWidth: number, imgHeight: number): Rect {
+    const { x, y, right, bottom } = this
+    const clippedX = Math.max(x, 0)
+    const clippedY = Math.max(y, 0)
+
+    const newWidth = right - clippedX
+    const newHeight = bottom - clippedY
+    const clippedWidth = Math.min(newWidth, imgWidth - clippedX)
+    const clippedHeight = Math.min(newHeight, imgHeight - clippedY)
+
+    return (new Rect(clippedX, clippedY, clippedWidth, clippedHeight)).floor()
   }
 }

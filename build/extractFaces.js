@@ -39,7 +39,8 @@ function extractFaces(input, detections) {
                     ctx = utils_1.getContext2dOrThrow(canvas);
                     boxes = detections.map(function (det) { return det instanceof FaceDetection_1.FaceDetection
                         ? det.forSize(canvas.width, canvas.height).getBox().floor()
-                        : det; });
+                        : det; })
+                        .map(function (box) { return box.clipAtImageBorders(canvas.width, canvas.height); });
                     return [2 /*return*/, boxes.map(function (_a) {
                             var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                             var faceImg = utils_1.createCanvas({ width: width, height: height });

@@ -59,6 +59,14 @@ describe('loadWeightMap', () => {
       expect(result.modelBaseUri).toEqual('/path/to/modelfiles')
     })
 
+    it('returns correct uris, given external path', () => {
+      const uri = 'https://example.com/path/to/modelfiles';
+      const result = getModelUris(uri, FAKE_DEFAULT_MODEL_NAME)
+
+      expect(result.manifestUri).toEqual(`${uri}/${FAKE_DEFAULT_MODEL_NAME}-weights_manifest.json`)
+      expect(result.modelBaseUri).toEqual(uri)
+    })
+
   })
 
 })

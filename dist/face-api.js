@@ -242,6 +242,20 @@
           this.width = width;
           this.height = height;
       }
+      Object.defineProperty(Rect.prototype, "right", {
+          get: function () {
+              return this.x + this.width;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(Rect.prototype, "bottom", {
+          get: function () {
+              return this.y + this.height;
+          },
+          enumerable: true,
+          configurable: true
+      });
       Rect.prototype.toSquare = function () {
           var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
           var diff = Math.abs(width - height);
@@ -261,6 +275,16 @@
       };
       Rect.prototype.floor = function () {
           return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+      };
+      Rect.prototype.clipAtImageBorders = function (imgWidth, imgHeight) {
+          var _a = this, x = _a.x, y = _a.y, right = _a.right, bottom = _a.bottom;
+          var clippedX = Math.max(x, 0);
+          var clippedY = Math.max(y, 0);
+          var newWidth = right - clippedX;
+          var newHeight = bottom - clippedY;
+          var clippedWidth = Math.min(newWidth, imgWidth - clippedX);
+          var clippedHeight = Math.min(newHeight, imgHeight - clippedY);
+          return (new Rect(clippedX, clippedY, clippedWidth, clippedHeight)).floor();
       };
       return Rect;
   }());
@@ -1178,11 +1202,13 @@
               manifestUri: "/" + defaultManifestFilename
           };
       }
+      var protocol = uri.startsWith('http://') ? 'http://' : uri.startsWith('https://') ? 'https://' : '';
+      uri = uri.replace(protocol, '');
       var parts = uri.split('/').filter(function (s) { return s; });
       var manifestFile = uri.endsWith('.json')
           ? parts[parts.length - 1]
           : defaultManifestFilename;
-      var modelBaseUri = (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/');
+      var modelBaseUri = protocol + (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/');
       modelBaseUri = uri.startsWith('/') ? "/" + modelBaseUri : modelBaseUri;
       return {
           modelBaseUri: modelBaseUri,
@@ -1514,7 +1540,8 @@
                       ctx = getContext2dOrThrow(canvas);
                       boxes = detections.map(function (det) { return det instanceof FaceDetection
                           ? det.forSize(canvas.width, canvas.height).getBox().floor()
-                          : det; });
+                          : det; })
+                          .map(function (box) { return box.clipAtImageBorders(canvas.width, canvas.height); });
                       return [2 /*return*/, boxes.map(function (_a) {
                               var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                               var faceImg = createCanvas({ width: width, height: height });
@@ -1555,8 +1582,9 @@
                               var imgTensor = netInput.inputs[0].expandDims().toFloat();
                               var _a = imgTensor.shape.slice(1), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
                               var boxes = detections.map(function (det) { return det instanceof FaceDetection
-                                  ? det.forSize(imgWidth, imgHeight).getBox().floor()
-                                  : det; });
+                                  ? det.forSize(imgWidth, imgHeight).getBox()
+                                  : det; })
+                                  .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
                               var faceTensors = boxes.map(function (_a) {
                                   var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                                   return slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
