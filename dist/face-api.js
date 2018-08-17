@@ -276,6 +276,9 @@
       Rect.prototype.floor = function () {
           return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
       };
+      Rect.prototype.toBoundingBox = function () {
+          return new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+      };
       Rect.prototype.clipAtImageBorders = function (imgWidth, imgHeight) {
           var _a = this, x = _a.x, y = _a.y, right = _a.right, bottom = _a.bottom;
           var clippedX = Math.max(x, 0);
@@ -287,6 +290,320 @@
           return (new Rect(clippedX, clippedY, clippedWidth, clippedHeight)).floor();
       };
       return Rect;
+  }());
+
+  /*! *****************************************************************************
+  Copyright (c) Microsoft Corporation. All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+  this file except in compliance with the License. You may obtain a copy of the
+  License at http://www.apache.org/licenses/LICENSE-2.0
+
+  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+  MERCHANTABLITY OR NON-INFRINGEMENT.
+
+  See the Apache Version 2.0 License for specific language governing permissions
+  and limitations under the License.
+  ***************************************************************************** */
+  /* global Reflect, Promise */
+
+  var extendStatics$1 = Object.setPrototypeOf ||
+      ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+      function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+  function __extends$1(d, b) {
+      extendStatics$1(d, b);
+      function __() { this.constructor = d; }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  }
+
+  var __assign = Object.assign || function __assign(t) {
+      for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+      return t;
+  };
+
+  function __awaiter$1(thisArg, _arguments, P, generator) {
+      return new (P || (P = Promise))(function (resolve, reject) {
+          function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+          function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+          function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+          step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+  }
+
+  function __generator$1(thisArg, body) {
+      var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+      return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+      function verb(n) { return function (v) { return step([n, v]); }; }
+      function step(op) {
+          if (f) throw new TypeError("Generator is already executing.");
+          while (_) try {
+              if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+              if (y = 0, t) op = [0, t.value];
+              switch (op[0]) {
+                  case 0: case 1: t = op; break;
+                  case 4: _.label++; return { value: op[1], done: false };
+                  case 5: _.label++; y = op[1]; op = [0]; continue;
+                  case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                  default:
+                      if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                      if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                      if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                      if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                      if (t[2]) _.ops.pop();
+                      _.trys.pop(); continue;
+              }
+              op = body.call(thisArg, _);
+          } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+          if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+      }
+  }
+
+  function isTensor(tensor$$1, dim) {
+      return tensor$$1 instanceof Tensor && tensor$$1.shape.length === dim;
+  }
+  function isTensor2D(tensor$$1) {
+      return isTensor(tensor$$1, 2);
+  }
+  function isTensor3D(tensor$$1) {
+      return isTensor(tensor$$1, 3);
+  }
+  function isTensor4D(tensor$$1) {
+      return isTensor(tensor$$1, 4);
+  }
+
+  function isFloat(num) {
+      return num % 1 !== 0;
+  }
+  function isEven(num) {
+      return num % 2 === 0;
+  }
+  function round$1(num) {
+      return Math.floor(num * 100) / 100;
+  }
+  function sigmoid$1(x) {
+      return 1 / (1 + Math.exp(-x));
+  }
+  function isDimensions(obj) {
+      return obj && obj.width && obj.height;
+  }
+  function resolveInput(arg) {
+      if (typeof arg === 'string') {
+          return document.getElementById(arg);
+      }
+      return arg;
+  }
+  function isLoaded(media) {
+      return (media instanceof HTMLImageElement && media.complete)
+          || (media instanceof HTMLVideoElement && media.readyState >= 3);
+  }
+  function awaitMediaLoaded(media) {
+      return new Promise(function (resolve, reject) {
+          if (media instanceof HTMLCanvasElement || isLoaded(media)) {
+              return resolve();
+          }
+          function onLoad(e) {
+              if (!e.currentTarget)
+                  return;
+              e.currentTarget.removeEventListener('load', onLoad);
+              e.currentTarget.removeEventListener('error', onError);
+              resolve(e);
+          }
+          function onError(e) {
+              if (!e.currentTarget)
+                  return;
+              e.currentTarget.removeEventListener('load', onLoad);
+              e.currentTarget.removeEventListener('error', onError);
+              reject(e);
+          }
+          media.addEventListener('load', onLoad);
+          media.addEventListener('error', onError);
+      });
+  }
+  function getContext2dOrThrow(canvas) {
+      var ctx = canvas.getContext('2d');
+      if (!ctx) {
+          throw new Error('canvas 2d context is null');
+      }
+      return ctx;
+  }
+  function createCanvas(_a) {
+      var width = _a.width, height = _a.height;
+      var canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+  }
+  function createCanvasFromMedia(media, dims) {
+      if (!isLoaded(media)) {
+          throw new Error('createCanvasFromMedia - media has not finished loading yet');
+      }
+      var _a = dims || getMediaDimensions(media), width = _a.width, height = _a.height;
+      var canvas = createCanvas({ width: width, height: height });
+      getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
+      return canvas;
+  }
+  function getMediaDimensions(media) {
+      if (media instanceof HTMLImageElement) {
+          return { width: media.naturalWidth, height: media.naturalHeight };
+      }
+      if (media instanceof HTMLVideoElement) {
+          return { width: media.videoWidth, height: media.videoHeight };
+      }
+      return media;
+  }
+  function bufferToImage(buf) {
+      return new Promise(function (resolve, reject) {
+          if (!(buf instanceof Blob)) {
+              return reject('bufferToImage - expected buf to be of type: Blob');
+          }
+          var reader = new FileReader();
+          reader.onload = function () {
+              var img = new Image();
+              img.onload = function () { return resolve(img); };
+              img.onerror = reject;
+              img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(buf);
+      });
+  }
+  function imageTensorToCanvas(imgTensor, canvas) {
+      return __awaiter$1(this, void 0, void 0, function () {
+          var targetCanvas, _a, height, width, numChannels, imgTensor3D;
+          return __generator$1(this, function (_b) {
+              switch (_b.label) {
+                  case 0:
+                      targetCanvas = canvas || document.createElement('canvas');
+                      _a = imgTensor.shape.slice(isTensor4D(imgTensor) ? 1 : 0), height = _a[0], width = _a[1], numChannels = _a[2];
+                      imgTensor3D = tidy(function () { return imgTensor.as3D(height, width, numChannels).toInt(); });
+                      return [4 /*yield*/, toPixels(imgTensor3D, targetCanvas)];
+                  case 1:
+                      _b.sent();
+                      imgTensor3D.dispose();
+                      return [2 /*return*/, targetCanvas];
+              }
+          });
+      });
+  }
+
+  var BoundingBox = /** @class */ (function () {
+      function BoundingBox(_left, _top, _right, _bottom) {
+          this._left = _left;
+          this._top = _top;
+          this._right = _right;
+          this._bottom = _bottom;
+      }
+      Object.defineProperty(BoundingBox.prototype, "left", {
+          get: function () {
+              return this._left;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "top", {
+          get: function () {
+              return this._top;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "right", {
+          get: function () {
+              return this._right;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "bottom", {
+          get: function () {
+              return this._bottom;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "width", {
+          get: function () {
+              return this.right - this.left;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "height", {
+          get: function () {
+              return this.bottom - this.top;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundingBox.prototype, "area", {
+          get: function () {
+              return this.width * this.height;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      BoundingBox.prototype.toSquare = function () {
+          var _a = this, left = _a.left, top = _a.top, right = _a.right, bottom = _a.bottom;
+          var off = (Math.abs(this.width - this.height) / 2);
+          if (this.width < this.height) {
+              left -= off;
+              right += off;
+          }
+          if (this.height < this.width) {
+              top -= off;
+              bottom += off;
+          }
+          return new BoundingBox(left, top, right, bottom);
+      };
+      BoundingBox.prototype.round = function () {
+          return new BoundingBox(Math.round(this.left), Math.round(this.top), Math.round(this.right), Math.round(this.bottom));
+      };
+      BoundingBox.prototype.padAtBorders = function (imageHeight, imageWidth) {
+          var w = this.width + 1;
+          var h = this.height + 1;
+          var dx = 1;
+          var dy = 1;
+          var edx = w;
+          var edy = h;
+          var x = this.left;
+          var y = this.top;
+          var ex = this.right;
+          var ey = this.bottom;
+          if (ex > imageWidth) {
+              edx = -ex + imageWidth + w;
+              ex = imageWidth;
+          }
+          if (ey > imageHeight) {
+              edy = -ey + imageHeight + h;
+              ey = imageHeight;
+          }
+          if (x < 1) {
+              edy = 2 - x;
+              x = 1;
+          }
+          if (y < 1) {
+              edy = 2 - y;
+              y = 1;
+          }
+          return { dy: dy, edy: edy, dx: dx, edx: edx, y: y, ey: ey, x: x, ex: ex, w: w, h: h };
+      };
+      BoundingBox.prototype.calibrate = function (region) {
+          return new BoundingBox(this.left + (region.left * this.width), this.top + (region.top * this.height), this.right + (region.right * this.width), this.bottom + (region.bottom * this.height)).toSquare().round();
+      };
+      BoundingBox.prototype.rescale = function (s) {
+          var scaleX = isDimensions(s) ? s.width : s;
+          var scaleY = isDimensions(s) ? s.height : s;
+          return new BoundingBox(this.left * scaleX, this.top * scaleY, this.right * scaleX, this.bottom * scaleY);
+      };
+      BoundingBox.prototype.toRect = function () {
+          return new Rect(this.left, this.top, this.width, this.height);
+      };
+      return BoundingBox;
   }());
 
   var FaceDetection = /** @class */ (function () {
@@ -386,19 +703,6 @@
       return FullFaceDescription;
   }());
 
-  function isTensor(tensor$$1, dim) {
-      return tensor$$1 instanceof Tensor && tensor$$1.shape.length === dim;
-  }
-  function isTensor2D(tensor$$1) {
-      return isTensor(tensor$$1, 2);
-  }
-  function isTensor3D(tensor$$1) {
-      return isTensor(tensor$$1, 3);
-  }
-  function isTensor4D(tensor$$1) {
-      return isTensor(tensor$$1, 4);
-  }
-
   /**
    * Pads the smaller dimension of an image tensor with zeros, such that width === height.
    *
@@ -465,186 +769,6 @@
       return Point;
   }());
 
-  /*! *****************************************************************************
-  Copyright (c) Microsoft Corporation. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
-
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
-
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
-  ***************************************************************************** */
-  /* global Reflect, Promise */
-
-  var extendStatics$1 = Object.setPrototypeOf ||
-      ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-      function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-
-  function __extends$1(d, b) {
-      extendStatics$1(d, b);
-      function __() { this.constructor = d; }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  }
-
-  var __assign = Object.assign || function __assign(t) {
-      for (var s, i = 1, n = arguments.length; i < n; i++) {
-          s = arguments[i];
-          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-      return t;
-  };
-
-  function __awaiter$1(thisArg, _arguments, P, generator) {
-      return new (P || (P = Promise))(function (resolve, reject) {
-          function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-          function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-          function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-          step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-  }
-
-  function __generator$1(thisArg, body) {
-      var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-      return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-      function verb(n) { return function (v) { return step([n, v]); }; }
-      function step(op) {
-          if (f) throw new TypeError("Generator is already executing.");
-          while (_) try {
-              if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-              if (y = 0, t) op = [0, t.value];
-              switch (op[0]) {
-                  case 0: case 1: t = op; break;
-                  case 4: _.label++; return { value: op[1], done: false };
-                  case 5: _.label++; y = op[1]; op = [0]; continue;
-                  case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                  default:
-                      if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                      if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                      if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                      if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                      if (t[2]) _.ops.pop();
-                      _.trys.pop(); continue;
-              }
-              op = body.call(thisArg, _);
-          } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-          if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-      }
-  }
-
-  function isFloat(num) {
-      return num % 1 !== 0;
-  }
-  function isEven(num) {
-      return num % 2 === 0;
-  }
-  function round$1(num) {
-      return Math.floor(num * 100) / 100;
-  }
-  function resolveInput(arg) {
-      if (typeof arg === 'string') {
-          return document.getElementById(arg);
-      }
-      return arg;
-  }
-  function isLoaded(media) {
-      return (media instanceof HTMLImageElement && media.complete)
-          || (media instanceof HTMLVideoElement && media.readyState >= 3);
-  }
-  function awaitMediaLoaded(media) {
-      return new Promise(function (resolve, reject) {
-          if (media instanceof HTMLCanvasElement || isLoaded(media)) {
-              return resolve();
-          }
-          function onLoad(e) {
-              if (!e.currentTarget)
-                  return;
-              e.currentTarget.removeEventListener('load', onLoad);
-              e.currentTarget.removeEventListener('error', onError);
-              resolve();
-          }
-          function onError(e) {
-              if (!e.currentTarget)
-                  return;
-              e.currentTarget.removeEventListener('load', onLoad);
-              e.currentTarget.removeEventListener('error', onError);
-              reject();
-          }
-          media.addEventListener('load', onLoad);
-          media.addEventListener('error', onError);
-      });
-  }
-  function getContext2dOrThrow(canvas) {
-      var ctx = canvas.getContext('2d');
-      if (!ctx) {
-          throw new Error('canvas 2d context is null');
-      }
-      return ctx;
-  }
-  function createCanvas(_a) {
-      var width = _a.width, height = _a.height;
-      var canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      return canvas;
-  }
-  function createCanvasFromMedia(media, dims) {
-      if (!isLoaded(media)) {
-          throw new Error('createCanvasFromMedia - media has not finished loading yet');
-      }
-      var _a = dims || getMediaDimensions(media), width = _a.width, height = _a.height;
-      var canvas = createCanvas({ width: width, height: height });
-      getContext2dOrThrow(canvas).drawImage(media, 0, 0, width, height);
-      return canvas;
-  }
-  function getMediaDimensions(media) {
-      if (media instanceof HTMLImageElement) {
-          return { width: media.naturalWidth, height: media.naturalHeight };
-      }
-      if (media instanceof HTMLVideoElement) {
-          return { width: media.videoWidth, height: media.videoHeight };
-      }
-      return media;
-  }
-  function bufferToImage(buf) {
-      return new Promise(function (resolve, reject) {
-          if (!(buf instanceof Blob)) {
-              return reject('bufferToImage - expected buf to be of type: Blob');
-          }
-          var reader = new FileReader();
-          reader.onload = function () {
-              var img = new Image();
-              img.onload = function () { return resolve(img); };
-              img.onerror = reject;
-              img.src = reader.result;
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(buf);
-      });
-  }
-  function imageTensorToCanvas(imgTensor, canvas) {
-      return __awaiter$1(this, void 0, void 0, function () {
-          var targetCanvas, _a, height, width, numChannels, imgTensor3D;
-          return __generator$1(this, function (_b) {
-              switch (_b.label) {
-                  case 0:
-                      targetCanvas = canvas || document.createElement('canvas');
-                      _a = imgTensor.shape.slice(isTensor4D(imgTensor) ? 1 : 0), height = _a[0], width = _a[1], numChannels = _a[2];
-                      imgTensor3D = tidy(function () { return imgTensor.as3D(height, width, numChannels).toInt(); });
-                      return [4 /*yield*/, toPixels(imgTensor3D, targetCanvas)];
-                  case 1:
-                      _b.sent();
-                      imgTensor3D.dispose();
-                      return [2 /*return*/, targetCanvas];
-              }
-          });
-      });
-  }
-
   var NetInput = /** @class */ (function () {
       function NetInput(inputs, isBatchInput, keepCanvases) {
           if (isBatchInput === void 0) { isBatchInput = false; }
@@ -656,6 +780,7 @@
           this._isBatchInput = false;
           this._inputDimensions = [];
           this._paddings = [];
+          this._inputSize = 0;
           if (isTensor4D(inputs)) {
               this._inputs = unstack(inputs);
           }
@@ -732,6 +857,29 @@
           enumerable: true,
           configurable: true
       });
+      Object.defineProperty(NetInput.prototype, "inputSize", {
+          get: function () {
+              return this._inputSize;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(NetInput.prototype, "relativePaddings", {
+          get: function () {
+              var _this = this;
+              return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getRelativePaddings(batchIdx); });
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(NetInput.prototype, "reshapedInputDimensions", {
+          get: function () {
+              var _this = this;
+              return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getReshapedInputDimensions(batchIdx); });
+          },
+          enumerable: true,
+          configurable: true
+      });
       NetInput.prototype.getInputDimensions = function (batchIdx) {
           return this._inputDimensions[batchIdx];
       };
@@ -744,9 +892,21 @@
       NetInput.prototype.getPaddings = function (batchIdx) {
           return this._paddings[batchIdx];
       };
+      NetInput.prototype.getRelativePaddings = function (batchIdx) {
+          return new Point((this.getPaddings(batchIdx).x + this.getInputWidth(batchIdx)) / this.getInputWidth(batchIdx), (this.getPaddings(batchIdx).y + this.getInputHeight(batchIdx)) / this.getInputHeight(batchIdx));
+      };
+      NetInput.prototype.getReshapedInputDimensions = function (batchIdx) {
+          var _a = [this.getInputHeight(batchIdx), this.getInputWidth(batchIdx)], h = _a[0], w = _a[1];
+          var f = this.inputSize / Math.max(h, w);
+          return {
+              height: Math.floor(h * f),
+              width: Math.floor(w * f)
+          };
+      };
       NetInput.prototype.toBatchTensor = function (inputSize, isCenterInputs) {
           var _this = this;
           if (isCenterInputs === void 0) { isCenterInputs = true; }
+          this._inputSize = inputSize;
           return tidy(function () {
               var inputTensors = _this._inputs.map(function (inputTensor) {
                   var _a = inputTensor.shape, originalHeight = _a[0], originalWidth = _a[1];
@@ -767,7 +927,7 @@
           });
       };
       /**
-       *  By setting the isManaged flag, all newly created tensors will be automatically
+       *  By setting the isManaged flag, all newly created tensors will be
        *  automatically disposed after the batch tensor has been created
        */
       NetInput.prototype.managed = function () {
@@ -2107,7 +2267,7 @@
           if (minConfidence === void 0) { minConfidence = 0.8; }
           if (maxResults === void 0) { maxResults = 100; }
           return __awaiter$1(this, void 0, void 0, function () {
-              var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddedHeightRelative, paddedWidthRelative, results;
+              var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddings, results;
               return __generator$1(this, function (_d) {
                   switch (_d.label) {
                       case 0: return [4 /*yield*/, toNetInput(input, true)];
@@ -2126,18 +2286,17 @@
                           scoresData = _c.apply(_b, [_d.sent()]);
                           iouThreshold = 0.5;
                           indices = nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
-                          paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0);
-                          paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0);
+                          paddings = netInput.getRelativePaddings(0);
                           results = indices
                               .map(function (idx) {
                               var _a = [
                                   Math.max(0, boxes.get(idx, 0)),
                                   Math.min(1.0, boxes.get(idx, 2))
-                              ].map(function (val) { return val * paddedHeightRelative; }), top = _a[0], bottom = _a[1];
+                              ].map(function (val) { return val * paddings.y; }), top = _a[0], bottom = _a[1];
                               var _b = [
                                   Math.max(0, boxes.get(idx, 1)),
                                   Math.min(1.0, boxes.get(idx, 3))
-                              ].map(function (val) { return val * paddedWidthRelative; }), left = _b[0], right = _b[1];
+                              ].map(function (val) { return val * paddings.x; }), left = _b[0], right = _b[1];
                               return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), {
                                   height: netInput.getInputHeight(0),
                                   width: netInput.getInputWidth(0)
@@ -2167,6 +2326,17 @@
   function faceDetectionNet(weights) {
       console.warn('faceDetectionNet(weights: Float32Array) will be deprecated in future, use createFaceDetectionNet instead');
       return createFaceDetectionNet(weights);
+  }
+
+  function normalize(x, meanRgb) {
+      return tidy(function () {
+          var r = meanRgb[0], g = meanRgb[1], b = meanRgb[2];
+          var avg_r = fill(x.shape.slice(0, 3).concat([1]), r);
+          var avg_g = fill(x.shape.slice(0, 3).concat([1]), g);
+          var avg_b = fill(x.shape.slice(0, 3).concat([1]), b);
+          var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
+          return sub(x, avg_rgb);
+      });
   }
 
   function scale(x, params) {
@@ -2356,16 +2526,6 @@
       });
   }
 
-  function normalize(x) {
-      return tidy(function () {
-          var avg_r = fill(x.shape.slice(0, 3).concat([1]), 122.782);
-          var avg_g = fill(x.shape.slice(0, 3).concat([1]), 117.001);
-          var avg_b = fill(x.shape.slice(0, 3).concat([1]), 104.298);
-          var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
-          return div(sub(x, avg_rgb), scalar(256));
-      });
-  }
-
   function residual(x, params) {
       var out = conv$1(x, params.conv1);
       out = convNoRelu(out, params.conv2);
@@ -2408,7 +2568,8 @@
           }
           return tidy(function () {
               var batchTensor = input.toBatchTensor(150, true);
-              var normalized = normalize(batchTensor);
+              var meanRgb = [122.782, 117.001, 104.298];
+              var normalized = normalize(batchTensor, meanRgb).div(scalar(256));
               var out = convDown(normalized, params.conv32_down);
               out = maxPool(out, 3, 2, 'valid');
               out = residual(out, params.conv32_1);
@@ -2510,16 +2671,15 @@
           });
       };
   }
-  function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
+  function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
       var computeDescriptors = computeDescriptorsFactory(recognitionNet);
-      return function (input, minConfidence, useBatchProcessing) {
-          if (minConfidence === void 0) { minConfidence = 0.8; }
+      return function (input, useBatchProcessing) {
           if (useBatchProcessing === void 0) { useBatchProcessing = false; }
           return __awaiter$1(this, void 0, void 0, function () {
               var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
               return __generator$1(this, function (_b) {
                   switch (_b.label) {
-                      case 0: return [4 /*yield*/, detectionNet.locateFaces(input, minConfidence)];
+                      case 0: return [4 /*yield*/, detectFaces(input)];
                       case 1:
                           detections = _b.sent();
                           return [4 /*yield*/, extractFaceTensors(input, detections)];
@@ -2545,6 +2705,34 @@
                                   return new FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(detection.getBox()), descriptors[i]);
                               })];
                   }
+              });
+          });
+      };
+  }
+  function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recognitionNet) {
+      return function (input, minConfidence, useBatchProcessing) {
+          if (minConfidence === void 0) { minConfidence = 0.8; }
+          if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+          return __awaiter$1(this, void 0, void 0, function () {
+              var detectFaces, allFaces;
+              return __generator$1(this, function (_a) {
+                  detectFaces = function (input) { return ssdMobilenetv1.locateFaces(input, minConfidence); };
+                  allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
+                  return [2 /*return*/, allFaces(input, useBatchProcessing)];
+              });
+          });
+      };
+  }
+  function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNet) {
+      return function (input, forwardParams, useBatchProcessing) {
+          if (forwardParams === void 0) { forwardParams = {}; }
+          if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+          return __awaiter$1(this, void 0, void 0, function () {
+              var detectFaces, allFaces;
+              return __generator$1(this, function (_a) {
+                  detectFaces = function (input) { return tinyYolov2.locateFaces(input, forwardParams); };
+                  allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
+                  return [2 /*return*/, allFaces(input, useBatchProcessing)];
               });
           });
       };
@@ -2770,112 +2958,18 @@
       return scales;
   }
 
-  var BoundingBox = /** @class */ (function () {
-      function BoundingBox(_left, _top, _right, _bottom) {
-          this._left = _left;
-          this._top = _top;
-          this._right = _right;
-          this._bottom = _bottom;
-      }
-      Object.defineProperty(BoundingBox.prototype, "left", {
-          get: function () {
-              return this._left;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(BoundingBox.prototype, "top", {
-          get: function () {
-              return this._top;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(BoundingBox.prototype, "right", {
-          get: function () {
-              return this._right;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(BoundingBox.prototype, "bottom", {
-          get: function () {
-              return this._bottom;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(BoundingBox.prototype, "width", {
-          get: function () {
-              return this.right - this.left;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      Object.defineProperty(BoundingBox.prototype, "height", {
-          get: function () {
-              return this.bottom - this.top;
-          },
-          enumerable: true,
-          configurable: true
-      });
-      BoundingBox.prototype.toSquare = function () {
-          var _a = this, left = _a.left, top = _a.top, right = _a.right, bottom = _a.bottom;
-          var off = (Math.abs(this.width - this.height) / 2);
-          if (this.width < this.height) {
-              left -= off;
-              right += off;
-          }
-          if (this.height < this.width) {
-              top -= off;
-              bottom += off;
-          }
-          return new BoundingBox(left, top, right, bottom);
-      };
-      BoundingBox.prototype.round = function () {
-          return new BoundingBox(Math.round(this.left), Math.round(this.top), Math.round(this.right), Math.round(this.bottom));
-      };
-      BoundingBox.prototype.padAtBorders = function (imageHeight, imageWidth) {
-          var w = this.width + 1;
-          var h = this.height + 1;
-          var dx = 1;
-          var dy = 1;
-          var edx = w;
-          var edy = h;
-          var x = this.left;
-          var y = this.top;
-          var ex = this.right;
-          var ey = this.bottom;
-          if (ex > imageWidth) {
-              edx = -ex + imageWidth + w;
-              ex = imageWidth;
-          }
-          if (ey > imageHeight) {
-              edy = -ey + imageHeight + h;
-              ey = imageHeight;
-          }
-          if (x < 1) {
-              edy = 2 - x;
-              x = 1;
-          }
-          if (y < 1) {
-              edy = 2 - y;
-              y = 1;
-          }
-          return { dy: dy, edy: edy, dx: dx, edx: edx, y: y, ey: ey, x: x, ex: ex, w: w, h: h };
-      };
-      BoundingBox.prototype.calibrate = function (region) {
-          return new BoundingBox(this.left + (region.left * this.width), this.top + (region.top * this.height), this.right + (region.right * this.width), this.bottom + (region.bottom * this.height)).toSquare().round();
-      };
-      BoundingBox.prototype.toRect = function () {
-          return new Rect(this.left, this.top, this.width, this.height);
-      };
-      return BoundingBox;
-  }());
+  function iou(box1, box2, isIOU) {
+      if (isIOU === void 0) { isIOU = true; }
+      var width = Math.max(0.0, Math.min(box1.right, box2.right) - Math.max(box1.left, box2.left) + 1);
+      var height = Math.max(0.0, Math.min(box1.bottom, box2.bottom) - Math.max(box1.top, box2.top) + 1);
+      var interSection = width * height;
+      return isIOU
+          ? interSection / (box1.area + box2.area - interSection)
+          : interSection / Math.min(box1.area, box2.area);
+  }
 
   function nonMaxSuppression$1(boxes, scores, iouThreshold, isIOU) {
       if (isIOU === void 0) { isIOU = true; }
-      var areas = boxes.map(function (box) { return (box.width + 1) * (box.height + 1); });
       var indicesSortedByScore = scores
           .map(function (score, boxIndex) { return ({ score: score, boxIndex: boxIndex }); })
           .sort(function (c1, c2) { return c1.score - c2.score; })
@@ -2890,13 +2984,7 @@
               var idx = indices[i];
               var currBox = boxes[curr];
               var idxBox = boxes[idx];
-              var width = Math.max(0.0, Math.min(currBox.right, idxBox.right) - Math.max(currBox.left, idxBox.left) + 1);
-              var height = Math.max(0.0, Math.min(currBox.bottom, idxBox.bottom) - Math.max(currBox.top, idxBox.top) + 1);
-              var interSection = width * height;
-              var out = isIOU
-                  ? interSection / (areas[curr] + areas[idx] - interSection)
-                  : interSection / Math.min(areas[curr], areas[idx]);
-              outputs.push(out);
+              outputs.push(iou(currBox, idxBox, isIOU));
           }
           indicesSortedByScore = indicesSortedByScore.filter(function (_, j) { return outputs[j] <= iouThreshold; });
       };
@@ -3366,20 +3454,52 @@
       new Point(10.246, 4.59428),
       new Point(12.6868, 11.8741)
   ];
+  var BOX_ANCHORS_SEPARABLE = [
+      new Point(1.603231, 2.094468),
+      new Point(6.041143, 7.080126),
+      new Point(2.882459, 3.518061),
+      new Point(4.266906, 5.178857),
+      new Point(9.041765, 10.66308)
+  ];
+  var MEAN_RGB = [117.001, 114.697, 97.404];
 
   function leaky(x) {
       return tidy(function () {
-          return maximum(x, mul(x, scalar(0.10000000149011612)));
+          var min$$1 = mul(x, scalar(0.10000000149011612));
+          return add(relu(sub(x, min$$1)), min$$1);
+          //return tf.maximum(x, min)
       });
   }
+
+  var SeparableConvParams = /** @class */ (function () {
+      function SeparableConvParams(depthwise_filter, pointwise_filter, bias) {
+          this.depthwise_filter = depthwise_filter;
+          this.pointwise_filter = pointwise_filter;
+          this.bias = bias;
+      }
+      return SeparableConvParams;
+  }());
+  var SizeType;
+  (function (SizeType) {
+      SizeType["XS"] = "xs";
+      SizeType["SM"] = "sm";
+      SizeType["MD"] = "md";
+      SizeType["LG"] = "lg";
+  })(SizeType || (SizeType = {}));
 
   function convWithBatchNorm(x, params) {
       return tidy(function () {
           var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
-          out = conv2d(out, params.conv.filters, [1, 1], 'valid');
-          out = sub(out, params.bn.sub);
-          out = mul(out, params.bn.truediv);
-          out = add(out, params.conv.bias);
+          if (params instanceof SeparableConvParams) {
+              out = separableConv2d(out, params.depthwise_filter, params.pointwise_filter, [1, 1], 'valid');
+              out = add(out, params.bias);
+          }
+          else {
+              out = conv2d(out, params.conv.filters, [1, 1], 'valid');
+              out = sub(out, params.bn.sub);
+              out = mul(out, params.bn.truediv);
+              out = add(out, params.conv.bias);
+          }
           return leaky(out);
       });
   }
@@ -3397,24 +3517,34 @@
           var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
           return { conv: conv, bn: bn };
       }
+      function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
+          var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
+          var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
+          var bias = tensor1d(extractWeights(channelsOut));
+          paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
+          return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+      }
       return {
           extractConvParams: extractConvParams,
-          extractConvWithBatchNormParams: extractConvWithBatchNormParams
+          extractConvWithBatchNormParams: extractConvWithBatchNormParams,
+          extractSeparableConvParams: extractSeparableConvParams
       };
   }
-  function extractParams$4(weights) {
+  function extractParams$4(weights, withSeparableConvs) {
       var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
       var paramMappings = [];
-      var _b = extractorsFactory$7(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams;
-      var conv0 = extractConvWithBatchNormParams(3, 16, 'conv0');
-      var conv1 = extractConvWithBatchNormParams(16, 32, 'conv1');
-      var conv2 = extractConvWithBatchNormParams(32, 64, 'conv2');
-      var conv3 = extractConvWithBatchNormParams(64, 128, 'conv3');
-      var conv4 = extractConvWithBatchNormParams(128, 256, 'conv4');
-      var conv5 = extractConvWithBatchNormParams(256, 512, 'conv5');
-      var conv6 = extractConvWithBatchNormParams(512, 1024, 'conv6');
-      var conv7 = extractConvWithBatchNormParams(1024, 1024, 'conv7');
-      var conv8 = extractConvParams(1024, 30, 1, 'conv8');
+      var _b = extractorsFactory$7(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
+      var extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
+      var numAnchorEncodings = withSeparableConvs ? 5 : 6;
+      var conv0 = extractConvFn(3, 16, 'conv0');
+      var conv1 = extractConvFn(16, 32, 'conv1');
+      var conv2 = extractConvFn(32, 64, 'conv2');
+      var conv3 = extractConvFn(64, 128, 'conv3');
+      var conv4 = extractConvFn(128, 256, 'conv4');
+      var conv5 = extractConvFn(256, 512, 'conv5');
+      var conv6 = extractConvFn(512, 1024, 'conv6');
+      var conv7 = extractConvFn(1024, 1024, 'conv7');
+      var conv8 = extractConvParams(1024, 5 * numAnchorEncodings, 1, 'conv8');
       if (getRemainingWeights().length !== 0) {
           throw new Error("weights remaing after extract: " + getRemainingWeights().length);
       }
@@ -3422,22 +3552,15 @@
       return { params: params, paramMappings: paramMappings };
   }
 
-  var SizeType;
-  (function (SizeType) {
-      SizeType["XS"] = "xs";
-      SizeType["SM"] = "sm";
-      SizeType["MD"] = "md";
-      SizeType["LG"] = "lg";
-  })(SizeType || (SizeType = {}));
-
   function getDefaultParams(params) {
       return Object.assign({}, {
-          sizeType: SizeType.MD,
+          inputSize: SizeType.MD,
           scoreThreshold: 0.5
       }, params);
   }
 
   var DEFAULT_MODEL_NAME$4 = 'tiny_yolov2_model';
+  var DEFAULT_MODEL_NAME_SEPARABLE_CONV = 'tiny_yolov2_separable_conv_model';
   function extractorsFactory$8(weightMap, paramMappings) {
       var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
       function extractBatchNormParams(prefix) {
@@ -3455,30 +3578,38 @@
           var bn = extractBatchNormParams(prefix + "/bn");
           return { conv: conv, bn: bn };
       }
+      function extractSeparableConvParams(prefix) {
+          var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
+          var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
+          var bias = extractWeightEntry(prefix + "/bias", 1);
+          return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+      }
       return {
           extractConvParams: extractConvParams,
-          extractConvWithBatchNormParams: extractConvWithBatchNormParams
+          extractConvWithBatchNormParams: extractConvWithBatchNormParams,
+          extractSeparableConvParams: extractSeparableConvParams
       };
   }
-  function loadQuantizedParams$4(uri) {
+  function loadQuantizedParams$4(uri, withSeparableConvs) {
       return __awaiter$1(this, void 0, void 0, function () {
-          var weightMap, paramMappings, _a, extractConvParams, extractConvWithBatchNormParams, params;
+          var weightMap, paramMappings, _a, extractConvParams, extractConvWithBatchNormParams, extractSeparableConvParams, extractConvFn, params;
           return __generator$1(this, function (_b) {
               switch (_b.label) {
-                  case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$4)];
+                  case 0: return [4 /*yield*/, loadWeightMap(uri, withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME$4)];
                   case 1:
                       weightMap = _b.sent();
                       paramMappings = [];
-                      _a = extractorsFactory$8(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams;
+                      _a = extractorsFactory$8(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
+                      extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
                       params = {
-                          conv0: extractConvWithBatchNormParams('conv0'),
-                          conv1: extractConvWithBatchNormParams('conv1'),
-                          conv2: extractConvWithBatchNormParams('conv2'),
-                          conv3: extractConvWithBatchNormParams('conv3'),
-                          conv4: extractConvWithBatchNormParams('conv4'),
-                          conv5: extractConvWithBatchNormParams('conv5'),
-                          conv6: extractConvWithBatchNormParams('conv6'),
-                          conv7: extractConvWithBatchNormParams('conv7'),
+                          conv0: extractConvFn('conv0'),
+                          conv1: extractConvFn('conv1'),
+                          conv2: extractConvFn('conv2'),
+                          conv3: extractConvFn('conv3'),
+                          conv4: extractConvFn('conv4'),
+                          conv5: extractConvFn('conv5'),
+                          conv6: extractConvFn('conv6'),
+                          conv7: extractConvFn('conv7'),
                           conv8: extractConvParams('conv8')
                       };
                       disposeUnusedWeightTensors(weightMap, paramMappings);
@@ -3490,16 +3621,39 @@
 
   var TinyYolov2 = /** @class */ (function (_super) {
       __extends$1(TinyYolov2, _super);
-      function TinyYolov2() {
-          return _super.call(this, 'TinyYolov2') || this;
+      function TinyYolov2(withSeparableConvs) {
+          if (withSeparableConvs === void 0) { withSeparableConvs = true; }
+          var _this = _super.call(this, 'TinyYolov2') || this;
+          _this._withSeparableConvs = withSeparableConvs;
+          _this._anchors = withSeparableConvs ? BOX_ANCHORS_SEPARABLE : BOX_ANCHORS;
+          return _this;
       }
+      Object.defineProperty(TinyYolov2.prototype, "withSeparableConvs", {
+          get: function () {
+              return this._withSeparableConvs;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(TinyYolov2.prototype, "anchors", {
+          get: function () {
+              return this._anchors;
+          },
+          enumerable: true,
+          configurable: true
+      });
       TinyYolov2.prototype.forwardInput = function (input, inputSize) {
+          var _this = this;
           var params = this.params;
           if (!params) {
               throw new Error('TinyYolov2 - load model before inference');
           }
           var out = tidy(function () {
-              var batchTensor = input.toBatchTensor(inputSize, false).div(scalar(255)).toFloat();
+              var batchTensor = input.toBatchTensor(inputSize, false);
+              batchTensor = _this.withSeparableConvs
+                  ? normalize(batchTensor, MEAN_RGB)
+                  : batchTensor;
+              batchTensor = batchTensor.div(scalar(256));
               var out = convWithBatchNorm(batchTensor, params.conv0);
               out = maxPool(out, [2, 2], [2, 2], 'same');
               out = convWithBatchNorm(out, params.conv1);
@@ -3536,69 +3690,85 @@
       TinyYolov2.prototype.locateFaces = function (input, forwardParams) {
           if (forwardParams === void 0) { forwardParams = {}; }
           return __awaiter$1(this, void 0, void 0, function () {
-              var _a, _inputSize, scoreThreshold, inputSize, netInput, out, numCells, _b, boxesTensor, scoresTensor, expit, paddedHeightRelative, paddedWidthRelative, boxes, scores, row, col, box, score, ctX, ctY, width, height, x, y, indices, detections;
-              return __generator$1(this, function (_c) {
-                  switch (_c.label) {
+              var _a, _inputSize, scoreThreshold, inputSize, netInput, out, out0, inputDimensions, paddings, results, boxes, scores, indices, detections;
+              return __generator$1(this, function (_b) {
+                  switch (_b.label) {
                       case 0:
                           _a = getDefaultParams(forwardParams), _inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
                           inputSize = typeof _inputSize === 'string'
                               ? INPUT_SIZES[_inputSize]
                               : _inputSize;
                           if (typeof inputSize !== 'number') {
-                              throw new Error("TinyYolov2 - unkown inputSize: " + inputSize + ", expected number or one of xs | sm | md | lg");
+                              throw new Error("TinyYolov2 - unknown inputSize: " + inputSize + ", expected number or one of xs | sm | md | lg");
                           }
                           return [4 /*yield*/, toNetInput(input, true)];
                       case 1:
-                          netInput = _c.sent();
+                          netInput = _b.sent();
                           return [4 /*yield*/, this.forwardInput(netInput, inputSize)];
                       case 2:
-                          out = _c.sent();
-                          numCells = out.shape[1];
-                          _b = tidy(function () {
-                              var reshaped = out.reshape([numCells, numCells, NUM_BOXES, 6]);
-                              out.dispose();
-                              var boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, NUM_BOXES, 4]);
-                              var scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, NUM_BOXES, 1]);
-                              return [boxes, scores];
-                          }), boxesTensor = _b[0], scoresTensor = _b[1];
-                          expit = function (x) { return 1 / (1 + Math.exp(-x)); };
-                          paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0);
-                          paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0);
-                          boxes = [];
-                          scores = [];
-                          for (row = 0; row < numCells; row++) {
-                              for (col = 0; col < numCells; col++) {
-                                  for (box = 0; box < NUM_BOXES; box++) {
-                                      score = expit(scoresTensor.get(row, col, box, 0));
-                                      if (score > scoreThreshold) {
-                                          ctX = ((col + expit(boxesTensor.get(row, col, box, 0))) / numCells) * paddedWidthRelative;
-                                          ctY = ((row + expit(boxesTensor.get(row, col, box, 1))) / numCells) * paddedHeightRelative;
-                                          width = ((Math.exp(boxesTensor.get(row, col, box, 2)) * BOX_ANCHORS[box].x) / numCells) * paddedWidthRelative;
-                                          height = ((Math.exp(boxesTensor.get(row, col, box, 3)) * BOX_ANCHORS[box].y) / numCells) * paddedHeightRelative;
-                                          x = (ctX - (width / 2));
-                                          y = (ctY - (height / 2));
-                                          boxes.push(new BoundingBox(x, y, x + width, y + height));
-                                          scores.push(score);
-                                      }
-                                  }
-                              }
-                          }
-                          boxesTensor.dispose();
-                          scoresTensor.dispose();
-                          indices = nonMaxSuppression$1(boxes.map(function (box) { return new BoundingBox(box.left * inputSize, box.top * inputSize, box.right * inputSize, box.bottom * inputSize); }), scores, IOU_THRESHOLD, true);
+                          out = _b.sent();
+                          out0 = tidy(function () { return unstack(out)[0].expandDims(); });
+                          inputDimensions = {
+                              width: netInput.getInputWidth(0),
+                              height: netInput.getInputHeight(0)
+                          };
+                          paddings = netInput.getRelativePaddings(0);
+                          results = this.postProcess(out0, { scoreThreshold: scoreThreshold, paddings: paddings });
+                          boxes = results.map(function (res) { return res.box; });
+                          scores = results.map(function (res) { return res.score; });
+                          out.dispose();
+                          out0.dispose();
+                          indices = nonMaxSuppression$1(boxes.map(function (box) { return box.rescale(inputSize); }), scores, IOU_THRESHOLD, true);
                           detections = indices.map(function (idx) {
-                              return new FaceDetection(scores[idx], boxes[idx].toRect(), { width: netInput.getInputWidth(0), height: netInput.getInputHeight(0) });
+                              return new FaceDetection(scores[idx], boxes[idx].toRect(), inputDimensions);
                           });
                           return [2 /*return*/, detections];
                   }
               });
           });
       };
+      TinyYolov2.prototype.postProcess = function (outputTensor, _a) {
+          var _this = this;
+          var scoreThreshold = _a.scoreThreshold, paddings = _a.paddings;
+          var numCells = outputTensor.shape[1];
+          var _b = tidy(function () {
+              var reshaped = outputTensor.reshape([numCells, numCells, NUM_BOXES, _this.withSeparableConvs ? 5 : 6]);
+              var boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, NUM_BOXES, 4]);
+              var scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, NUM_BOXES, 1]);
+              return [boxes, scores];
+          }), boxesTensor = _b[0], scoresTensor = _b[1];
+          var results = [];
+          for (var row = 0; row < numCells; row++) {
+              for (var col = 0; col < numCells; col++) {
+                  for (var anchor = 0; anchor < NUM_BOXES; anchor++) {
+                      var score = sigmoid$1(scoresTensor.get(row, col, anchor, 0));
+                      if (!scoreThreshold || score > scoreThreshold) {
+                          var ctX = ((col + sigmoid$1(boxesTensor.get(row, col, anchor, 0))) / numCells) * paddings.x;
+                          var ctY = ((row + sigmoid$1(boxesTensor.get(row, col, anchor, 1))) / numCells) * paddings.y;
+                          var width = ((Math.exp(boxesTensor.get(row, col, anchor, 2)) * this.anchors[anchor].x) / numCells) * paddings.x;
+                          var height = ((Math.exp(boxesTensor.get(row, col, anchor, 3)) * this.anchors[anchor].y) / numCells) * paddings.y;
+                          var x = (ctX - (width / 2));
+                          var y = (ctY - (height / 2));
+                          results.push({
+                              box: new BoundingBox(x, y, x + width, y + height),
+                              score: score,
+                              row: row,
+                              col: col,
+                              anchor: anchor
+                          });
+                      }
+                  }
+              }
+          }
+          boxesTensor.dispose();
+          scoresTensor.dispose();
+          return results;
+      };
       TinyYolov2.prototype.loadQuantizedParams = function (uri) {
-          return loadQuantizedParams$4(uri);
+          return loadQuantizedParams$4(uri, this.withSeparableConvs);
       };
       TinyYolov2.prototype.extractParams = function (weights) {
-          return extractParams$4(weights);
+          return extractParams$4(weights, this.withSeparableConvs);
       };
       return TinyYolov2;
   }(NeuralNetwork));
@@ -3609,14 +3779,14 @@
   // nets need more specific names, to avoid ambiguity in future
   // when alternative net implementations are provided
   var nets = {
-      ssdMobilenet: detectionNet,
+      ssdMobilenetv1: detectionNet,
       faceLandmark68Net: landmarkNet,
       faceRecognitionNet: recognitionNet,
       mtcnn: new Mtcnn(),
       tinyYolov2: new TinyYolov2()
   };
-  function loadFaceDetectionModel(url) {
-      return nets.ssdMobilenet.load(url);
+  function loadSsdMobilenetv1Model(url) {
+      return nets.ssdMobilenetv1.load(url);
   }
   function loadFaceLandmarkModel(url) {
       return nets.faceLandmark68Net.load(url);
@@ -3630,9 +3800,12 @@
   function loadTinyYolov2Model(url) {
       return nets.tinyYolov2.load(url);
   }
+  function loadFaceDetectionModel(url) {
+      return loadSsdMobilenetv1Model(url);
+  }
   function loadModels(url) {
       return Promise.all([
-          loadFaceDetectionModel(url),
+          loadSsdMobilenetv1Model(url),
           loadFaceLandmarkModel(url),
           loadFaceRecognitionModel(url),
           loadMtcnnModel(url),
@@ -3640,7 +3813,7 @@
       ]);
   }
   function locateFaces(input, minConfidence, maxResults) {
-      return nets.ssdMobilenet.locateFaces(input, minConfidence, maxResults);
+      return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults);
   }
   function detectLandmarks(input) {
       return nets.faceLandmark68Net.detectLandmarks(input);
@@ -3654,8 +3827,10 @@
   function tinyYolov2(input, forwardParams) {
       return nets.tinyYolov2.locateFaces(input, forwardParams);
   }
-  var allFaces = allFacesFactory(nets.ssdMobilenet, nets.faceLandmark68Net, nets.faceRecognitionNet);
+  var allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1Factory(nets.ssdMobilenetv1, nets.faceLandmark68Net, nets.faceRecognitionNet);
+  var allFacesTinyYolov2 = allFacesTinyYolov2Factory(nets.tinyYolov2, nets.faceLandmark68Net, nets.faceRecognitionNet);
   var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, nets.faceRecognitionNet);
+  var allFaces = allFacesSsdMobilenetv1;
 
   function createMtcnn(weights) {
       var net = new Mtcnn();
@@ -3663,13 +3838,15 @@
       return net;
   }
 
-  function createTinyYolov2(weights) {
-      var net = new TinyYolov2();
+  function createTinyYolov2(weights, withSeparableConvs) {
+      if (withSeparableConvs === void 0) { withSeparableConvs = true; }
+      var net = new TinyYolov2(withSeparableConvs);
       net.extractWeights(weights);
       return net;
   }
 
   exports.tf = tfCore_esm;
+  exports.BoundingBox = BoundingBox;
   exports.FaceDetection = FaceDetection;
   exports.FullFaceDescription = FullFaceDescription;
   exports.NetInput = NetInput;
@@ -3697,19 +3874,23 @@
   exports.landmarkNet = landmarkNet;
   exports.recognitionNet = recognitionNet;
   exports.nets = nets;
-  exports.loadFaceDetectionModel = loadFaceDetectionModel;
+  exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
   exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
   exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
   exports.loadMtcnnModel = loadMtcnnModel;
   exports.loadTinyYolov2Model = loadTinyYolov2Model;
+  exports.loadFaceDetectionModel = loadFaceDetectionModel;
   exports.loadModels = loadModels;
   exports.locateFaces = locateFaces;
   exports.detectLandmarks = detectLandmarks;
   exports.computeFaceDescriptor = computeFaceDescriptor;
   exports.mtcnn = mtcnn;
   exports.tinyYolov2 = tinyYolov2;
-  exports.allFaces = allFaces;
+  exports.allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1;
+  exports.allFacesTinyYolov2 = allFacesTinyYolov2;
   exports.allFacesMtcnn = allFacesMtcnn;
+  exports.allFaces = allFaces;
+  exports.iou = iou;
   exports.createMtcnn = createMtcnn;
   exports.Mtcnn = Mtcnn;
   exports.FaceLandmarks5 = FaceLandmarks5;
@@ -3720,6 +3901,8 @@
   exports.isFloat = isFloat;
   exports.isEven = isEven;
   exports.round = round$1;
+  exports.sigmoid = sigmoid$1;
+  exports.isDimensions = isDimensions;
   exports.resolveInput = resolveInput;
   exports.isLoaded = isLoaded;
   exports.awaitMediaLoaded = awaitMediaLoaded;

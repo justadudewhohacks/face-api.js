@@ -15,6 +15,14 @@ function round(num) {
     return Math.floor(num * 100) / 100;
 }
 exports.round = round;
+function sigmoid(x) {
+    return 1 / (1 + Math.exp(-x));
+}
+exports.sigmoid = sigmoid;
+function isDimensions(obj) {
+    return obj && obj.width && obj.height;
+}
+exports.isDimensions = isDimensions;
 function resolveInput(arg) {
     if (typeof arg === 'string') {
         return document.getElementById(arg);
@@ -37,14 +45,14 @@ function awaitMediaLoaded(media) {
                 return;
             e.currentTarget.removeEventListener('load', onLoad);
             e.currentTarget.removeEventListener('error', onError);
-            resolve();
+            resolve(e);
         }
         function onError(e) {
             if (!e.currentTarget)
                 return;
             e.currentTarget.removeEventListener('load', onLoad);
             e.currentTarget.removeEventListener('error', onError);
-            reject();
+            reject(e);
         }
         media.addEventListener('load', onLoad);
         media.addEventListener('error', onError);

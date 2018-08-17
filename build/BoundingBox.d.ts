@@ -1,4 +1,5 @@
 import { Rect } from './Rect';
+import { Dimensions } from './types';
 export declare class BoundingBox {
     private _left;
     private _top;
@@ -11,6 +12,7 @@ export declare class BoundingBox {
     readonly bottom: number;
     readonly width: number;
     readonly height: number;
+    readonly area: number;
     toSquare(): BoundingBox;
     round(): BoundingBox;
     padAtBorders(imageHeight: number, imageWidth: number): {
@@ -26,5 +28,6 @@ export declare class BoundingBox {
         h: number;
     };
     calibrate(region: BoundingBox): BoundingBox;
+    rescale(s: Dimensions | number): BoundingBox;
     toRect(): Rect;
 }

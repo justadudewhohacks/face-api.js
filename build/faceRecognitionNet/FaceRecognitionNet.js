@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var NeuralNetwork_1 = require("../commons/NeuralNetwork");
+var normalize_1 = require("../commons/normalize");
 var toNetInput_1 = require("../toNetInput");
 var convLayer_1 = require("./convLayer");
 var extractParams_1 = require("./extractParams");
 var loadQuantizedParams_1 = require("./loadQuantizedParams");
-var normalize_1 = require("./normalize");
 var residualLayer_1 = require("./residualLayer");
 var FaceRecognitionNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceRecognitionNet, _super);
@@ -21,7 +21,8 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
         }
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(150, true);
-            var normalized = normalize_1.normalize(batchTensor);
+            var meanRgb = [122.782, 117.001, 104.298];
+            var normalized = normalize_1.normalize(batchTensor, meanRgb).div(tf.scalar(256));
             var out = convLayer_1.convDown(normalized, params.conv32_down);
             out = tf.maxPool(out, 3, 2, 'valid');
             out = residualLayer_1.residual(out, params.conv32_1);

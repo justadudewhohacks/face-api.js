@@ -12,16 +12,16 @@ exports.recognitionNet = new FaceRecognitionNet_1.FaceRecognitionNet();
 // nets need more specific names, to avoid ambiguity in future
 // when alternative net implementations are provided
 exports.nets = {
-    ssdMobilenet: exports.detectionNet,
+    ssdMobilenetv1: exports.detectionNet,
     faceLandmark68Net: exports.landmarkNet,
     faceRecognitionNet: exports.recognitionNet,
     mtcnn: new Mtcnn_1.Mtcnn(),
     tinyYolov2: new TinyYolov2_1.TinyYolov2()
 };
-function loadFaceDetectionModel(url) {
-    return exports.nets.ssdMobilenet.load(url);
+function loadSsdMobilenetv1Model(url) {
+    return exports.nets.ssdMobilenetv1.load(url);
 }
-exports.loadFaceDetectionModel = loadFaceDetectionModel;
+exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
 function loadFaceLandmarkModel(url) {
     return exports.nets.faceLandmark68Net.load(url);
 }
@@ -38,9 +38,13 @@ function loadTinyYolov2Model(url) {
     return exports.nets.tinyYolov2.load(url);
 }
 exports.loadTinyYolov2Model = loadTinyYolov2Model;
+function loadFaceDetectionModel(url) {
+    return loadSsdMobilenetv1Model(url);
+}
+exports.loadFaceDetectionModel = loadFaceDetectionModel;
 function loadModels(url) {
     return Promise.all([
-        loadFaceDetectionModel(url),
+        loadSsdMobilenetv1Model(url),
         loadFaceLandmarkModel(url),
         loadFaceRecognitionModel(url),
         loadMtcnnModel(url),
@@ -49,7 +53,7 @@ function loadModels(url) {
 }
 exports.loadModels = loadModels;
 function locateFaces(input, minConfidence, maxResults) {
-    return exports.nets.ssdMobilenet.locateFaces(input, minConfidence, maxResults);
+    return exports.nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults);
 }
 exports.locateFaces = locateFaces;
 function detectLandmarks(input) {
@@ -68,6 +72,8 @@ function tinyYolov2(input, forwardParams) {
     return exports.nets.tinyYolov2.locateFaces(input, forwardParams);
 }
 exports.tinyYolov2 = tinyYolov2;
-exports.allFaces = allFacesFactory_1.allFacesFactory(exports.nets.ssdMobilenet, exports.nets.faceLandmark68Net, exports.nets.faceRecognitionNet);
+exports.allFacesSsdMobilenetv1 = allFacesFactory_1.allFacesSsdMobilenetv1Factory(exports.nets.ssdMobilenetv1, exports.nets.faceLandmark68Net, exports.nets.faceRecognitionNet);
+exports.allFacesTinyYolov2 = allFacesFactory_1.allFacesTinyYolov2Factory(exports.nets.tinyYolov2, exports.nets.faceLandmark68Net, exports.nets.faceRecognitionNet);
 exports.allFacesMtcnn = allFacesFactory_1.allFacesMtcnnFactory(exports.nets.mtcnn, exports.nets.faceRecognitionNet);
+exports.allFaces = exports.allFacesSsdMobilenetv1;
 //# sourceMappingURL=globalApi.js.map

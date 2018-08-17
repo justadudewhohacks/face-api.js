@@ -16,6 +16,7 @@ var NetInput = /** @class */ (function () {
         this._isBatchInput = false;
         this._inputDimensions = [];
         this._paddings = [];
+        this._inputSize = 0;
         if (isTensor_1.isTensor4D(inputs)) {
             this._inputs = tf.unstack(inputs);
         }
@@ -92,6 +93,29 @@ var NetInput = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(NetInput.prototype, "inputSize", {
+        get: function () {
+            return this._inputSize;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NetInput.prototype, "relativePaddings", {
+        get: function () {
+            var _this = this;
+            return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getRelativePaddings(batchIdx); });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NetInput.prototype, "reshapedInputDimensions", {
+        get: function () {
+            var _this = this;
+            return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getReshapedInputDimensions(batchIdx); });
+        },
+        enumerable: true,
+        configurable: true
+    });
     NetInput.prototype.getInputDimensions = function (batchIdx) {
         return this._inputDimensions[batchIdx];
     };
@@ -104,9 +128,21 @@ var NetInput = /** @class */ (function () {
     NetInput.prototype.getPaddings = function (batchIdx) {
         return this._paddings[batchIdx];
     };
+    NetInput.prototype.getRelativePaddings = function (batchIdx) {
+        return new Point_1.Point((this.getPaddings(batchIdx).x + this.getInputWidth(batchIdx)) / this.getInputWidth(batchIdx), (this.getPaddings(batchIdx).y + this.getInputHeight(batchIdx)) / this.getInputHeight(batchIdx));
+    };
+    NetInput.prototype.getReshapedInputDimensions = function (batchIdx) {
+        var _a = [this.getInputHeight(batchIdx), this.getInputWidth(batchIdx)], h = _a[0], w = _a[1];
+        var f = this.inputSize / Math.max(h, w);
+        return {
+            height: Math.floor(h * f),
+            width: Math.floor(w * f)
+        };
+    };
     NetInput.prototype.toBatchTensor = function (inputSize, isCenterInputs) {
         var _this = this;
         if (isCenterInputs === void 0) { isCenterInputs = true; }
+        this._inputSize = inputSize;
         return tf.tidy(function () {
             var inputTensors = _this._inputs.map(function (inputTensor) {
                 var _a = inputTensor.shape, originalHeight = _a[0], originalWidth = _a[1];
@@ -127,7 +163,7 @@ var NetInput = /** @class */ (function () {
         });
     };
     /**
-     *  By setting the isManaged flag, all newly created tensors will be automatically
+     *  By setting the isManaged flag, all newly created tensors will be
      *  automatically disposed after the batch tensor has been created
      */
     NetInput.prototype.managed = function () {

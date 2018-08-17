@@ -3,6 +3,8 @@ import { Dimensions } from './types';
 export declare function isFloat(num: number): boolean;
 export declare function isEven(num: number): boolean;
 export declare function round(num: number): number;
+export declare function sigmoid(x: number): number;
+export declare function isDimensions(obj: any): boolean;
 export declare function resolveInput(arg: string | any): any;
 export declare function isLoaded(media: HTMLImageElement | HTMLVideoElement): boolean;
 export declare function awaitMediaLoaded(media: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement): Promise<{}>;

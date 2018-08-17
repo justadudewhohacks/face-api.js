@@ -30,16 +30,15 @@ function computeDescriptorsFactory(recognitionNet) {
         });
     };
 }
-function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
+function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
     var computeDescriptors = computeDescriptorsFactory(recognitionNet);
-    return function (input, minConfidence, useBatchProcessing) {
-        if (minConfidence === void 0) { minConfidence = 0.8; }
+    return function (input, useBatchProcessing) {
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, detectionNet.locateFaces(input, minConfidence)];
+                    case 0: return [4 /*yield*/, detectFaces(input)];
                     case 1:
                         detections = _b.sent();
                         return [4 /*yield*/, extractFaceTensors_1.extractFaceTensors(input, detections)];
@@ -69,7 +68,36 @@ function allFacesFactory(detectionNet, landmarkNet, recognitionNet) {
         });
     };
 }
-exports.allFacesFactory = allFacesFactory;
+function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recognitionNet) {
+    return function (input, minConfidence, useBatchProcessing) {
+        if (minConfidence === void 0) { minConfidence = 0.8; }
+        if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var detectFaces, allFaces;
+            return tslib_1.__generator(this, function (_a) {
+                detectFaces = function (input) { return ssdMobilenetv1.locateFaces(input, minConfidence); };
+                allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
+                return [2 /*return*/, allFaces(input, useBatchProcessing)];
+            });
+        });
+    };
+}
+exports.allFacesSsdMobilenetv1Factory = allFacesSsdMobilenetv1Factory;
+function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNet) {
+    return function (input, forwardParams, useBatchProcessing) {
+        if (forwardParams === void 0) { forwardParams = {}; }
+        if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var detectFaces, allFaces;
+            return tslib_1.__generator(this, function (_a) {
+                detectFaces = function (input) { return tinyYolov2.locateFaces(input, forwardParams); };
+                allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
+                return [2 /*return*/, allFaces(input, useBatchProcessing)];
+            });
+        });
+    };
+}
+exports.allFacesTinyYolov2Factory = allFacesTinyYolov2Factory;
 function allFacesMtcnnFactory(mtcnn, recognitionNet) {
     var computeDescriptors = computeDescriptorsFactory(recognitionNet);
     return function (input, mtcnnForwardParams, useBatchProcessing) {

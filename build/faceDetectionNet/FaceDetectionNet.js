@@ -47,7 +47,7 @@ var FaceDetectionNet = /** @class */ (function (_super) {
         if (minConfidence === void 0) { minConfidence = 0.8; }
         if (maxResults === void 0) { maxResults = 100; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddedHeightRelative, paddedWidthRelative, results;
+            var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddings, results;
             return tslib_1.__generator(this, function (_d) {
                 switch (_d.label) {
                     case 0: return [4 /*yield*/, toNetInput_1.toNetInput(input, true)];
@@ -66,18 +66,17 @@ var FaceDetectionNet = /** @class */ (function (_super) {
                         scoresData = _c.apply(_b, [_d.sent()]);
                         iouThreshold = 0.5;
                         indices = nonMaxSuppression_1.nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
-                        paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0);
-                        paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0);
+                        paddings = netInput.getRelativePaddings(0);
                         results = indices
                             .map(function (idx) {
                             var _a = [
                                 Math.max(0, boxes.get(idx, 0)),
                                 Math.min(1.0, boxes.get(idx, 2))
-                            ].map(function (val) { return val * paddedHeightRelative; }), top = _a[0], bottom = _a[1];
+                            ].map(function (val) { return val * paddings.y; }), top = _a[0], bottom = _a[1];
                             var _b = [
                                 Math.max(0, boxes.get(idx, 1)),
                                 Math.min(1.0, boxes.get(idx, 3))
-                            ].map(function (val) { return val * paddedWidthRelative; }), left = _b[0], right = _b[1];
+                            ].map(function (val) { return val * paddings.x; }), left = _b[0], right = _b[1];
                             return new FaceDetection_1.FaceDetection(scoresData[idx], new Rect_1.Rect(left, top, right - left, bottom - top), {
                                 height: netInput.getInputHeight(0),
                                 width: netInput.getInputWidth(0)

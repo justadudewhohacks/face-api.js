@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var BoundingBox_1 = require("./BoundingBox");
 var Rect = /** @class */ (function () {
     function Rect(x, y, width, height) {
         this.x = x;
@@ -40,6 +41,9 @@ var Rect = /** @class */ (function () {
     };
     Rect.prototype.floor = function () {
         return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+    };
+    Rect.prototype.toBoundingBox = function () {
+        return new BoundingBox_1.BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
     };
     Rect.prototype.clipAtImageBorders = function (imgWidth, imgHeight) {
         var _a = this, x = _a.x, y = _a.y, right = _a.right, bottom = _a.bottom;

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
 var extractConvParamsFactory_1 = require("../commons/extractConvParamsFactory");
 var extractWeightsFactory_1 = require("../commons/extractWeightsFactory");
+var types_1 = require("./types");
 function extractorsFactory(extractWeights, paramMappings) {
     var extractConvParams = extractConvParamsFactory_1.extractConvParamsFactory(extractWeights, paramMappings);
     function extractBatchNormParams(size, mappedPrefix) {
@@ -16,24 +17,34 @@ function extractorsFactory(extractWeights, paramMappings) {
         var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
         return { conv: conv, bn: bn };
     }
+    function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
+        var depthwise_filter = tf.tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
+        var pointwise_filter = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
+        var bias = tf.tensor1d(extractWeights(channelsOut));
+        paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
+        return new types_1.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+    }
     return {
         extractConvParams: extractConvParams,
-        extractConvWithBatchNormParams: extractConvWithBatchNormParams
+        extractConvWithBatchNormParams: extractConvWithBatchNormParams,
+        extractSeparableConvParams: extractSeparableConvParams
     };
 }
-function extractParams(weights) {
+function extractParams(weights, withSeparableConvs) {
     var _a = extractWeightsFactory_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
-    var _b = extractorsFactory(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams;
-    var conv0 = extractConvWithBatchNormParams(3, 16, 'conv0');
-    var conv1 = extractConvWithBatchNormParams(16, 32, 'conv1');
-    var conv2 = extractConvWithBatchNormParams(32, 64, 'conv2');
-    var conv3 = extractConvWithBatchNormParams(64, 128, 'conv3');
-    var conv4 = extractConvWithBatchNormParams(128, 256, 'conv4');
-    var conv5 = extractConvWithBatchNormParams(256, 512, 'conv5');
-    var conv6 = extractConvWithBatchNormParams(512, 1024, 'conv6');
-    var conv7 = extractConvWithBatchNormParams(1024, 1024, 'conv7');
-    var conv8 = extractConvParams(1024, 30, 1, 'conv8');
+    var _b = extractorsFactory(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
+    var extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
+    var numAnchorEncodings = withSeparableConvs ? 5 : 6;
+    var conv0 = extractConvFn(3, 16, 'conv0');
+    var conv1 = extractConvFn(16, 32, 'conv1');
+    var conv2 = extractConvFn(32, 64, 'conv2');
+    var conv3 = extractConvFn(64, 128, 'conv3');
+    var conv4 = extractConvFn(128, 256, 'conv4');
+    var conv5 = extractConvFn(256, 512, 'conv5');
+    var conv6 = extractConvFn(512, 1024, 'conv6');
+    var conv7 = extractConvFn(1024, 1024, 'conv7');
+    var conv8 = extractConvParams(1024, 5 * numAnchorEncodings, 1, 'conv8');
     if (getRemainingWeights().length !== 0) {
         throw new Error("weights remaing after extract: " + getRemainingWeights().length);
     }

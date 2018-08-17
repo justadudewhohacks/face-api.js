@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Rect_1 = require("./Rect");
+var utils_1 = require("./utils");
 var BoundingBox = /** @class */ (function () {
     function BoundingBox(_left, _top, _right, _bottom) {
         this._left = _left;
@@ -46,6 +47,13 @@ var BoundingBox = /** @class */ (function () {
     Object.defineProperty(BoundingBox.prototype, "height", {
         get: function () {
             return this.bottom - this.top;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BoundingBox.prototype, "area", {
+        get: function () {
+            return this.width * this.height;
         },
         enumerable: true,
         configurable: true
@@ -97,6 +105,11 @@ var BoundingBox = /** @class */ (function () {
     };
     BoundingBox.prototype.calibrate = function (region) {
         return new BoundingBox(this.left + (region.left * this.width), this.top + (region.top * this.height), this.right + (region.right * this.width), this.bottom + (region.bottom * this.height)).toSquare().round();
+    };
+    BoundingBox.prototype.rescale = function (s) {
+        var scaleX = utils_1.isDimensions(s) ? s.width : s;
+        var scaleY = utils_1.isDimensions(s) ? s.height : s;
+        return new BoundingBox(this.left * scaleX, this.top * scaleY, this.right * scaleX, this.bottom * scaleY);
     };
     BoundingBox.prototype.toRect = function () {
         return new Rect_1.Rect(this.left, this.top, this.width, this.height);
