@@ -6,7 +6,7 @@ import { toNetInput } from '../../../src';
 import * as tf from '@tensorflow/tfjs-core';
 import { Point } from '../../../src/Point';
 
-describe('allFaces', () => {
+describe('allFacesSsdMobilenetv1', () => {
 
   let imgEl: HTMLImageElement
   let facesFaceLandmarkPositions: Point[][]
@@ -19,14 +19,14 @@ describe('allFaces', () => {
     facesFaceDescriptors = await (await fetch('base/test/data/facesFaceDescriptorsSsd.json')).json()
   })
 
-  describeWithNets('computes full face descriptions', { withAllFaces: true }, ({ allFaces }) => {
+  describeWithNets('computes full face descriptions', { withAllFacesSsdMobilenetv1: true }, ({ allFacesSsdMobilenetv1 }) => {
 
     const expectedScores = [0.97, 0.88, 0.83, 0.82, 0.59, 0.52]
     const maxBoxDelta = 5
     const maxLandmarkPointsDelta = 1
 
     it('scores > 0.8', async () => {
-      const results = await allFaces(imgEl, 0.8)
+      const results = await allFacesSsdMobilenetv1(imgEl, 0.8)
 
       expect(results.length).toEqual(4)
       results.forEach(({ detection, landmarks, descriptor }, i) => {
@@ -40,7 +40,7 @@ describe('allFaces', () => {
     })
 
     it('scores > 0.5', async () => {
-      const results = await allFaces(imgEl, 0.5)
+      const results = await allFacesSsdMobilenetv1(imgEl, 0.5)
 
       expect(results.length).toEqual(6)
       results.forEach(({ detection, landmarks, descriptor }, i) => {
@@ -55,11 +55,11 @@ describe('allFaces', () => {
 
   })
 
-  describeWithNets('no memory leaks', { withAllFaces: true }, ({ allFaces }) => {
+  describeWithNets('no memory leaks', { withAllFacesSsdMobilenetv1: true }, ({ allFacesSsdMobilenetv1 }) => {
 
     it('single image element', async () => {
       await expectAllTensorsReleased(async () => {
-        await allFaces(imgEl)
+        await allFacesSsdMobilenetv1(imgEl)
       })
     })
 
@@ -68,7 +68,7 @@ describe('allFaces', () => {
 
       await expectAllTensorsReleased(async () => {
         const netInput = (new NetInput([tensor])).managed()
-        await allFaces(netInput)
+        await allFacesSsdMobilenetv1(netInput)
       })
 
       tensor.dispose()
@@ -78,7 +78,7 @@ describe('allFaces', () => {
       const tensor = tf.tidy(() => tf.fromPixels(imgEl).expandDims()) as tf.Tensor4D
 
       await expectAllTensorsReleased(async () => {
-        await allFaces(await toNetInput(tensor, true))
+        await allFacesSsdMobilenetv1(await toNetInput(tensor, true))
       })
 
       tensor.dispose()

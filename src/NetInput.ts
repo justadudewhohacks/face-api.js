@@ -166,7 +166,7 @@ export class NetInput {
   }
 
   /**
-   *  By setting the isManaged flag, all newly created tensors will be automatically
+   *  By setting the isManaged flag, all newly created tensors will be
    *  automatically disposed after the batch tensor has been created
    */
   public managed() {

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <img id="inputImg" src="" style="max-width: 800px;" />
+      <canvas id="overlay" />
+    </div>
+    <div class="row side-by-side">
+      <div id="selectList"></div>
+      <div class="row">
+        <label for="imgUrlInput">Get image from URL:</label>
+        <input id="imgUrlInput" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadImageFromUrl()"
+      >
+        Ok
+      </button>
+      <p>
+        <input type="checkbox" id="useBatchProcessing" onchange="onChangeUseBatchProcessing(event)" />
+        <label for="useBatchProcessing">Use Batch Processing</label>
+      </p>
+    </div>
+    <div class="row side-by-side">
+      <div class="row input-field" style="margin-right: 20px;">
+        <select id="sizeType">
+          <option value="" disabled selected>Input Size:</option>
+          <option value="xs">XS: 224 x 224</option>
+          <option value="sm">SM: 320 x 320</option>
+          <option value="md">MD: 416 x 416</option>
+          <option value="lg">LG: 608 x 608</option>
+        </select>
+        <label>Input Size</label>
+      </div>
+      <div class="row">
+        <label for="scoreThreshold">Score Threshold:</label>
+        <input disabled value="0.5" id="scoreThreshold" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onDecreaseThreshold()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="onIncreaseThreshold()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
+    </div>
+    <div class="row side-by-side">
+      <div class="row">
+        <label for="maxDistance">Max Descriptor Distance:</label>
+        <input disabled value="0.6" id="maxDistance" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn button-sm"
+        onclick="onDecreaseMaxDistance()"
+      >
+        <i class="material-icons left">-</i>
+      </button>
+      <button
+        class="waves-effect waves-light btn button-sm"
+        onclick="onIncreaseMaxDistance()"
+      >
+        <i class="material-icons left">+</i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let maxDistance = 0.6
+    let useBatchProcessing = false
+    let trainDescriptorsByClass = []
+    let scoreThreshold = 0.5
+    let sizeType = 'lg'
+
+    function onIncreaseThreshold() {
+      scoreThreshold = Math.min(faceapi.round(scoreThreshold + 0.1), 1.0)
+      $('#scoreThreshold').val(scoreThreshold)
+      updateResults()
+    }
+
+    function onDecreaseThreshold() {
+      scoreThreshold = Math.max(faceapi.round(scoreThreshold - 0.1), 0.1)
+      $('#scoreThreshold').val(scoreThreshold)
+      updateResults()
+    }
+
+    function onSizeTypeChanged(e, c) {
+      sizeType = e.target.value
+      $('#sizeType').val(sizeType)
+      updateResults()
+    }
+
+    function onChangeUseBatchProcessing(e) {
+      useBatchProcessing = $(e.target).prop('checked')
+    }
+
+    function onIncreaseMaxDistance() {
+      maxDistance = Math.min(faceapi.round(maxDistance + 0.1), 1.0)
+      $('#maxDistance').val(maxDistance)
+      updateResults()
+    }
+
+    function onDecreaseMaxDistance() {
+      maxDistance = Math.max(faceapi.round(maxDistance - 0.1), 0.1)
+      $('#maxDistance').val(maxDistance)
+      updateResults()
+    }
+
+    async function loadImageFromUrl(url) {
+      const img = await requestExternalImage($('#imgUrlInput').val())
+      $('#inputImg').get(0).src = img.src
+      updateResults()
+    }
+
+    async function updateResults() {
+      const inputImgEl = $('#inputImg').get(0)
+      const { width, height } = inputImgEl
+      const canvas = $('#overlay').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      const forwardParams = {
+        inputSize: sizeType,
+        scoreThreshold
+      }
+
+      const fullFaceDescriptions = (await faceapi.allFacesTinyYolov2(inputImgEl, forwardParams, useBatchProcessing))
+        .map(fd => fd.forSize(width, height))
+
+      fullFaceDescriptions.forEach(({ detection, descriptor }) => {
+        faceapi.drawDetection('overlay', [detection], { withScore: false })
+        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
+        const { x, y, height: boxHeight } = detection.getBox()
+        faceapi.drawText(
+          canvas.getContext('2d'),
+          x,
+          y + boxHeight,
+          text,
+          Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
+        )
+      })
+    }
+
+    async function onSelectionChanged(uri) {
+      const imgBuf = await fetchImage(uri)
+      $(`#inputImg`).get(0).src = (await faceapi.bufferToImage(imgBuf)).src
+      updateResults()
+    }
+
+    async function run() {
+      await faceapi.loadTinyYolov2Model('/')
+      await faceapi.loadFaceLandmarkModel('/')
+      await faceapi.loadFaceRecognitionModel('/')
+      trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet, 1)
+      $('#loader').hide()
+      onSelectionChanged($('#selectList select').val())
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'tiny_yolov2_face_recognition')
+      renderImageSelectList(
+        '#selectList',
+        async (uri) => {
+          await onSelectionChanged(uri)
+        },
+        'bbt1.jpg'
+      )
+
+      const sizeTypeSelect = $('#sizeType')
+      sizeTypeSelect.val(sizeType)
+      sizeTypeSelect.on('change', onSizeTypeChanged)
+      sizeTypeSelect.material_select()
+      run()
+    })
+  </script>
+</body>
+</html>

@@ -4,8 +4,8 @@ import { IRect } from '../build/Rect';
 import * as faceapi from '../src/';
 import { NeuralNetwork } from '../src/commons/NeuralNetwork';
 import { IPoint } from '../src/';
-import { allFacesFactory, allFacesMtcnnFactory } from '../src/allFacesFactory';
-import { allFacesMtcnnFunction, allFacesFunction } from '../src/globalApi';
+import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from '../src/allFacesFactory';
+import { allFacesMtcnnFunction, allFacesSsdMobilenetv1Function, allFacesTinyYolov2, allFacesTinyYolov2Function } from '../src/globalApi';
 
 export function zeros(length: number): Float32Array {
   return new Float32Array(length)
@@ -59,7 +59,8 @@ export type WithTinyYolov2Options = WithNetOptions & {
 }
 
 export type InjectNetArgs = {
-  allFaces: allFacesFunction
+  allFacesSsdMobilenetv1: allFacesSsdMobilenetv1Function
+  allFacesTinyYolov2: allFacesTinyYolov2Function
   allFacesMtcnn: allFacesMtcnnFunction
   faceDetectionNet: faceapi.FaceDetectionNet
   faceLandmarkNet: faceapi.FaceLandmarkNet
@@ -70,7 +71,8 @@ export type InjectNetArgs = {
 
 
 export type DescribeWithNetsOptions = {
-  withAllFaces?: boolean
+  withAllFacesSsdMobilenetv1?: boolean
+  withAllFacesTinyYolov2?: boolean
   withAllFacesMtcnn?: boolean
   withFaceDetectionNet?: WithNetOptions
   withFaceLandmarkNet?: WithNetOptions
@@ -107,12 +109,14 @@ export function describeWithNets(
     let faceRecognitionNet: faceapi.FaceRecognitionNet = new faceapi.FaceRecognitionNet()
     let mtcnn: faceapi.Mtcnn = new faceapi.Mtcnn()
     let tinyYolov2: faceapi.TinyYolov2 = new faceapi.TinyYolov2(options.withTinyYolov2 && options.withTinyYolov2.withSeparableConv)
-    let allFaces = allFacesFactory(faceDetectionNet, faceLandmarkNet, faceRecognitionNet)
+    let allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1Factory(faceDetectionNet, faceLandmarkNet, faceRecognitionNet)
+    let allFacesTinyYolov2 = allFacesTinyYolov2Factory(tinyYolov2, faceLandmarkNet, faceRecognitionNet)
     let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
 
     beforeAll(async () => {
       const {
-        withAllFaces,
+        withAllFacesSsdMobilenetv1,
+        withAllFacesTinyYolov2,
         withAllFacesMtcnn,
         withFaceDetectionNet,
         withFaceLandmarkNet,
@@ -121,21 +125,21 @@ export function describeWithNets(
         withTinyYolov2
       } = options
 
-      if (withFaceDetectionNet || withAllFaces) {
+      if (withFaceDetectionNet || withAllFacesSsdMobilenetv1) {
         await initNet<faceapi.FaceDetectionNet>(
           faceDetectionNet,
           !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'ssd_mobilenetv1_model.weights'
         )
       }
 
-      if (withFaceLandmarkNet || withAllFaces) {
+      if (withFaceLandmarkNet || withAllFacesSsdMobilenetv1 || withAllFacesTinyYolov2) {
         await initNet<faceapi.FaceLandmarkNet>(
           faceLandmarkNet,
           !!withFaceLandmarkNet && !withFaceLandmarkNet.quantized && 'face_landmark_68_model.weights'
         )
       }
 
-      if (withFaceRecognitionNet || withAllFaces || withAllFacesMtcnn) {
+      if (withFaceRecognitionNet || withAllFacesSsdMobilenetv1 || withAllFacesMtcnn || withAllFacesTinyYolov2) {
         await initNet<faceapi.FaceRecognitionNet>(
           faceRecognitionNet,
           // TODO: figure out why quantized weights results in NaNs in testcases
@@ -150,11 +154,11 @@ export function describeWithNets(
         )
       }
 
-      if (withTinyYolov2) {
+      if (withTinyYolov2 || withAllFacesTinyYolov2) {
         await initNet<faceapi.TinyYolov2>(
           tinyYolov2,
           !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights',
-          withTinyYolov2.withSeparableConv === false
+          withTinyYolov2 && withTinyYolov2.withSeparableConv === false
         )
       }
     })
@@ -167,7 +171,16 @@ export function describeWithNets(
       tinyYolov2 && tinyYolov2.dispose()
     })
 
-    specDefinitions({ allFaces, allFacesMtcnn, faceDetectionNet, faceLandmarkNet, faceRecognitionNet, mtcnn, tinyYolov2 })
+    specDefinitions({
+      allFacesSsdMobilenetv1,
+      allFacesTinyYolov2,
+      allFacesMtcnn,
+      faceDetectionNet,
+      faceLandmarkNet,
+      faceRecognitionNet,
+      mtcnn,
+      tinyYolov2
+    })
   })
 }
 

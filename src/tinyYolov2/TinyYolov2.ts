@@ -88,7 +88,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
       : _inputSize
 
     if (typeof inputSize !== 'number') {
-      throw new Error(`TinyYolov2 - unkown inputSize: ${inputSize}, expected number or one of xs | sm | md | lg`)
+      throw new Error(`TinyYolov2 - unknown inputSize: ${inputSize}, expected number or one of xs | sm | md | lg`)
     }
 
     const netInput = await toNetInput(input, true)
