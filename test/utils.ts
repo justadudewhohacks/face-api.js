@@ -85,12 +85,13 @@ async function loadNetWeights(uri: string): Promise<Float32Array> {
 
 async function initNet<TNet extends NeuralNetwork<any>>(
   net: TNet,
-  uncompressedFilename: string | boolean
+  uncompressedFilename: string | boolean,
+  isUnusedModel: boolean = false
 ) {
   await net.load(
     uncompressedFilename
       ? await loadNetWeights(`base/weights_uncompressed/${uncompressedFilename}`)
-      : 'base/weights'
+      : (isUnusedModel ? 'base/weights_unused' : 'base/weights')
   )
 }
 
@@ -152,7 +153,8 @@ export function describeWithNets(
       if (withTinyYolov2) {
         await initNet<faceapi.TinyYolov2>(
           tinyYolov2,
-          !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights'
+          !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights',
+          withTinyYolov2.withSeparableConv === false
         )
       }
     })
