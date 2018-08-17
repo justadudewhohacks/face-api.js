@@ -10,6 +10,10 @@
   <script>
     tf = faceapi.tf
 
+    const modelName = 'tiny_yolov2_separable_conv'
+    const uncompressedWeightsUri = `tiny_yolov2_separable_conv_model_v1.weights`
+    const net = new faceapi.TinyYolov2(true)
+
     async function loadNetWeights(uri) {
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
     }
@@ -36,15 +40,13 @@
     }
 
     async function quantizeAndSave() {
-      const modelName = 'tiny_yolov2'
 
-      const tinyYolov2 = new faceapi.TinyYolov2()
-      await tinyYolov2.load(await loadNetWeights(`uncompressed/tiny_yolov2_model.weights`))
+      await net.load(await loadNetWeights(uncompressedWeightsUri))
 
       const quantizedTensorArrays = []
       const weightEntries = []
 
-      tinyYolov2.getParamList().forEach(({ path, tensor }) => {
+      net.getParamList().forEach(({ path, tensor }) => {
         const { scale, min, qdata } = quantizeWeights(tensor)
 
         const weightEntry = {
