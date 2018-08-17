@@ -5,8 +5,7 @@ import * as faceapi from '../src/';
 import { NeuralNetwork } from '../src/commons/NeuralNetwork';
 import { IPoint } from '../src/';
 import { allFacesFactory, allFacesMtcnnFactory } from '../src/allFacesFactory';
-import { allFacesMtcnnFunction, allFacesFunction, tinyYolov2 } from '../src/globalApi';
-import { TinyYolov2 } from '../src/tinyYolov2/TinyYolov2';
+import { allFacesMtcnnFunction, allFacesFunction } from '../src/globalApi';
 
 export function zeros(length: number): Float32Array {
   return new Float32Array(length)
@@ -55,6 +54,10 @@ export type WithNetOptions = {
   quantized?: boolean
 }
 
+export type WithTinyYolov2Options = WithNetOptions & {
+  withSeparableConv?: boolean
+}
+
 export type InjectNetArgs = {
   allFaces: allFacesFunction
   allFacesMtcnn: allFacesMtcnnFunction
@@ -73,7 +76,7 @@ export type DescribeWithNetsOptions = {
   withFaceLandmarkNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
   withMtcnn?: WithNetOptions
-  withTinyYolov2?: WithNetOptions
+  withTinyYolov2?: WithTinyYolov2Options
 }
 
 async function loadNetWeights(uri: string): Promise<Float32Array> {
@@ -102,7 +105,7 @@ export function describeWithNets(
     let faceLandmarkNet: faceapi.FaceLandmarkNet = new faceapi.FaceLandmarkNet()
     let faceRecognitionNet: faceapi.FaceRecognitionNet = new faceapi.FaceRecognitionNet()
     let mtcnn: faceapi.Mtcnn = new faceapi.Mtcnn()
-    let tinyYolov2: faceapi.TinyYolov2 = new faceapi.TinyYolov2()
+    let tinyYolov2: faceapi.TinyYolov2 = new faceapi.TinyYolov2(options.withTinyYolov2 && options.withTinyYolov2.withSeparableConv)
     let allFaces = allFacesFactory(faceDetectionNet, faceLandmarkNet, faceRecognitionNet)
     let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
 

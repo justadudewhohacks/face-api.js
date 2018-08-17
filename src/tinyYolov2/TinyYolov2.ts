@@ -20,17 +20,17 @@ import { NetParams, PostProcessingParams, TinyYolov2ForwardParams } from './type
 
 export class TinyYolov2 extends NeuralNetwork<NetParams> {
 
-  private _hasSeparableConvs: boolean
+  private _withSeparableConvs: boolean
   private _anchors: Point[]
 
-  constructor(hasSeparableConvs: boolean = false) {
+  constructor(withSeparableConvs: boolean = true) {
     super('TinyYolov2')
-    this._hasSeparableConvs = hasSeparableConvs
-    this._anchors = hasSeparableConvs ? BOX_ANCHORS_SEPARABLE : BOX_ANCHORS
+    this._withSeparableConvs = withSeparableConvs
+    this._anchors = withSeparableConvs ? BOX_ANCHORS_SEPARABLE : BOX_ANCHORS
   }
 
-  public get hasSeparableConvs(): boolean {
-    return this._hasSeparableConvs
+  public get withSeparableConvs(): boolean {
+    return this._withSeparableConvs
   }
 
   public get anchors(): Point[] {
@@ -48,7 +48,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     const out = tf.tidy(() => {
 
       let batchTensor = input.toBatchTensor(inputSize, false)
-      batchTensor = this.hasSeparableConvs
+      batchTensor = this.withSeparableConvs
         ? normalize(batchTensor, MEAN_RGB)
         : batchTensor
       batchTensor = batchTensor.div(tf.scalar(256)) as tf.Tensor4D
@@ -132,7 +132,7 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
     const numCells = outputTensor.shape[1]
 
     const [boxesTensor, scoresTensor] = tf.tidy(() => {
-      const reshaped = outputTensor.reshape([numCells, numCells, NUM_BOXES, this.hasSeparableConvs ? 5 : 6])
+      const reshaped = outputTensor.reshape([numCells, numCells, NUM_BOXES, this.withSeparableConvs ? 5 : 6])
 
       const boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, NUM_BOXES, 4])
       const scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, NUM_BOXES, 1])
@@ -172,10 +172,10 @@ export class TinyYolov2 extends NeuralNetwork<NetParams> {
   }
 
   protected loadQuantizedParams(uri: string | undefined) {
-    return loadQuantizedParams(uri)
+    return loadQuantizedParams(uri, this.withSeparableConvs)
   }
 
   protected extractParams(weights: Float32Array) {
-    return extractParams(weights, this.hasSeparableConvs)
+    return extractParams(weights, this.withSeparableConvs)
   }
 }

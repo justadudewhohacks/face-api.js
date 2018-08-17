@@ -56,7 +56,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
 
 }
 
-export function extractParams(weights: Float32Array, hasSeparableConvs: boolean): { params: NetParams, paramMappings: ParamMapping[] } {
+export function extractParams(weights: Float32Array, withSeparableConvs: boolean): { params: NetParams, paramMappings: ParamMapping[] } {
 
   const {
     extractWeights,
@@ -71,8 +71,8 @@ export function extractParams(weights: Float32Array, hasSeparableConvs: boolean)
     extractSeparableConvParams
   } = extractorsFactory(extractWeights, paramMappings)
 
-  const extractConvFn = hasSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams
-  const numAnchorEncodings = hasSeparableConvs ? 5 : 6
+  const extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams
+  const numAnchorEncodings = withSeparableConvs ? 5 : 6
 
   const conv0 = extractConvFn(3, 16, 'conv0',)
   const conv1 = extractConvFn(16, 32, 'conv1')

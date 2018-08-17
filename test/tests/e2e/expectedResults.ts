@@ -29,6 +29,15 @@ export const expectedTinyYolov2Boxes = [
   { x: 87, y: 30, width: 92, height: 93 }
 ]
 
+export const expectedTinyYolov2SeparableConvBoxes = [
+  { x: 42, y: 257, width: 111, height: 121 },
+  { x: 454, y: 175, width: 104, height: 121 },
+  { x: 230, y: 45, width: 94, height: 104 },
+  { x: 574, y: 62, width: 88, height: 113 },
+  { x: 260, y: 233, width: 82, height: 104 },
+  { x: 83, y: 24, width: 85, height: 111 }
+]
+
 export const expectedMtcnnFaceLandmarks = [
   [new Point(117, 58), new Point(156, 63), new Point(141, 86), new Point(109, 98), new Point(147, 104)],
   [new Point(82, 292), new Point(134, 304), new Point(104, 330), new Point(72, 342), new Point(120, 353)],
@@ -37,7 +46,6 @@ export const expectedMtcnnFaceLandmarks = [
   [new Point(607, 110), new Point(645, 115), new Point(626, 138), new Point(601, 144), new Point(639, 150)],
   [new Point(489, 224), new Point(534, 223), new Point(507, 250), new Point(493, 271), new Point(530, 270)]
 ]
-
 
 export function expectMtcnnResults(
   results: { faceDetection: faceapi.FaceDetection, faceLandmarks: faceapi.FaceLandmarks5 }[],
