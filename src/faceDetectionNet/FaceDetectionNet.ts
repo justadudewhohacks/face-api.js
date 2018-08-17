@@ -81,19 +81,18 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
       minConfidence
     )
 
-    const paddedHeightRelative = (netInput.getPaddings(0).y + netInput.getInputHeight(0)) / netInput.getInputHeight(0)
-    const paddedWidthRelative = (netInput.getPaddings(0).x + netInput.getInputWidth(0)) / netInput.getInputWidth(0)
+    const paddings = netInput.getRelativePaddings(0)
 
     const results = indices
       .map(idx => {
         const [top, bottom] = [
           Math.max(0, boxes.get(idx, 0)),
           Math.min(1.0, boxes.get(idx, 2))
-        ].map(val => val * paddedHeightRelative)
+        ].map(val => val * paddings.y)
         const [left, right] = [
           Math.max(0, boxes.get(idx, 1)),
           Math.min(1.0, boxes.get(idx, 3))
-        ].map(val => val * paddedWidthRelative)
+        ].map(val => val * paddings.x)
         return new FaceDetection(
           scoresData[idx],
           new Rect(

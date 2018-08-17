@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { allFacesFactory, allFacesMtcnnFactory } from './allFacesFactory';
+import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from './allFacesFactory';
 import { FaceDetection } from './FaceDetection';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
@@ -21,15 +21,15 @@ export const recognitionNet = new FaceRecognitionNet()
 // nets need more specific names, to avoid ambiguity in future
 // when alternative net implementations are provided
 export const nets = {
-  ssdMobilenet: detectionNet,
+  ssdMobilenetv1: detectionNet,
   faceLandmark68Net: landmarkNet,
   faceRecognitionNet: recognitionNet,
   mtcnn: new Mtcnn(),
   tinyYolov2: new TinyYolov2()
 }
 
-export function loadFaceDetectionModel(url: string) {
-  return nets.ssdMobilenet.load(url)
+export function loadSsdMobilenetv1Model(url: string) {
+  return nets.ssdMobilenetv1.load(url)
 }
 
 export function loadFaceLandmarkModel(url: string) {
@@ -48,9 +48,13 @@ export function loadTinyYolov2Model(url: string) {
   return nets.tinyYolov2.load(url)
 }
 
+export function loadFaceDetectionModel(url: string) {
+  return loadSsdMobilenetv1Model(url)
+}
+
 export function loadModels(url: string) {
   return Promise.all([
-    loadFaceDetectionModel(url),
+    loadSsdMobilenetv1Model(url),
     loadFaceLandmarkModel(url),
     loadFaceRecognitionModel(url),
     loadMtcnnModel(url),
@@ -63,7 +67,7 @@ export function locateFaces(
   minConfidence?: number,
   maxResults?: number
 ): Promise<FaceDetection[]> {
-  return nets.ssdMobilenet.locateFaces(input, minConfidence, maxResults)
+  return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults)
 }
 
 export function detectLandmarks(
@@ -92,14 +96,26 @@ export function tinyYolov2(
   return nets.tinyYolov2.locateFaces(input, forwardParams)
 }
 
-export type allFacesFunction = (
+export type allFacesSsdMobilenetv1Function = (
   input: tf.Tensor | NetInput | TNetInput,
   minConfidence?: number,
   useBatchProcessing?: boolean
 ) => Promise<FullFaceDescription[]>
 
-export const allFaces: allFacesFunction = allFacesFactory(
-  nets.ssdMobilenet,
+export const allFacesSsdMobilenetv1: allFacesSsdMobilenetv1Function = allFacesSsdMobilenetv1Factory(
+  nets.ssdMobilenetv1,
+  nets.faceLandmark68Net,
+  nets.faceRecognitionNet
+)
+
+export type allFacesTinyYolov2Function = (
+  input: tf.Tensor | NetInput | TNetInput,
+  forwardParams?: TinyYolov2ForwardParams,
+  useBatchProcessing?: boolean
+) => Promise<FullFaceDescription[]>
+
+export const allFacesTinyYolov2: allFacesTinyYolov2Function = allFacesTinyYolov2Factory(
+  nets.tinyYolov2,
   nets.faceLandmark68Net,
   nets.faceRecognitionNet
 )
@@ -114,3 +130,5 @@ export const allFacesMtcnn: allFacesMtcnnFunction = allFacesMtcnnFactory(
   nets.mtcnn,
   nets.faceRecognitionNet
 )
+
+export const allFaces = allFacesSsdMobilenetv1

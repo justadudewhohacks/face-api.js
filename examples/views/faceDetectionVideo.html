@@ -53,6 +53,15 @@
     let modelLoaded = false
     let result
 
+    let forwardTimes = []
+
+    function updateTimeStats(timeInMs) {
+      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+    }
+
     function onIncreaseThreshold() {
       minConfidence = Math.min(faceapi.round(minConfidence + 0.1), 1.0)
       $('#minConfidence').val(minConfidence)
@@ -61,11 +70,6 @@
     function onDecreaseThreshold() {
       minConfidence = Math.max(faceapi.round(minConfidence - 0.1), 0.1)
       $('#minConfidence').val(minConfidence)
-    }
-
-    function displayTimeStats(timeInMs) {
-      $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
     }
 
     async function onPlay(videoEl) {
@@ -79,7 +83,7 @@
 
       const ts = Date.now()
       result = await faceapi.locateFaces(videoEl, minConfidence)
-      displayTimeStats(Date.now() - ts)
+      updateTimeStats(Date.now() - ts)
 
       faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))
       setTimeout(() => onPlay(videoEl))

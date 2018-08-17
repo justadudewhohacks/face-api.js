@@ -32,6 +32,7 @@ app.get('/mtcnn_face_recognition_webcam', (req, res) => res.sendFile(path.join(v
 app.get('/tiny_yolov2_face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'tinyYolov2FaceDetection.html')))
 app.get('/tiny_yolov2_face_detection_video', (req, res) => res.sendFile(path.join(viewsDir, 'tinyYolov2FaceDetectionVideo.html')))
 app.get('/tiny_yolov2_face_detection_webcam', (req, res) => res.sendFile(path.join(viewsDir, 'tinyYolov2FaceDetectionWebcam.html')))
+app.get('/tiny_yolov2_face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'tinyYolov2FaceRecognition.html')))
 app.get('/batch_face_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceLandmarks.html')))
 app.get('/batch_face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceRecognition.html')))
 

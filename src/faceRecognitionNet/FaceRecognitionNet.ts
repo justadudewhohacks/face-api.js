@@ -1,13 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { NeuralNetwork } from '../commons/NeuralNetwork';
+import { normalize } from '../commons/normalize';
 import { NetInput } from '../NetInput';
 import { toNetInput } from '../toNetInput';
 import { TNetInput } from '../types';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
 import { loadQuantizedParams } from './loadQuantizedParams';
-import { normalize } from './normalize';
 import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
 
@@ -28,7 +28,8 @@ export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
     return tf.tidy(() => {
       const batchTensor = input.toBatchTensor(150, true)
 
-      const normalized = normalize(batchTensor)
+      const meanRgb = [122.782, 117.001, 104.298]
+      const normalized = normalize(batchTensor, meanRgb).div(tf.scalar(256)) as tf.Tensor4D
 
       let out = convDown(normalized, params.conv32_down)
       out = tf.maxPool(out, 3, 2, 'valid')

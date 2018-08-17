@@ -1,4 +1,6 @@
+import { TinyYolov2 } from '.';
 import { extractFaceTensors } from './extractFaceTensors';
+import { FaceDetection } from './FaceDetection';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
 import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
@@ -7,6 +9,7 @@ import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams } from './mtcnn/types';
 import { Rect } from './Rect';
+import { TinyYolov2ForwardParams } from './tinyYolov2/types';
 import { TNetInput } from './types';
 
 function computeDescriptorsFactory(
@@ -27,8 +30,8 @@ function computeDescriptorsFactory(
   }
 }
 
-export function allFacesFactory(
-  detectionNet: FaceDetectionNet,
+function allFacesFactory(
+  detectFaces: (input: TNetInput) => Promise<FaceDetection[]>,
   landmarkNet: FaceLandmarkNet,
   recognitionNet: FaceRecognitionNet
 ) {
@@ -36,11 +39,10 @@ export function allFacesFactory(
 
   return async function(
     input: TNetInput,
-    minConfidence: number = 0.8,
     useBatchProcessing: boolean = false
   ): Promise<FullFaceDescription[]> {
 
-    const detections = await detectionNet.locateFaces(input, minConfidence)
+    const detections = await detectFaces(input)
     const faceTensors = await extractFaceTensors(input, detections)
 
     const faceLandmarksByFace = useBatchProcessing
@@ -65,6 +67,38 @@ export function allFacesFactory(
       )
     )
 
+  }
+}
+
+export function allFacesSsdMobilenetv1Factory(
+  ssdMobilenetv1: FaceDetectionNet,
+  landmarkNet: FaceLandmarkNet,
+  recognitionNet: FaceRecognitionNet
+) {
+  return async function(
+    input: TNetInput,
+    minConfidence: number = 0.8,
+    useBatchProcessing: boolean = false
+  ): Promise<FullFaceDescription[]> {
+    const detectFaces = (input: TNetInput) => ssdMobilenetv1.locateFaces(input, minConfidence)
+    const allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet)
+    return allFaces(input, useBatchProcessing)
+  }
+}
+
+export function allFacesTinyYolov2Factory(
+  tinyYolov2: TinyYolov2,
+  landmarkNet: FaceLandmarkNet,
+  recognitionNet: FaceRecognitionNet
+) {
+  return async function(
+    input: TNetInput,
+    forwardParams: TinyYolov2ForwardParams = {},
+    useBatchProcessing: boolean = false
+  ): Promise<FullFaceDescription[]> {
+    const detectFaces = (input: TNetInput) => tinyYolov2.locateFaces(input, forwardParams)
+    const allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet)
+    return allFaces(input, useBatchProcessing)
   }
 }
 

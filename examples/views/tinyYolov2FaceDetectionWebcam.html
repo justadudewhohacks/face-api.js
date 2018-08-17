@@ -64,6 +64,15 @@
     let sizeType = '160'
     let modelLoaded = false
 
+    let forwardTimes = []
+
+    function updateTimeStats(timeInMs) {
+      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+    }
+
     function onIncreaseThreshold() {
       scoreThreshold = Math.min(faceapi.round(scoreThreshold + 0.1), 1.0)
       $('#scoreThreshold').val(scoreThreshold)
@@ -77,11 +86,6 @@
     function onSizeTypeChanged(e, c) {
       sizeType = e.target.value
       $('#sizeType').val(sizeType)
-    }
-
-    function displayTimeStats(timeInMs) {
-      $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
     }
 
     async function onPlay(videoEl) {
@@ -100,7 +104,7 @@
 
       const ts = Date.now()
       result = await faceapi.tinyYolov2(videoEl, forwardParams)
-      displayTimeStats(Date.now() - ts)
+      updateTimeStats(Date.now() - ts)
 
       faceapi.drawDetection('overlay', result.map(det => det.forSize(width, height)))
       setTimeout(() => onPlay(videoEl))
@@ -124,7 +128,7 @@
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'tiny_yolov2_face_detection_video')
+      renderNavBar('#navbar', 'tiny_yolov2_face_detection_webcam')
 
       const sizeTypeSelect = $('#sizeType')
       sizeTypeSelect.val(sizeType)

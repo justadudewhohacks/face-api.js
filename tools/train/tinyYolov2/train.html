@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <script src="FileSaver.js"></script>
+  <script src="trainUtils.js"></script>
+  <script src="train.js"></script>
+  <script src="loss.js"></script>
+</head>
+<body>
+
+  <script>
+    tf = faceapi.tf
+
+    const startIdx160 = 26600
+    const startIdx224 = 61660
+    const startIdx320 = 67788
+    const startIdx416 = 57650
+    const startIdx608 = 16520
+
+    //const weightsUrl = `/tmp/tmp__160_${startIdx160}__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+    const weightsUrl = `/tmp/tmp_multiscale_count_8700.weights`
+
+    const fromEpoch = 0
+
+    const trainOnlyMultibox = false
+
+    const trainSizes = [416, 512, 608]
+    //const trainSizes = [608]
+
+    window.debug = false
+    window.logTrainSteps = true
+    window.count = 0
+
+
+    // hyper parameters
+    window.objectScale = 5
+    window.noObjectScale = 1
+    window.coordScale = 1
+
+    const rescaleEveryNthBatch = 100
+    window.saveEveryNthDataIdx = trainSizes.length * rescaleEveryNthBatch
+    window.trainSteps = 4000
+    //window.optimizer = tf.train.sgd(0.001)
+    window.optimizer = tf.train.adam(0.001, 0.9, 0.999, 1e-8)
+
+    // all samples
+    //const dataStartIdx = 8000
+    const dataStartIdx = 0
+    const numTrainSamples = Infinity
+
+    async function loadNetWeights(uri) {
+      return new Float32Array(await (await fetch(uri)).arrayBuffer())
+    }
+
+    async function fetchDetectionFilenames() {
+      return fetch('/detection_filenames').then(res => res.json())
+    }
+
+    async function fetchDetectionFilenamesMultibox() {
+      return fetch('/detection_filenames_multibox').then(res => res.json())
+    }
+
+    async function run() {
+      const weights = await loadNetWeights(weightsUrl)
+      window.net = new faceapi.TinyYolov2(true)
+      window.net.load(weights)
+      window.net.variable()
+
+      const fetchDetectionsFn = trainOnlyMultibox
+        ? fetchDetectionFilenamesMultibox
+        : fetchDetectionFilenames
+
+      window.detectionFilenames = (await fetchDetectionsFn()).slice(dataStartIdx, dataStartIdx + numTrainSamples)
+
+      window.lossMap = {}
+
+      console.log('ready')
+    }
+
+    function logLossChange(lossType) {
+      const { currentLoss, prevLoss, detectionFilenames } = window
+      log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
+    }
+
+
+    function onBatchProcessed(dataIdx, inputSize) {
+      window.count++
+      const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
+      console.log('dataIdx', dataIdx)
+      if ((window.count % saveEveryNthDataIdx) === 0) {
+        saveWeights(window.net, `tmp_multiscale_count_${window.count}.weights`)
+      }
+    }
+
+    function _onBatchProcessed(dataIdx, inputSize) {
+      const idx = (dataIdx + 1) + (window.epoch * window.detectionFilenames.length)
+      console.log('idx', idx)
+      if ((idx % saveEveryNthDataIdx) === 0) {
+        saveWeights(window.net, `tmp__224_${startIdx224 + (inputSize === 224 ? idx : 0)}__320_${startIdx320 + (inputSize === 320 ? idx : 0)}__416_${startIdx416 + (inputSize === 416 ? idx : 0)}__608_${startIdx608 + (inputSize === 608 ? idx : 0)}.weights`)
+      }
+    }
+
+    async function train() {
+
+      const batchSize = 1
+
+      for (let i = fromEpoch; i < trainSteps; i++) {
+        window.epoch = i
+        log('step', i)
+        let ts2 = Date.now()
+
+        const batchCreators = createBatchCreators(shuffle(window.detectionFilenames), batchSize)
+
+        await trainStep(batchCreators, trainSizes, rescaleEveryNthBatch, onBatchProcessed)
+
+        ts2 = Date.now() - ts2
+      }
+
+      ts = Date.now() - ts
+
+      log()
+      log('--------------------')
+      log()
+      log('step %s done (%s ms)', i, ts)
+
+      window.prevLoss = window.currentLoss
+      window.currentLoss = Object.keys(lossMap)
+        .map(filename => lossMap[filename])
+        .reduce((accumulatedLosses, losses) =>
+          Object.keys(losses)
+            .map(key => ({
+              [key]: (accumulatedLosses[key] || 0) + losses[key]
+            }))
+            .reduce((map, curr) => ({ ...map, ...curr }), {}),
+          {}
+        )
+
+      if (window.prevLoss) {
+        logLossChange('noObjectLoss')
+        logLossChange('objectLoss')
+        logLossChange('coordLoss')
+        logLossChange('totalLoss')
+      }
+      log()
+      log('--------------------')
+      log()
+    }
+
+    run()
+
+  </script>
+
+</body>
+</html>

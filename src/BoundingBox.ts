@@ -1,4 +1,6 @@
 import { Rect } from './Rect';
+import { Dimensions } from './types';
+import { isDimensions } from './utils';
 
 export class BoundingBox {
   constructor(
@@ -31,6 +33,10 @@ export class BoundingBox {
 
   public get height() : number {
     return this.bottom - this.top
+  }
+
+  public get area() : number {
+    return this.width * this.height
   }
 
   public toSquare(): BoundingBox {
@@ -98,6 +104,12 @@ export class BoundingBox {
       this.right + (region.right * this.width),
       this.bottom + (region.bottom * this.height)
     ).toSquare().round()
+  }
+
+  public rescale(s: Dimensions | number) {
+    const scaleX = isDimensions(s) ? (s as Dimensions).width : s as number
+    const scaleY = isDimensions(s) ? (s as Dimensions).height : s as number
+    return new BoundingBox(this.left * scaleX, this.top * scaleY, this.right * scaleX, this.bottom * scaleY)
   }
 
   public toRect(): Rect {

@@ -1,8 +1,7 @@
 import * as faceapi from '../../../src';
 import { SizeType } from '../../../src/tinyYolov2/types';
 import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-import { expectedTinyYolov2Boxes } from './expectedResults';
-
+import { expectedTinyYolov2Boxes, expectedTinyYolov2SeparableConvBoxes } from './expectedResults';
 
 describe('tinyYolov2', () => {
 
@@ -13,7 +12,7 @@ describe('tinyYolov2', () => {
     imgEl = await faceapi.bufferToImage(img)
   })
 
-  describeWithNets('quantized weights', { withTinyYolov2: { quantized: true } }, ({ tinyYolov2 }) => {
+  describeWithNets('quantized weights', { withTinyYolov2: { quantized: true, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.LG })
@@ -59,7 +58,7 @@ describe('tinyYolov2', () => {
 
   })
 
-  describeWithNets('uncompressed weights', { withTinyYolov2: { quantized: false } }, ({ tinyYolov2 }) => {
+  describeWithNets('uncompressed weights', { withTinyYolov2: { quantized: false, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.LG })
@@ -113,7 +112,7 @@ describe('tinyYolov2', () => {
         await expectAllTensorsReleased(async () => {
           const res = await fetch('base/weights_uncompressed/tiny_yolov2_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
-          const net = faceapi.createTinyYolov2(weights)
+          const net = faceapi.createTinyYolov2(weights, false)
           net.dispose()
         })
       })
@@ -124,8 +123,8 @@ describe('tinyYolov2', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const net = new faceapi.TinyYolov2()
-          await net.load('base/weights')
+          const net = new faceapi.TinyYolov2(false)
+          await net.load('base/weights_unused')
           net.dispose()
         })
       })

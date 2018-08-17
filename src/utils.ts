@@ -15,6 +15,14 @@ export function round(num: number) {
   return Math.floor(num * 100) / 100
 }
 
+export function sigmoid(x: number) {
+  return 1 / (1 + Math.exp(-x))
+}
+
+export function isDimensions(obj: any): boolean {
+  return obj && obj.width && obj.height
+}
+
 export function resolveInput(arg: string | any) {
   if (typeof arg === 'string') {
     return document.getElementById(arg)
@@ -37,14 +45,14 @@ export function awaitMediaLoaded(media: HTMLImageElement | HTMLVideoElement | HT
       if (!e.currentTarget) return
       e.currentTarget.removeEventListener('load', onLoad)
       e.currentTarget.removeEventListener('error', onError)
-      resolve()
+      resolve(e)
     }
 
     function onError(e: Event) {
       if (!e.currentTarget) return
       e.currentTarget.removeEventListener('load', onLoad)
       e.currentTarget.removeEventListener('error', onError)
-      reject()
+      reject(e)
     }
 
     media.addEventListener('load', onLoad)

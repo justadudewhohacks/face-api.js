@@ -4,9 +4,10 @@ import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensor
 import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
 import { loadWeightMap } from '../commons/loadWeightMap';
 import { ConvParams, ParamMapping } from '../commons/types';
-import { BatchNorm, ConvWithBatchNorm, NetParams } from './types';
+import { BatchNorm, ConvWithBatchNorm, NetParams, SeparableConvParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'tiny_yolov2_model'
+const DEFAULT_MODEL_NAME_SEPARABLE_CONV = 'tiny_yolov2_separable_conv_model'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
@@ -30,35 +31,51 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     return { conv, bn }
   }
 
+  function extractSeparableConvParams(prefix: string): SeparableConvParams {
+    const depthwise_filter = extractWeightEntry<tf.Tensor4D>(`${prefix}/depthwise_filter`, 4)
+    const pointwise_filter = extractWeightEntry<tf.Tensor4D>(`${prefix}/pointwise_filter`, 4)
+    const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/bias`, 1)
+
+    return new SeparableConvParams(
+      depthwise_filter,
+      pointwise_filter,
+      bias
+    )
+  }
+
   return {
     extractConvParams,
-    extractConvWithBatchNormParams
+    extractConvWithBatchNormParams,
+    extractSeparableConvParams
   }
 
 }
 
 export async function loadQuantizedParams(
-  uri: string | undefined
+  uri: string | undefined,
+  withSeparableConvs: boolean
 ): Promise<{ params: NetParams, paramMappings: ParamMapping[] }> {
 
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
+  const weightMap = await loadWeightMap(uri,  withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME)
   const paramMappings: ParamMapping[] = []
 
   const {
     extractConvParams,
-    extractConvWithBatchNormParams
+    extractConvWithBatchNormParams,
+    extractSeparableConvParams
   } = extractorsFactory(weightMap, paramMappings)
 
+  const extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams
 
   const params = {
-    conv0: extractConvWithBatchNormParams('conv0'),
-    conv1: extractConvWithBatchNormParams('conv1'),
-    conv2: extractConvWithBatchNormParams('conv2'),
-    conv3: extractConvWithBatchNormParams('conv3'),
-    conv4: extractConvWithBatchNormParams('conv4'),
-    conv5: extractConvWithBatchNormParams('conv5'),
-    conv6: extractConvWithBatchNormParams('conv6'),
-    conv7: extractConvWithBatchNormParams('conv7'),
+    conv0: extractConvFn('conv0'),
+    conv1: extractConvFn('conv1'),
+    conv2: extractConvFn('conv2'),
+    conv3: extractConvFn('conv3'),
+    conv4: extractConvFn('conv4'),
+    conv5: extractConvFn('conv5'),
+    conv6: extractConvFn('conv6'),
+    conv7: extractConvFn('conv7'),
     conv8: extractConvParams('conv8')
   }
 

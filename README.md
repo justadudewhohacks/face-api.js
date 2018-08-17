@@ -27,7 +27,7 @@ Table of Contents:
   * **[Face Detection & 5 Point Face Landmarks - MTCNN](#usage-face-detection-mtcnn)**
   * **[Face Recognition](#usage-face-recognition)**
   * **[68 Point Face Landmark Detection](#usage-face-landmark-detection)**
-  * **[Full Face Detection and Recognition Pipeline](#usage-full-face-detection-and-recognition-pipeline)**
+  * **[Shortcut Functions for Full Face Description](#shortcut-functions)**
 
 ## Examples
 
@@ -89,15 +89,15 @@ The face detection model has been trained on the [WIDERFACE dataset](http://mmla
 
 ### Face Detection - Tiny Yolo v2
 
-The Tiny Yolo v2 based face detector can easily adapt to different input image sizes, thus can be used as an alternative to SSD Mobilenet v1 to trade off accuracy for performance (inference time). In general the model is not as accurate as SSD Mobilenet v1 but can achieve faster inference for lower image sizes.
+The Tiny Yolo v2 implementation is a very performant face detector, which can easily adapt to different input image sizes, thus can be used as an alternative to SSD Mobilenet v1 to trade off accuracy for performance (inference time). In general the models ability to locate smaller face bounding boxes is not as accurate as SSD Mobilenet v1. 
 
-The Tiny Yolo v2 implementation is still experimental, meaning there is room for optimization (future work). The trained model weights are provided in the [azFace](https://github.com/azmathmoosa/azFace) project.
+The face detector has been trained on a custom dataset of ~10K images labeled with bounding boxes and uses depthwise separable convolutions instead of regular convolutions, which ensures very fast inference and allows to have a quantized model size of only 1.7MB making the model extremely mobile and web friendly. Thus, the Tiny Yolo v2 face detector should be your GO-TO face detector on mobile devices.
 
 <a name="about-face-detection-mtcnn"></a>
 
 ### Face Detection & 5 Point Face Landmarks - MTCNN
 
-MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration and is able to achieve much lower processing times. MTCNN is a 3 stage cascaded CNN, which simultanously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with 2MB, the size of the weights file is only a third of the size of the quantized SSD Mobilenet v1 model (~6MB).
+MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration. By tuning the input parameters, MTCNN is able to detect a wide range of face bounding box sizes. MTCNN is a 3 stage cascaded CNN, which simultanously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with the model size is only 2MB.
 
 MTCNN has been presented in the paper [Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf) by Zhang et al. and the model weights are provided in the official [repo](https://github.com/kpzhang93/MTCNN_face_detection_alignment) of the MTCNN implementation.
 
@@ -164,7 +164,7 @@ await net.load('/models/face_detection_model-weights_manifest.json')
 // await net.load('/models/face_landmark_68_model-weights_manifest.json')
 // await net.load('/models/face_recognition_model-weights_manifest.json')
 // await net.load('/models/mtcnn_model-weights_manifest.json')
-// await net.load('/models/tiny_yolov2_model-weights_manifest.json')
+// await net.load('/models/tiny_yolov2_separable_conv_model-weights_manifest.json')
 
 // or simply load all models
 await net.load('/models')
@@ -197,7 +197,7 @@ const maxResults = 10
 
 // inputs can be html canvas, img or video element or their ids ...
 const myImg = document.getElementById('myImg')
-const detections = await faceapi.locateFaces(myImg, minConfidence, maxResults)
+const detections = await faceapi.ssdMobilenetv1(myImg, minConfidence, maxResults)
 ```
 
 Draw the detected faces to a canvas:
@@ -356,7 +356,7 @@ const rightEyeBrow = landmarks.getRightEyeBrow()
 Compute the Face Landmarks for Detected Faces:
 
 ``` javascript
-const detections = await faceapi.locateFaces(input)
+const detections = await faceapi.ssdMobilenetv1(input)
 
 // get the face tensors from the image (have to be disposed manually)
 const faceTensors = await faceapi.extractFaceTensors(input, detections)
@@ -366,50 +366,35 @@ const landmarksByFace = await Promise.all(faceTensors.map(t => faceapi.detectLan
 faceTensors.forEach(t => t.dispose())
 ```
 
-<a name="usage-full-face-detection-and-recognition-pipeline"></a>
+<a name="shortcut-functions"></a>
 
-### Full Face Detection and Recognition Pipeline
+### Shortcut Functions for Full Face Description
 
-After face detection has been performed, I would recommend to align the bounding boxes of the detected faces before passing them to the face recognition net, which will make the computed face descriptor much more accurate. Fortunately, the api can do this for you under the hood. You can obtain the full face descriptions (location, landmarks and descriptor) of each face in an input image as follows:
+After face detection has been performed, I would recommend to align the bounding boxes of the detected faces before passing them to the face recognition net, which will make the computed face descriptor much more accurate. Fortunately, the api can do this for you under the hood by providing convenient shortcut functions. You can obtain the full face descriptions (location, landmarks and descriptor) of each face in an input image as follows.
+
+Using the SSD Mobilenet v1 face detector + 68 point face landmark detector:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi.allFaces(input, minConfidence)
-
-const fullFaceDescription0 = fullFaceDescriptions[0]
-console.log(fullFaceDescription0.detection) // bounding box & score
-console.log(fullFaceDescription0.landmarks) // 68 point face landmarks
-console.log(fullFaceDescription0.descriptor) // face descriptor
-
+const fullFaceDescriptions = await faceapi.allFacesSsdMobilenetv1(input, minConfidence)
 ```
 
-You can also do everything manually as shown in the following:
+Using the Tiny Yolo v2 face detector + 68 point face landmark detector:
 
 ``` javascript
-// first detect the face locations
-const detections = await faceapi.locateFaces(input, minConfidence)
+const fullFaceDescriptions = await faceapi.allFacesTinyYolov2(input, { inputSize: 'md' })
+```
 
-// get the face tensors from the image (have to be disposed manually)
-const faceTensors = (await faceapi.extractFaceTensors(input, detections))
+Or with MTCNN face detection + 5 point face landmarks:
 
-// detect landmarks and get the aligned face image bounding boxes
-const alignedFaceBoxes = await Promise.all(faceTensors.map(
-  async (faceTensor, i) => {
-    const faceLandmarks = await faceapi.detectLandmarks(faceTensor)
-    return faceLandmarks.align(detections[i])
-  }
-))
+``` javascript
+const fullFaceDescriptions = await faceapi.allFacesMtcnn(input, { minFaceSize: 20 })
+```
 
-// free memory for face image tensors after we detected the face landmarks
-faceTensors.forEach(t => t.dispose())
+The shortcut functions return an array of FullFaceDescriptions:
 
-// get the face tensors for the aligned face images from the image (have to be disposed manually)
-const alignedFaceTensors = (await faceapi.extractFaceTensors(input, alignedFaceBoxes))
-
-// compute the face descriptors from the aligned face images
-const descriptors = await Promise.all(alignedFaceTensors.map(
-  faceTensor => faceapi.computeFaceDescriptor(faceTensor)
-))
-
-// free memory for face image tensors after we computed their descriptors
-alignedFaceTensors.forEach(t => t.dispose())
+``` javascript
+const fullFaceDescription0 = fullFaceDescriptions[0]
+console.log(fullFaceDescription0.detection) // bounding box & score
+console.log(fullFaceDescription0.landmarks) // face landmarks
+console.log(fullFaceDescription0.descriptor) // face descriptor
 ```

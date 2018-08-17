@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <script src="FileSaver.js"></script>
+  <script src="quantization.js"></script>
+</head>
+<body>
+  <script>
+    tf = faceapi.tf
+
+    const modelName = 'tiny_yolov2_separable_conv'
+    const uncompressedWeightsUri = `tiny_yolov2_separable_conv_model_v1.weights`
+    const net = new faceapi.TinyYolov2(true)
+
+    async function loadNetWeights(uri) {
+      return new Float32Array(await (await fetch(uri)).arrayBuffer())
+    }
+
+    function makeShards(weightArray) {
+      const maxLength = 4096 * 1024
+
+      const shards = []
+
+      let shardIdx = 0
+      for (let i = 0; i < weightArray.length; i++) {
+        if (!shards[shardIdx]) {
+          shards[shardIdx] = []
+        }
+
+        shards[shardIdx].push(weightArray[i])
+
+        if (shards[shardIdx].length >= maxLength) {
+          shardIdx += 1
+        }
+      }
+
+      return shards.map(shardArray => new Uint8Array(shardArray))
+    }
+
+    async function quantizeAndSave() {
+
+      await net.load(await loadNetWeights(uncompressedWeightsUri))
+
+      const quantizedTensorArrays = []
+      const weightEntries = []
+
+      net.getParamList().forEach(({ path, tensor }) => {
+        const { scale, min, qdata } = quantizeWeights(tensor)
+
+        const weightEntry = {
+          name : path,
+          shape: tensor.shape,
+          dtype: tensor.dtype,
+          quantization: { dtype: 'uint8', scale, min }
+        }
+
+        console.log({ scale, min })
+
+        quantizedTensorArrays.push(qdata)
+        weightEntries.push(weightEntry)
+      })
+
+      const quantizedWeights = quantizedTensorArrays
+        .map(typedArray => Array.from(typedArray))
+        .reduce((flat, arr) => flat.concat(arr))
+
+      const shards = makeShards(quantizedWeights)
+      console.log('num shards: ', shards.length)
+
+      const paths = []
+      shards.forEach((shardData, i) => {
+        const shardName = `${modelName}_model-shard${i + 1}`
+        paths.push(shardName)
+        saveAs(new Blob([shardData]), shardName)
+      })
+
+      const weightManifest = [{
+        weights: weightEntries,
+        paths
+      }]
+
+      saveAs(new Blob([JSON.stringify(weightManifest)]), `${modelName}_model-weights_manifest.json`)
+    }
+  </script>
+</body>
+</html>

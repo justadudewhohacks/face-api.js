@@ -147,6 +147,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Tiny Yolov2 Face Detection Webcam'
     },
     {
+      uri: 'tiny_yolov2_face_recognition',
+      name: 'Tiny Yolov2 Face Recognition'
+    },
+    {
       uri: 'batch_face_landmarks',
       name: 'Batch Face Landmarks'
     },

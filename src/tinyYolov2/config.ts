@@ -11,3 +11,13 @@ export const BOX_ANCHORS = [
   new Point(10.246, 4.59428),
   new Point(12.6868, 11.8741)
 ]
+
+export const BOX_ANCHORS_SEPARABLE = [
+  new Point(1.603231, 2.094468),
+  new Point(6.041143, 7.080126),
+  new Point(2.882459, 3.518061),
+  new Point(4.266906, 5.178857),
+  new Point(9.041765, 10.66308)
+]
+
+export const MEAN_RGB = [117.001, 114.697, 97.404]
