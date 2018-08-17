@@ -34,11 +34,12 @@
     <div class="row side-by-side">
       <div class="row input-field" style="margin-right: 20px;">
         <select id="sizeType">
-          <option value="" disabled selected>Input Size:</option>
-          <option value="xs">XS: 224 x 224</option>
-          <option value="sm">SM: 320 x 320</option>
-          <option value="md">MD: 416 x 416</option>
-          <option value="lg">LG: 608 x 608</option>
+          <option value="128">128 x 128</option>
+          <option value="160">160 x 160</option>
+          <option value="224">224 x 224</option>
+          <option value="320">320 x 320</option>
+          <option value="416">416 x 416</option>
+          <option value="608">608 x 608</option>
         </select>
         <label>Input Size</label>
       </div>
@@ -67,7 +68,7 @@
 
   <script>
     let scoreThreshold = 0.5
-    let sizeType = 'sm'
+    let sizeType = 608
 
     function onKeyDown(e) {
       e.target.value = (
@@ -113,7 +114,7 @@
       canvas.height = height
 
       const forwardParams = {
-        inputSize: sizeType,
+        inputSize: parseInt(sizeType),
         scoreThreshold
       }
 
@@ -145,7 +146,7 @@
       const startIdx608 = 16520
 
       //const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
-      const weightsUrl = `/tmp/overfit_count_1500.weights`
+      const weightsUrl = `/tmp/tmp_multiscale_count_4200.weights`
 
       const weights = await loadNetWeights(weightsUrl)
       window.net = new faceapi.TinyYolov2(true)

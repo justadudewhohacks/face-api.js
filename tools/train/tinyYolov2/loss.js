@@ -102,6 +102,8 @@ function computeBoxAdjustments(groundTruthBoxes, reshapedImgDims) {
 
     const dx = inverseSigmoid(dCenterX / CELL_SIZE)
     const dy = inverseSigmoid(dCenterY / CELL_SIZE)
+    //const dx = dCenterX / CELL_SIZE
+    //const dy = dCenterY / CELL_SIZE
     const dw = Math.log((width / CELL_SIZE) / getAnchors()[anchor].x)
     const dh = Math.log((height / CELL_SIZE) / getAnchors()[anchor].y)
 

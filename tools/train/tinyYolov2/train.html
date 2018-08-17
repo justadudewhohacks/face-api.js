@@ -17,22 +17,25 @@
   <script>
     tf = faceapi.tf
 
-    const startIdx224 = 35060
-    const startIdx320 = 41188
-    const startIdx416 = 31050
+    const startIdx160 = 26600
+    const startIdx224 = 61660
+    const startIdx320 = 67788
+    const startIdx416 = 57650
     const startIdx608 = 16520
 
-    const weightsUrl = `/tmp/tmp__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+    //const weightsUrl = `/tmp/tmp__160_${startIdx160}__224_${startIdx224}__320_${startIdx320}__416_${startIdx416}__608_${startIdx608}.weights`
+    const weightsUrl = `/tmp/tmp_multiscale_count_8700.weights`
 
     const fromEpoch = 0
 
     const trainOnlyMultibox = false
 
-    const trainSizes = [160, 224, 320, 416]
+    const trainSizes = [416, 512, 608]
     //const trainSizes = [608]
 
     window.debug = false
     window.logTrainSteps = true
+    window.count = 0
 
 
     // hyper parameters
@@ -85,7 +88,6 @@
       log(`${lossType} : ${faceapi.round(currentLoss[lossType])} (avg: ${faceapi.round(currentLoss[lossType] / detectionFilenames.length)}) (delta: ${currentLoss[lossType] - prevLoss[lossType]})`)
     }
 
-    window.count = 0
 
     function onBatchProcessed(dataIdx, inputSize) {
       window.count++

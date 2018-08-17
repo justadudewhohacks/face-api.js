@@ -15,10 +15,12 @@ app.use(express.static(path.join(__dirname, '../../weights')))
 app.use(express.static(path.join(__dirname, '../../dist')))
 
 const trainDataPath = path.resolve(process.env.TRAIN_DATA_PATH)
+const testDataPath = path.resolve(process.env.TEST_DATA_PATH)
 const imagesPath = path.join(trainDataPath, './final_images')
 const detectionsPath = path.join(trainDataPath, './final_detections')
 app.use(express.static(imagesPath))
 app.use(express.static(detectionsPath))
+app.use(express.static(testDataPath))
 
 const detectionFilenames = fs.readdirSync(detectionsPath)
 const detectionFilenamesMultibox = JSON.parse(fs.readFileSync(path.join(__dirname, './tinyYolov2/multibox.json')))
@@ -29,5 +31,6 @@ app.get('/detection_filenames', (req, res) => res.status(202).send(detectionFile
 app.get('/detection_filenames_multibox', (req, res) => res.status(202).send(detectionFilenamesMultibox))
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'train.html')))
 app.get('/verify', (req, res) => res.sendFile(path.join(publicDir, 'verify.html')))
+app.get('/test', (req, res) => res.sendFile(path.join(publicDir, 'test.html')))
 
 app.listen(3000, () => console.log('Listening on port 3000!'))
