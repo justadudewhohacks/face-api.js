@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { Rect, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
-import { FaceDetection } from './classes/FaceDetection';
+import { FaceDetection } from '../classes/FaceDetection';
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.

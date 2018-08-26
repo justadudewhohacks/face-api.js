@@ -1,4 +1,4 @@
-import { bufferToImage, extractFaceTensors, Rect } from '../../src';
+import { bufferToImage, extractFaceTensors, Rect } from '../../../src';
 
 describe('extractFaceTensors', () => {
 

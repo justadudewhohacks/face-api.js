@@ -1,4 +1,4 @@
-import { bufferToImage, createCanvasFromMedia, extractFaces, Rect } from '../../src';
+import { bufferToImage, createCanvasFromMedia, extractFaces, Rect } from '../../../src';
 
 describe('extractFaces', () => {
 

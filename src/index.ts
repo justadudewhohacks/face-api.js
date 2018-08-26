@@ -8,9 +8,8 @@ export * from 'tfjs-image-recognition-base';
 
 export * from './classes';
 
+export * from './dom'
 export * from './euclideanDistance';
-export * from './extractFaces'
-export * from './extractFaceTensors'
 export * from './faceDetectionNet';
 export * from './faceLandmarkNet';
 export * from './faceRecognitionNet';

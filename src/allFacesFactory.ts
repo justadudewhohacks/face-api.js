@@ -4,7 +4,7 @@ import { TinyYolov2 } from '.';
 import { FaceDetection } from './classes/FaceDetection';
 import { FaceLandmarks68 } from './classes/FaceLandmarks68';
 import { FullFaceDescription } from './classes/FullFaceDescription';
-import { extractFaceTensors } from './extractFaceTensors';
+import { extractFaceTensors } from './dom';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
