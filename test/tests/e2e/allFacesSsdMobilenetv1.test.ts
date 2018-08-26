@@ -1,10 +1,9 @@
-import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased, expectRectClose, expectPointClose } from '../../utils';
-import { expectedSsdBoxes } from './expectedResults';
-import { NetInput } from '../../../src/NetInput';
-import { toNetInput } from '../../../src';
 import * as tf from '@tensorflow/tfjs-core';
-import { Point } from '../../../src/Point';
+
+import { bufferToImage, NetInput, Point, toNetInput } from '../../../src';
+import { describeWithNets, expectAllTensorsReleased, expectPointClose, expectRectClose } from '../../utils';
+import { expectedSsdBoxes } from './expectedResults';
+
 
 describe('allFacesSsdMobilenetv1', () => {
 
@@ -14,7 +13,7 @@ describe('allFacesSsdMobilenetv1', () => {
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await faceapi.bufferToImage(img)
+    imgEl = await bufferToImage(img)
     facesFaceLandmarkPositions = await (await fetch('base/test/data/facesFaceLandmarkPositions.json')).json()
     facesFaceDescriptors = await (await fetch('base/test/data/facesFaceDescriptorsSsd.json')).json()
   })

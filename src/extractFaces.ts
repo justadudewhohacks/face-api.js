@@ -1,8 +1,13 @@
-import { FaceDetection } from './FaceDetection';
-import { Rect } from './Rect';
-import { toNetInput } from './toNetInput';
-import { TNetInput } from './types';
-import { createCanvas, getContext2dOrThrow, imageTensorToCanvas } from './utils';
+import {
+  createCanvas,
+  getContext2dOrThrow,
+  imageTensorToCanvas,
+  Rect,
+  TNetInput,
+  toNetInput,
+} from 'tfjs-image-recognition-base';
+
+import { FaceDetection } from './classes/FaceDetection';
 
 /**
  * Extracts the image regions containing the detected faces.

@@ -1,6 +1,6 @@
-import * as faceapi from '../../../src';
-import { FaceLandmarks5 } from '../../../src/mtcnn/FaceLandmarks5';
-import { NetInput } from '../../../src/NetInput';
+import { bufferToImage } from 'tfjs-image-recognition-base';
+
+import { FaceLandmarks5 } from '../../../src';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 import { expectMtcnnResults } from './expectedResults';
 
@@ -11,7 +11,7 @@ describe('allFacesMtcnn', () => {
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await faceapi.bufferToImage(img)
+    imgEl = await bufferToImage(img)
     facesFaceDescriptors = await (await fetch('base/test/data/facesFaceDescriptorsMtcnn.json')).json()
   })
 

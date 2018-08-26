@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { BoundingBox, nonMaxSuppression } from 'tfjs-image-recognition-base';
 
-import { BoundingBox } from '../BoundingBox';
-import { nonMaxSuppression } from '../commons/nonMaxSuppression';
 import { extractImagePatches } from './extractImagePatches';
 import { RNet } from './RNet';
 import { RNetParams } from './types';

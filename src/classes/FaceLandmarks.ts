@@ -1,8 +1,6 @@
-import { getCenterPoint } from './commons/getCenterPoint';
+import { Dimensions, getCenterPoint, Point, Rect } from 'tfjs-image-recognition-base';
+
 import { FaceDetection } from './FaceDetection';
-import { IPoint, Point } from './Point';
-import { Rect } from './Rect';
-import { Dimensions } from './types';
 
 // face alignment constants
 const relX = 0.5
@@ -66,7 +64,7 @@ export class FaceLandmarks {
     )
   }
 
-  public shiftByPoint<T extends FaceLandmarks>(pt: IPoint): T {
+  public shiftByPoint<T extends FaceLandmarks>(pt: Point): T {
     return this.shift(pt.x, pt.y)
   }
 

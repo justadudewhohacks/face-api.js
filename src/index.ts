@@ -4,15 +4,10 @@ export {
   tf
 }
 
+export * from 'tfjs-image-recognition-base';
 
-export * from './BoundingBox';
-export * from './FaceDetection';
-export * from './FullFaceDescription';
-export * from './NetInput';
-export * from './Point';
-export * from './Rect';
+export * from './classes';
 
-export * from './drawing';
 export * from './euclideanDistance';
 export * from './extractFaces'
 export * from './extractFaceTensors'
@@ -20,11 +15,5 @@ export * from './faceDetectionNet';
 export * from './faceLandmarkNet';
 export * from './faceRecognitionNet';
 export * from './globalApi';
-export * from './iou';
 export * from './mtcnn';
-export * from './padToSquare';
 export * from './tinyYolov2';
-export * from './toNetInput';
-export * from './utils';
-
-export * from './types';

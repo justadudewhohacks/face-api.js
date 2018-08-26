@@ -1,22 +1,25 @@
 import * as tf from '@tensorflow/tfjs-core';
+import {
+  BoundingBox,
+  NetInput,
+  NeuralNetwork,
+  nonMaxSuppression,
+  normalize,
+  Point,
+  sigmoid,
+  TNetInput,
+  toNetInput,
+} from 'tfjs-image-recognition-base';
 
-import { BoundingBox } from '../BoundingBox';
+import { FaceDetection } from '../classes/FaceDetection';
 import { convLayer } from '../commons/convLayer';
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { nonMaxSuppression } from '../commons/nonMaxSuppression';
-import { normalize } from '../commons/normalize';
-import { FaceDetection } from '../FaceDetection';
-import { NetInput } from '../NetInput';
-import { Point } from '../Point';
-import { toNetInput } from '../toNetInput';
-import { TNetInput } from '../types';
-import { sigmoid } from '../utils';
 import { BOX_ANCHORS, BOX_ANCHORS_SEPARABLE, INPUT_SIZES, IOU_THRESHOLD, MEAN_RGB, NUM_BOXES } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { extractParams } from './extractParams';
 import { getDefaultParams } from './getDefaultParams';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { NetParams, PostProcessingParams, TinyYolov2ForwardParams } from './types';
+
 
 export class TinyYolov2 extends NeuralNetwork<NetParams> {
 

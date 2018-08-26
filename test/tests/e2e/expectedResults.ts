@@ -1,6 +1,6 @@
 import * as faceapi from '../../../src';
-import { Point } from '../../../src/Point';
 import { expectMaxDelta, expectPointClose, expectRectClose } from '../../utils';
+import { Point } from '../../../src';
 
 export const expectedSsdBoxes = [
   { x: 48, y: 253, width: 104, height: 129 },

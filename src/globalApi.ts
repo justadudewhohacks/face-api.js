@@ -1,18 +1,17 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { NetInput, TNetInput } from 'tfjs-image-recognition-base';
 
 import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from './allFacesFactory';
-import { FaceDetection } from './FaceDetection';
+import { FaceDetection } from './classes/FaceDetection';
+import { FaceLandmarks68 } from './classes/FaceLandmarks68';
+import { FullFaceDescription } from './classes/FullFaceDescription';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
-import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
-import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams, MtcnnResult } from './mtcnn/types';
-import { NetInput } from './NetInput';
 import { TinyYolov2 } from './tinyYolov2/TinyYolov2';
 import { TinyYolov2ForwardParams } from './tinyYolov2/types';
-import { TNetInput } from './types';
 
 export const detectionNet = new FaceDetectionNet()
 export const landmarkNet = new FaceLandmarkNet()

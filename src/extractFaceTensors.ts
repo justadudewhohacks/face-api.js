@@ -1,9 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { Rect, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
-import { FaceDetection } from './FaceDetection';
-import { Rect } from './Rect';
-import { toNetInput } from './toNetInput';
-import { TNetInput } from './types';
+import { FaceDetection } from './classes/FaceDetection';
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -42,7 +40,7 @@ export async function extractFaceTensors(
       .map(box => box.clipAtImageBorders(imgWidth, imgHeight))
 
     const faceTensors = boxes.map(({ x, y, width, height }) =>
-      tf.slice(imgTensor, [0, y, x, 0], [1, height, width, numChannels])
+      tf.slice4d(imgTensor, [0, y, x, 0], [1, height, width, numChannels])
     )
 
     if (netInput.isManaged) {

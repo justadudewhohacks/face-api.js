@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { Point } from 'tfjs-image-recognition-base';
 
 import { ConvParams } from '../commons/types';
-import { Point } from '../Point';
 
 export type BatchNorm = {
   sub: tf.Tensor1D

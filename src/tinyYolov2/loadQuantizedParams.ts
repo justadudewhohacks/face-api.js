@@ -1,9 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
+import {
+  disposeUnusedWeightTensors,
+  extractWeightEntryFactory,
+  loadWeightMap,
+  ParamMapping,
+} from 'tfjs-image-recognition-base';
 
-import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
-import { loadWeightMap } from '../commons/loadWeightMap';
-import { ConvParams, ParamMapping } from '../commons/types';
+import { ConvParams } from '../commons/types';
 import { BatchNorm, ConvWithBatchNorm, NetParams, SeparableConvParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'tiny_yolov2_model'

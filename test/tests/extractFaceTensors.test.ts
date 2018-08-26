@@ -1,5 +1,4 @@
-import { extractFaceTensors, Rect } from '../../src';
-import { bufferToImage } from '../../src/utils';
+import { bufferToImage, extractFaceTensors, Rect } from '../../src';
 
 describe('extractFaceTensors', () => {
 

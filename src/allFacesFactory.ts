@@ -1,16 +1,16 @@
+import { Point, Rect, TNetInput } from 'tfjs-image-recognition-base';
+
 import { TinyYolov2 } from '.';
+import { FaceDetection } from './classes/FaceDetection';
+import { FaceLandmarks68 } from './classes/FaceLandmarks68';
+import { FullFaceDescription } from './classes/FullFaceDescription';
 import { extractFaceTensors } from './extractFaceTensors';
-import { FaceDetection } from './FaceDetection';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
-import { FaceLandmarks68 } from './faceLandmarkNet/FaceLandmarks68';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
-import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams } from './mtcnn/types';
-import { Rect } from './Rect';
 import { TinyYolov2ForwardParams } from './tinyYolov2/types';
-import { TNetInput } from './types';
 
 function computeDescriptorsFactory(
   recognitionNet: FaceRecognitionNet
@@ -62,7 +62,9 @@ function allFacesFactory(
     return detections.map((detection, i) =>
       new FullFaceDescription(
         detection,
-        faceLandmarksByFace[i].shiftByPoint<FaceLandmarks68>(detection.getBox()),
+        faceLandmarksByFace[i].shiftByPoint<FaceLandmarks68>(
+          new Point(detection.box.x, detection.box.y)
+        ),
         descriptors[i]
       )
     )

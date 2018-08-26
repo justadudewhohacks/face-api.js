@@ -1,6 +1,6 @@
-import { getCenterPoint } from '../commons/getCenterPoint';
-import { FaceLandmarks } from '../FaceLandmarks';
-import { Point } from '../Point';
+import { getCenterPoint, Point } from 'tfjs-image-recognition-base';
+
+import { FaceLandmarks } from './FaceLandmarks';
 
 export class FaceLandmarks5 extends FaceLandmarks {
 

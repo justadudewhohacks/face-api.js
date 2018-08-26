@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { ExtractWeightsFunction, ParamMapping } from 'tfjs-image-recognition-base';
 
-import { ExtractWeightsFunction, FCParams, ParamMapping } from './types';
+import { FCParams } from './types';
 
 export function extractFCParamsFactory(
   extractWeights: ExtractWeightsFunction,

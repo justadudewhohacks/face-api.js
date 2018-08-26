@@ -1,8 +1,7 @@
-import { getCenterPoint } from '../commons/getCenterPoint';
-import { FaceDetection } from '../FaceDetection';
-import { FaceLandmarks } from '../FaceLandmarks';
-import { Point } from '../Point';
-import { Rect } from '../Rect';
+import { getCenterPoint, Point } from 'tfjs-image-recognition-base';
+
+import { FaceLandmarks } from '../classes/FaceLandmarks';
+
 
 export class FaceLandmarks68 extends FaceLandmarks {
   public getJawOutline(): Point[] {

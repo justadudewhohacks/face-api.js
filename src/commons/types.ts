@@ -9,17 +9,3 @@ export type FCParams = {
   weights: tf.Tensor2D
   bias: tf.Tensor1D
 }
-
-export type ExtractWeightsFunction = (numWeights: number) => Float32Array
-
-export type BatchReshapeInfo = {
-  originalWidth: number
-  originalHeight: number
-  paddingX: number
-  paddingY: number
-}
-
-export type ParamMapping = {
-  originalPath?: string
-  paramPath: string
-}

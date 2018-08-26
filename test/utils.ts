@@ -1,19 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { IRect } from '../build/Rect';
 import * as faceapi from '../src/';
-import { NeuralNetwork } from '../src/commons/NeuralNetwork';
 import { IPoint } from '../src/';
 import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from '../src/allFacesFactory';
-import { allFacesMtcnnFunction, allFacesSsdMobilenetv1Function, allFacesTinyYolov2, allFacesTinyYolov2Function } from '../src/globalApi';
+import { allFacesMtcnnFunction, allFacesSsdMobilenetv1Function, allFacesTinyYolov2Function } from '../src/globalApi';
 
-export function zeros(length: number): Float32Array {
-  return new Float32Array(length)
-}
+import { NeuralNetwork, IRect } from 'tfjs-image-recognition-base';
 
-export function ones(length: number): Float32Array {
-  return new Float32Array(length).fill(1)
-}
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
   expect(Math.abs(val1 - val2)).toBeLessThan(maxDelta)
@@ -23,10 +17,6 @@ export async function expectAllTensorsReleased(fn: () => any) {
   const numTensorsBefore = tf.memory().numTensors
   await fn()
   expect(tf.memory().numTensors - numTensorsBefore).toEqual(0)
-}
-
-export function tensor3D() {
-  return tf.tensor3d([[[0]]])
 }
 
 export function expectPointClose(

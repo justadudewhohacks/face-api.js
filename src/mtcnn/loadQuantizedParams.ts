@@ -1,9 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
+import {
+  disposeUnusedWeightTensors,
+  extractWeightEntryFactory,
+  loadWeightMap,
+  ParamMapping,
+} from 'tfjs-image-recognition-base';
 
-import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
-import { loadWeightMap } from '../commons/loadWeightMap';
-import { ConvParams, FCParams, ParamMapping } from '../commons/types';
+import { ConvParams, FCParams } from '../commons/types';
 import { NetParams, ONetParams, PNetParams, RNetParams, SharedParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'mtcnn_model'

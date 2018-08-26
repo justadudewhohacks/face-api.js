@@ -1,9 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { BoundingBox } from '../BoundingBox';
-import { Dimensions } from '../types';
-import { createCanvas, getContext2dOrThrow } from '../utils';
 import { normalize } from './normalize';
+import { BoundingBox, Dimensions, getContext2dOrThrow, createCanvas } from 'tfjs-image-recognition-base';
 
 export async function extractImagePatches(
   img: HTMLCanvasElement,

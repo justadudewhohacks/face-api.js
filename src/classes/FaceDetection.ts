@@ -1,5 +1,4 @@
-import { Rect } from './Rect';
-import { Dimensions } from './types';
+import { Dimensions, Rect } from 'tfjs-image-recognition-base';
 
 export class FaceDetection {
   private _score: number

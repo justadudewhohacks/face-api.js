@@ -1,15 +1,10 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
+import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { convLayer } from '../commons/convLayer';
-import { NeuralNetwork } from '../commons/NeuralNetwork';
 import { ConvParams } from '../commons/types';
-import { NetInput } from '../NetInput';
-import { Point } from '../Point';
-import { toNetInput } from '../toNetInput';
-import { TNetInput } from '../types';
-import { isEven } from '../utils';
 import { extractParams } from './extractParams';
-import { FaceLandmarks68 } from './FaceLandmarks68';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { NetParams } from './types';
