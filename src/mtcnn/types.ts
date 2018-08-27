@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
 
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
-import { ConvParams, FCParams } from '../commons/types';
 
 export type SharedParams = {
   conv1: ConvParams

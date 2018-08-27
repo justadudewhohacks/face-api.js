@@ -1,7 +1,8 @@
-import * as faceapi from '../../../src';
-import { SizeType } from '../../../src/tinyYolov2/types';
+import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
+
+import { bufferToImage, createTinyYolov2, TinyYolov2 } from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-import { expectedTinyYolov2Boxes, expectedTinyYolov2SeparableConvBoxes } from './expectedResults';
+import { expectedTinyYolov2Boxes } from './expectedResults';
 
 describe('tinyYolov2', () => {
 
@@ -9,13 +10,13 @@ describe('tinyYolov2', () => {
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await faceapi.bufferToImage(img)
+    imgEl = await bufferToImage(img)
   })
 
   describeWithNets('quantized weights', { withTinyYolov2: { quantized: true, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.LG })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
 
       const expectedScores = [0.86, 0.86, 0.85, 0.83, 0.81, 0.81]
       const maxBoxDelta = 3
@@ -29,7 +30,7 @@ describe('tinyYolov2', () => {
     })
 
     it('inputSize md, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.MD })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
 
       const expectedScores = [0.89, 0.87, 0.83, 0.82, 0.81, 0.72]
       const maxBoxDelta = 16
@@ -61,7 +62,7 @@ describe('tinyYolov2', () => {
   describeWithNets('uncompressed weights', { withTinyYolov2: { quantized: false, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.LG })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
 
       const expectedScores = [0.86, 0.86, 0.85, 0.83, 0.81, 0.81]
       const maxBoxDelta = 1
@@ -75,7 +76,7 @@ describe('tinyYolov2', () => {
     })
 
     it('inputSize md, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: SizeType.MD })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
 
       const expectedScores = [0.89, 0.87, 0.83, 0.83, 0.81, 0.73]
       const maxBoxDelta = 14
@@ -112,7 +113,7 @@ describe('tinyYolov2', () => {
         await expectAllTensorsReleased(async () => {
           const res = await fetch('base/weights_uncompressed/tiny_yolov2_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
-          const net = faceapi.createTinyYolov2(weights, false)
+          const net = createTinyYolov2(weights, false)
           net.dispose()
         })
       })
@@ -123,7 +124,7 @@ describe('tinyYolov2', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const net = new faceapi.TinyYolov2(false)
+          const net = new TinyYolov2(false)
           await net.load('base/weights_unused')
           net.dispose()
         })

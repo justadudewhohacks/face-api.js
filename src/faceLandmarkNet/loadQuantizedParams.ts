@@ -5,8 +5,8 @@ import {
   loadWeightMap,
   ParamMapping,
 } from 'tfjs-image-recognition-base';
+import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
 
-import { ConvParams, FCParams } from '../commons/types';
 import { NetParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'face_landmark_68_model'

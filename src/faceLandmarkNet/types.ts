@@ -1,4 +1,4 @@
-import { ConvParams, FCParams } from '../commons/types';
+import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
 
 export type NetParams = {
   conv0: ConvParams

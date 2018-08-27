@@ -1,9 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
+import { convLayer, ConvParams } from 'tfjs-tiny-yolov2';
 
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
-import { convLayer } from '../commons/convLayer';
-import { ConvParams } from '../commons/types';
 import { extractParams } from './extractParams';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
 import { loadQuantizedParams } from './loadQuantizedParams';

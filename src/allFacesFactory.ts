@@ -1,4 +1,5 @@
 import { Point, Rect, TNetInput } from 'tfjs-image-recognition-base';
+import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
 
 import { TinyYolov2 } from '.';
 import { FaceDetection } from './classes/FaceDetection';
@@ -10,7 +11,6 @@ import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams } from './mtcnn/types';
-import { TinyYolov2ForwardParams } from './tinyYolov2/types';
 
 function computeDescriptorsFactory(
   recognitionNet: FaceRecognitionNet
@@ -95,7 +95,7 @@ export function allFacesTinyYolov2Factory(
 ) {
   return async function(
     input: TNetInput,
-    forwardParams: TinyYolov2ForwardParams = {},
+    forwardParams: TinyYolov2Types.TinyYolov2ForwardParams = {},
     useBatchProcessing: boolean = false
   ): Promise<FullFaceDescription[]> {
     const detectFaces = (input: TNetInput) => tinyYolov2.locateFaces(input, forwardParams)

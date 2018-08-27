@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
 
 import { bufferToImage, NetInput, Point, toNetInput } from '../../../src';
-import { SizeType } from '../../../src/tinyYolov2/types';
 import { describeWithNets, expectAllTensorsReleased, expectMaxDelta, expectPointClose, expectRectClose } from '../../utils';
 import { expectedTinyYolov2SeparableConvBoxes } from './expectedResults';
 
@@ -21,13 +21,13 @@ describe('allFacesTinyYolov2', () => {
   describeWithNets('computes full face descriptions', { withAllFacesTinyYolov2: true }, ({ allFacesTinyYolov2 }) => {
 
 
-    it('SizeType.LG', async () => {
+    it('TinyYolov2Types.SizeType.LG', async () => {
       const expectedScores = [0.9, 0.9, 0.89, 0.85, 0.85, 0.85]
       const maxBoxDelta = 5
       const maxLandmarkPointsDelta = 10
       const maxDescriptorDelta = 0.06
 
-      const results = await allFacesTinyYolov2(imgEl, { inputSize: SizeType.LG })
+      const results = await allFacesTinyYolov2(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
       const detectionOrder = [0, 2, 3, 4, 1, 5]
 
       expect(results.length).toEqual(6)
@@ -41,13 +41,13 @@ describe('allFacesTinyYolov2', () => {
       })
     })
 
-    it('SizeType.MD', async () => {
+    it('TinyYolov2Types.SizeType.MD', async () => {
       const expectedScores = [0.85, 0.85, 0.84, 0.83, 0.8, 0.8]
       const maxBoxDelta = 17
       const maxLandmarkPointsDelta = 16
       const maxDescriptorDelta = 0.05
 
-      const results = await allFacesTinyYolov2(imgEl, { inputSize: SizeType.MD })
+      const results = await allFacesTinyYolov2(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
       const boxOrder = [5, 1, 4, 3, 2, 0]
       const detectionOrder = [5, 2, 1, 4, 3, 0]
 

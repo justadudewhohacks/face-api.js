@@ -6,8 +6,8 @@ import {
   loadWeightMap,
   ParamMapping,
 } from 'tfjs-image-recognition-base';
+import { ConvParams } from 'tfjs-tiny-yolov2';
 
-import { ConvParams } from '../commons/types';
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model'

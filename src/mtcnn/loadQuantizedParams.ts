@@ -5,8 +5,8 @@ import {
   loadWeightMap,
   ParamMapping,
 } from 'tfjs-image-recognition-base';
+import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
 
-import { ConvParams, FCParams } from '../commons/types';
 import { NetParams, ONetParams, PNetParams, RNetParams, SharedParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'mtcnn_model'

@@ -7,7 +7,8 @@
   "scripts": {
     "rollup-min": "rollup -c rollup.config.js --environment minify:true",
     "rollup": "rollup -c rollup.config.js",
-    "build": "npm run rollup && npm run rollup-min && tsc",
+    "build-tsc": "tsc",
+    "build": "npm run rollup && npm run rollup-min && npm run build-tsc",
     "test": "karma start"
   },
   "keywords": [
@@ -21,7 +22,8 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "^0.12.14",
-    "tfjs-image-recognition-base": "git+https://github.com/justadudewhohacks/tfjs-image-recognition-base.git"
+    "tfjs-image-recognition-base": "^0.0.0",
+    "tfjs-tiny-yolov2": "0.0.2"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
@@ -38,6 +40,6 @@
     "rollup-plugin-typescript2": "^0.16.1",
     "rollup-plugin-uglify": "^4.0.0",
     "tslib": "^1.9.3",
-    "typescript": "^2.9.2"
+    "typescript": "2.8.4"
   }
 }

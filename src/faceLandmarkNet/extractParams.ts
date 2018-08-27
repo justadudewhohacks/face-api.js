@@ -1,7 +1,6 @@
 import { extractWeightsFactory, ParamMapping } from 'tfjs-image-recognition-base';
+import { extractConvParamsFactory, extractFCParamsFactory } from 'tfjs-tiny-yolov2';
 
-import { extractConvParamsFactory } from '../commons/extractConvParamsFactory';
-import { extractFCParamsFactory } from '../commons/extractFCParamsFactory';
 import { NetParams } from './types';
 
 export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
