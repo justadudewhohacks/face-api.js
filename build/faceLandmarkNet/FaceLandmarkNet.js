@@ -1,18 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var tf = require("@tensorflow/tfjs-core");
-var convLayer_1 = require("../commons/convLayer");
-var NeuralNetwork_1 = require("../commons/NeuralNetwork");
-var Point_1 = require("../Point");
-var toNetInput_1 = require("../toNetInput");
-var utils_1 = require("../utils");
-var extractParams_1 = require("./extractParams");
-var FaceLandmarks68_1 = require("./FaceLandmarks68");
-var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
+import * as tslib_1 from "tslib";
+import * as tf from '@tensorflow/tfjs-core';
+import { isEven, NeuralNetwork, Point, toNetInput } from 'tfjs-image-recognition-base';
+import { convLayer } from 'tfjs-tiny-yolov2';
+import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { extractParams } from './extractParams';
+import { fullyConnectedLayer } from './fullyConnectedLayer';
+import { loadQuantizedParams } from './loadQuantizedParams';
 function conv(x, params) {
-    return convLayer_1.convLayer(x, params, 'valid', true);
+    return convLayer(x, params, 'valid', true);
 }
 function maxPool(x, strides) {
     if (strides === void 0) { strides = [2, 2]; }
@@ -42,8 +37,8 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
             out = conv(out, params.conv6);
             out = maxPool(out, [1, 1]);
             out = conv(out, params.conv7);
-            var fc0 = tf.relu(fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
-            var fc1 = fullyConnectedLayer_1.fullyConnectedLayer(fc0, params.fc1);
+            var fc0 = tf.relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
+            var fc1 = fullyConnectedLayer(fc0, params.fc1);
             var createInterleavedTensor = function (fillX, fillY) {
                 return tf.stack([
                     tf.fill([68], fillX),
@@ -74,7 +69,7 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, toNetInput_1.toNetInput(input, true)];
+                        return [4 /*yield*/, toNetInput(input, true)];
                     case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                 }
             });
@@ -86,7 +81,7 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
             var netInput, landmarkTensors, landmarksForBatch;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, toNetInput_1.toNetInput(input, true)];
+                    case 0: return [4 /*yield*/, toNetInput(input, true)];
                     case 1:
                         netInput = _a.sent();
                         landmarkTensors = tf.tidy(function () { return tf.unstack(_this.forwardInput(netInput)); });
@@ -99,9 +94,9 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
                                             return [4 /*yield*/, landmarkTensor.data()];
                                         case 1:
                                             landmarksArray = _b.apply(_a, [_c.sent()]);
-                                            xCoords = landmarksArray.filter(function (_, i) { return utils_1.isEven(i); });
-                                            yCoords = landmarksArray.filter(function (_, i) { return !utils_1.isEven(i); });
-                                            return [2 /*return*/, new FaceLandmarks68_1.FaceLandmarks68(Array(68).fill(0).map(function (_, i) { return new Point_1.Point(xCoords[i], yCoords[i]); }), {
+                                            xCoords = landmarksArray.filter(function (_, i) { return isEven(i); });
+                                            yCoords = landmarksArray.filter(function (_, i) { return !isEven(i); });
+                                            return [2 /*return*/, new FaceLandmarks68(Array(68).fill(0).map(function (_, i) { return new Point(xCoords[i], yCoords[i]); }), {
                                                     height: netInput.getInputHeight(batchIdx),
                                                     width: netInput.getInputWidth(batchIdx),
                                                 })];
@@ -119,12 +114,12 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
         });
     };
     FaceLandmarkNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+        return loadQuantizedParams(uri);
     };
     FaceLandmarkNet.prototype.extractParams = function (weights) {
-        return extractParams_1.extractParams(weights);
+        return extractParams(weights);
     };
     return FaceLandmarkNet;
-}(NeuralNetwork_1.NeuralNetwork));
-exports.FaceLandmarkNet = FaceLandmarkNet;
+}(NeuralNetwork));
+export { FaceLandmarkNet };
 //# sourceMappingURL=FaceLandmarkNet.js.map

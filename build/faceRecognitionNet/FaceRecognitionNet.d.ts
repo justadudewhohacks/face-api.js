@@ -1,7 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { NetInput } from '../NetInput';
-import { TNetInput } from '../types';
+import { NetInput, NeuralNetwork, TNetInput } from 'tfjs-image-recognition-base';
 import { NetParams } from './types';
 export declare class FaceRecognitionNet extends NeuralNetwork<NetParams> {
     constructor();

@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-function nonMaxSuppression(boxes, scores, maxOutputSize, iouThreshold, scoreThreshold) {
+export function nonMaxSuppression(boxes, scores, maxOutputSize, iouThreshold, scoreThreshold) {
     var numBoxes = boxes.shape[0];
     var outputSize = Math.min(maxOutputSize, numBoxes);
     var candidates = scores
@@ -30,7 +28,6 @@ function nonMaxSuppression(boxes, scores, maxOutputSize, iouThreshold, scoreThre
     });
     return selected;
 }
-exports.nonMaxSuppression = nonMaxSuppression;
 function IOU(boxes, i, j) {
     var yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2));
     var xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3));

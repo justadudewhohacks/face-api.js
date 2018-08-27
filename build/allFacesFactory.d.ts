@@ -1,12 +1,12 @@
+import { TNetInput } from 'tfjs-image-recognition-base';
+import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
 import { TinyYolov2 } from '.';
+import { FullFaceDescription } from './classes/FullFaceDescription';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
-import { FullFaceDescription } from './FullFaceDescription';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams } from './mtcnn/types';
-import { TinyYolov2ForwardParams } from './tinyYolov2/types';
-import { TNetInput } from './types';
 export declare function allFacesSsdMobilenetv1Factory(ssdMobilenetv1: FaceDetectionNet, landmarkNet: FaceLandmarkNet, recognitionNet: FaceRecognitionNet): (input: TNetInput, minConfidence?: number, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
-export declare function allFacesTinyYolov2Factory(tinyYolov2: TinyYolov2, landmarkNet: FaceLandmarkNet, recognitionNet: FaceRecognitionNet): (input: TNetInput, forwardParams?: TinyYolov2ForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
+export declare function allFacesTinyYolov2Factory(tinyYolov2: TinyYolov2, landmarkNet: FaceLandmarkNet, recognitionNet: FaceRecognitionNet): (input: TNetInput, forwardParams?: TinyYolov2Types.TinyYolov2ForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;
 export declare function allFacesMtcnnFactory(mtcnn: Mtcnn, recognitionNet: FaceRecognitionNet): (input: TNetInput, mtcnnForwardParams?: MtcnnForwardParams, useBatchProcessing?: boolean) => Promise<FullFaceDescription[]>;

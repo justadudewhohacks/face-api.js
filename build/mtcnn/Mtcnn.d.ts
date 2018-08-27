@@ -1,6 +1,4 @@
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { NetInput } from '../NetInput';
-import { TNetInput } from '../types';
+import { NetInput, NeuralNetwork, TNetInput } from 'tfjs-image-recognition-base';
 import { MtcnnForwardParams, MtcnnResult, NetParams } from './types';
 export declare class Mtcnn extends NeuralNetwork<NetParams> {
     constructor();

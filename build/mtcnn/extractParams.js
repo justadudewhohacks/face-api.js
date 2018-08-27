@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var tf = require("@tensorflow/tfjs-core");
-var extractConvParamsFactory_1 = require("../commons/extractConvParamsFactory");
-var extractFCParamsFactory_1 = require("../commons/extractFCParamsFactory");
-var extractWeightsFactory_1 = require("../commons/extractWeightsFactory");
+import * as tslib_1 from "tslib";
+import * as tf from '@tensorflow/tfjs-core';
+import { extractWeightsFactory } from 'tfjs-image-recognition-base';
+import { extractConvParamsFactory, extractFCParamsFactory } from 'tfjs-tiny-yolov2';
 function extractorsFactory(extractWeights, paramMappings) {
-    var extractConvParams = extractConvParamsFactory_1.extractConvParamsFactory(extractWeights, paramMappings);
-    var extractFCParams = extractFCParamsFactory_1.extractFCParamsFactory(extractWeights, paramMappings);
+    var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+    var extractFCParams = extractFCParamsFactory(extractWeights, paramMappings);
     function extractPReluParams(size, paramPath) {
         var alpha = tf.tensor1d(extractWeights(size));
         paramMappings.push({ paramPath: paramPath });
@@ -54,8 +51,8 @@ function extractorsFactory(extractWeights, paramMappings) {
         extractONetParams: extractONetParams
     };
 }
-function extractParams(weights) {
-    var _a = extractWeightsFactory_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+export function extractParams(weights) {
+    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
     var _b = extractorsFactory(extractWeights, paramMappings), extractPNetParams = _b.extractPNetParams, extractRNetParams = _b.extractRNetParams, extractONetParams = _b.extractONetParams;
     var pnet = extractPNetParams();
@@ -66,5 +63,4 @@ function extractParams(weights) {
     }
     return { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings };
 }
-exports.extractParams = extractParams;
 //# sourceMappingURL=extractParams.js.map

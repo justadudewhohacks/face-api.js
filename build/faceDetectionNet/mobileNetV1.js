@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tf = require("@tensorflow/tfjs-core");
-var pointwiseConvLayer_1 = require("./pointwiseConvLayer");
+import * as tf from '@tensorflow/tfjs-core';
+import { pointwiseConvLayer } from './pointwiseConvLayer';
 var epsilon = 0.0010000000474974513;
 function depthwiseConvLayer(x, params, strides) {
     return tf.tidy(function () {
@@ -13,10 +11,10 @@ function depthwiseConvLayer(x, params, strides) {
 function getStridesForLayerIdx(layerIdx) {
     return [2, 4, 6, 12].some(function (idx) { return idx === layerIdx; }) ? [2, 2] : [1, 1];
 }
-function mobileNetV1(x, params) {
+export function mobileNetV1(x, params) {
     return tf.tidy(function () {
         var conv11 = null;
-        var out = pointwiseConvLayer_1.pointwiseConvLayer(x, params.conv_0, [2, 2]);
+        var out = pointwiseConvLayer(x, params.conv_0, [2, 2]);
         var convPairParams = [
             params.conv_1,
             params.conv_2,
@@ -36,7 +34,7 @@ function mobileNetV1(x, params) {
             var layerIdx = i + 1;
             var depthwiseConvStrides = getStridesForLayerIdx(layerIdx);
             out = depthwiseConvLayer(out, param.depthwise_conv, depthwiseConvStrides);
-            out = pointwiseConvLayer_1.pointwiseConvLayer(out, param.pointwise_conv, [1, 1]);
+            out = pointwiseConvLayer(out, param.pointwise_conv, [1, 1]);
             if (layerIdx === 11) {
                 conv11 = out;
             }
@@ -50,5 +48,4 @@ function mobileNetV1(x, params) {
         };
     });
 }
-exports.mobileNetV1 = mobileNetV1;
 //# sourceMappingURL=mobileNetV1.js.map
