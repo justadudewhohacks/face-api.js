@@ -1,10 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
+import {
+  disposeUnusedWeightTensors,
+  extractWeightEntryFactory,
+  isTensor2D,
+  loadWeightMap,
+  ParamMapping,
+} from 'tfjs-image-recognition-base';
 
-import { disposeUnusedWeightTensors } from '../commons/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../commons/extractWeightEntryFactory';
-import { isTensor2D } from '../commons/isTensor';
-import { loadWeightMap } from '../commons/loadWeightMap';
-import { ParamMapping } from '../commons/types';
 import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
 const DEFAULT_MODEL_NAME = 'face_recognition_model'

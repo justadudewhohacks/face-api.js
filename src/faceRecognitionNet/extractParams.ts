@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { extractWeightsFactory, ExtractWeightsFunction, isFloat, ParamMapping } from 'tfjs-image-recognition-base';
+import { ConvParams } from 'tfjs-tiny-yolov2';
 
-import { extractWeightsFactory } from '../commons/extractWeightsFactory';
-import { ConvParams, ExtractWeightsFunction, ParamMapping } from '../commons/types';
-import { isFloat } from '../utils';
 import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
 function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {

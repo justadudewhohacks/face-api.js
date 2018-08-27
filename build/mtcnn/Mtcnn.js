@@ -1,23 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var tf = require("@tensorflow/tfjs-core");
-var NeuralNetwork_1 = require("../commons/NeuralNetwork");
-var FaceDetection_1 = require("../FaceDetection");
-var Point_1 = require("../Point");
-var Rect_1 = require("../Rect");
-var toNetInput_1 = require("../toNetInput");
-var bgrToRgbTensor_1 = require("./bgrToRgbTensor");
-var config_1 = require("./config");
-var extractParams_1 = require("./extractParams");
-var FaceLandmarks5_1 = require("./FaceLandmarks5");
-var getDefaultMtcnnForwardParams_1 = require("./getDefaultMtcnnForwardParams");
-var getSizesForScale_1 = require("./getSizesForScale");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
-var pyramidDown_1 = require("./pyramidDown");
-var stage1_1 = require("./stage1");
-var stage2_1 = require("./stage2");
-var stage3_1 = require("./stage3");
+import * as tslib_1 from "tslib";
+import * as tf from '@tensorflow/tfjs-core';
+import { NeuralNetwork, Point, Rect, toNetInput } from 'tfjs-image-recognition-base';
+import { FaceDetection } from '../classes/FaceDetection';
+import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
+import { bgrToRgbTensor } from './bgrToRgbTensor';
+import { CELL_SIZE } from './config';
+import { extractParams } from './extractParams';
+import { getDefaultMtcnnForwardParams } from './getDefaultMtcnnForwardParams';
+import { getSizesForScale } from './getSizesForScale';
+import { loadQuantizedParams } from './loadQuantizedParams';
+import { pyramidDown } from './pyramidDown';
+import { stage1 } from './stage1';
+import { stage2 } from './stage2';
+import { stage3 } from './stage3';
 var Mtcnn = /** @class */ (function (_super) {
     tslib_1.__extends(Mtcnn, _super);
     function Mtcnn() {
@@ -42,7 +37,7 @@ var Mtcnn = /** @class */ (function (_super) {
                         stats = {};
                         tsTotal = Date.now();
                         imgTensor = tf.tidy(function () {
-                            return bgrToRgbTensor_1.bgrToRgbTensor(tf.expandDims(inputTensor).toFloat());
+                            return bgrToRgbTensor(tf.expandDims(inputTensor).toFloat());
                         });
                         onReturn = function (results) {
                             // dispose tensors on return
@@ -52,17 +47,17 @@ var Mtcnn = /** @class */ (function (_super) {
                             return results;
                         };
                         _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
-                        _b = Object.assign({}, getDefaultMtcnnForwardParams_1.getDefaultMtcnnForwardParams(), forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
-                        scales = (scaleSteps || pyramidDown_1.pyramidDown(minFaceSize, scaleFactor, [height, width]))
+                        _b = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
+                        scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
                             .filter(function (scale) {
-                            var sizes = getSizesForScale_1.getSizesForScale(scale, [height, width]);
-                            return Math.min(sizes.width, sizes.height) > config_1.CELL_SIZE;
+                            var sizes = getSizesForScale(scale, [height, width]);
+                            return Math.min(sizes.width, sizes.height) > CELL_SIZE;
                         })
                             .slice(0, maxNumScales);
                         stats.scales = scales;
-                        stats.pyramid = scales.map(function (scale) { return getSizesForScale_1.getSizesForScale(scale, [height, width]); });
+                        stats.pyramid = scales.map(function (scale) { return getSizesForScale(scale, [height, width]); });
                         ts = Date.now();
-                        return [4 /*yield*/, stage1_1.stage1(imgTensor, scales, scoreThresholds[0], params.pnet, stats)];
+                        return [4 /*yield*/, stage1(imgTensor, scales, scoreThresholds[0], params.pnet, stats)];
                     case 1:
                         out1 = _c.sent();
                         stats.total_stage1 = Date.now() - ts;
@@ -73,7 +68,7 @@ var Mtcnn = /** @class */ (function (_super) {
                         // using the inputCanvas to extract and resize the image patches, since it is faster
                         // than doing this on the gpu
                         ts = Date.now();
-                        return [4 /*yield*/, stage2_1.stage2(inputCanvas, out1.boxes, scoreThresholds[1], params.rnet, stats)];
+                        return [4 /*yield*/, stage2(inputCanvas, out1.boxes, scoreThresholds[1], params.rnet, stats)];
                     case 2:
                         out2 = _c.sent();
                         stats.total_stage2 = Date.now() - ts;
@@ -82,16 +77,16 @@ var Mtcnn = /** @class */ (function (_super) {
                         }
                         stats.stage3_numInputBoxes = out2.boxes.length;
                         ts = Date.now();
-                        return [4 /*yield*/, stage3_1.stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)];
+                        return [4 /*yield*/, stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)];
                     case 3:
                         out3 = _c.sent();
                         stats.total_stage3 = Date.now() - ts;
                         results = out3.boxes.map(function (box, idx) { return ({
-                            faceDetection: new FaceDetection_1.FaceDetection(out3.scores[idx], new Rect_1.Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                            faceDetection: new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
                                 height: height,
                                 width: width
                             }),
-                            faceLandmarks: new FaceLandmarks5_1.FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.div(new Point_1.Point(width, height)); }), { width: width, height: height })
+                            faceLandmarks: new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.div(new Point(width, height)); }), { width: width, height: height })
                         }); });
                         return [2 /*return*/, onReturn({ results: results, stats: stats })];
                 }
@@ -106,7 +101,7 @@ var Mtcnn = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, toNetInput_1.toNetInput(input, true, true)];
+                        return [4 /*yield*/, toNetInput(input, true, true)];
                     case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(),
                             forwardParams])];
                     case 2: return [2 /*return*/, (_b.sent()).results];
@@ -122,7 +117,7 @@ var Mtcnn = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, toNetInput_1.toNetInput(input, true, true)];
+                        return [4 /*yield*/, toNetInput(input, true, true)];
                     case 1: return [2 /*return*/, _a.apply(this, [_b.sent(),
                             forwardParams])];
                 }
@@ -131,12 +126,12 @@ var Mtcnn = /** @class */ (function (_super) {
     };
     // none of the param tensors are quantized yet
     Mtcnn.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+        return loadQuantizedParams(uri);
     };
     Mtcnn.prototype.extractParams = function (weights) {
-        return extractParams_1.extractParams(weights);
+        return extractParams(weights);
     };
     return Mtcnn;
-}(NeuralNetwork_1.NeuralNetwork));
-exports.Mtcnn = Mtcnn;
+}(NeuralNetwork));
+export { Mtcnn };
 //# sourceMappingURL=Mtcnn.js.map

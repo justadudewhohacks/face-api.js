@@ -1,15 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { NetInput, NeuralNetwork, normalize, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { normalize } from '../commons/normalize';
-import { NetInput } from '../NetInput';
-import { toNetInput } from '../toNetInput';
-import { TNetInput } from '../types';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
+
 
 export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
 

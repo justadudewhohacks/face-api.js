@@ -1,9 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import * as faceapi from '../../../src';
-import { NetInput } from '../../../src/NetInput';
-import { expectAllTensorsReleased, describeWithNets } from '../../utils';
-import { toNetInput } from '../../../src';
+import { bufferToImage, FaceRecognitionNet, NetInput, toNetInput } from '../../../src';
+import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
+import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describe('faceRecognitionNet', () => {
 
@@ -16,11 +15,11 @@ describe('faceRecognitionNet', () => {
 
   beforeAll(async () => {
     const img1 = await (await fetch('base/test/images/face1.png')).blob()
-    imgEl1 = await faceapi.bufferToImage(img1)
+    imgEl1 = await bufferToImage(img1)
     const img2 = await (await fetch('base/test/images/face2.png')).blob()
-    imgEl2 = await faceapi.bufferToImage(img2)
+    imgEl2 = await bufferToImage(img2)
     const imgRect = await (await fetch('base/test/images/face_rectangular.png')).blob()
-    imgElRect = await faceapi.bufferToImage(imgRect)
+    imgElRect = await bufferToImage(imgRect)
     faceDescriptor1 = await (await fetch('base/test/data/faceDescriptor1.json')).json()
     faceDescriptor2 = await (await fetch('base/test/data/faceDescriptor2.json')).json()
     faceDescriptorRect = await (await fetch('base/test/data/faceDescriptorRect.json')).json()
@@ -141,7 +140,7 @@ describe('faceRecognitionNet', () => {
         await expectAllTensorsReleased(async () => {
           const res = await fetch('base/weights_uncompressed/face_recognition_model.weights')
           const weights = new Float32Array(await res.arrayBuffer())
-          const net = faceapi.createFaceRecognitionNet(weights)
+          const net = createFaceRecognitionNet(weights)
           net.dispose()
         })
       })
@@ -152,7 +151,7 @@ describe('faceRecognitionNet', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const net = new faceapi.FaceRecognitionNet()
+          const net = new FaceRecognitionNet()
           await net.load('base/weights')
           net.dispose()
         })

@@ -1,11 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { NetInput, NeuralNetwork, Rect, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { FaceDetection } from '../FaceDetection';
-import { NetInput } from '../NetInput';
-import { Rect } from '../Rect';
-import { toNetInput } from '../toNetInput';
-import { TNetInput } from '../types';
+import { FaceDetection } from '../classes/FaceDetection';
 import { extractParams } from './extractParams';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { mobileNetV1 } from './mobileNetV1';

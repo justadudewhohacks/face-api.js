@@ -1,13 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var disposeUnusedWeightTensors_1 = require("../commons/disposeUnusedWeightTensors");
-var extractWeightEntryFactory_1 = require("../commons/extractWeightEntryFactory");
-var isTensor_1 = require("../commons/isTensor");
-var loadWeightMap_1 = require("../commons/loadWeightMap");
+import * as tslib_1 from "tslib";
+import { disposeUnusedWeightTensors, extractWeightEntryFactory, isTensor3D, loadWeightMap, } from 'tfjs-image-recognition-base';
 var DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model';
 function extractorsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = extractWeightEntryFactory_1.extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
     function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
         var filters = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/weights", 4, mappedPrefix + "/filters");
         var batch_norm_offset = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset", 1, mappedPrefix + "/batch_norm_offset");
@@ -85,19 +80,19 @@ function extractorsFactory(weightMap, paramMappings) {
         extractPredictionLayerParams: extractPredictionLayerParams
     };
 }
-function loadQuantizedParams(uri) {
+export function loadQuantizedParams(uri) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var weightMap, paramMappings, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim, params;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, loadWeightMap_1.loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                 case 1:
                     weightMap = _b.sent();
                     paramMappings = [];
                     _a = extractorsFactory(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
                     extra_dim = weightMap['Output/extra_dim'];
                     paramMappings.push({ originalPath: 'Output/extra_dim', paramPath: 'output_layer/extra_dim' });
-                    if (!isTensor_1.isTensor3D(extra_dim)) {
+                    if (!isTensor3D(extra_dim)) {
                         throw new Error("expected weightMap['Output/extra_dim'] to be a Tensor3D, instead have " + extra_dim);
                     }
                     params = {
@@ -107,11 +102,10 @@ function loadQuantizedParams(uri) {
                             extra_dim: extra_dim
                         }
                     };
-                    disposeUnusedWeightTensors_1.disposeUnusedWeightTensors(weightMap, paramMappings);
+                    disposeUnusedWeightTensors(weightMap, paramMappings);
                     return [2 /*return*/, { params: params, paramMappings: paramMappings }];
             }
         });
     });
 }
-exports.loadQuantizedParams = loadQuantizedParams;
 //# sourceMappingURL=loadQuantizedParams.js.map

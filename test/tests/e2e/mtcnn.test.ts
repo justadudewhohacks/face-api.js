@@ -46,7 +46,7 @@ describe('mtcnn', () => {
 
       const results = await mtcnn.forward(imgEl, forwardParams)
       expect(results.length).toEqual(6)
-      expectMtcnnResults(results, [5, 1, 4, 3, 2, 0], 6, 10)
+      expectMtcnnResults(results, [5, 1, 4, 2, 3, 0], 6, 10)
     })
 
     it('scale steps passed, finds all faces', async () => {

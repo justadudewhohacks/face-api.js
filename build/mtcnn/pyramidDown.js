@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("./config");
-function pyramidDown(minFaceSize, scaleFactor, dims) {
+import { CELL_SIZE } from './config';
+export function pyramidDown(minFaceSize, scaleFactor, dims) {
     var height = dims[0], width = dims[1];
-    var m = config_1.CELL_SIZE / minFaceSize;
+    var m = CELL_SIZE / minFaceSize;
     var scales = [];
     var minLayer = Math.min(height, width) * m;
     var exp = 0;
@@ -14,5 +12,4 @@ function pyramidDown(minFaceSize, scaleFactor, dims) {
     }
     return scales;
 }
-exports.pyramidDown = pyramidDown;
 //# sourceMappingURL=pyramidDown.js.map

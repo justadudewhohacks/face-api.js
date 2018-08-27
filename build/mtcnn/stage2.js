@@ -1,25 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var tf = require("@tensorflow/tfjs-core");
-var BoundingBox_1 = require("../BoundingBox");
-var nonMaxSuppression_1 = require("../commons/nonMaxSuppression");
-var extractImagePatches_1 = require("./extractImagePatches");
-var RNet_1 = require("./RNet");
-function stage2(img, inputBoxes, scoreThreshold, params, stats) {
+import * as tslib_1 from "tslib";
+import * as tf from '@tensorflow/tfjs-core';
+import { BoundingBox, nonMaxSuppression } from 'tfjs-image-recognition-base';
+import { extractImagePatches } from './extractImagePatches';
+import { RNet } from './RNet';
+export function stage2(img, inputBoxes, scoreThreshold, params, stats) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var ts, rnetInputs, rnetOuts, scoresTensor, scores, _a, _b, indices, filteredBoxes, filteredScores, finalBoxes, finalScores, indicesNms, regions_1;
         return tslib_1.__generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     ts = Date.now();
-                    return [4 /*yield*/, extractImagePatches_1.extractImagePatches(img, inputBoxes, { width: 24, height: 24 })];
+                    return [4 /*yield*/, extractImagePatches(img, inputBoxes, { width: 24, height: 24 })];
                 case 1:
                     rnetInputs = _c.sent();
                     stats.stage2_extractImagePatches = Date.now() - ts;
                     ts = Date.now();
                     rnetOuts = rnetInputs.map(function (rnetInput) {
-                        var out = RNet_1.RNet(rnetInput, params);
+                        var out = RNet(rnetInput, params);
                         rnetInput.dispose();
                         return out;
                     });
@@ -45,10 +42,10 @@ function stage2(img, inputBoxes, scoreThreshold, params, stats) {
                     finalScores = [];
                     if (filteredBoxes.length > 0) {
                         ts = Date.now();
-                        indicesNms = nonMaxSuppression_1.nonMaxSuppression(filteredBoxes, filteredScores, 0.7);
+                        indicesNms = nonMaxSuppression(filteredBoxes, filteredScores, 0.7);
                         stats.stage2_nms = Date.now() - ts;
                         regions_1 = indicesNms.map(function (idx) {
-                            return new BoundingBox_1.BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
+                            return new BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
                         });
                         finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                         finalBoxes = indicesNms.map(function (idx, i) { return filteredBoxes[idx].calibrate(regions_1[i]); });
@@ -65,5 +62,4 @@ function stage2(img, inputBoxes, scoreThreshold, params, stats) {
         });
     });
 }
-exports.stage2 = stage2;
 //# sourceMappingURL=stage2.js.map

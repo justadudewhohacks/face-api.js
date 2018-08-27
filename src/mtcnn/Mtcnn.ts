@@ -1,16 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { NetInput, NeuralNetwork, Point, Rect, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
-import { NeuralNetwork } from '../commons/NeuralNetwork';
-import { FaceDetection } from '../FaceDetection';
-import { NetInput } from '../NetInput';
-import { Point } from '../Point';
-import { Rect } from '../Rect';
-import { toNetInput } from '../toNetInput';
-import { TNetInput } from '../types';
+import { FaceDetection } from '../classes/FaceDetection';
+import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
-import { FaceLandmarks5 } from './FaceLandmarks5';
 import { getDefaultMtcnnForwardParams } from './getDefaultMtcnnForwardParams';
 import { getSizesForScale } from './getSizesForScale';
 import { loadQuantizedParams } from './loadQuantizedParams';

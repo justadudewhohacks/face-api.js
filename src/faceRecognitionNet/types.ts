@@ -1,6 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-
-import { ConvParams } from '../commons/types';
+import { ConvParams } from 'tfjs-tiny-yolov2';
 
 export type ScaleLayerParams = {
   weights: tf.Tensor1D

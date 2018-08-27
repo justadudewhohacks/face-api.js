@@ -1,6 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-
-import { FCParams } from '../commons/types';
+import { FCParams } from 'tfjs-tiny-yolov2';
 
 export function fullyConnectedLayer(
   x: tf.Tensor2D,

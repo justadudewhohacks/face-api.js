@@ -1,5 +1,4 @@
-import { BoundingBox } from '../BoundingBox';
-import { Point } from '../Point';
+import { BoundingBox, Point } from 'tfjs-image-recognition-base';
 import { ONetParams } from './types';
 export declare function stage3(img: HTMLCanvasElement, inputBoxes: BoundingBox[], scoreThreshold: number, params: ONetParams, stats: any): Promise<{
     boxes: BoundingBox[];

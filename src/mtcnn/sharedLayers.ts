@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { convLayer } from 'tfjs-tiny-yolov2';
 
-import { convLayer } from '../commons/convLayer';
 import { prelu } from './prelu';
 import { SharedParams } from './types';
 

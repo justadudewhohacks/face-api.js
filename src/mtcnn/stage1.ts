@@ -1,8 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { BoundingBox, nonMaxSuppression, Point } from 'tfjs-image-recognition-base';
 
-import { BoundingBox } from '../BoundingBox';
-import { nonMaxSuppression } from '../commons/nonMaxSuppression';
-import { Point } from '../Point';
 import { CELL_SIZE, CELL_STRIDE } from './config';
 import { getSizesForScale } from './getSizesForScale';
 import { normalize } from './normalize';
