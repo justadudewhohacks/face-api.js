@@ -197,7 +197,7 @@ const maxResults = 10
 
 // inputs can be html canvas, img or video element or their ids ...
 const myImg = document.getElementById('myImg')
-const detections = await faceapi.ssdMobilenetv1(myImg, minConfidence, maxResults)
+const detections = await faceapi.locateFaces(myImg, minConfidence, maxResults)
 ```
 
 Draw the detected faces to a canvas:
