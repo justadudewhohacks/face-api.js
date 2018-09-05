@@ -69,6 +69,8 @@ export function locateFaces(
   return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults)
 }
 
+export const ssdMobilenetv1 = locateFaces
+
 export function detectLandmarks(
   input: TNetInput
 ): Promise<FaceLandmarks68 | FaceLandmarks68[]> {
