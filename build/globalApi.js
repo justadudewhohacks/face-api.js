@@ -46,6 +46,7 @@ export function loadModels(url) {
 export function locateFaces(input, minConfidence, maxResults) {
     return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults);
 }
+export var ssdMobilenetv1 = locateFaces;
 export function detectLandmarks(input) {
     return nets.faceLandmark68Net.detectLandmarks(input);
 }
