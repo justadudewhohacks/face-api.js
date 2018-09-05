@@ -28,6 +28,7 @@ export declare function loadTinyYolov2Model(url: string): Promise<void>;
 export declare function loadFaceDetectionModel(url: string): Promise<void>;
 export declare function loadModels(url: string): Promise<[void, void, void, void, void]>;
 export declare function locateFaces(input: TNetInput, minConfidence?: number, maxResults?: number): Promise<FaceDetection[]>;
+export declare const ssdMobilenetv1: typeof locateFaces;
 export declare function detectLandmarks(input: TNetInput): Promise<FaceLandmarks68 | FaceLandmarks68[]>;
 export declare function computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
 export declare function mtcnn(input: TNetInput, forwardParams: MtcnnForwardParams): Promise<MtcnnResult[]>;
