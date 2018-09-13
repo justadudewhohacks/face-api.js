@@ -23,7 +23,8 @@
   "dependencies": {
     "@tensorflow/tfjs-core": "^0.12.14",
     "tfjs-image-recognition-base": "^0.0.0",
-    "tfjs-tiny-yolov2": "0.0.2"
+    "tfjs-tiny-yolov2": "0.0.2",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
@@ -39,7 +40,6 @@
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-typescript2": "^0.16.1",
     "rollup-plugin-uglify": "^4.0.0",
-    "tslib": "^1.9.3",
     "typescript": "2.8.4"
   }
 }
