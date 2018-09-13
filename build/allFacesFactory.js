@@ -1,14 +1,16 @@
-import * as tslib_1 from "tslib";
-import { Point } from 'tfjs-image-recognition-base';
-import { FullFaceDescription } from './classes/FullFaceDescription';
-import { extractFaceTensors } from './dom';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var FullFaceDescription_1 = require("./classes/FullFaceDescription");
+var dom_1 = require("./dom");
 function computeDescriptorsFactory(recognitionNet) {
     return function (input, alignedFaceBoxes, useBatchProcessing) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var alignedFaceTensors, descriptors, _a;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
+                    case 0: return [4 /*yield*/, dom_1.extractFaceTensors(input, alignedFaceBoxes)];
                     case 1:
                         alignedFaceTensors = _b.sent();
                         if (!useBatchProcessing) return [3 /*break*/, 3];
@@ -40,7 +42,7 @@ function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
                     case 0: return [4 /*yield*/, detectFaces(input)];
                     case 1:
                         detections = _b.sent();
-                        return [4 /*yield*/, extractFaceTensors(input, detections)];
+                        return [4 /*yield*/, dom_1.extractFaceTensors(input, detections)];
                     case 2:
                         faceTensors = _b.sent();
                         if (!useBatchProcessing) return [3 /*break*/, 4];
@@ -60,14 +62,14 @@ function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
                     case 7:
                         descriptors = _b.sent();
                         return [2 /*return*/, detections.map(function (detection, i) {
-                                return new FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(new Point(detection.box.x, detection.box.y)), descriptors[i]);
+                                return new FullFaceDescription_1.FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(new tfjs_image_recognition_base_1.Point(detection.box.x, detection.box.y)), descriptors[i]);
                             })];
                 }
             });
         });
     };
 }
-export function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recognitionNet) {
+function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recognitionNet) {
     return function (input, minConfidence, useBatchProcessing) {
         if (minConfidence === void 0) { minConfidence = 0.8; }
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
@@ -81,7 +83,8 @@ export function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recog
         });
     };
 }
-export function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNet) {
+exports.allFacesSsdMobilenetv1Factory = allFacesSsdMobilenetv1Factory;
+function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNet) {
     return function (input, forwardParams, useBatchProcessing) {
         if (forwardParams === void 0) { forwardParams = {}; }
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
@@ -95,7 +98,8 @@ export function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNe
         });
     };
 }
-export function allFacesMtcnnFactory(mtcnn, recognitionNet) {
+exports.allFacesTinyYolov2Factory = allFacesTinyYolov2Factory;
+function allFacesMtcnnFactory(mtcnn, recognitionNet) {
     var computeDescriptors = computeDescriptorsFactory(recognitionNet);
     return function (input, mtcnnForwardParams, useBatchProcessing) {
         if (mtcnnForwardParams === void 0) { mtcnnForwardParams = {}; }
@@ -116,11 +120,12 @@ export function allFacesMtcnnFactory(mtcnn, recognitionNet) {
                         descriptors = _a.sent();
                         return [2 /*return*/, results.map(function (_a, i) {
                                 var faceDetection = _a.faceDetection, faceLandmarks = _a.faceLandmarks;
-                                return new FullFaceDescription(faceDetection, faceLandmarks, descriptors[i]);
+                                return new FullFaceDescription_1.FullFaceDescription(faceDetection, faceLandmarks, descriptors[i]);
                             })];
                 }
             });
         });
     };
 }
+exports.allFacesMtcnnFactory = allFacesMtcnnFactory;
 //# sourceMappingURL=allFacesFactory.js.map

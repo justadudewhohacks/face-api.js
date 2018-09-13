@@ -1,4 +1,6 @@
-import * as tf from '@tensorflow/tfjs-core';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
 function getCenterCoordinatesAndSizesLayer(x) {
     var vec = tf.unstack(tf.transpose(x, [1, 0]));
     var sizes = [
@@ -28,7 +30,7 @@ function decodeBoxesLayer(x0, x1) {
         tf.add(add1_out, div1_out)
     ]), [1, 0]);
 }
-export function outputLayer(boxPredictions, classPredictions, params) {
+function outputLayer(boxPredictions, classPredictions, params) {
     return tf.tidy(function () {
         var batchSize = boxPredictions.shape[0];
         var boxes = decodeBoxesLayer(tf.reshape(tf.tile(params.extra_dim, [batchSize, 1, 1]), [-1, 4]), tf.reshape(boxPredictions, [-1, 4]));
@@ -44,4 +46,5 @@ export function outputLayer(boxPredictions, classPredictions, params) {
         };
     });
 }
+exports.outputLayer = outputLayer;
 //# sourceMappingURL=outputLayer.js.map

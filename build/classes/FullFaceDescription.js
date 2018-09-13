@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var FullFaceDescription = /** @class */ (function () {
     function FullFaceDescription(_detection, _landmarks, _descriptor) {
         this._detection = _detection;
@@ -30,5 +32,5 @@ var FullFaceDescription = /** @class */ (function () {
     };
     return FullFaceDescription;
 }());
-export { FullFaceDescription };
+exports.FullFaceDescription = FullFaceDescription;
 //# sourceMappingURL=FullFaceDescription.js.map

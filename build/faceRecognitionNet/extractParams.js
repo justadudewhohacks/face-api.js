@@ -1,10 +1,12 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory, isFloat } from 'tfjs-image-recognition-base';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 function extractorsFactory(extractWeights, paramMappings) {
     function extractFilterValues(numFilterValues, numFilters, filterSize) {
         var weights = extractWeights(numFilterValues);
         var depth = weights.length / (numFilters * filterSize * filterSize);
-        if (isFloat(depth)) {
+        if (tfjs_image_recognition_base_1.isFloat(depth)) {
             throw new Error("depth has to be an integer: " + depth + ", weights.length: " + weights.length + ", numFilters: " + numFilters + ", filterSize: " + filterSize);
         }
         return tf.tidy(function () { return tf.transpose(tf.tensor4d(weights, [numFilters, depth, filterSize, filterSize]), [2, 3, 1, 0]); });
@@ -40,8 +42,8 @@ function extractorsFactory(extractWeights, paramMappings) {
         extractResidualLayerParams: extractResidualLayerParams
     };
 }
-export function extractParams(weights) {
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+function extractParams(weights) {
+    var _a = tfjs_image_recognition_base_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
     var _b = extractorsFactory(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
     var conv32_down = extractConvLayerParams(4704, 32, 7, 'conv32_down');
@@ -84,4 +86,5 @@ export function extractParams(weights) {
     };
     return { params: params, paramMappings: paramMappings };
 }
+exports.extractParams = extractParams;
 //# sourceMappingURL=extractParams.js.map

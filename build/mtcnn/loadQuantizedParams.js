@@ -1,8 +1,10 @@
-import * as tslib_1 from "tslib";
-import { disposeUnusedWeightTensors, extractWeightEntryFactory, loadWeightMap, } from 'tfjs-image-recognition-base';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var DEFAULT_MODEL_NAME = 'mtcnn_model';
 function extractorsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = tfjs_image_recognition_base_1.extractWeightEntryFactory(weightMap, paramMappings);
     function extractConvParams(prefix) {
         var filters = extractWeightEntry(prefix + "/weights", 4, prefix + "/filters");
         var bias = extractWeightEntry(prefix + "/bias", 1);
@@ -56,12 +58,12 @@ function extractorsFactory(weightMap, paramMappings) {
         extractONetParams: extractONetParams
     };
 }
-export function loadQuantizedParams(uri) {
+function loadQuantizedParams(uri) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var weightMap, paramMappings, _a, extractPNetParams, extractRNetParams, extractONetParams, pnet, rnet, onet;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                 case 1:
                     weightMap = _b.sent();
                     paramMappings = [];
@@ -69,10 +71,11 @@ export function loadQuantizedParams(uri) {
                     pnet = extractPNetParams();
                     rnet = extractRNetParams();
                     onet = extractONetParams();
-                    disposeUnusedWeightTensors(weightMap, paramMappings);
+                    tfjs_image_recognition_base_1.disposeUnusedWeightTensors(weightMap, paramMappings);
                     return [2 /*return*/, { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings }];
             }
         });
     });
 }
+exports.loadQuantizedParams = loadQuantizedParams;
 //# sourceMappingURL=loadQuantizedParams.js.map

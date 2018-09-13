@@ -1,7 +1,9 @@
-import * as tslib_1 from "tslib";
-import { TinyYolov2 as TinyYolov2Base } from 'tfjs-tiny-yolov2';
-import { FaceDetection } from '../classes';
-import { BOX_ANCHORS, BOX_ANCHORS_SEPARABLE, DEFAULT_MODEL_NAME, DEFAULT_MODEL_NAME_SEPARABLE_CONV, IOU_THRESHOLD, MEAN_RGB_SEPARABLE, } from './const';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var classes_1 = require("../classes");
+var const_1 = require("./const");
 var TinyYolov2 = /** @class */ (function (_super) {
     tslib_1.__extends(TinyYolov2, _super);
     function TinyYolov2(withSeparableConvs) {
@@ -9,15 +11,15 @@ var TinyYolov2 = /** @class */ (function (_super) {
         var _this = this;
         var config = Object.assign({}, {
             withSeparableConvs: withSeparableConvs,
-            iouThreshold: IOU_THRESHOLD,
+            iouThreshold: const_1.IOU_THRESHOLD,
             classes: ['face']
         }, withSeparableConvs
             ? {
-                anchors: BOX_ANCHORS_SEPARABLE,
-                meanRgb: MEAN_RGB_SEPARABLE
+                anchors: const_1.BOX_ANCHORS_SEPARABLE,
+                meanRgb: const_1.MEAN_RGB_SEPARABLE
             }
             : {
-                anchors: BOX_ANCHORS,
+                anchors: const_1.BOX_ANCHORS,
                 withClassScores: true
             });
         _this = _super.call(this, config) || this;
@@ -45,16 +47,16 @@ var TinyYolov2 = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, this.detect(input, forwardParams)];
                     case 1:
                         objectDetections = _a.sent();
-                        return [2 /*return*/, objectDetections.map(function (det) { return new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }); })];
+                        return [2 /*return*/, objectDetections.map(function (det) { return new classes_1.FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }); })];
                 }
             });
         });
     };
     TinyYolov2.prototype.loadQuantizedParams = function (modelUri) {
-        var defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME;
+        var defaultModelName = this.withSeparableConvs ? const_1.DEFAULT_MODEL_NAME_SEPARABLE_CONV : const_1.DEFAULT_MODEL_NAME;
         return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
     };
     return TinyYolov2;
-}(TinyYolov2Base));
-export { TinyYolov2 };
+}(tfjs_tiny_yolov2_1.TinyYolov2));
+exports.TinyYolov2 = TinyYolov2;
 //# sourceMappingURL=TinyYolov2.js.map

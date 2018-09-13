@@ -1,13 +1,15 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-import { NeuralNetwork, Rect, toNetInput } from 'tfjs-image-recognition-base';
-import { FaceDetection } from '../classes/FaceDetection';
-import { extractParams } from './extractParams';
-import { loadQuantizedParams } from './loadQuantizedParams';
-import { mobileNetV1 } from './mobileNetV1';
-import { nonMaxSuppression } from './nonMaxSuppression';
-import { outputLayer } from './outputLayer';
-import { predictionLayer } from './predictionLayer';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var FaceDetection_1 = require("../classes/FaceDetection");
+var extractParams_1 = require("./extractParams");
+var loadQuantizedParams_1 = require("./loadQuantizedParams");
+var mobileNetV1_1 = require("./mobileNetV1");
+var nonMaxSuppression_1 = require("./nonMaxSuppression");
+var outputLayer_1 = require("./outputLayer");
+var predictionLayer_1 = require("./predictionLayer");
 var FaceDetectionNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceDetectionNet, _super);
     function FaceDetectionNet() {
@@ -21,9 +23,9 @@ var FaceDetectionNet = /** @class */ (function (_super) {
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(512, false);
             var x = tf.sub(tf.mul(batchTensor, tf.scalar(0.007843137718737125)), tf.scalar(1));
-            var features = mobileNetV1(x, params.mobilenetv1);
-            var _a = predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-            return outputLayer(boxPredictions, classPredictions, params.output_layer);
+            var features = mobileNetV1_1.mobileNetV1(x, params.mobilenetv1);
+            var _a = predictionLayer_1.predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+            return outputLayer_1.outputLayer(boxPredictions, classPredictions, params.output_layer);
         });
     };
     FaceDetectionNet.prototype.forward = function (input) {
@@ -33,7 +35,7 @@ var FaceDetectionNet = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, toNetInput(input, true)];
+                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true)];
                     case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                 }
             });
@@ -46,7 +48,7 @@ var FaceDetectionNet = /** @class */ (function (_super) {
             var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddings, results;
             return tslib_1.__generator(this, function (_d) {
                 switch (_d.label) {
-                    case 0: return [4 /*yield*/, toNetInput(input, true)];
+                    case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true)];
                     case 1:
                         netInput = _d.sent();
                         _a = this.forwardInput(netInput), _boxes = _a.boxes, _scores = _a.scores;
@@ -61,7 +63,7 @@ var FaceDetectionNet = /** @class */ (function (_super) {
                     case 2:
                         scoresData = _c.apply(_b, [_d.sent()]);
                         iouThreshold = 0.5;
-                        indices = nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
+                        indices = nonMaxSuppression_1.nonMaxSuppression(boxes, scoresData, maxResults, iouThreshold, minConfidence);
                         paddings = netInput.getRelativePaddings(0);
                         results = indices
                             .map(function (idx) {
@@ -73,7 +75,7 @@ var FaceDetectionNet = /** @class */ (function (_super) {
                                 Math.max(0, boxes.get(idx, 1)),
                                 Math.min(1.0, boxes.get(idx, 3))
                             ].map(function (val) { return val * paddings.x; }), left = _b[0], right = _b[1];
-                            return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), {
+                            return new FaceDetection_1.FaceDetection(scoresData[idx], new tfjs_image_recognition_base_1.Rect(left, top, right - left, bottom - top), {
                                 height: netInput.getInputHeight(0),
                                 width: netInput.getInputWidth(0)
                             });
@@ -86,12 +88,12 @@ var FaceDetectionNet = /** @class */ (function (_super) {
         });
     };
     FaceDetectionNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams(uri);
+        return loadQuantizedParams_1.loadQuantizedParams(uri);
     };
     FaceDetectionNet.prototype.extractParams = function (weights) {
-        return extractParams(weights);
+        return extractParams_1.extractParams(weights);
     };
     return FaceDetectionNet;
-}(NeuralNetwork));
-export { FaceDetectionNet };
+}(tfjs_image_recognition_base_1.NeuralNetwork));
+exports.FaceDetectionNet = FaceDetectionNet;
 //# sourceMappingURL=FaceDetectionNet.js.map

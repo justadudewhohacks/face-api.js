@@ -1,6 +1,8 @@
-import * as tslib_1 from "tslib";
-import { getCenterPoint } from 'tfjs-image-recognition-base';
-import { FaceLandmarks } from '../classes/FaceLandmarks';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var FaceLandmarks_1 = require("../classes/FaceLandmarks");
 var FaceLandmarks68 = /** @class */ (function (_super) {
     tslib_1.__extends(FaceLandmarks68, _super);
     function FaceLandmarks68() {
@@ -32,9 +34,9 @@ var FaceLandmarks68 = /** @class */ (function (_super) {
             this.getLeftEye(),
             this.getRightEye(),
             this.getMouth()
-        ].map(getCenterPoint);
+        ].map(tfjs_image_recognition_base_1.getCenterPoint);
     };
     return FaceLandmarks68;
-}(FaceLandmarks));
-export { FaceLandmarks68 };
+}(FaceLandmarks_1.FaceLandmarks));
+exports.FaceLandmarks68 = FaceLandmarks68;
 //# sourceMappingURL=FaceLandmarks68.js.map

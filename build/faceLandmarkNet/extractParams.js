@@ -1,10 +1,12 @@
-import { extractWeightsFactory } from 'tfjs-image-recognition-base';
-import { extractConvParamsFactory, extractFCParamsFactory } from 'tfjs-tiny-yolov2';
-export function extractParams(weights) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+function extractParams(weights) {
     var paramMappings = [];
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-    var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
-    var extractFCParams = extractFCParamsFactory(extractWeights, paramMappings);
+    var _a = tfjs_image_recognition_base_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var extractConvParams = tfjs_tiny_yolov2_1.extractConvParamsFactory(extractWeights, paramMappings);
+    var extractFCParams = tfjs_tiny_yolov2_1.extractFCParamsFactory(extractWeights, paramMappings);
     var conv0 = extractConvParams(3, 32, 3, 'conv0');
     var conv1 = extractConvParams(32, 64, 3, 'conv1');
     var conv2 = extractConvParams(64, 64, 3, 'conv2');
@@ -34,4 +36,5 @@ export function extractParams(weights) {
         }
     };
 }
+exports.extractParams = extractParams;
 //# sourceMappingURL=extractParams.js.map

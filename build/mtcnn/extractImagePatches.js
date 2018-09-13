@@ -1,8 +1,10 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-import { normalize } from './normalize';
-import { getContext2dOrThrow, createCanvas } from 'tfjs-image-recognition-base';
-export function extractImagePatches(img, boxes, _a) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+var normalize_1 = require("./normalize");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+function extractImagePatches(img, boxes, _a) {
     var width = _a.width, height = _a.height;
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var _this = this;
@@ -10,7 +12,7 @@ export function extractImagePatches(img, boxes, _a) {
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    imgCtx = getContext2dOrThrow(img);
+                    imgCtx = tfjs_image_recognition_base_1.getContext2dOrThrow(img);
                     return [4 /*yield*/, Promise.all(boxes.map(function (box) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
                             var _a, y, ey, x, ex, fromX, fromY, imgData;
                             return tslib_1.__generator(this, function (_b) {
@@ -25,8 +27,8 @@ export function extractImagePatches(img, boxes, _a) {
                     bitmaps = _b.sent();
                     imagePatchesDatas = [];
                     bitmaps.forEach(function (bmp) {
-                        var patch = createCanvas({ width: width, height: height });
-                        var patchCtx = getContext2dOrThrow(patch);
+                        var patch = tfjs_image_recognition_base_1.createCanvas({ width: width, height: height });
+                        var patchCtx = tfjs_image_recognition_base_1.getContext2dOrThrow(patch);
                         patchCtx.drawImage(bmp, 0, 0, width, height);
                         var data = patchCtx.getImageData(0, 0, width, height).data;
                         var currData = [];
@@ -41,7 +43,7 @@ export function extractImagePatches(img, boxes, _a) {
                     return [2 /*return*/, imagePatchesDatas.map(function (data) {
                             var t = tf.tidy(function () {
                                 var imagePatchTensor = tf.transpose(tf.tensor4d(data, [1, width, height, 3]), [0, 2, 1, 3]).toFloat();
-                                return normalize(imagePatchTensor);
+                                return normalize_1.normalize(imagePatchTensor);
                             });
                             return t;
                         })];
@@ -49,4 +51,5 @@ export function extractImagePatches(img, boxes, _a) {
         });
     });
 }
+exports.extractImagePatches = extractImagePatches;
 //# sourceMappingURL=extractImagePatches.js.map

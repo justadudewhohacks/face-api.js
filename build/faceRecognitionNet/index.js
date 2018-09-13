@@ -1,12 +1,17 @@
-import { FaceRecognitionNet } from './FaceRecognitionNet';
-export * from './FaceRecognitionNet';
-export function createFaceRecognitionNet(weights) {
-    var net = new FaceRecognitionNet();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var FaceRecognitionNet_1 = require("./FaceRecognitionNet");
+tslib_1.__exportStar(require("./FaceRecognitionNet"), exports);
+function createFaceRecognitionNet(weights) {
+    var net = new FaceRecognitionNet_1.FaceRecognitionNet();
     net.extractWeights(weights);
     return net;
 }
-export function faceRecognitionNet(weights) {
+exports.createFaceRecognitionNet = createFaceRecognitionNet;
+function faceRecognitionNet(weights) {
     console.warn('faceRecognitionNet(weights: Float32Array) will be deprecated in future, use createFaceRecognitionNet instead');
     return createFaceRecognitionNet(weights);
 }
+exports.faceRecognitionNet = faceRecognitionNet;
 //# sourceMappingURL=index.js.map

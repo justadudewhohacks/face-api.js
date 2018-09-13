@@ -1,20 +1,22 @@
-import { getCenterPoint, Point, Rect } from 'tfjs-image-recognition-base';
-import { FaceDetection } from './FaceDetection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var FaceDetection_1 = require("./FaceDetection");
 // face alignment constants
 var relX = 0.5;
 var relY = 0.43;
 var relScale = 0.45;
 var FaceLandmarks = /** @class */ (function () {
     function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
-        if (shift === void 0) { shift = new Point(0, 0); }
+        if (shift === void 0) { shift = new tfjs_image_recognition_base_1.Point(0, 0); }
         var width = imageDims.width, height = imageDims.height;
         this._imageWidth = width;
         this._imageHeight = height;
         this._shift = shift;
-        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
+        this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new tfjs_image_recognition_base_1.Point(width, height)).add(shift); });
     }
     FaceLandmarks.prototype.getShift = function () {
-        return new Point(this._shift.x, this._shift.y);
+        return new tfjs_image_recognition_base_1.Point(this._shift.x, this._shift.y);
     };
     FaceLandmarks.prototype.getImageWidth = function () {
         return this._imageWidth;
@@ -27,13 +29,13 @@ var FaceLandmarks = /** @class */ (function () {
     };
     FaceLandmarks.prototype.getRelativePositions = function () {
         var _this = this;
-        return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
+        return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new tfjs_image_recognition_base_1.Point(_this._imageWidth, _this._imageHeight)); });
     };
     FaceLandmarks.prototype.forSize = function (width, height) {
         return new this.constructor(this.getRelativePositions(), { width: width, height: height });
     };
     FaceLandmarks.prototype.shift = function (x, y) {
-        return new this.constructor(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+        return new this.constructor(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new tfjs_image_recognition_base_1.Point(x, y));
     };
     FaceLandmarks.prototype.shiftByPoint = function (pt) {
         return this.shift(pt.x, pt.y);
@@ -51,7 +53,7 @@ var FaceLandmarks = /** @class */ (function () {
      */
     FaceLandmarks.prototype.align = function (detection) {
         if (detection) {
-            var box = detection instanceof FaceDetection
+            var box = detection instanceof FaceDetection_1.FaceDetection
                 ? detection.getBox().floor()
                 : detection;
             return this.shift(box.x, box.y).align();
@@ -61,16 +63,16 @@ var FaceLandmarks = /** @class */ (function () {
         var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
         var eyeToMouthDist = (distToMouth(leftEyeCenter) + distToMouth(rightEyeCenter)) / 2;
         var size = Math.floor(eyeToMouthDist / relScale);
-        var refPoint = getCenterPoint(centers);
+        var refPoint = tfjs_image_recognition_base_1.getCenterPoint(centers);
         // TODO: pad in case rectangle is out of image bounds
         var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
         var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-        return new Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y));
+        return new tfjs_image_recognition_base_1.Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y));
     };
     FaceLandmarks.prototype.getRefPointsForAlignment = function () {
         throw new Error('getRefPointsForAlignment not implemented by base class');
     };
     return FaceLandmarks;
 }());
-export { FaceLandmarks };
+exports.FaceLandmarks = FaceLandmarks;
 //# sourceMappingURL=FaceLandmarks.js.map

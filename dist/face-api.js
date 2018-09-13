@@ -4462,6 +4462,7 @@
     function locateFaces(input, minConfidence, maxResults) {
         return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults);
     }
+    var ssdMobilenetv1 = locateFaces;
     function detectLandmarks(input) {
         return nets.faceLandmark68Net.detectLandmarks(input);
     }
@@ -4569,6 +4570,7 @@
     exports.loadFaceDetectionModel = loadFaceDetectionModel;
     exports.loadModels = loadModels;
     exports.locateFaces = locateFaces;
+    exports.ssdMobilenetv1 = ssdMobilenetv1;
     exports.detectLandmarks = detectLandmarks;
     exports.computeFaceDescriptor = computeFaceDescriptor;
     exports.mtcnn = mtcnn;

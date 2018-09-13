@@ -1,7 +1,9 @@
-import * as tslib_1 from "tslib";
-import * as tf from '@tensorflow/tfjs-core';
-import { toNetInput } from 'tfjs-image-recognition-base';
-import { FaceDetection } from '../classes/FaceDetection';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tf = require("@tensorflow/tfjs-core");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var FaceDetection_1 = require("../classes/FaceDetection");
 /**
  * Extracts the tensors of the image regions containing the detected faces.
  * Useful if you want to compute the face descriptors for the face images.
@@ -12,12 +14,12 @@ import { FaceDetection } from '../classes/FaceDetection';
  * @param detections The face detection results or face bounding boxes for that image.
  * @returns Tensors of the corresponding image region for each detected face.
  */
-export function extractFaceTensors(input, detections) {
+function extractFaceTensors(input, detections) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var netInput;
         return tslib_1.__generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, toNetInput(input, true)];
+                case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true)];
                 case 1:
                     netInput = _a.sent();
                     if (netInput.batchSize > 1) {
@@ -29,7 +31,7 @@ export function extractFaceTensors(input, detections) {
                     return [2 /*return*/, tf.tidy(function () {
                             var imgTensor = netInput.inputs[0].expandDims().toFloat();
                             var _a = imgTensor.shape.slice(1), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
-                            var boxes = detections.map(function (det) { return det instanceof FaceDetection
+                            var boxes = detections.map(function (det) { return det instanceof FaceDetection_1.FaceDetection
                                 ? det.forSize(imgWidth, imgHeight).getBox()
                                 : det; })
                                 .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
@@ -46,4 +48,5 @@ export function extractFaceTensors(input, detections) {
         });
     });
 }
+exports.extractFaceTensors = extractFaceTensors;
 //# sourceMappingURL=extractFaceTensors.js.map

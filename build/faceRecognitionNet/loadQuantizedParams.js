@@ -1,8 +1,10 @@
-import * as tslib_1 from "tslib";
-import { disposeUnusedWeightTensors, extractWeightEntryFactory, isTensor2D, loadWeightMap, } from 'tfjs-image-recognition-base';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var DEFAULT_MODEL_NAME = 'face_recognition_model';
 function extractorsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = tfjs_image_recognition_base_1.extractWeightEntryFactory(weightMap, paramMappings);
     function extractScaleLayerParams(prefix) {
         var weights = extractWeightEntry(prefix + "/scale/weights", 1);
         var biases = extractWeightEntry(prefix + "/scale/biases", 1);
@@ -25,12 +27,12 @@ function extractorsFactory(weightMap, paramMappings) {
         extractResidualLayerParams: extractResidualLayerParams
     };
 }
-export function loadQuantizedParams(uri) {
+function loadQuantizedParams(uri) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var weightMap, paramMappings, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc, params;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
+                case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                 case 1:
                     weightMap = _b.sent();
                     paramMappings = [];
@@ -52,7 +54,7 @@ export function loadQuantizedParams(uri) {
                     conv256_down_out = extractResidualLayerParams('conv256_down_out');
                     fc = weightMap['fc'];
                     paramMappings.push({ originalPath: 'fc', paramPath: 'fc' });
-                    if (!isTensor2D(fc)) {
+                    if (!tfjs_image_recognition_base_1.isTensor2D(fc)) {
                         throw new Error("expected weightMap[fc] to be a Tensor2D, instead have " + fc);
                     }
                     params = {
@@ -73,10 +75,11 @@ export function loadQuantizedParams(uri) {
                         conv256_down_out: conv256_down_out,
                         fc: fc
                     };
-                    disposeUnusedWeightTensors(weightMap, paramMappings);
+                    tfjs_image_recognition_base_1.disposeUnusedWeightTensors(weightMap, paramMappings);
                     return [2 /*return*/, { params: params, paramMappings: paramMappings }];
             }
         });
     });
 }
+exports.loadQuantizedParams = loadQuantizedParams;
 //# sourceMappingURL=loadQuantizedParams.js.map

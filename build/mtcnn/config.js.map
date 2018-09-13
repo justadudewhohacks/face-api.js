@@ -1,1 +1,1 @@
-{"version":3,"file":"config.js","sourceRoot":"","sources":["../../src/mtcnn/config.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,IAAM,WAAW,GAAG,CAAC,CAAA;AAC5B,MAAM,CAAC,IAAM,SAAS,GAAG,EAAE,CAAA"}
+{"version":3,"file":"config.js","sourceRoot":"","sources":["../../src/mtcnn/config.ts"],"names":[],"mappings":";;AAAa,QAAA,WAAW,GAAG,CAAC,CAAA;AACf,QAAA,SAAS,GAAG,EAAE,CAAA"}

@@ -1,14 +1,17 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { convLayer } from 'tfjs-tiny-yolov2';
-import { sharedLayer } from './sharedLayers';
-export function PNet(x, params) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = require("@tensorflow/tfjs-core");
+var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var sharedLayers_1 = require("./sharedLayers");
+function PNet(x, params) {
     return tf.tidy(function () {
-        var out = sharedLayer(x, params, true);
-        var conv = convLayer(out, params.conv4_1, 'valid');
+        var out = sharedLayers_1.sharedLayer(x, params, true);
+        var conv = tfjs_tiny_yolov2_1.convLayer(out, params.conv4_1, 'valid');
         var max = tf.expandDims(tf.max(conv, 3), 3);
         var prob = tf.softmax(tf.sub(conv, max), 3);
-        var regions = convLayer(out, params.conv4_2, 'valid');
+        var regions = tfjs_tiny_yolov2_1.convLayer(out, params.conv4_2, 'valid');
         return { prob: prob, regions: regions };
     });
 }
+exports.PNet = PNet;
 //# sourceMappingURL=PNet.js.map
