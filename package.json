@@ -22,8 +22,8 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "^0.12.14",
-    "tfjs-image-recognition-base": "^0.0.0",
-    "tfjs-tiny-yolov2": "0.0.2",
+    "tfjs-image-recognition-base": "0.1.0",
+    "tfjs-tiny-yolov2": "0.1.0",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

@@ -25,7 +25,7 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
     }
 
     return tf.tidy(() => {
-      const batchTensor = input.toBatchTensor(512, false)
+      const batchTensor = input.toBatchTensor(512, false).toFloat()
 
       const x = tf.sub(tf.mul(batchTensor, tf.scalar(0.007843137718737125)), tf.scalar(1)) as tf.Tensor4D
       const features = mobileNetV1(x, params.mobilenetv1)
@@ -40,7 +40,7 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
   }
 
   public async forward(input: TNetInput) {
-    return this.forwardInput(await toNetInput(input, true))
+    return this.forwardInput(await toNetInput(input))
   }
 
   public async locateFaces(
@@ -49,7 +49,7 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
     maxResults: number = 100
   ): Promise<FaceDetection[]> {
 
-    const netInput = await toNetInput(input, true)
+    const netInput = await toNetInput(input)
 
     const {
       boxes: _boxes,
@@ -77,18 +77,21 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
       minConfidence
     )
 
-    const paddings = netInput.getRelativePaddings(0)
+    const reshapedDims = netInput.getReshapedInputDimensions(0)
+    const inputSize = netInput.inputSize as number
+    const padX = inputSize / reshapedDims.width
+    const padY = inputSize / reshapedDims.height
 
     const results = indices
       .map(idx => {
         const [top, bottom] = [
           Math.max(0, boxes.get(idx, 0)),
           Math.min(1.0, boxes.get(idx, 2))
-        ].map(val => val * paddings.y)
+        ].map(val => val * padY)
         const [left, right] = [
           Math.max(0, boxes.get(idx, 1)),
           Math.min(1.0, boxes.get(idx, 3))
-        ].map(val => val * paddings.x)
+        ].map(val => val * padX)
         return new FaceDetection(
           scoresData[idx],
           new Rect(

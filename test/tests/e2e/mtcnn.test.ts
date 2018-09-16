@@ -1,15 +1,18 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { describeWithNets, expectAllTensorsReleased, sortByDistanceToOrigin } from '../../utils';
 import { expectMtcnnResults } from './expectedResults';
+import { IPoint } from '../../../src';
 
 
 describe('mtcnn', () => {
 
   let imgEl: HTMLImageElement
+  let expectedMtcnnLandmarks: IPoint[][]
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/faces.jpg')).blob()
     imgEl = await faceapi.bufferToImage(img)
+    expectedMtcnnLandmarks = await (await fetch('base/test/data/mtcnnFaceLandmarkPositions.json')).json()
   })
 
   describeWithNets('uncompressed weights', { withMtcnn: { quantized: false } }, ({ mtcnn }) => {
@@ -22,7 +25,12 @@ describe('mtcnn', () => {
 
       const results = await mtcnn.forward(imgEl, forwardParams)
       expect(results.length).toEqual(6)
-      expectMtcnnResults(results, [0, 1, 2, 3, 4, 5], 1, 1)
+
+      const deltas = {
+        maxBoxDelta: 2,
+        maxLandmarksDelta: 5
+      }
+      expectMtcnnResults(results, expectedMtcnnLandmarks, deltas)
     })
 
     it('minFaceSize = 80, finds all faces', async () => {
@@ -33,7 +41,11 @@ describe('mtcnn', () => {
       const results = await mtcnn.forward(imgEl, forwardParams)
 
       expect(results.length).toEqual(6)
-      expectMtcnnResults(results, [0, 5, 3, 1, 2, 4], 12, 12)
+      const deltas = {
+        maxBoxDelta: 15,
+        maxLandmarksDelta: 13
+      }
+      expectMtcnnResults(results, expectedMtcnnLandmarks, deltas)
     })
 
     it('all optional params passed, finds all faces', async () => {
@@ -46,7 +58,12 @@ describe('mtcnn', () => {
 
       const results = await mtcnn.forward(imgEl, forwardParams)
       expect(results.length).toEqual(6)
-      expectMtcnnResults(results, [5, 1, 4, 2, 3, 0], 6, 10)
+
+      const deltas = {
+        maxBoxDelta: 8,
+        maxLandmarksDelta: 7
+      }
+      expectMtcnnResults(results, expectedMtcnnLandmarks, deltas)
     })
 
     it('scale steps passed, finds all faces', async () => {
@@ -56,7 +73,12 @@ describe('mtcnn', () => {
 
       const results = await mtcnn.forward(imgEl, forwardParams)
       expect(results.length).toEqual(6)
-      expectMtcnnResults(results, [5, 1, 3, 0, 2, 4], 7, 15)
+
+      const deltas = {
+        maxBoxDelta: 8,
+        maxLandmarksDelta: 10
+      }
+      expectMtcnnResults(results, expectedMtcnnLandmarks, deltas)
     })
 
   })

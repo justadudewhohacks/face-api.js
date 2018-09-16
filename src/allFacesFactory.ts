@@ -5,9 +5,9 @@ import { TinyYolov2 } from '.';
 import { FaceDetection } from './classes/FaceDetection';
 import { FaceLandmarks68 } from './classes/FaceLandmarks68';
 import { FullFaceDescription } from './classes/FullFaceDescription';
-import { extractFaceTensors } from './dom';
+import { extractFaces } from './dom';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
-import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
+import { FaceLandmark68Net } from './faceLandmarkNet/FaceLandmark68Net';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams } from './mtcnn/types';
@@ -16,15 +16,13 @@ function computeDescriptorsFactory(
   recognitionNet: FaceRecognitionNet
 ) {
   return async function(input: TNetInput, alignedFaceBoxes: Rect[], useBatchProcessing: boolean) {
-    const alignedFaceTensors = await extractFaceTensors(input, alignedFaceBoxes)
+    const alignedFaceCanvases = await extractFaces(input, alignedFaceBoxes)
 
     const descriptors = useBatchProcessing
-      ? await recognitionNet.computeFaceDescriptor(alignedFaceTensors) as Float32Array[]
-      : await Promise.all(alignedFaceTensors.map(
-        faceTensor => recognitionNet.computeFaceDescriptor(faceTensor)
+      ? await recognitionNet.computeFaceDescriptor(alignedFaceCanvases) as Float32Array[]
+      : await Promise.all(alignedFaceCanvases.map(
+        canvas => recognitionNet.computeFaceDescriptor(canvas)
       )) as Float32Array[]
-
-    alignedFaceTensors.forEach(t => t.dispose())
 
     return descriptors
   }
@@ -32,7 +30,7 @@ function computeDescriptorsFactory(
 
 function allFacesFactory(
   detectFaces: (input: TNetInput) => Promise<FaceDetection[]>,
-  landmarkNet: FaceLandmarkNet,
+  landmarkNet: FaceLandmark68Net,
   recognitionNet: FaceRecognitionNet
 ) {
   const computeDescriptors = computeDescriptorsFactory(recognitionNet)
@@ -43,15 +41,14 @@ function allFacesFactory(
   ): Promise<FullFaceDescription[]> {
 
     const detections = await detectFaces(input)
-    const faceTensors = await extractFaceTensors(input, detections)
+    const faceCanvases = await extractFaces(input, detections)
 
     const faceLandmarksByFace = useBatchProcessing
-      ? await landmarkNet.detectLandmarks(faceTensors) as FaceLandmarks68[]
-      : await Promise.all(faceTensors.map(
-        faceTensor => landmarkNet.detectLandmarks(faceTensor)
+      ? await landmarkNet.detectLandmarks(faceCanvases) as FaceLandmarks68[]
+      : await Promise.all(faceCanvases.map(
+        canvas => landmarkNet.detectLandmarks(canvas)
       )) as FaceLandmarks68[]
 
-    faceTensors.forEach(t => t.dispose())
 
     const alignedFaceBoxes = faceLandmarksByFace.map(
       (landmarks, i) => landmarks.align(detections[i].getBox())
@@ -74,7 +71,7 @@ function allFacesFactory(
 
 export function allFacesSsdMobilenetv1Factory(
   ssdMobilenetv1: FaceDetectionNet,
-  landmarkNet: FaceLandmarkNet,
+  landmarkNet: FaceLandmark68Net,
   recognitionNet: FaceRecognitionNet
 ) {
   return async function(
@@ -90,7 +87,7 @@ export function allFacesSsdMobilenetv1Factory(
 
 export function allFacesTinyYolov2Factory(
   tinyYolov2: TinyYolov2,
-  landmarkNet: FaceLandmarkNet,
+  landmarkNet: FaceLandmark68Net,
   recognitionNet: FaceRecognitionNet
 ) {
   return async function(

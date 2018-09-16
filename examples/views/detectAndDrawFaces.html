@@ -84,12 +84,9 @@
       const detections = await faceapi.locateFaces(input, minConfidence)
       faceapi.drawDetection('overlay', detections.map(det => det.forSize(width, height)))
 
-      const faceImages = await faceapi.extractFaces(input.inputs[0], detections)
+      const faceImages = await faceapi.extractFaces(inputImgEl, detections)
       $('#facesContainer').empty()
       faceImages.forEach(canvas => $('#facesContainer').append(canvas))
-
-      // free memory for input tensors
-      input.dispose()
     }
 
     async function onSelectionChanged(uri) {

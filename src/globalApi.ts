@@ -7,14 +7,14 @@ import { FaceDetection } from './classes/FaceDetection';
 import { FaceLandmarks68 } from './classes/FaceLandmarks68';
 import { FullFaceDescription } from './classes/FullFaceDescription';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
-import { FaceLandmarkNet } from './faceLandmarkNet/FaceLandmarkNet';
+import { FaceLandmark68Net } from './faceLandmarkNet/FaceLandmark68Net';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams, MtcnnResult } from './mtcnn/types';
 import { TinyYolov2 } from './tinyYolov2/TinyYolov2';
 
 export const detectionNet = new FaceDetectionNet()
-export const landmarkNet = new FaceLandmarkNet()
+export const landmarkNet = new FaceLandmark68Net()
 export const recognitionNet = new FaceRecognitionNet()
 
 // nets need more specific names, to avoid ambiguity in future

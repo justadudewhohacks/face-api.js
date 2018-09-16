@@ -3,6 +3,7 @@ import { BoundingBox, nonMaxSuppression, Point } from 'tfjs-image-recognition-ba
 
 import { CELL_SIZE, CELL_STRIDE } from './config';
 import { getSizesForScale } from './getSizesForScale';
+import { MtcnnBox } from './MtcnnBox';
 import { normalize } from './normalize';
 import { PNet } from './PNet';
 import { PNetParams } from './types';
@@ -45,7 +46,7 @@ function extractBoundingBoxes(
 
     const score = scoresTensor.get(idx.y, idx.x)
 
-    const region = new BoundingBox(
+    const region = new MtcnnBox(
       regionsTensor.get(idx.y, idx.x, 0),
       regionsTensor.get(idx.y, idx.x, 1),
       regionsTensor.get(idx.y, idx.x, 2),

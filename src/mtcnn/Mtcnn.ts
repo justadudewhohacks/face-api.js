@@ -32,7 +32,6 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       throw new Error('Mtcnn - load model before inference')
     }
 
-    const inputTensor = input.inputs[0]
     const inputCanvas = input.canvases[0]
 
     if (!inputCanvas) {
@@ -45,14 +44,13 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
     const imgTensor = tf.tidy(() =>
       bgrToRgbTensor(
-        tf.expandDims(inputTensor).toFloat() as tf.Tensor4D
+        tf.expandDims(tf.fromPixels(inputCanvas)).toFloat() as tf.Tensor4D
       )
     )
 
     const onReturn = (results: any) => {
       // dispose tensors on return
       imgTensor.dispose()
-      input.dispose()
       stats.total = Date.now() - tsTotal
       return results
     }
@@ -131,7 +129,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   ): Promise<MtcnnResult[]> {
     return (
       await this.forwardInput(
-        await toNetInput(input, true, true),
+        await toNetInput(input),
         forwardParams
       )
     ).results
@@ -142,7 +140,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     forwardParams: MtcnnForwardParams = {}
   ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
-      await toNetInput(input, true, true),
+      await toNetInput(input),
       forwardParams
     )
   }

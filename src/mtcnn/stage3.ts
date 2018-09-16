@@ -1,7 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { BoundingBox, nonMaxSuppression, Point } from 'tfjs-image-recognition-base';
+import { BoundingBox, Box, nonMaxSuppression, Point } from 'tfjs-image-recognition-base';
 
 import { extractImagePatches } from './extractImagePatches';
+import { MtcnnBox } from './MtcnnBox';
 import { ONet } from './ONet';
 import { ONetParams } from './types';
 
@@ -38,7 +39,7 @@ export async function stage3(
     .filter(c => c.score > scoreThreshold)
     .map(({ idx }) => idx)
 
-  const filteredRegions = indices.map(idx => new BoundingBox(
+  const filteredRegions = indices.map(idx => new MtcnnBox(
     onetOuts[idx].regions.get(0, 0),
     onetOuts[idx].regions.get(0, 1),
     onetOuts[idx].regions.get(0, 2),
@@ -48,7 +49,7 @@ export async function stage3(
     .map((idx, i) => inputBoxes[idx].calibrate(filteredRegions[i]))
   const filteredScores = indices.map(idx => scores[idx])
 
-  let finalBoxes: BoundingBox[] = []
+  let finalBoxes: Box[] = []
   let finalScores: number[] = []
   let points: Point[][] = []
 

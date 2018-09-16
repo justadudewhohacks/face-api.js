@@ -11,7 +11,7 @@ import {
   toNetInput,
 } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { FaceLandmarkNet } from '../../../src/faceLandmarkNet/FaceLandmarkNet';
+import { FaceLandmark68Net } from '../../../src/faceLandmarkNet/FaceLandmark68Net';
 import { describeWithNets, expectAllTensorsReleased, expectMaxDelta } from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
@@ -54,8 +54,8 @@ describe('faceLandmarkNet', () => {
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
       result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositions1[i].x, 0.1)
-        expectMaxDelta(y, faceLandmarkPositions1[i].y, 0.1)
+        expectMaxDelta(x, faceLandmarkPositions1[i].x, 1)
+        expectMaxDelta(y, faceLandmarkPositions1[i].y, 1)
       })
     })
 
@@ -68,8 +68,8 @@ describe('faceLandmarkNet', () => {
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
       result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositionsRect[i].x, 0.1)
-        expectMaxDelta(y, faceLandmarkPositionsRect[i].y, 0.1)
+        expectMaxDelta(x, faceLandmarkPositionsRect[i].x, 2)
+        expectMaxDelta(y, faceLandmarkPositionsRect[i].y, 2)
       })
     })
 
@@ -128,8 +128,8 @@ describe('faceLandmarkNet', () => {
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
         result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 0.1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 0.1)
+          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 2)
+          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 2)
         })
       })
     })
@@ -153,33 +153,8 @@ describe('faceLandmarkNet', () => {
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
         result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 0.1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 0.1)
-        })
-      })
-    })
-
-    it('computes face landmarks for tf.Tensor4D', async () => {
-      const inputs = [imgEl1, imgEl2].map(el => tf.fromPixels(el))
-
-      const faceLandmarkPositions = [
-        faceLandmarkPositions1,
-        faceLandmarkPositions2,
-        faceLandmarkPositionsRect
-      ]
-
-      const results = await faceLandmarkNet.detectLandmarks(tf.stack(inputs) as tf.Tensor4D) as FaceLandmarks68[]
-      expect(Array.isArray(results)).toBe(true)
-      expect(results.length).toEqual(2)
-      results.forEach((result, batchIdx) => {
-        const { width, height } = getInputDims(inputs[batchIdx])
-        expect(result.getImageWidth()).toEqual(width)
-        expect(result.getImageHeight()).toEqual(height)
-        expect(result.getShift().x).toEqual(0)
-        expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 0.1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 0.1)
+          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 1)
+          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 1)
         })
       })
     })
@@ -203,8 +178,8 @@ describe('faceLandmarkNet', () => {
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
         result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 0.1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 0.1)
+          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 1)
+          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 1)
         })
       })
     })
@@ -230,7 +205,7 @@ describe('faceLandmarkNet', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const net = new FaceLandmarkNet()
+          const net = new FaceLandmark68Net()
           await net.load('base/weights')
           net.dispose()
         })
@@ -242,7 +217,7 @@ describe('faceLandmarkNet', () => {
 
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([imgEl1])).managed()
+          const netInput = new NetInput([imgEl1])
           const outTensor = await faceLandmarkNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -250,7 +225,7 @@ describe('faceLandmarkNet', () => {
 
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([imgEl1, imgEl1, imgEl1])).managed()
+          const netInput = new NetInput([imgEl1, imgEl1, imgEl1])
           const outTensor = await faceLandmarkNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -260,7 +235,7 @@ describe('faceLandmarkNet', () => {
         const tensor = tf.fromPixels(imgEl1)
 
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([tensor])).managed()
+          const netInput = new NetInput([tensor])
           const outTensor = await faceLandmarkNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -272,7 +247,7 @@ describe('faceLandmarkNet', () => {
         const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
 
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput(tensors)).managed()
+          const netInput = new NetInput(tensors)
           const outTensor = await faceLandmarkNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -284,7 +259,7 @@ describe('faceLandmarkNet', () => {
         const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensor, true))
+          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensor))
           outTensor.dispose()
         })
 
@@ -296,7 +271,7 @@ describe('faceLandmarkNet', () => {
           .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensors, true))
+          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensors))
           outTensor.dispose()
         })
 

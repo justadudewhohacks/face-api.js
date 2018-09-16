@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { bufferToImage, FaceRecognitionNet, NetInput, toNetInput } from '../../../src';
+import { euclideanDistance } from '../../../src/euclideanDistance';
 import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 
@@ -30,13 +31,13 @@ describe('faceRecognitionNet', () => {
     it('computes face descriptor for squared input', async () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgEl1) as Float32Array
       expect(result.length).toEqual(128)
-      expect(result).toEqual(new Float32Array(faceDescriptor1))
+      expect(euclideanDistance(result, faceDescriptor1)).toBeLessThan(0.1)
     })
 
     it('computes face descriptor for rectangular input', async () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgElRect) as Float32Array
       expect(result.length).toEqual(128)
-      expect(result).toEqual(new Float32Array(faceDescriptorRect))
+      expect(euclideanDistance(result, faceDescriptorRect)).toBeLessThan(0.1)
     })
 
   })
@@ -75,11 +76,11 @@ describe('faceRecognitionNet', () => {
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
-        expect(result).toEqual(new Float32Array(faceDescriptors[batchIdx]))
+        expect(euclideanDistance(result, faceDescriptors[batchIdx])).toBeLessThan(0.1)
       })
     })
 
-    it('computes face landmarks for batch of tf.Tensor3D', async () => {
+    it('computes face descriptors for batch of tf.Tensor3D', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect].map(el => tf.fromPixels(el))
 
       const faceDescriptors = [
@@ -92,28 +93,11 @@ describe('faceRecognitionNet', () => {
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
-        expect(result).toEqual(new Float32Array(faceDescriptors[batchIdx]))
+        expect(euclideanDistance(result, faceDescriptors[batchIdx])).toBeLessThan(0.1)
       })
     })
 
-    it('computes face landmarks for tf.Tensor4D', async () => {
-      const inputs = [imgEl1, imgEl2].map(el => tf.fromPixels(el))
-
-      const faceDescriptors = [
-        faceDescriptor1,
-        faceDescriptor2,
-        faceDescriptorRect
-      ]
-
-      const results = await faceRecognitionNet.computeFaceDescriptor(tf.stack(inputs) as tf.Tensor4D) as Float32Array[]
-      expect(Array.isArray(results)).toBe(true)
-      expect(results.length).toEqual(2)
-      results.forEach((result, batchIdx) => {
-        expect(result).toEqual(new Float32Array(faceDescriptors[batchIdx]))
-      })
-    })
-
-    it('computes face landmarks for batch of mixed inputs', async () => {
+    it('computes face descriptors for batch of mixed inputs', async () => {
       const inputs = [imgEl1, tf.fromPixels(imgEl2), tf.fromPixels(imgElRect)]
 
       const faceDescriptors = [
@@ -126,7 +110,7 @@ describe('faceRecognitionNet', () => {
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
-        expect(result).toEqual(new Float32Array(faceDescriptors[batchIdx]))
+        expect(euclideanDistance(result, faceDescriptors[batchIdx])).toBeLessThan(0.1)
       })
     })
 
@@ -163,7 +147,7 @@ describe('faceRecognitionNet', () => {
 
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([imgEl1])).managed()
+          const netInput = new NetInput([imgEl1])
           const outTensor = await faceRecognitionNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -171,7 +155,7 @@ describe('faceRecognitionNet', () => {
 
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([imgEl1, imgEl1, imgEl1])).managed()
+          const netInput = new NetInput([imgEl1, imgEl1, imgEl1])
           const outTensor = await faceRecognitionNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -181,7 +165,7 @@ describe('faceRecognitionNet', () => {
         const tensor = tf.fromPixels(imgEl1)
 
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput([tensor])).managed()
+          const netInput = new NetInput([tensor])
           const outTensor = await faceRecognitionNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -193,7 +177,7 @@ describe('faceRecognitionNet', () => {
         const tensors = [imgEl1, imgEl1, imgEl1].map(el => tf.fromPixels(el))
 
         await expectAllTensorsReleased(async () => {
-          const netInput = (new NetInput(tensors)).managed()
+          const netInput = new NetInput(tensors)
           const outTensor = await faceRecognitionNet.forwardInput(netInput)
           outTensor.dispose()
         })
@@ -205,7 +189,7 @@ describe('faceRecognitionNet', () => {
         const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensor, true))
+          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensor))
           outTensor.dispose()
         })
 
@@ -217,7 +201,7 @@ describe('faceRecognitionNet', () => {
           .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensors, true))
+          const outTensor = await faceRecognitionNet.forwardInput(await toNetInput(tensors))
           outTensor.dispose()
         })
 
