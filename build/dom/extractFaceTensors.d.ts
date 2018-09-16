@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { Rect, TNetInput } from 'tfjs-image-recognition-base';
+import { Rect } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -7,8 +7,8 @@ import { FaceDetection } from '../classes/FaceDetection';
  * Using this method is faster then extracting a canvas for each face and
  * converting them to tensors individually.
  *
- * @param input The image that face detection has been performed on.
+ * @param imageTensor The image tensor that face detection has been performed on.
  * @param detections The face detection results or face bounding boxes for that image.
  * @returns Tensors of the corresponding image region for each detected face.
  */
-export declare function extractFaceTensors(input: TNetInput, detections: Array<FaceDetection | Rect>): Promise<tf.Tensor4D[]>;
+export declare function extractFaceTensors(imageTensor: tf.Tensor3D | tf.Tensor4D, detections: Array<FaceDetection | Rect>): Promise<tf.Tensor3D[]>;

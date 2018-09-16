@@ -4,6 +4,7 @@ var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var extractImagePatches_1 = require("./extractImagePatches");
+var MtcnnBox_1 = require("./MtcnnBox");
 var RNet_1 = require("./RNet");
 function stage2(img, inputBoxes, scoreThreshold, params, stats) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
@@ -47,7 +48,7 @@ function stage2(img, inputBoxes, scoreThreshold, params, stats) {
                         indicesNms = tfjs_image_recognition_base_1.nonMaxSuppression(filteredBoxes, filteredScores, 0.7);
                         stats.stage2_nms = Date.now() - ts;
                         regions_1 = indicesNms.map(function (idx) {
-                            return new tfjs_image_recognition_base_1.BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
+                            return new MtcnnBox_1.MtcnnBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
                         });
                         finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                         finalBoxes = indicesNms.map(function (idx, i) { return filteredBoxes[idx].calibrate(regions_1[i]); });

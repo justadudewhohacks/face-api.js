@@ -307,29 +307,122 @@
         return pts.reduce(function (sum$$1, pt) { return sum$$1.add(pt); }, new Point(0, 0))
             .div(new Point(pts.length, pts.length));
     }
+    function range$1(num, start, step$$1) {
+        return Array(num).fill(0).map(function (_, i) { return start + (i * step$$1); });
+    }
+    function isValidNumber(num) {
+        return !!num && num !== Infinity && num !== -Infinity && !isNaN(num) || num === 0;
+    }
+    function isValidProbablitiy(num) {
+        return isValidNumber(num) && 0 <= num && num <= 1.0;
+    }
 
-    var Rect = /** @class */ (function () {
-        function Rect(x, y, width, height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+    var Box = /** @class */ (function () {
+        // TODO: MTCNN boxes sometimes have negative widths or heights, figure out why and remove
+        // allowNegativeDimensions flag again
+        function Box(_box, allowNegativeDimensions) {
+            if (allowNegativeDimensions === void 0) { allowNegativeDimensions = false; }
+            var box = _box || {};
+            var isBbox = [box.left, box.top, box.right, box.bottom].every(isValidNumber);
+            var isRect = [box.x, box.y, box.width, box.height].every(isValidNumber);
+            if (!isRect && !isBbox) {
+                throw new Error("Box.constructor - expected box to be IBoundingBox | IRect, instead have " + JSON.stringify(box));
+            }
+            var _a = isRect
+                ? [box.x, box.y, box.width, box.height]
+                : [box.left, box.top, box.right - box.left, box.bottom - box.top], x = _a[0], y = _a[1], width = _a[2], height = _a[3];
+            Box.assertIsValidBox({ x: x, y: y, width: width, height: height }, 'Box.constructor', allowNegativeDimensions);
+            this._x = x;
+            this._y = y;
+            this._width = width;
+            this._height = height;
         }
-        Object.defineProperty(Rect.prototype, "right", {
+        Box.isRect = function (rect) {
+            return !!rect && [rect.x, rect.y, rect.width, rect.height].every(isValidNumber);
+        };
+        Box.assertIsValidBox = function (box, callee, allowNegativeDimensions) {
+            if (allowNegativeDimensions === void 0) { allowNegativeDimensions = false; }
+            if (!Box.isRect(box)) {
+                throw new Error(callee + " - invalid box: " + JSON.stringify(box) + ", expected object with properties x, y, width, height");
+            }
+            if (!allowNegativeDimensions && (box.width < 0 || box.height < 0)) {
+                throw new Error(callee + " - width (" + box.width + ") and height (" + box.height + ") must be positive numbers");
+            }
+        };
+        Object.defineProperty(Box.prototype, "x", {
+            get: function () {
+                return this._x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "y", {
+            get: function () {
+                return this._y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "width", {
+            get: function () {
+                return this._width;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "height", {
+            get: function () {
+                return this._height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "left", {
+            get: function () {
+                return this.x;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "top", {
+            get: function () {
+                return this.y;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Box.prototype, "right", {
             get: function () {
                 return this.x + this.width;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Rect.prototype, "bottom", {
+        Object.defineProperty(Box.prototype, "bottom", {
             get: function () {
                 return this.y + this.height;
             },
             enumerable: true,
             configurable: true
         });
-        Rect.prototype.toSquare = function () {
+        Object.defineProperty(Box.prototype, "area", {
+            get: function () {
+                return this.width * this.height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Box.prototype.round = function () {
+            var _a = [this.x, this.y, this.width, this.height]
+                .map(function (val) { return Math.round(val); }), x = _a[0], y = _a[1], width = _a[2], height = _a[3];
+            return new Box({ x: x, y: y, width: width, height: height });
+        };
+        Box.prototype.floor = function () {
+            var _a = [this.x, this.y, this.width, this.height]
+                .map(function (val) { return Math.floor(val); }), x = _a[0], y = _a[1], width = _a[2], height = _a[3];
+            return new Box({ x: x, y: y, width: width, height: height });
+        };
+        Box.prototype.toSquare = function () {
             var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
             var diff = Math.abs(width - height);
             if (width < height) {
@@ -340,19 +433,28 @@
                 y -= (diff / 2);
                 height += diff;
             }
-            return new Rect(x, y, width, height);
+            return new Box({ x: x, y: y, width: width, height: height });
         };
-        Rect.prototype.pad = function (padX, padY) {
-            var _a = this, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
-            return new Rect(x - (padX / 2), y - (padY / 2), width + padX, height + padY);
+        Box.prototype.rescale = function (s) {
+            var scaleX = isDimensions(s) ? s.width : s;
+            var scaleY = isDimensions(s) ? s.height : s;
+            return new Box({
+                x: this.x * scaleX,
+                y: this.y * scaleY,
+                width: this.width * scaleX,
+                height: this.height * scaleY
+            });
         };
-        Rect.prototype.floor = function () {
-            return new Rect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+        Box.prototype.pad = function (padX, padY) {
+            var _a = [
+                this.x - (padX / 2),
+                this.y - (padY / 2),
+                this.width + padX,
+                this.height + padY
+            ], x = _a[0], y = _a[1], width = _a[2], height = _a[3];
+            return new Box({ x: x, y: y, width: width, height: height });
         };
-        Rect.prototype.toBoundingBox = function () {
-            return new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
-        };
-        Rect.prototype.clipAtImageBorders = function (imgWidth, imgHeight) {
+        Box.prototype.clipAtImageBorders = function (imgWidth, imgHeight) {
             var _a = this, x = _a.x, y = _a.y, right = _a.right, bottom = _a.bottom;
             var clippedX = Math.max(x, 0);
             var clippedY = Math.max(y, 0);
@@ -360,84 +462,9 @@
             var newHeight = bottom - clippedY;
             var clippedWidth = Math.min(newWidth, imgWidth - clippedX);
             var clippedHeight = Math.min(newHeight, imgHeight - clippedY);
-            return (new Rect(clippedX, clippedY, clippedWidth, clippedHeight)).floor();
+            return (new Box({ x: clippedX, y: clippedY, width: clippedWidth, height: clippedHeight })).floor();
         };
-        return Rect;
-    }());
-
-    var BoundingBox = /** @class */ (function () {
-        function BoundingBox(_left, _top, _right, _bottom) {
-            this._left = _left;
-            this._top = _top;
-            this._right = _right;
-            this._bottom = _bottom;
-        }
-        Object.defineProperty(BoundingBox.prototype, "left", {
-            get: function () {
-                return this._left;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "top", {
-            get: function () {
-                return this._top;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "right", {
-            get: function () {
-                return this._right;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "bottom", {
-            get: function () {
-                return this._bottom;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "width", {
-            get: function () {
-                return this.right - this.left;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "height", {
-            get: function () {
-                return this.bottom - this.top;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BoundingBox.prototype, "area", {
-            get: function () {
-                return this.width * this.height;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoundingBox.prototype.toSquare = function () {
-            var _a = this, left = _a.left, top = _a.top, right = _a.right, bottom = _a.bottom;
-            var off = (Math.abs(this.width - this.height) / 2);
-            if (this.width < this.height) {
-                left -= off;
-                right += off;
-            }
-            if (this.height < this.width) {
-                top -= off;
-                bottom += off;
-            }
-            return new BoundingBox(left, top, right, bottom);
-        };
-        BoundingBox.prototype.round = function () {
-            return new BoundingBox(Math.round(this.left), Math.round(this.top), Math.round(this.right), Math.round(this.bottom));
-        };
-        BoundingBox.prototype.padAtBorders = function (imageHeight, imageWidth) {
+        Box.prototype.padAtBorders = function (imageHeight, imageWidth) {
             var w = this.width + 1;
             var h = this.height + 1;
             var dx = 1;
@@ -466,19 +493,132 @@
             }
             return { dy: dy, edy: edy, dx: dx, edx: edx, y: y, ey: ey, x: x, ex: ex, w: w, h: h };
         };
-        BoundingBox.prototype.calibrate = function (region) {
-            return new BoundingBox(this.left + (region.left * this.width), this.top + (region.top * this.height), this.right + (region.right * this.width), this.bottom + (region.bottom * this.height)).toSquare().round();
+        Box.prototype.calibrate = function (region) {
+            return new Box({
+                left: this.left + (region.left * this.width),
+                top: this.top + (region.top * this.height),
+                right: this.right + (region.right * this.width),
+                bottom: this.bottom + (region.bottom * this.height)
+            }).toSquare().round();
         };
-        BoundingBox.prototype.rescale = function (s) {
-            var scaleX = isDimensions(s) ? s.width : s;
-            var scaleY = isDimensions(s) ? s.height : s;
-            return new BoundingBox(this.left * scaleX, this.top * scaleY, this.right * scaleX, this.bottom * scaleY);
-        };
-        BoundingBox.prototype.toRect = function () {
-            return new Rect(this.left, this.top, this.width, this.height);
-        };
-        return BoundingBox;
+        return Box;
     }());
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+    /* global Reflect, Promise */
+
+    var extendStatics$1 = function(d, b) {
+        extendStatics$1 = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics$1(d, b);
+    };
+
+    function __extends$1(d, b) {
+        extendStatics$1(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    var __assign$1 = function() {
+        __assign$1 = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign$1.apply(this, arguments);
+    };
+
+    function __awaiter$1(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator$1(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
+    var BoundingBox = /** @class */ (function (_super) {
+        __extends$1(BoundingBox, _super);
+        function BoundingBox(left, top, right, bottom) {
+            return _super.call(this, { left: left, top: top, right: right, bottom: bottom }) || this;
+        }
+        return BoundingBox;
+    }(Box));
+
+    var LabeledBox = /** @class */ (function (_super) {
+        __extends$1(LabeledBox, _super);
+        function LabeledBox(box, label) {
+            var _this = _super.call(this, box) || this;
+            _this._label = label;
+            return _this;
+        }
+        LabeledBox.assertIsValidLabeledBox = function (box, callee) {
+            Box.assertIsValidBox(box, callee);
+            if (!isValidNumber(box.label)) {
+                throw new Error(callee + " - expected property label (" + box.label + ") to be a number");
+            }
+        };
+        Object.defineProperty(LabeledBox.prototype, "label", {
+            get: function () {
+                return this._label;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return LabeledBox;
+    }(Box));
+
+    var Rect = /** @class */ (function (_super) {
+        __extends$1(Rect, _super);
+        function Rect(x, y, width, height) {
+            return _super.call(this, { x: x, y: y, width: width, height: height }) || this;
+        }
+        return Rect;
+    }(Box));
 
     var ObjectDetection = /** @class */ (function () {
         function ObjectDetection(score, classScore, className, relativeBox, imageDims) {
@@ -559,6 +699,38 @@
         };
         return ObjectDetection;
     }());
+
+    var PredictedBox = /** @class */ (function (_super) {
+        __extends$1(PredictedBox, _super);
+        function PredictedBox(box, label, score, classScore) {
+            var _this = _super.call(this, box, label) || this;
+            _this._score = score;
+            _this._classScore = classScore;
+            return _this;
+        }
+        PredictedBox.assertIsValidPredictedBox = function (box, callee) {
+            LabeledBox.assertIsValidLabeledBox(box, callee);
+            if (!isValidProbablitiy(box.score)
+                || !isValidProbablitiy(box.classScore)) {
+                throw new Error(callee + " - expected properties score (" + box.score + ") and (" + box.classScore + ") to be a number between [0, 1]");
+            }
+        };
+        Object.defineProperty(PredictedBox.prototype, "score", {
+            get: function () {
+                return this._score;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(PredictedBox.prototype, "classScore", {
+            get: function () {
+                return this._classScore;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return PredictedBox;
+    }(LabeledBox));
 
     function disposeUnusedWeightTensors(weightMap, paramMappings) {
         Object.keys(weightMap).forEach(function (path) {
@@ -761,83 +933,6 @@
         });
     }
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-    /* global Reflect, Promise */
-
-    var extendStatics$1 = function(d, b) {
-        extendStatics$1 = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics$1(d, b);
-    };
-
-    function __extends$1(d, b) {
-        extendStatics$1(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    }
-
-    var __assign$1 = function() {
-        __assign$1 = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign$1.apply(this, arguments);
-    };
-
-    function __awaiter$1(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
-    function __generator$1(thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    }
-
     function imageTensorToCanvas(imgTensor, canvas) {
         return __awaiter$1(this, void 0, void 0, function () {
             var targetCanvas, _a, height, width, numChannels, imgTensor3D;
@@ -857,7 +952,8 @@
         });
     }
 
-    function imageToSquare(input, inputSize) {
+    function imageToSquare(input, inputSize, centerImage) {
+        if (centerImage === void 0) { centerImage = false; }
         if (!(input instanceof HTMLImageElement || input instanceof HTMLCanvasElement)) {
             throw new Error('imageToSquare - expected arg0 to be HTMLImageElement | HTMLCanvasElement');
         }
@@ -867,7 +963,10 @@
         var height = scale * dims.height;
         var targetCanvas = createCanvas({ width: inputSize, height: inputSize });
         var inputCanvas = input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input);
-        getContext2dOrThrow(targetCanvas).drawImage(inputCanvas, 0, 0, width, height);
+        var offset = Math.abs(width - height) / 2;
+        var dx = centerImage && width < height ? offset : 0;
+        var dy = centerImage && height < width ? offset : 0;
+        getContext2dOrThrow(targetCanvas).drawImage(inputCanvas, dx, dy, width, height);
         return targetCanvas;
     }
 
@@ -898,7 +997,8 @@
      * Pads the smaller dimension of an image tensor with zeros, such that width === height.
      *
      * @param imgTensor The image tensor.
-     * @param isCenterImage (optional, default: false) If true, add padding on both sides of the image, such that the image.
+     * @param isCenterImage (optional, default: false) If true, add an equal amount of padding on
+     * both sides of the minor dimension oof the image.
      * @returns The padded tensor with width === height.
      */
     function padToSquare(imgTensor, isCenterImage) {
@@ -932,46 +1032,41 @@
     }
 
     var NetInput = /** @class */ (function () {
-        function NetInput(inputs, isBatchInput, keepCanvases) {
-            if (isBatchInput === void 0) { isBatchInput = false; }
-            if (keepCanvases === void 0) { keepCanvases = false; }
+        function NetInput(inputs, treatAsBatchInput) {
+            if (treatAsBatchInput === void 0) { treatAsBatchInput = false; }
             var _this = this;
-            this._inputs = [];
+            this._imageTensors = [];
             this._canvases = [];
-            this._isManaged = false;
-            this._isBatchInput = false;
+            this._treatAsBatchInput = false;
             this._inputDimensions = [];
-            this._paddings = [];
-            if (isTensor4D(inputs)) {
-                this._inputs = unstack(inputs);
+            if (!Array.isArray(inputs)) {
+                throw new Error("NetInput.constructor - expected inputs to be an Array of TResolvedNetInput or to be instanceof tf.Tensor4D, instead have " + inputs);
             }
-            if (Array.isArray(inputs)) {
-                this._inputs = inputs.map(function (input, idx) {
-                    if (isTensor3D(input)) {
-                        // TODO: make sure not to dispose original tensors passed in by the user
-                        return clone(input);
+            this._treatAsBatchInput = treatAsBatchInput;
+            this._batchSize = inputs.length;
+            inputs.forEach(function (input, idx) {
+                if (isTensor3D(input)) {
+                    _this._imageTensors[idx] = input;
+                    _this._inputDimensions[idx] = input.shape;
+                    return;
+                }
+                if (isTensor4D(input)) {
+                    var batchSize = input.shape[0];
+                    if (batchSize !== 1) {
+                        throw new Error("NetInput - tf.Tensor4D with batchSize " + batchSize + " passed, but not supported in input array");
                     }
-                    if (isTensor4D(input)) {
-                        var shape = input.shape;
-                        var batchSize = shape[0];
-                        if (batchSize !== 1) {
-                            throw new Error("NetInput - tf.Tensor4D with batchSize " + batchSize + " passed, but not supported in input array");
-                        }
-                        return input.reshape(shape.slice(1));
-                    }
-                    var canvas = input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input);
-                    if (keepCanvases) {
-                        _this._canvases[idx] = canvas;
-                    }
-                    return fromPixels(canvas);
-                });
-            }
-            this._isBatchInput = this.batchSize > 1 || isBatchInput;
-            this._inputDimensions = this._inputs.map(function (t) { return t.shape; });
+                    _this._imageTensors[idx] = input;
+                    _this._inputDimensions[idx] = input.shape.slice(1);
+                    return;
+                }
+                var canvas = input instanceof HTMLCanvasElement ? input : createCanvasFromMedia(input);
+                _this._canvases[idx] = canvas;
+                _this._inputDimensions[idx] = [canvas.height, canvas.width, 3];
+            });
         }
-        Object.defineProperty(NetInput.prototype, "inputs", {
+        Object.defineProperty(NetInput.prototype, "imageTensors", {
             get: function () {
-                return this._inputs;
+                return this._imageTensors;
             },
             enumerable: true,
             configurable: true
@@ -983,23 +1078,16 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(NetInput.prototype, "isManaged", {
-            get: function () {
-                return this._isManaged;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(NetInput.prototype, "isBatchInput", {
             get: function () {
-                return this._isBatchInput;
+                return this.batchSize > 1 || this._treatAsBatchInput;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NetInput.prototype, "batchSize", {
             get: function () {
-                return this._inputs.length;
+                return this._batchSize;
             },
             enumerable: true,
             configurable: true
@@ -1011,13 +1099,6 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(NetInput.prototype, "paddings", {
-            get: function () {
-                return this._paddings;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(NetInput.prototype, "inputSize", {
             get: function () {
                 return this._inputSize;
@@ -1025,22 +1106,17 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(NetInput.prototype, "relativePaddings", {
-            get: function () {
-                var _this = this;
-                return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getRelativePaddings(batchIdx); });
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(NetInput.prototype, "reshapedInputDimensions", {
             get: function () {
                 var _this = this;
-                return Array(this.inputs.length).fill(0).map(function (_, batchIdx) { return _this.getReshapedInputDimensions(batchIdx); });
+                return range$1(this.batchSize, 0, 1).map(function (_, batchIdx) { return _this.getReshapedInputDimensions(batchIdx); });
             },
             enumerable: true,
             configurable: true
         });
+        NetInput.prototype.getInput = function (batchIdx) {
+            return this.canvases[batchIdx] || this.imageTensors[batchIdx];
+        };
         NetInput.prototype.getInputDimensions = function (batchIdx) {
             return this._inputDimensions[batchIdx];
         };
@@ -1050,12 +1126,6 @@
         NetInput.prototype.getInputWidth = function (batchIdx) {
             return this._inputDimensions[batchIdx][1];
         };
-        NetInput.prototype.getPaddings = function (batchIdx) {
-            return this._paddings[batchIdx];
-        };
-        NetInput.prototype.getRelativePaddings = function (batchIdx) {
-            return new Point((this.getPaddings(batchIdx).x + this.getInputWidth(batchIdx)) / this.getInputWidth(batchIdx), (this.getPaddings(batchIdx).y + this.getInputHeight(batchIdx)) / this.getInputHeight(batchIdx));
-        };
         NetInput.prototype.getReshapedInputDimensions = function (batchIdx) {
             if (typeof this.inputSize !== 'number') {
                 throw new Error('getReshapedInputDimensions - inputSize not set, toBatchTensor has not been called yet');
@@ -1064,39 +1134,38 @@
             var height = this.getInputHeight(batchIdx);
             return computeReshapedDimensions({ width: width, height: height }, this.inputSize);
         };
+        /**
+         * Create a batch tensor from all input canvases and tensors
+         * with size [batchSize, inputSize, inputSize, 3].
+         *
+         * @param inputSize Height and width of the tensor.
+         * @param isCenterImage (optional, default: false) If true, add an equal amount of padding on
+         * both sides of the minor dimension oof the image.
+         * @returns The batch tensor.
+         */
         NetInput.prototype.toBatchTensor = function (inputSize, isCenterInputs) {
             var _this = this;
             if (isCenterInputs === void 0) { isCenterInputs = true; }
             this._inputSize = inputSize;
             return tidy(function () {
-                var inputTensors = _this._inputs.map(function (inputTensor) {
-                    var _a = inputTensor.shape, originalHeight = _a[0], originalWidth = _a[1];
-                    var imgTensor = inputTensor.expandDims().toFloat();
-                    imgTensor = padToSquare(imgTensor, isCenterInputs);
-                    var _b = imgTensor.shape.slice(1), heightAfterPadding = _b[0], widthAfterPadding = _b[1];
-                    if (heightAfterPadding !== inputSize || widthAfterPadding !== inputSize) {
-                        imgTensor = image_ops.resizeBilinear(imgTensor, [inputSize, inputSize]);
+                var inputTensors = range$1(_this.batchSize, 0, 1).map(function (batchIdx) {
+                    var input = _this.getInput(batchIdx);
+                    if (input instanceof Tensor) {
+                        var imgTensor = isTensor4D(input) ? input : input.expandDims();
+                        imgTensor = padToSquare(imgTensor, isCenterInputs);
+                        if (imgTensor.shape[1] !== inputSize || imgTensor.shape[2] !== inputSize) {
+                            imgTensor = image_ops.resizeBilinear(imgTensor, [inputSize, inputSize]);
+                        }
+                        return imgTensor.as3D(inputSize, inputSize, 3);
                     }
-                    _this._paddings.push(new Point(widthAfterPadding - originalWidth, heightAfterPadding - originalHeight));
-                    return imgTensor;
+                    if (input instanceof HTMLCanvasElement) {
+                        return fromPixels(imageToSquare(input, inputSize, isCenterInputs));
+                    }
+                    throw new Error("toBatchTensor - at batchIdx " + batchIdx + ", expected input to be instanceof tf.Tensor or instanceof HTMLCanvasElement, instead have " + input);
                 });
-                var batchTensor = stack(inputTensors).as4D(_this.batchSize, inputSize, inputSize, 3);
-                if (_this.isManaged) {
-                    _this.dispose();
-                }
+                var batchTensor = stack(inputTensors.map(function (t) { return t.toFloat(); })).as4D(_this.batchSize, inputSize, inputSize, 3);
                 return batchTensor;
             });
-        };
-        /**
-         *  By setting the isManaged flag, all newly created tensors will be
-         *  automatically disposed after the batch tensor has been created
-         */
-        NetInput.prototype.managed = function () {
-            this._isManaged = true;
-            return this;
-        };
-        NetInput.prototype.dispose = function () {
-            this._inputs.forEach(function (t) { return t.dispose(); });
         };
         return NetInput;
     }());
@@ -1106,26 +1175,16 @@
      * to be finished loading.
      *
      * @param input The input, which can be a media element or an array of different media elements.
-     * @param manageCreatedInput If a new NetInput instance is created from the inputs, this flag
-     * determines, whether to set the NetInput as managed or not.
      * @returns A NetInput instance, which can be passed into one of the neural networks.
      */
-    function toNetInput(inputs, manageCreatedInput, keepCanvases) {
-        if (manageCreatedInput === void 0) { manageCreatedInput = false; }
-        if (keepCanvases === void 0) { keepCanvases = false; }
+    function toNetInput(inputs) {
         return __awaiter$1(this, void 0, void 0, function () {
-            var afterCreate, inputArgArray, getIdxHint, inputArray;
+            var inputArgArray, getIdxHint, inputArray;
             return __generator$1(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (inputs instanceof NetInput) {
                             return [2 /*return*/, inputs];
-                        }
-                        afterCreate = function (netInput) { return manageCreatedInput
-                            ? netInput.managed()
-                            : netInput; };
-                        if (isTensor4D(inputs)) {
-                            return [2 /*return*/, afterCreate(new NetInput(inputs))];
                         }
                         inputArgArray = Array.isArray(inputs)
                             ? inputs
@@ -1155,7 +1214,7 @@
                     case 1:
                         // wait for all media elements being loaded
                         _a.sent();
-                        return [2 /*return*/, afterCreate(new NetInput(inputArray, Array.isArray(inputs), keepCanvases))];
+                        return [2 /*return*/, new NetInput(inputArray, Array.isArray(inputs))];
                 }
             });
         });
@@ -1584,29 +1643,30 @@
      */
     function extractFaces(input, detections) {
         return __awaiter$1(this, void 0, void 0, function () {
-            var canvas, netInput, ctx, boxes;
-            return __generator$1(this, function (_a) {
-                switch (_a.label) {
+            var canvas, netInput, tensorOrCanvas, _a, ctx, boxes;
+            return __generator$1(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         canvas = input;
-                        if (!!(input instanceof HTMLCanvasElement)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, toNetInput(input, true)];
+                        if (!!(input instanceof HTMLCanvasElement)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, toNetInput(input)];
                     case 1:
-                        netInput = _a.sent();
+                        netInput = _b.sent();
                         if (netInput.batchSize > 1) {
-                            if (netInput.isManaged) {
-                                netInput.dispose();
-                            }
                             throw new Error('extractFaces - batchSize > 1 not supported');
                         }
-                        return [4 /*yield*/, imageTensorToCanvas(netInput.inputs[0])];
-                    case 2:
-                        canvas = _a.sent();
-                        if (netInput.isManaged) {
-                            netInput.dispose();
-                        }
-                        _a.label = 3;
+                        tensorOrCanvas = netInput.getInput(0);
+                        if (!(tensorOrCanvas instanceof HTMLCanvasElement)) return [3 /*break*/, 2];
+                        _a = tensorOrCanvas;
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, imageTensorToCanvas(tensorOrCanvas)];
                     case 3:
+                        _a = _b.sent();
+                        _b.label = 4;
+                    case 4:
+                        canvas = _a;
+                        _b.label = 5;
+                    case 5:
                         ctx = getContext2dOrThrow(canvas);
                         boxes = detections.map(function (det) { return det instanceof FaceDetection
                             ? det.forSize(canvas.width, canvas.height).getBox().floor()
@@ -1630,41 +1690,28 @@
      * Using this method is faster then extracting a canvas for each face and
      * converting them to tensors individually.
      *
-     * @param input The image that face detection has been performed on.
+     * @param imageTensor The image tensor that face detection has been performed on.
      * @param detections The face detection results or face bounding boxes for that image.
      * @returns Tensors of the corresponding image region for each detected face.
      */
-    function extractFaceTensors(input, detections) {
+    function extractFaceTensors(imageTensor, detections) {
         return __awaiter$1(this, void 0, void 0, function () {
-            var netInput;
             return __generator$1(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, toNetInput(input, true)];
-                    case 1:
-                        netInput = _a.sent();
-                        if (netInput.batchSize > 1) {
-                            if (netInput.isManaged) {
-                                netInput.dispose();
-                            }
-                            throw new Error('extractFaceTensors - batchSize > 1 not supported');
-                        }
-                        return [2 /*return*/, tidy(function () {
-                                var imgTensor = netInput.inputs[0].expandDims().toFloat();
-                                var _a = imgTensor.shape.slice(1), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
-                                var boxes = detections.map(function (det) { return det instanceof FaceDetection
-                                    ? det.forSize(imgWidth, imgHeight).getBox()
-                                    : det; })
-                                    .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
-                                var faceTensors = boxes.map(function (_a) {
-                                    var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
-                                    return slice4d(imgTensor, [0, y, x, 0], [1, height, width, numChannels]);
-                                });
-                                if (netInput.isManaged) {
-                                    netInput.dispose();
-                                }
-                                return faceTensors;
-                            })];
+                if (isTensor4D(imageTensor) && imageTensor.shape[0] > 1) {
+                    throw new Error('extractFaceTensors - batchSize > 1 not supported');
                 }
+                return [2 /*return*/, tidy(function () {
+                        var _a = imageTensor.shape.slice(isTensor4D(imageTensor) ? 1 : 0), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
+                        var boxes = detections.map(function (det) { return det instanceof FaceDetection
+                            ? det.forSize(imgWidth, imgHeight).getBox()
+                            : det; })
+                            .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
+                        var faceTensors = boxes.map(function (_a) {
+                            var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+                            return slice3d(imageTensor.as3D(imgHeight, imgWidth, numChannels), [y, x, 0], [height, width, numChannels]);
+                        });
+                        return faceTensors;
+                    })];
             });
         });
     }
@@ -2147,6 +2194,24 @@
         SizeType["LG"] = "lg";
     })(SizeType || (SizeType = {}));
 
+    function extractSeparableConvParamsFactory(extractWeights, paramMappings) {
+        return function (channelsIn, channelsOut, mappedPrefix) {
+            var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
+            var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        };
+    }
+    function loadSeparableConvParamsFactory(extractWeightEntry) {
+        return function (prefix) {
+            var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
+            var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        };
+    }
+
     var isNumber = function (arg) { return typeof arg === 'number'; };
     function validateConfig(config) {
         if (!config) {
@@ -2183,6 +2248,9 @@
 
     var INPUT_SIZES = { xs: 224, sm: 320, md: 416, lg: 608 };
     var CELL_SIZE = 32;
+    var DEFAULT_FILTER_SIZES = [
+        3, 16, 32, 64, 128, 256, 512, 1024, 1024
+    ];
 
     function leaky(x) {
         return tidy(function () {
@@ -2222,33 +2290,28 @@
             var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
             return { conv: conv, bn: bn };
         }
-        function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
-            var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
-            var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
-            var bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
-            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-        }
+        var extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings);
         return {
             extractConvParams: extractConvParams,
             extractConvWithBatchNormParams: extractConvWithBatchNormParams,
             extractSeparableConvParams: extractSeparableConvParams
         };
     }
-    function extractParams$1(weights, withSeparableConvs, boxEncodingSize) {
+    function extractParams$1(weights, withSeparableConvs, boxEncodingSize, filterSizes) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var paramMappings = [];
         var _b = extractorsFactory$2(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
         var extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
-        var conv0 = extractConvFn(3, 16, 'conv0');
-        var conv1 = extractConvFn(16, 32, 'conv1');
-        var conv2 = extractConvFn(32, 64, 'conv2');
-        var conv3 = extractConvFn(64, 128, 'conv3');
-        var conv4 = extractConvFn(128, 256, 'conv4');
-        var conv5 = extractConvFn(256, 512, 'conv5');
-        var conv6 = extractConvFn(512, 1024, 'conv6');
-        var conv7 = extractConvFn(1024, 1024, 'conv7');
-        var conv8 = extractConvParams(1024, 5 * boxEncodingSize, 1, 'conv8');
+        var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
+        var conv0 = extractConvFn(s0, s1, 'conv0');
+        var conv1 = extractConvFn(s1, s2, 'conv1');
+        var conv2 = extractConvFn(s2, s3, 'conv2');
+        var conv3 = extractConvFn(s3, s4, 'conv3');
+        var conv4 = extractConvFn(s4, s5, 'conv4');
+        var conv5 = extractConvFn(s5, s6, 'conv5');
+        var conv6 = extractConvFn(s6, s7, 'conv6');
+        var conv7 = extractConvFn(s7, s8, 'conv7');
+        var conv8 = extractConvParams(s8, 5 * boxEncodingSize, 1, 'conv8');
         if (getRemainingWeights().length !== 0) {
             throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
@@ -2285,12 +2348,7 @@
             var bn = extractBatchNormParams(prefix + "/bn");
             return { conv: conv, bn: bn };
         }
-        function extractSeparableConvParams(prefix) {
-            var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
-            var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
-            var bias = extractWeightEntry(prefix + "/bias", 1);
-            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-        }
+        var extractSeparableConvParams = loadSeparableConvParamsFactory(extractWeightEntry);
         return {
             extractConvParams: extractConvParams,
             extractConvWithBatchNormParams: extractConvWithBatchNormParams,
@@ -2363,7 +2421,7 @@
                 throw new Error('TinyYolov2 - load model before inference');
             }
             var out = tidy(function () {
-                var batchTensor = input.toBatchTensor(inputSize, false);
+                var batchTensor = input.toBatchTensor(inputSize, false).toFloat();
                 batchTensor = _this.config.meanRgb
                     ? normalize(batchTensor, _this.config.meanRgb)
                     : batchTensor;
@@ -2394,7 +2452,7 @@
                     switch (_b.label) {
                         case 0:
                             _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(), inputSize])];
                         case 2: return [2 /*return*/, _b.sent()];
                     }
@@ -2416,7 +2474,7 @@
                             if (typeof inputSize !== 'number') {
                                 throw new Error("TinyYolov2 - unknown inputSize: " + inputSize + ", expected number or one of xs | sm | md | lg");
                             }
-                            return [4 /*yield*/, toNetInput(input, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1:
                             netInput = _b.sent();
                             return [4 /*yield*/, this.forwardInput(netInput, inputSize)];
@@ -2433,10 +2491,10 @@
                             boxes = results.map(function (res) { return res.box; });
                             scores = results.map(function (res) { return res.score; });
                             classScores = results.map(function (res) { return res.classScore; });
-                            classNames = results.map(function (res) { return _this.config.classes[res.classLabel]; });
+                            classNames = results.map(function (res) { return _this.config.classes[res.label]; });
                             indices = nonMaxSuppression$1(boxes.map(function (box) { return box.rescale(inputSize); }), scores, this.config.iouThreshold, true);
                             detections = indices.map(function (idx) {
-                                return new ObjectDetection(scores[idx], classScores[idx], classNames[idx], boxes[idx].toRect(), inputDimensions);
+                                return new ObjectDetection(scores[idx], classScores[idx], classNames[idx], boxes[idx], inputDimensions);
                             });
                             return [2 /*return*/, detections];
                     }
@@ -2451,7 +2509,12 @@
             return loadQuantizedParams$1(modelUri, this.config.withSeparableConvs, defaultModelName);
         };
         TinyYolov2.prototype.extractParams = function (weights) {
-            return extractParams$1(weights, this.config.withSeparableConvs, this.boxEncodingSize);
+            var filterSizes = this.config.filterSizes || DEFAULT_FILTER_SIZES;
+            var numFilters = filterSizes ? filterSizes.length : undefined;
+            if (numFilters !== 9) {
+                throw new Error("TinyYolov2 - expected 9 convolutional filters, but found " + numFilters + " filterSizes in config");
+            }
+            return extractParams$1(weights, this.config.withSeparableConvs, this.boxEncodingSize, filterSizes);
         };
         TinyYolov2.prototype.extractBoxes = function (outputTensor, inputBlobDimensions, scoreThreshold) {
             var _this = this;
@@ -2485,8 +2548,8 @@
                             var pos = { row: row, col: col, anchor: anchor };
                             var _b = this.withClassScores
                                 ? this.extractPredictedClass(classScoresTensor, pos)
-                                : { classScore: 1, classLabel: 0 }, classScore = _b.classScore, classLabel = _b.classLabel;
-                            results.push(__assign$1({ box: new BoundingBox(x, y, x + width_1, y + height_1), score: score, classScore: score * classScore, classLabel: classLabel }, pos));
+                                : { classScore: 1, label: 0 }, classScore = _b.classScore, label = _b.label;
+                            results.push(__assign$1({ box: new BoundingBox(x, y, x + width_1, y + height_1), score: score, classScore: score * classScore, label: label }, pos));
                         }
                     }
                 }
@@ -2500,9 +2563,9 @@
             var row = pos.row, col = pos.col, anchor = pos.anchor;
             return Array(this.config.classes.length).fill(0)
                 .map(function (_, i) { return classesTensor.get(row, col, anchor, i); })
-                .map(function (classScore, classLabel) { return ({
+                .map(function (classScore, label) { return ({
                 classScore: classScore,
-                classLabel: classLabel
+                label: label
             }); })
                 .reduce(function (max$$1, curr) { return max$$1.classScore > curr.classScore ? max$$1 : curr; });
         };
@@ -2690,9 +2753,9 @@
         TinyYolov2LossFunction.prototype.validateGroundTruthBoxes = function (groundTruth) {
             var _this = this;
             groundTruth.forEach(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, classLabel = _a.classLabel;
-                if (typeof classLabel !== 'number' || classLabel < 0 || classLabel > (_this.config.classes.length - 1)) {
-                    throw new Error("invalid ground truth data, expected classLabel to be a number in [0, " + (_this.config.classes.length - 1) + "]");
+                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, label = _a.label;
+                if (typeof label !== 'number' || label < 0 || label > (_this.config.classes.length - 1)) {
+                    throw new Error("invalid ground truth data, expected label to be a number in [0, " + (_this.config.classes.length - 1) + "]");
                 }
                 if (x < 0 || x > 1 || y < 0 || y > 1 || width < 0 || (x + width) > 1 || height < 0 || (y + height) > 1) {
                     throw new Error("invalid ground truth data, box is out of image boundaries " + JSON.stringify({ x: x, y: y, width: width, height: height }));
@@ -2703,15 +2766,15 @@
             var _this = this;
             var groundTruthBoxes = groundTruth
                 .map(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, classLabel = _a.classLabel;
+                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, label = _a.label;
                 return ({
-                    box: (new Rect(x, y, width, height)).toBoundingBox(),
-                    classLabel: classLabel
+                    box: new Rect(x, y, width, height),
+                    label: label
                 });
             });
             return groundTruthBoxes.map(function (_a) {
-                var box = _a.box, classLabel = _a.classLabel;
-                var _b = box.rescale(_this.reshapedImgDims), left = _b.left, top = _b.top, width = _b.width, height = _b.height;
+                var box = _a.box, label = _a.label;
+                var _b = box.rescale(_this.reshapedImgDims), left = _b.left, top = _b.top, bottom = _b.bottom, right = _b.right, x = _b.x, y = _b.y, width = _b.width, height = _b.height;
                 var ctX = left + (width / 2);
                 var ctY = top + (height / 2);
                 var col = Math.floor((ctX / _this.inputSize) * _this.numCells);
@@ -2721,7 +2784,7 @@
                     iou: iou(new BoundingBox(0, 0, anchor.x * CELL_SIZE, anchor.y * CELL_SIZE), new BoundingBox(0, 0, width, height))
                 }); }).sort(function (a1, a2) { return a2.iou - a1.iou; });
                 var anchor = anchorsByIou[0].idx;
-                return { row: row, col: col, anchor: anchor, box: box, classLabel: classLabel };
+                return { row: row, col: col, anchor: anchor, box: box, label: label };
             });
         };
         TinyYolov2LossFunction.prototype.createGroundTruthMask = function () {
@@ -2764,8 +2827,8 @@
             var buf = mask.buffer();
             var classValuesOffset = 5;
             this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor, classLabel = _a.classLabel;
-                buf.set(1, row, col, anchor, classValuesOffset + classLabel);
+                var row = _a.row, col = _a.col, anchor = _a.anchor, label = _a.label;
+                buf.set(1, row, col, anchor, classValuesOffset + label);
             });
             return mask;
         };
@@ -2878,11 +2941,15 @@
                                         coordLoss: coordLoss.dataSync()[0],
                                         classLoss: classLoss.dataSync()[0]
                                     };
-                                    reportLosses(losses, filteredGroundTruthBoxes.length);
+                                    var report = {
+                                        losses: losses,
+                                        numBoxes: filteredGroundTruthBoxes.length,
+                                        inputSize: inputSize
+                                    };
+                                    reportLosses(report);
                                 }
                                 return totalLoss;
                             }, true);
-                            netInput.dispose();
                             return [2 /*return*/, loss];
                     }
                 });
@@ -2905,7 +2972,6 @@
             return groundTruth.filter(function (_a) {
                 var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
                 var box = (new Rect(x, y, width, height))
-                    .toBoundingBox()
                     .rescale({ height: imgHeight, width: imgWidth });
                 var isTooTiny = box.width < minBoxSize || box.height < minBoxSize;
                 return !isTooTiny;
@@ -2994,7 +3060,7 @@
                 throw new Error('FaceDetectionNet - load model before inference');
             }
             return tidy(function () {
-                var batchTensor = input.toBatchTensor(512, false);
+                var batchTensor = input.toBatchTensor(512, false).toFloat();
                 var x = sub(mul(batchTensor, scalar(0.007843137718737125)), scalar(1));
                 var features = mobileNetV1(x, params.mobilenetv1);
                 var _a = predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
@@ -3008,7 +3074,7 @@
                     switch (_b.label) {
                         case 0:
                             _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                     }
                 });
@@ -3018,10 +3084,10 @@
             if (minConfidence === void 0) { minConfidence = 0.8; }
             if (maxResults === void 0) { maxResults = 100; }
             return __awaiter$1(this, void 0, void 0, function () {
-                var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, paddings, results;
+                var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, reshapedDims, inputSize, padX, padY, results;
                 return __generator$1(this, function (_d) {
                     switch (_d.label) {
-                        case 0: return [4 /*yield*/, toNetInput(input, true)];
+                        case 0: return [4 /*yield*/, toNetInput(input)];
                         case 1:
                             netInput = _d.sent();
                             _a = this.forwardInput(netInput), _boxes = _a.boxes, _scores = _a.scores;
@@ -3037,17 +3103,20 @@
                             scoresData = _c.apply(_b, [_d.sent()]);
                             iouThreshold = 0.5;
                             indices = nonMaxSuppression$2(boxes, scoresData, maxResults, iouThreshold, minConfidence);
-                            paddings = netInput.getRelativePaddings(0);
+                            reshapedDims = netInput.getReshapedInputDimensions(0);
+                            inputSize = netInput.inputSize;
+                            padX = inputSize / reshapedDims.width;
+                            padY = inputSize / reshapedDims.height;
                             results = indices
                                 .map(function (idx) {
                                 var _a = [
                                     Math.max(0, boxes.get(idx, 0)),
                                     Math.min(1.0, boxes.get(idx, 2))
-                                ].map(function (val) { return val * paddings.y; }), top = _a[0], bottom = _a[1];
+                                ].map(function (val) { return val * padY; }), top = _a[0], bottom = _a[1];
                                 var _b = [
                                     Math.max(0, boxes.get(idx, 1)),
                                     Math.min(1.0, boxes.get(idx, 3))
-                                ].map(function (val) { return val * paddings.x; }), left = _b[0], right = _b[1];
+                                ].map(function (val) { return val * padX; }), left = _b[0], right = _b[1];
                                 return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), {
                                     height: netInput.getInputHeight(0),
                                     width: netInput.getInputWidth(0)
@@ -3114,6 +3183,114 @@
         };
     }
 
+    var FaceLandmark68NetBase = /** @class */ (function (_super) {
+        __extends$1(FaceLandmark68NetBase, _super);
+        function FaceLandmark68NetBase(_name) {
+            var _this = _super.call(this, _name) || this;
+            _this.__name = _name;
+            return _this;
+        }
+        FaceLandmark68NetBase.prototype.runNet = function (_) {
+            throw new Error(this.__name + " - runNet not implemented");
+        };
+        FaceLandmark68NetBase.prototype.postProcess = function (output, inputSize, originalDimensions) {
+            var inputDimensions = originalDimensions.map(function (_a) {
+                var width = _a.width, height = _a.height;
+                var scale = inputSize / Math.max(height, width);
+                return {
+                    width: width * scale,
+                    height: height * scale
+                };
+            });
+            var batchSize = inputDimensions.length;
+            return tidy(function () {
+                var createInterleavedTensor = function (fillX, fillY) {
+                    return stack([
+                        fill([68], fillX),
+                        fill([68], fillY)
+                    ], 1).as2D(1, 136).as1D();
+                };
+                var getPadding = function (batchIdx, cond) {
+                    var _a = inputDimensions[batchIdx], width = _a.width, height = _a.height;
+                    return cond(width, height) ? Math.abs(width - height) / 2 : 0;
+                };
+                var getPaddingX = function (batchIdx) { return getPadding(batchIdx, function (w, h) { return w < h; }); };
+                var getPaddingY = function (batchIdx) { return getPadding(batchIdx, function (w, h) { return h < w; }); };
+                var landmarkTensors = output
+                    .mul(fill([batchSize, 136], inputSize))
+                    .sub(stack(Array.from(Array(batchSize), function (_, batchIdx) {
+                    return createInterleavedTensor(getPaddingX(batchIdx), getPaddingY(batchIdx));
+                })))
+                    .div(stack(Array.from(Array(batchSize), function (_, batchIdx) {
+                    return createInterleavedTensor(inputDimensions[batchIdx].width, inputDimensions[batchIdx].height);
+                })));
+                return landmarkTensors;
+            });
+        };
+        FaceLandmark68NetBase.prototype.forwardInput = function (input) {
+            var _this = this;
+            return tidy(function () {
+                var out = _this.runNet(input);
+                return _this.postProcess(out, input.inputSize, input.inputDimensions.map(function (_a) {
+                    var height = _a[0], width = _a[1];
+                    return ({ height: height, width: width });
+                }));
+            });
+        };
+        FaceLandmark68NetBase.prototype.forward = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
+                    }
+                });
+            });
+        };
+        FaceLandmark68NetBase.prototype.detectLandmarks = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _this = this;
+                var netInput, landmarkTensors, landmarksForBatch;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, toNetInput(input)];
+                        case 1:
+                            netInput = _a.sent();
+                            landmarkTensors = tidy(function () { return unstack(_this.forwardInput(netInput)); });
+                            return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return __awaiter$1(_this, void 0, void 0, function () {
+                                    var landmarksArray, _a, _b, xCoords, yCoords;
+                                    return __generator$1(this, function (_c) {
+                                        switch (_c.label) {
+                                            case 0:
+                                                _b = (_a = Array).from;
+                                                return [4 /*yield*/, landmarkTensor.data()];
+                                            case 1:
+                                                landmarksArray = _b.apply(_a, [_c.sent()]);
+                                                xCoords = landmarksArray.filter(function (_, i) { return isEven(i); });
+                                                yCoords = landmarksArray.filter(function (_, i) { return !isEven(i); });
+                                                return [2 /*return*/, new FaceLandmarks68(Array(68).fill(0).map(function (_, i) { return new Point(xCoords[i], yCoords[i]); }), {
+                                                        height: netInput.getInputHeight(batchIdx),
+                                                        width: netInput.getInputWidth(batchIdx),
+                                                    })];
+                                        }
+                                    });
+                                }); }))];
+                        case 2:
+                            landmarksForBatch = _a.sent();
+                            landmarkTensors.forEach(function (t) { return t.dispose(); });
+                            return [2 /*return*/, netInput.isBatchInput
+                                    ? landmarksForBatch
+                                    : landmarksForBatch[0]];
+                    }
+                });
+            });
+        };
+        return FaceLandmark68NetBase;
+    }(NeuralNetwork));
+
     function fullyConnectedLayer(x, params) {
         return tidy(function () {
             return add(matMul(x, params.weights), params.bias);
@@ -3174,18 +3351,18 @@
         if (strides === void 0) { strides = [2, 2]; }
         return maxPool(x, [2, 2], strides, 'valid');
     }
-    var FaceLandmarkNet = /** @class */ (function (_super) {
-        __extends$1(FaceLandmarkNet, _super);
-        function FaceLandmarkNet() {
-            return _super.call(this, 'FaceLandmarkNet') || this;
+    var FaceLandmark68Net = /** @class */ (function (_super) {
+        __extends$1(FaceLandmark68Net, _super);
+        function FaceLandmark68Net() {
+            return _super.call(this, 'FaceLandmark68Net') || this;
         }
-        FaceLandmarkNet.prototype.forwardInput = function (input) {
+        FaceLandmark68Net.prototype.runNet = function (input) {
             var params = this.params;
             if (!params) {
-                throw new Error('FaceLandmarkNet - load model before inference');
+                throw new Error('FaceLandmark68Net - load model before inference');
             }
             return tidy(function () {
-                var batchTensor = input.toBatchTensor(128, true);
+                var batchTensor = input.toBatchTensor(128, true).toFloat();
                 var out = conv(batchTensor, params.conv0);
                 out = maxPool$1(out);
                 out = conv(out, params.conv1);
@@ -3199,90 +3376,25 @@
                 out = maxPool$1(out, [1, 1]);
                 out = conv(out, params.conv7);
                 var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
-                var fc1 = fullyConnectedLayer(fc0, params.fc1);
-                var createInterleavedTensor = function (fillX, fillY) {
-                    return stack([
-                        fill([68], fillX),
-                        fill([68], fillY)
-                    ], 1).as2D(1, 136).as1D();
-                };
-                /* shift coordinates back, to undo centered padding
-                  x = ((x * widthAfterPadding) - shiftX) / width
-                  y = ((y * heightAfterPadding) - shiftY) / height
-                */
-                var landmarkTensors = fc1
-                    .mul(stack(Array.from(Array(input.batchSize), function (_, batchIdx) {
-                    return createInterleavedTensor(input.getPaddings(batchIdx).x + input.getInputWidth(batchIdx), input.getPaddings(batchIdx).y + input.getInputHeight(batchIdx));
-                })))
-                    .sub(stack(Array.from(Array(input.batchSize), function (_, batchIdx) {
-                    return createInterleavedTensor(Math.floor(input.getPaddings(batchIdx).x / 2), Math.floor(input.getPaddings(batchIdx).y / 2));
-                })))
-                    .div(stack(Array.from(Array(input.batchSize), function (_, batchIdx) {
-                    return createInterleavedTensor(input.getInputWidth(batchIdx), input.getInputHeight(batchIdx));
-                })));
-                return landmarkTensors;
+                return fullyConnectedLayer(fc0, params.fc1);
             });
         };
-        FaceLandmarkNet.prototype.forward = function (input) {
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _a;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true)];
-                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
-                    }
-                });
-            });
-        };
-        FaceLandmarkNet.prototype.detectLandmarks = function (input) {
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
-                var netInput, landmarkTensors, landmarksForBatch;
-                return __generator$1(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, toNetInput(input, true)];
-                        case 1:
-                            netInput = _a.sent();
-                            landmarkTensors = tidy(function () { return unstack(_this.forwardInput(netInput)); });
-                            return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return __awaiter$1(_this, void 0, void 0, function () {
-                                    var landmarksArray, _a, _b, xCoords, yCoords;
-                                    return __generator$1(this, function (_c) {
-                                        switch (_c.label) {
-                                            case 0:
-                                                _b = (_a = Array).from;
-                                                return [4 /*yield*/, landmarkTensor.data()];
-                                            case 1:
-                                                landmarksArray = _b.apply(_a, [_c.sent()]);
-                                                xCoords = landmarksArray.filter(function (_, i) { return isEven(i); });
-                                                yCoords = landmarksArray.filter(function (_, i) { return !isEven(i); });
-                                                return [2 /*return*/, new FaceLandmarks68(Array(68).fill(0).map(function (_, i) { return new Point(xCoords[i], yCoords[i]); }), {
-                                                        height: netInput.getInputHeight(batchIdx),
-                                                        width: netInput.getInputWidth(batchIdx),
-                                                    })];
-                                        }
-                                    });
-                                }); }))];
-                        case 2:
-                            landmarksForBatch = _a.sent();
-                            landmarkTensors.forEach(function (t) { return t.dispose(); });
-                            return [2 /*return*/, netInput.isBatchInput
-                                    ? landmarksForBatch
-                                    : landmarksForBatch[0]];
-                    }
-                });
-            });
-        };
-        FaceLandmarkNet.prototype.loadQuantizedParams = function (uri) {
+        FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
             return loadQuantizedParams$2(uri);
         };
-        FaceLandmarkNet.prototype.extractParams = function (weights) {
+        FaceLandmark68Net.prototype.extractParams = function (weights) {
             return extractParams$2(weights);
         };
-        return FaceLandmarkNet;
-    }(NeuralNetwork));
+        return FaceLandmark68Net;
+    }(FaceLandmark68NetBase));
 
+    var FaceLandmarkNet = /** @class */ (function (_super) {
+        __extends$1(FaceLandmarkNet, _super);
+        function FaceLandmarkNet() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return FaceLandmarkNet;
+    }(FaceLandmark68Net));
     function createFaceLandmarkNet(weights) {
         var net = new FaceLandmarkNet();
         net.extractWeights(weights);
@@ -3521,7 +3633,7 @@
                 throw new Error('FaceRecognitionNet - load model before inference');
             }
             return tidy(function () {
-                var batchTensor = input.toBatchTensor(150, true);
+                var batchTensor = input.toBatchTensor(150, true).toFloat();
                 var meanRgb = [122.782, 117.001, 104.298];
                 var normalized = normalize(batchTensor, meanRgb).div(scalar(256));
                 var out = convDown(normalized, params.conv32_down);
@@ -3552,7 +3664,7 @@
                     switch (_b.label) {
                         case 0:
                             _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                     }
                 });
@@ -3564,7 +3676,7 @@
                 var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
                 return __generator$1(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, toNetInput(input, true)];
+                        case 0: return [4 /*yield*/, toNetInput(input)];
                         case 1:
                             netInput = _a.sent();
                             faceDescriptorTensors = tidy(function () { return unstack(_this.forwardInput(netInput)); });
@@ -3601,24 +3713,23 @@
     function computeDescriptorsFactory(recognitionNet) {
         return function (input, alignedFaceBoxes, useBatchProcessing) {
             return __awaiter$1(this, void 0, void 0, function () {
-                var alignedFaceTensors, descriptors, _a;
+                var alignedFaceCanvases, descriptors, _a;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, extractFaceTensors(input, alignedFaceBoxes)];
+                        case 0: return [4 /*yield*/, extractFaces(input, alignedFaceBoxes)];
                         case 1:
-                            alignedFaceTensors = _b.sent();
+                            alignedFaceCanvases = _b.sent();
                             if (!useBatchProcessing) return [3 /*break*/, 3];
-                            return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                            return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceCanvases)];
                         case 2:
                             _a = _b.sent();
                             return [3 /*break*/, 5];
-                        case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                        case 3: return [4 /*yield*/, Promise.all(alignedFaceCanvases.map(function (canvas) { return recognitionNet.computeFaceDescriptor(canvas); }))];
                         case 4:
                             _a = _b.sent();
                             _b.label = 5;
                         case 5:
                             descriptors = _a;
-                            alignedFaceTensors.forEach(function (t) { return t.dispose(); });
                             return [2 /*return*/, descriptors];
                     }
                 });
@@ -3630,27 +3741,26 @@
         return function (input, useBatchProcessing) {
             if (useBatchProcessing === void 0) { useBatchProcessing = false; }
             return __awaiter$1(this, void 0, void 0, function () {
-                var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
+                var detections, faceCanvases, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
                         case 0: return [4 /*yield*/, detectFaces(input)];
                         case 1:
                             detections = _b.sent();
-                            return [4 /*yield*/, extractFaceTensors(input, detections)];
+                            return [4 /*yield*/, extractFaces(input, detections)];
                         case 2:
-                            faceTensors = _b.sent();
+                            faceCanvases = _b.sent();
                             if (!useBatchProcessing) return [3 /*break*/, 4];
-                            return [4 /*yield*/, landmarkNet.detectLandmarks(faceTensors)];
+                            return [4 /*yield*/, landmarkNet.detectLandmarks(faceCanvases)];
                         case 3:
                             _a = _b.sent();
                             return [3 /*break*/, 6];
-                        case 4: return [4 /*yield*/, Promise.all(faceTensors.map(function (faceTensor) { return landmarkNet.detectLandmarks(faceTensor); }))];
+                        case 4: return [4 /*yield*/, Promise.all(faceCanvases.map(function (canvas) { return landmarkNet.detectLandmarks(canvas); }))];
                         case 5:
                             _a = _b.sent();
                             _b.label = 6;
                         case 6:
                             faceLandmarksByFace = _a;
-                            faceTensors.forEach(function (t) { return t.dispose(); });
                             alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
                             return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
                         case 7:
@@ -3896,6 +4006,14 @@
         return scales;
     }
 
+    var MtcnnBox = /** @class */ (function (_super) {
+        __extends$1(MtcnnBox, _super);
+        function MtcnnBox(left, top, right, bottom) {
+            return _super.call(this, { left: left, top: top, right: right, bottom: bottom }, true) || this;
+        }
+        return MtcnnBox;
+    }(Box));
+
     function normalize$1(x) {
         return tidy(function () { return mul(sub(x, scalar(127.5)), scalar(0.0078125)); });
     }
@@ -3953,7 +4071,7 @@
         var boundingBoxes = indices.map(function (idx) {
             var cell = new BoundingBox(Math.round((idx.y * CELL_STRIDE + 1) / scale), Math.round((idx.x * CELL_STRIDE + 1) / scale), Math.round((idx.y * CELL_STRIDE + CELL_SIZE$1) / scale), Math.round((idx.x * CELL_STRIDE + CELL_SIZE$1) / scale));
             var score = scoresTensor.get(idx.y, idx.x);
-            var region = new BoundingBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
+            var region = new MtcnnBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
             return {
                 cell: cell,
                 score: score,
@@ -4121,7 +4239,7 @@
                             indicesNms = nonMaxSuppression$1(filteredBoxes, filteredScores, 0.7);
                             stats.stage2_nms = Date.now() - ts;
                             regions_1 = indicesNms.map(function (idx) {
-                                return new BoundingBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
+                                return new MtcnnBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
                             });
                             finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                             finalBoxes = indicesNms.map(function (idx, i) { return filteredBoxes[idx].calibrate(regions_1[i]); });
@@ -4191,7 +4309,7 @@
                             var idx = _a.idx;
                             return idx;
                         });
-                        filteredRegions = indices.map(function (idx) { return new BoundingBox(onetOuts[idx].regions.get(0, 0), onetOuts[idx].regions.get(0, 1), onetOuts[idx].regions.get(0, 2), onetOuts[idx].regions.get(0, 3)); });
+                        filteredRegions = indices.map(function (idx) { return new MtcnnBox(onetOuts[idx].regions.get(0, 0), onetOuts[idx].regions.get(0, 1), onetOuts[idx].regions.get(0, 2), onetOuts[idx].regions.get(0, 3)); });
                         filteredBoxes = indices
                             .map(function (idx, i) { return inputBoxes[idx].calibrate(filteredRegions[i]); });
                         filteredScores = indices.map(function (idx) { return scores[idx]; });
@@ -4233,7 +4351,7 @@
         Mtcnn.prototype.forwardInput = function (input, forwardParams) {
             if (forwardParams === void 0) { forwardParams = {}; }
             return __awaiter$1(this, void 0, void 0, function () {
-                var params, inputTensor, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
+                var params, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
                 return __generator$1(this, function (_c) {
                     switch (_c.label) {
                         case 0:
@@ -4241,7 +4359,6 @@
                             if (!params) {
                                 throw new Error('Mtcnn - load model before inference');
                             }
-                            inputTensor = input.inputs[0];
                             inputCanvas = input.canvases[0];
                             if (!inputCanvas) {
                                 throw new Error('Mtcnn - inputCanvas is not defined, note that passing tensors into Mtcnn.forwardInput is not supported yet.');
@@ -4249,12 +4366,11 @@
                             stats = {};
                             tsTotal = Date.now();
                             imgTensor = tidy(function () {
-                                return bgrToRgbTensor(expandDims(inputTensor).toFloat());
+                                return bgrToRgbTensor(expandDims(fromPixels(inputCanvas)).toFloat());
                             });
                             onReturn = function (results) {
                                 // dispose tensors on return
                                 imgTensor.dispose();
-                                input.dispose();
                                 stats.total = Date.now() - tsTotal;
                                 return results;
                             };
@@ -4313,7 +4429,7 @@
                     switch (_b.label) {
                         case 0:
                             _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(),
                                 forwardParams])];
                         case 2: return [2 /*return*/, (_b.sent()).results];
@@ -4329,7 +4445,7 @@
                     switch (_b.label) {
                         case 0:
                             _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input, true, true)];
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1: return [2 /*return*/, _a.apply(this, [_b.sent(),
                                 forwardParams])];
                     }
@@ -4421,7 +4537,7 @@
     }(TinyYolov2));
 
     var detectionNet = new FaceDetectionNet();
-    var landmarkNet = new FaceLandmarkNet();
+    var landmarkNet = new FaceLandmark68Net();
     var recognitionNet = new FaceRecognitionNet();
     // nets need more specific names, to avoid ambiguity in future
     // when alternative net implementations are provided
@@ -4494,9 +4610,12 @@
     }
 
     exports.tf = tfCore_esm;
+    exports.Box = Box;
     exports.BoundingBox = BoundingBox;
+    exports.LabeledBox = LabeledBox;
     exports.ObjectDetection = ObjectDetection;
     exports.Point = Point;
+    exports.PredictedBox = PredictedBox;
     exports.Rect = Rect;
     exports.disposeUnusedWeightTensors = disposeUnusedWeightTensors;
     exports.extractWeightEntryFactory = extractWeightEntryFactory;
@@ -4538,6 +4657,9 @@
     exports.isDimensions = isDimensions;
     exports.computeReshapedDimensions = computeReshapedDimensions;
     exports.getCenterPoint = getCenterPoint;
+    exports.range = range$1;
+    exports.isValidNumber = isValidNumber;
+    exports.isValidProbablitiy = isValidProbablitiy;
     exports.NeuralNetwork = NeuralNetwork;
     exports.FaceDetection = FaceDetection;
     exports.FaceLandmarks = FaceLandmarks;
@@ -4552,9 +4674,10 @@
     exports.createFaceDetectionNet = createFaceDetectionNet;
     exports.faceDetectionNet = faceDetectionNet;
     exports.FaceDetectionNet = FaceDetectionNet;
+    exports.FaceLandmarkNet = FaceLandmarkNet;
     exports.createFaceLandmarkNet = createFaceLandmarkNet;
     exports.faceLandmarkNet = faceLandmarkNet;
-    exports.FaceLandmarkNet = FaceLandmarkNet;
+    exports.FaceLandmark68Net = FaceLandmark68Net;
     exports.createFaceRecognitionNet = createFaceRecognitionNet;
     exports.faceRecognitionNet = faceRecognitionNet;
     exports.FaceRecognitionNet = FaceRecognitionNet;

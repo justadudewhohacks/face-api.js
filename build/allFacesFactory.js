@@ -7,24 +7,23 @@ var dom_1 = require("./dom");
 function computeDescriptorsFactory(recognitionNet) {
     return function (input, alignedFaceBoxes, useBatchProcessing) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var alignedFaceTensors, descriptors, _a;
+            var alignedFaceCanvases, descriptors, _a;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, dom_1.extractFaceTensors(input, alignedFaceBoxes)];
+                    case 0: return [4 /*yield*/, dom_1.extractFaces(input, alignedFaceBoxes)];
                     case 1:
-                        alignedFaceTensors = _b.sent();
+                        alignedFaceCanvases = _b.sent();
                         if (!useBatchProcessing) return [3 /*break*/, 3];
-                        return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceTensors)];
+                        return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceCanvases)];
                     case 2:
                         _a = _b.sent();
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, Promise.all(alignedFaceTensors.map(function (faceTensor) { return recognitionNet.computeFaceDescriptor(faceTensor); }))];
+                    case 3: return [4 /*yield*/, Promise.all(alignedFaceCanvases.map(function (canvas) { return recognitionNet.computeFaceDescriptor(canvas); }))];
                     case 4:
                         _a = _b.sent();
                         _b.label = 5;
                     case 5:
                         descriptors = _a;
-                        alignedFaceTensors.forEach(function (t) { return t.dispose(); });
                         return [2 /*return*/, descriptors];
                 }
             });
@@ -36,27 +35,26 @@ function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
     return function (input, useBatchProcessing) {
         if (useBatchProcessing === void 0) { useBatchProcessing = false; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var detections, faceTensors, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
+            var detections, faceCanvases, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, detectFaces(input)];
                     case 1:
                         detections = _b.sent();
-                        return [4 /*yield*/, dom_1.extractFaceTensors(input, detections)];
+                        return [4 /*yield*/, dom_1.extractFaces(input, detections)];
                     case 2:
-                        faceTensors = _b.sent();
+                        faceCanvases = _b.sent();
                         if (!useBatchProcessing) return [3 /*break*/, 4];
-                        return [4 /*yield*/, landmarkNet.detectLandmarks(faceTensors)];
+                        return [4 /*yield*/, landmarkNet.detectLandmarks(faceCanvases)];
                     case 3:
                         _a = _b.sent();
                         return [3 /*break*/, 6];
-                    case 4: return [4 /*yield*/, Promise.all(faceTensors.map(function (faceTensor) { return landmarkNet.detectLandmarks(faceTensor); }))];
+                    case 4: return [4 /*yield*/, Promise.all(faceCanvases.map(function (canvas) { return landmarkNet.detectLandmarks(canvas); }))];
                     case 5:
                         _a = _b.sent();
                         _b.label = 6;
                     case 6:
                         faceLandmarksByFace = _a;
-                        faceTensors.forEach(function (t) { return t.dispose(); });
                         alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
                         return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
                     case 7:

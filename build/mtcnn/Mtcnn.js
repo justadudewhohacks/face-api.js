@@ -23,7 +23,7 @@ var Mtcnn = /** @class */ (function (_super) {
     Mtcnn.prototype.forwardInput = function (input, forwardParams) {
         if (forwardParams === void 0) { forwardParams = {}; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var params, inputTensor, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
+            var params, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
             return tslib_1.__generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -31,7 +31,6 @@ var Mtcnn = /** @class */ (function (_super) {
                         if (!params) {
                             throw new Error('Mtcnn - load model before inference');
                         }
-                        inputTensor = input.inputs[0];
                         inputCanvas = input.canvases[0];
                         if (!inputCanvas) {
                             throw new Error('Mtcnn - inputCanvas is not defined, note that passing tensors into Mtcnn.forwardInput is not supported yet.');
@@ -39,12 +38,11 @@ var Mtcnn = /** @class */ (function (_super) {
                         stats = {};
                         tsTotal = Date.now();
                         imgTensor = tf.tidy(function () {
-                            return bgrToRgbTensor_1.bgrToRgbTensor(tf.expandDims(inputTensor).toFloat());
+                            return bgrToRgbTensor_1.bgrToRgbTensor(tf.expandDims(tf.fromPixels(inputCanvas)).toFloat());
                         });
                         onReturn = function (results) {
                             // dispose tensors on return
                             imgTensor.dispose();
-                            input.dispose();
                             stats.total = Date.now() - tsTotal;
                             return results;
                         };
@@ -103,7 +101,7 @@ var Mtcnn = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true, true)];
+                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input)];
                     case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(),
                             forwardParams])];
                     case 2: return [2 /*return*/, (_b.sent()).results];
@@ -119,7 +117,7 @@ var Mtcnn = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true, true)];
+                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input)];
                     case 1: return [2 /*return*/, _a.apply(this, [_b.sent(),
                             forwardParams])];
                 }

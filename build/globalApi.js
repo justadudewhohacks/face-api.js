@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var allFacesFactory_1 = require("./allFacesFactory");
 var FaceDetectionNet_1 = require("./faceDetectionNet/FaceDetectionNet");
-var FaceLandmarkNet_1 = require("./faceLandmarkNet/FaceLandmarkNet");
+var FaceLandmark68Net_1 = require("./faceLandmarkNet/FaceLandmark68Net");
 var FaceRecognitionNet_1 = require("./faceRecognitionNet/FaceRecognitionNet");
 var Mtcnn_1 = require("./mtcnn/Mtcnn");
 var TinyYolov2_1 = require("./tinyYolov2/TinyYolov2");
 exports.detectionNet = new FaceDetectionNet_1.FaceDetectionNet();
-exports.landmarkNet = new FaceLandmarkNet_1.FaceLandmarkNet();
+exports.landmarkNet = new FaceLandmark68Net_1.FaceLandmark68Net();
 exports.recognitionNet = new FaceRecognitionNet_1.FaceRecognitionNet();
 // nets need more specific names, to avoid ambiguity in future
 // when alternative net implementations are provided

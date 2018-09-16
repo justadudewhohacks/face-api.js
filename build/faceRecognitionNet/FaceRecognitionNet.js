@@ -18,7 +18,7 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
             throw new Error('FaceRecognitionNet - load model before inference');
         }
         return tf.tidy(function () {
-            var batchTensor = input.toBatchTensor(150, true);
+            var batchTensor = input.toBatchTensor(150, true).toFloat();
             var meanRgb = [122.782, 117.001, 104.298];
             var normalized = tfjs_image_recognition_base_1.normalize(batchTensor, meanRgb).div(tf.scalar(256));
             var out = convLayer_1.convDown(normalized, params.conv32_down);
@@ -49,7 +49,7 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
-                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true)];
+                        return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input)];
                     case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                 }
             });
@@ -61,7 +61,7 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
             var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input, true)];
+                    case 0: return [4 /*yield*/, tfjs_image_recognition_base_1.toNetInput(input)];
                     case 1:
                         netInput = _a.sent();
                         faceDescriptorTensors = tf.tidy(function () { return tf.unstack(_this.forwardInput(netInput)); });

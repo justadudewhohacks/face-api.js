@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
-var normalize_1 = require("./normalize");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var normalize_1 = require("./normalize");
 function extractImagePatches(img, boxes, _a) {
     var width = _a.width, height = _a.height;
     return tslib_1.__awaiter(this, void 0, void 0, function () {

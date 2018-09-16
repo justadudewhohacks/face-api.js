@@ -4,6 +4,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var config_1 = require("./config");
 var getSizesForScale_1 = require("./getSizesForScale");
+var MtcnnBox_1 = require("./MtcnnBox");
 var normalize_1 = require("./normalize");
 var PNet_1 = require("./PNet");
 function rescaleAndNormalize(x, scale) {
@@ -27,7 +28,7 @@ function extractBoundingBoxes(scoresTensor, regionsTensor, scale, scoreThreshold
     var boundingBoxes = indices.map(function (idx) {
         var cell = new tfjs_image_recognition_base_1.BoundingBox(Math.round((idx.y * config_1.CELL_STRIDE + 1) / scale), Math.round((idx.x * config_1.CELL_STRIDE + 1) / scale), Math.round((idx.y * config_1.CELL_STRIDE + config_1.CELL_SIZE) / scale), Math.round((idx.x * config_1.CELL_STRIDE + config_1.CELL_SIZE) / scale));
         var score = scoresTensor.get(idx.y, idx.x);
-        var region = new tfjs_image_recognition_base_1.BoundingBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
+        var region = new MtcnnBox_1.MtcnnBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
         return {
             cell: cell,
             score: score,
