@@ -1,6 +1,6 @@
 import * as faceapi from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-import { expectedSsdBoxes } from './expectedResults';
+import { expectedSsdBoxes, expectDetectionResults } from './expectedResults';
 
 describe('faceDetectionNet', () => {
 
@@ -13,62 +13,52 @@ describe('faceDetectionNet', () => {
 
   describeWithNets('uncompressed weights', { withFaceDetectionNet: { quantized: false } }, ({ faceDetectionNet }) => {
 
-    const expectedScores = [0.98, 0.89, 0.82, 0.75, 0.58, 0.55]
-    const maxBoxDelta = 1
-
     it('scores > 0.8', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(3)
-      detections.forEach((det, i) => {
-        expect(det.getImageWidth()).toEqual(imgEl.width)
-        expect(det.getImageHeight()).toEqual(imgEl.height)
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
-      })
+
+      const expectedScores = [-1, -1, 0.98, 0.88, 0.81, -1]
+      const maxBoxDelta = 3
+
+      expectDetectionResults(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
     })
 
     it('scores > 0.5', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
-      detections.forEach((det, i) => {
-        expect(det.getImageWidth()).toEqual(imgEl.width)
-        expect(det.getImageHeight()).toEqual(imgEl.height)
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
-      })
+
+      const expectedScores = [0.57, 0.74, 0.98, 0.88, 0.81, 0.58]
+      const maxBoxDelta = 3
+
+      expectDetectionResults(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
     })
 
   })
 
   describeWithNets('quantized weights', { withFaceDetectionNet: { quantized: true } }, ({ faceDetectionNet }) => {
 
-    const expectedScores = [0.97, 0.88, 0.83, 0.82, 0.59, 0.52]
-    const maxBoxDelta = 5
-
     it('scores > 0.8', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(4)
-      detections.forEach((det, i) => {
-        expect(det.getImageWidth()).toEqual(imgEl.width)
-        expect(det.getImageHeight()).toEqual(imgEl.height)
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
-      })
+
+      const expectedScores = [-1, 0.81, 0.97, 0.88, 0.84, -1]
+      const maxBoxDelta = 4
+
+      expectDetectionResults(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
     })
 
     it('scores > 0.5', async () => {
       const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
-      detections.forEach((det, i) => {
-        expect(det.getImageWidth()).toEqual(imgEl.width)
-        expect(det.getImageHeight()).toEqual(imgEl.height)
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedSsdBoxes[i], maxBoxDelta)
-      })
+
+      const expectedScores = [0.54, 0.81, 0.97, 0.88, 0.84, 0.61]
+      const maxBoxDelta = 5
+
+      expectDetectionResults(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
     })
 
   })

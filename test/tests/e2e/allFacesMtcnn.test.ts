@@ -1,18 +1,22 @@
 import { bufferToImage } from 'tfjs-image-recognition-base';
 
-import { FaceLandmarks5 } from '../../../src';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
-import { expectMtcnnResults } from './expectedResults';
+import {
+  assembleExpectedFullFaceDescriptions,
+  describeWithNets,
+  expectAllTensorsReleased,
+  ExpectedFullFaceDescription,
+} from '../../utils';
+import { expectAllFacesResults, expectedMtcnnBoxes } from './expectedResults';
 
 describe('allFacesMtcnn', () => {
 
   let imgEl: HTMLImageElement
-  let facesFaceDescriptors: number[][]
+  let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/faces.jpg')).blob()
     imgEl = await bufferToImage(img)
-    facesFaceDescriptors = await (await fetch('base/test/data/facesFaceDescriptorsMtcnn.json')).json()
+    expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes, 'mtcnnFaceLandmarkPositions.json')
   })
 
   describeWithNets('computes full face descriptions', { withAllFacesMtcnn: true }, ({ allFacesMtcnn }) => {
@@ -25,14 +29,13 @@ describe('allFacesMtcnn', () => {
       const results = await allFacesMtcnn(imgEl, forwardParams)
       expect(results.length).toEqual(6)
 
-      const mtcnnResult = results.map(res => ({
-        faceDetection: res.detection,
-        faceLandmarks: res.landmarks as FaceLandmarks5
-      }))
-      expectMtcnnResults(mtcnnResult, [0, 1, 2, 3, 4, 5], 1, 1)
-      results.forEach(({ descriptor }, i) => {
-        expect(descriptor).toEqual(new Float32Array(facesFaceDescriptors[i]))
-      })
+      const expectedScores = [1, 1, 1, 1, 0.99, 0.99]
+      const deltas = {
+        maxBoxDelta: 2,
+        maxLandmarksDelta: 1,
+        maxDescriptorDelta: 0.4
+      }
+      expectAllFacesResults(results, expectedFullFaceDescriptions, expectedScores, deltas)
     })
 
   })

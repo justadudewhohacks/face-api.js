@@ -1,22 +1,22 @@
-import { bufferToImage, extractFaceTensors, Rect } from '../../../src';
+import { bufferToImage, extractFaceTensors, Rect, tf } from '../../../src';
 
 describe('extractFaceTensors', () => {
 
-  let imgEl: HTMLImageElement
+  let imgTensor: tf.Tensor3D
 
   beforeAll(async () => {
     const img = await (await fetch('base/test/images/face1.png')).blob()
-    imgEl = await bufferToImage(img)
+    imgTensor = tf.fromPixels(await bufferToImage(img))
   })
 
   describe('extracts tensors', () => {
 
     it('single box', async () => {
       const rect = new Rect(0, 0, 50, 60)
-      const tensors = await extractFaceTensors(imgEl, [rect])
+      const tensors = await extractFaceTensors(imgTensor, [rect])
 
       expect(tensors.length).toEqual(1)
-      expect(tensors[0].shape).toEqual([1, 60, 50, 3])
+      expect(tensors[0].shape).toEqual([60, 50, 3])
       tensors[0].dispose()
     })
 
@@ -25,11 +25,11 @@ describe('extractFaceTensors', () => {
         new Rect(0, 0, 50, 60),
         new Rect(50, 50, 70, 80),
       ]
-      const tensors = await extractFaceTensors(imgEl, rects)
+      const tensors = await extractFaceTensors(imgTensor, rects)
 
       expect(tensors.length).toEqual(2)
-      expect(tensors[0].shape).toEqual([1, 60, 50, 3])
-      expect(tensors[1].shape).toEqual([1, 80, 70, 3])
+      expect(tensors[0].shape).toEqual([60, 50, 3])
+      expect(tensors[1].shape).toEqual([80, 70, 3])
       tensors[0].dispose()
       tensors[1].dispose()
     })
@@ -40,25 +40,25 @@ describe('extractFaceTensors', () => {
 
     it('clips upper left corner', async () => {
       const rect = new Rect(-10, -10, 110, 110)
-      const tensors = await extractFaceTensors(imgEl, [rect])
+      const tensors = await extractFaceTensors(imgTensor, [rect])
 
-      expect(tensors[0].shape).toEqual([1, 100, 100, 3])
+      expect(tensors[0].shape).toEqual([100, 100, 3])
       tensors[0].dispose()
     })
 
     it('clips bottom right corner', async () => {
-      const rect = new Rect(imgEl.width - 100, imgEl.height - 100, 110, 110)
-      const tensors = await extractFaceTensors(imgEl, [rect])
+      const rect = new Rect(imgTensor.shape[1] - 100, imgTensor.shape[0] - 100, 110, 110)
+      const tensors = await extractFaceTensors(imgTensor, [rect])
 
-      expect(tensors[0].shape).toEqual([1, 100, 100, 3])
+      expect(tensors[0].shape).toEqual([100, 100, 3])
       tensors[0].dispose()
     })
 
     it('clips upper left and bottom right corners', async () => {
-      const rect = new Rect(-10, -10, imgEl.width + 20, imgEl.height + 20)
-      const tensors = await extractFaceTensors(imgEl, [rect])
+      const rect = new Rect(-10, -10, imgTensor.shape[1] + 20, imgTensor.shape[0] + 20)
+      const tensors = await extractFaceTensors(imgTensor, [rect])
 
-      expect(tensors[0].shape).toEqual([1, imgEl.height, imgEl.width, 3])
+      expect(tensors[0].shape).toEqual([imgTensor.shape[1], imgTensor.shape[0], 3])
       tensors[0].dispose()
     })
 

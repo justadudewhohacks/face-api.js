@@ -86,26 +86,17 @@
     }
 
     async function locateAndAlignFacesWithMtcnn(inputImgEl) {
-      const input = await faceapi.toNetInput(
-        inputImgEl,
-        // dispose input manually
-        false,
-        // keep canvases (required for mtcnn)
-        true
-      )
+      const input = await faceapi.toNetInput(inputImgEl)
 
       const results = await faceapi.mtcnn(input, { minFaceSize: 100 })
 
-      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], results.map(res => res.faceDetection))
+      const unalignedFaceImages = await faceapi.extractFaces(input.getInput(0), results.map(res => res.faceDetection))
 
       const alignedFaceBoxes = results
         .filter(res => res.faceDetection.score > minConfidence)
         .map(res => res.faceLandmarks.align())
 
-      const alignedFaceImages = await faceapi.extractFaces(input.inputs[0], alignedFaceBoxes)
-
-      // free memory for input tensors
-      input.dispose()
+      const alignedFaceImages = await faceapi.extractFaces(input.getInput(0), alignedFaceBoxes)
 
       return {
         unalignedFaceImages,
@@ -118,7 +109,7 @@
 
       const locations = await faceapi.locateFaces(input, minConfidence)
 
-      const unalignedFaceImages = await faceapi.extractFaces(input.inputs[0], locations)
+      const unalignedFaceImages = await faceapi.extractFaces(input.getInput(0), locations)
 
       // detect landmarks and get the aligned face image bounding boxes
       const alignedFaceBoxes = await Promise.all(unalignedFaceImages.map(
@@ -127,10 +118,7 @@
           return faceLandmarks.align(locations[i])
         }
       ))
-      const alignedFaceImages = await faceapi.extractFaces(input.inputs[0], alignedFaceBoxes)
-
-      // free memory for input tensors
-      input.dispose()
+      const alignedFaceImages = await faceapi.extractFaces(input.getInput(0), alignedFaceBoxes)
 
       return {
         unalignedFaceImages,

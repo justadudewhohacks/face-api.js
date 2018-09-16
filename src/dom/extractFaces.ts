@@ -24,24 +24,19 @@ export async function extractFaces(
   let canvas = input as HTMLCanvasElement
 
   if (!(input instanceof HTMLCanvasElement)) {
-    const netInput = await toNetInput(input, true)
+    const netInput = await toNetInput(input)
 
     if (netInput.batchSize > 1) {
-      if (netInput.isManaged) {
-        netInput.dispose()
-      }
       throw new Error('extractFaces - batchSize > 1 not supported')
     }
 
-    canvas = await imageTensorToCanvas(netInput.inputs[0])
-
-    if (netInput.isManaged) {
-      netInput.dispose()
-    }
+    const tensorOrCanvas = netInput.getInput(0)
+    canvas = tensorOrCanvas instanceof HTMLCanvasElement
+      ? tensorOrCanvas
+      : await imageTensorToCanvas(tensorOrCanvas)
   }
 
   const ctx = getContext2dOrThrow(canvas)
-
   const boxes = detections.map(
     det => det instanceof FaceDetection
       ? det.forSize(canvas.width, canvas.height).getBox().floor()

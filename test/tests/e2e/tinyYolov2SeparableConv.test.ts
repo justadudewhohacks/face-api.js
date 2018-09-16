@@ -2,7 +2,7 @@ import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
 
 import { bufferToImage, createTinyYolov2, TinyYolov2 } from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-import { expectedTinyYolov2SeparableConvBoxes } from './expectedResults';
+import { expectedTinyYolov2SeparableConvBoxes, expectDetectionResults, expectedTinyYolov2Boxes } from './expectedResults';
 
 describe('tinyYolov2, with separable convolutions', () => {
 
@@ -18,43 +18,31 @@ describe('tinyYolov2, with separable convolutions', () => {
     it('inputSize lg, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
 
-      const expectedScores = [0.9, 0.9, 0.89, 0.85, 0.85, 0.85]
-      const maxBoxDelta = 1
-      const boxOrder = [0, 1, 2, 3, 4, 5]
+      const expectedScores = [0.85, 0.88, 0.9, 0.85, 0.9, 0.85]
+      const maxBoxDelta = 25
 
       expect(detections.length).toEqual(6)
-      detections.forEach((det, i) => {
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedTinyYolov2SeparableConvBoxes[boxOrder[i]], maxBoxDelta)
-      })
+      expectDetectionResults(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
     })
 
     it('inputSize md, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
 
-      const expectedScores = [0.85, 0.85, 0.84, 0.83, 0.8, 0.8]
-      const maxBoxDelta = 17
-      const boxOrder = [5, 1, 4, 3, 2, 0]
+      const expectedScores = [0.85, 0.8, 0.8, 0.85, 0.85, 0.83]
+      const maxBoxDelta = 34
 
       expect(detections.length).toEqual(6)
-      detections.forEach((det, i) => {
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedTinyYolov2SeparableConvBoxes[boxOrder[i]], maxBoxDelta)
-      })
+      expectDetectionResults(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
     })
 
     it('inputSize custom, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: 416 })
 
-      const expectedScores = [0.85, 0.85, 0.84, 0.83, 0.8, 0.8]
-      const maxBoxDelta = 17
-      const boxOrder = [5, 1, 4, 3, 2, 0]
+      const expectedScores = [0.85, 0.8, 0.8, 0.85, 0.85, 0.83]
+      const maxBoxDelta = 34
 
       expect(detections.length).toEqual(6)
-      detections.forEach((det, i) => {
-        expect(det.getScore()).toBeCloseTo(expectedScores[i], 2)
-        expectRectClose(det.getBox(), expectedTinyYolov2SeparableConvBoxes[boxOrder[i]], maxBoxDelta)
-      })
+      expectDetectionResults(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
     })
 
   })
