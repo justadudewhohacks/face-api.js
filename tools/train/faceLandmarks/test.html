@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="commons.js"></script>
+  <script src="js/randomCrop.js"></script>
+  <script src="js/indexedDb.js"></script>
+  <script src="js/synchronizeDb.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="result" style="position: relative" class="margin">
+    <img id="inputImg" src="" style="max-width: 400px;" />
+    <canvas id="overlay" />
+  </div>
+  <script>
+
+    const net = new faceapi.FaceLandmark68TinyNet()
+    const modelCheckpoint = 'tmp/densenet3_conv0/checkpoints/landmarks_epoch59.weights'
+    const crops = 4
+
+    async function loadNetWeights(uri) {
+      return new Float32Array(await (await fetch(uri)).arrayBuffer())
+    }
+
+    async function load() {
+      await net.load('./')
+      //const weights = await loadNetWeights(modelCheckpoint)
+      //await net.load(weights)
+      console.log('model loaded')
+    }
+
+    load()
+
+    function pointsToFlatArray(pts) {
+      return pts.map(pt => [pt.x, pt.y]).reduce((flat, arr) => flat.concat(arr))
+    }
+
+    async function showResults(landmarks) {
+      const inputImgEl = $('#inputImg').get(0)
+      const { width, height } = inputImgEl
+      const canvas = $('#overlay').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      faceapi.drawLandmarks('overlay', landmarks, { drawLines: true })
+    }
+
+    async function testAll() {
+      window.testIds = (await fetch('/face_landmarks_test_ids').then(res => res.json()))
+      test()
+    }
+
+    async function testSidewaysX(useTrainSet = false) {
+      window.testIds = (await fetch(useTrainSet ? '/sideways_x_train' : '/sideways_x_test').then(res => res.json()))
+      test()
+    }
+
+    async function testStrongSidewaysX(useTrainSet = false) {
+      window.testIds = (await fetch(useTrainSet ? '/strong_sideways_x_train' : '/strong_sideways_x_test').then(res => res.json()))
+      test()
+    }
+
+    async function testStrongSidewaysY(useTrainSet = false) {
+      window.testIds = (await fetch(useTrainSet ? '/strong_sideways_y_train' : '/strong_sideways_y_test').then(res => res.json()))
+      test()
+    }
+
+    async function test() {
+      let totalError = 0
+
+      for (let i = 0; i < window.testIds.length; i++) {
+
+        const dataId = window.testIds[i]
+        let originalImage = (await getJpgs([dataId]))[0]
+        originalImage = await faceapi.bufferToImage(originalImage.blob)
+        const groundTruthPts = (await getPts([dataId])).map(res => res.pts)[0]
+
+        for (let c = 0; c < (crops || 1); c++) {
+
+          console.log(i, c, i / window.testIds.length)
+
+          const { croppedImage, shiftedPts } = crops > 0
+            ? randomCrop(originalImage, groundTruthPts)
+            : { croppedImage: originalImage, shiftedPts: groundTruthPts }
+
+          const squaredImg = faceapi.imageToSquare(croppedImage, 112, true)
+
+          const landmarks = (await net.detectLandmarks(squaredImg)).forSize(croppedImage.width, croppedImage.height)
+
+          const dist = faceapi.euclideanDistance(
+            pointsToFlatArray(landmarks.getPositions()),
+            pointsToFlatArray(shiftedPts)
+          )
+
+          const distByCoordinate = dist / 136
+          totalError += distByCoordinate
+
+          if (window.debug) {
+            const inputImgEl = $('#inputImg').get(0)
+            inputImgEl.src = croppedImage instanceof HTMLImageElement ? croppedImage.src : croppedImage.toDataURL()
+            inputImgEl.onload = () => showResults(landmarks)
+
+            for (let i = 0; i < 30; i++)
+              await faceapi.tf.nextFrame()
+          }
+        }
+      }
+
+      console.log('done...')
+      console.log('test set size:', window.testIds.length)
+      console.log('total error:', totalError / (crops || 1))
+      console.log('average error:', totalError / ((crops || 1) * window.testIds.length))
+    }
+
+
+
+  </script>
+</body>
+</html>

@@ -10,9 +10,9 @@
   <script>
     tf = faceapi.tf
 
-    const modelName = 'tiny_yolov2_separable_conv'
-    const uncompressedWeightsUri = `tiny_yolov2_separable_conv_model_v1.weights`
-    const net = new faceapi.TinyYolov2(true)
+    const modelName = 'face_landmark_68_tiny_model'
+    const uncompressedWeightsUri = `face_landmark_68_tiny_model.weights`
+    const net = new faceapi.FaceLandmark68TinyNet()
 
     async function loadNetWeights(uri) {
       return new Float32Array(await (await fetch(uri)).arrayBuffer())
