@@ -38,7 +38,9 @@
   <script>
 
     const modelCheckpoints = [
-      //'tmp/densenet3_conv0/checkpoints/landmarks_epoch59.weights'
+      'tmp/face_landmark_68_tiny_model_lr00001_0.weights',
+      'tmp/face_landmark_68_tiny_model_lr00001_13.weights',
+      'tmp/face_landmark_68_tiny_model_lr00001_24.weights'
     ]
     let originalImage = null
 
@@ -131,17 +133,17 @@
     async function run() {
       $('#imgByNr').keydown(onKeyDown)
 
-      faceapi.loadFaceLandmarkModel('./')
+      //faceapi.loadFaceLandmarkModel('./')
 
       //window.trainIds = (await fetch('/face_landmarks_train_ids').then(res => res.json()))
       //window.testIds = (await fetch('/face_landmarks_test_ids').then(res => res.json()))
       window.testIds = (await fetch('/strong_sideways_test').then(res => res.json()))
 
       window.nets = []
-      window.nets.push(faceapi)
-      const net = new faceapi.FaceLandmark68TinyNet()
-      await net.load('./')
-      window.nets.push(net)
+      //window.nets.push(faceapi)
+      //const net = new faceapi.FaceLandmark68TinyNet()
+      //await net.load('./')
+      //window.nets.push(net)
       modelCheckpoints.forEach(async checkpoint => {
         const net = new faceapi.FaceLandmark68TinyNet()
         const weights = await loadNetWeights(checkpoint)

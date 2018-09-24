@@ -14,7 +14,7 @@
     tf = faceapi.tf
 
     // uri to weights file of last checkpoint
-    window.net = new faceapi.FaceLandmark68TinyNet()
+    window.net = new faceapi.FaceLandmark68LargeNet()
     const modelCheckpoint = '/tmp/initial_glorot.weights'
     const startEpoch = 0
 
@@ -25,7 +25,7 @@
 
     window.withRandomCrop = false
 
-    window.batchSize = 18
+    window.batchSize = 12
 
     window.lossValue = 0
 

@@ -16,10 +16,10 @@
 
     // uri to weights file of last checkpoint
     window.net = new faceapi.FaceLandmark68TinyNet()
-    const modelCheckpoint = '/tmp/initial_glorot.weights.weights'
-    const startEpoch = 0
+    const modelCheckpoint = 'tmp/face_landmark_68_tiny_model_lr00001_19.weights'
+    const startEpoch = 20
 
-    const learningRate = 0.001 // 0.001
+    const learningRate = 0.0001 // 0.001
     window.optimizer = tf.train.adam(learningRate, 0.9, 0.999, 1e-8)
 
     window.saveEveryNthSample = Infinity
@@ -60,10 +60,10 @@
     }
 
     async function onEpochDone(epoch) {
-      saveWeights(window.net, `landmarks_epoch59_sideways71_epoch8_sideways35_epoch${epoch}.weights`)
+      saveWeights(window.net, `face_landmark_68_tiny_model_lr00001_${epoch}.weights`)
 
       const loss = window.lossValues[epoch]
-      saveAs(new Blob([JSON.stringify({ loss, avgLoss: loss / window.trainIds.length })]), `landmarks_epoch59_sideways71_epoch8_sideways35_epoch${epoch}.json`)
+      saveAs(new Blob([JSON.stringify({ loss, avgLoss: loss / window.trainIds.length })]), `face_landmark_68_tiny_model_lr00001_${epoch}.json`)
 
     }
 

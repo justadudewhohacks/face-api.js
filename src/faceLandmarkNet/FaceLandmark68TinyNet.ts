@@ -8,11 +8,11 @@ import { extractParamsTiny } from './extractParamsTiny';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
 import { loadQuantizedParamsTiny } from './loadQuantizedParamsTiny';
-import { DenseBlockParams, TinyNetParams } from './types';
+import { DenseBlock3Params, TinyNetParams } from './types';
 
 function denseBlock(
   x: tf.Tensor4D,
-  denseBlockParams: DenseBlockParams,
+  denseBlockParams: DenseBlock3Params,
   isFirstLayer: boolean = false
 ): tf.Tensor4D {
   return tf.tidy(() => {

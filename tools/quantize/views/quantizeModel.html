@@ -2,7 +2,6 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="commons.js"></script>
   <script src="FileSaver.js"></script>
   <script src="quantization.js"></script>
 </head>
@@ -10,13 +9,19 @@
   <script>
     tf = faceapi.tf
 
-    const modelName = 'face_landmark_68_tiny_model'
-    const uncompressedWeightsUri = `face_landmark_68_tiny_model.weights`
-    const net = new faceapi.FaceLandmark68TinyNet()
+    const uncompressedWeightsUri = `face_landmark_68_model.weights`
+    const net = new faceapi.FaceLandmark68LargeNet()
 
-    async function loadNetWeights(uri) {
-      return new Float32Array(await (await fetch(uri)).arrayBuffer())
+    async function load() {
+      await net.load(new Float32Array(await (await fetch(uncompressedWeightsUri)).arrayBuffer()))
+      console.log('net loaded')
     }
+
+    function getNamedTensors() {
+      return net.getParamList().map(({ path, tensor }) => ({ name: path, tensor }))
+    }
+
+    const modelName = 'face_landmark_68'
 
     function makeShards(weightArray) {
       const maxLength = 4096 * 1024
@@ -41,25 +46,34 @@
 
     async function quantizeAndSave() {
 
-      await net.load(await loadNetWeights(uncompressedWeightsUri))
-
       const quantizedTensorArrays = []
       const weightEntries = []
 
-      net.getParamList().forEach(({ path, tensor }) => {
-        const { scale, min, qdata } = quantizeWeights(tensor)
+      getNamedTensors().forEach(({ name, tensor, isSkipQuantization }) => {
 
         const weightEntry = {
-          name : path,
+          name,
           shape: tensor.shape,
-          dtype: tensor.dtype,
+          dtype: tensor.dtype
+        }
+
+        if (isSkipQuantization) {
+          quantizedTensorArrays.push(tensor.dataSync())
+          weightEntries.push(weightEntry)
+          return
+        }
+
+        const { scale, min, qdata } = quantizeWeights(tensor)
+
+        console.log(name, { scale, min })
+
+        const quantizedWeightEntry = {
+          ...weightEntry,
           quantization: { dtype: 'uint8', scale, min }
         }
 
-        console.log({ scale, min })
-
         quantizedTensorArrays.push(qdata)
-        weightEntries.push(weightEntry)
+        weightEntries.push(quantizedWeightEntry)
       })
 
       const quantizedWeights = quantizedTensorArrays
@@ -83,6 +97,9 @@
 
       saveAs(new Blob([JSON.stringify(weightManifest)]), `${modelName}_model-weights_manifest.json`)
     }
+
+    load()
+
   </script>
 </body>
 </html>

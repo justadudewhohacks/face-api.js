@@ -67,6 +67,12 @@
   left: 0;
 }
 
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 #facesContainer canvas {
   margin: 10px;
 }
