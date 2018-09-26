@@ -8,6 +8,7 @@ import { FaceLandmarks68 } from './classes/FaceLandmarks68';
 import { FullFaceDescription } from './classes/FullFaceDescription';
 import { FaceDetectionNet } from './faceDetectionNet/FaceDetectionNet';
 import { FaceLandmark68Net } from './faceLandmarkNet/FaceLandmark68Net';
+import { FaceLandmark68TinyNet } from './faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from './faceRecognitionNet/FaceRecognitionNet';
 import { Mtcnn } from './mtcnn/Mtcnn';
 import { MtcnnForwardParams, MtcnnResult } from './mtcnn/types';
@@ -22,6 +23,7 @@ export const recognitionNet = new FaceRecognitionNet()
 export const nets = {
   ssdMobilenetv1: detectionNet,
   faceLandmark68Net: landmarkNet,
+  faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
   faceRecognitionNet: recognitionNet,
   mtcnn: new Mtcnn(),
   tinyYolov2: new TinyYolov2()
@@ -33,6 +35,10 @@ export function loadSsdMobilenetv1Model(url: string) {
 
 export function loadFaceLandmarkModel(url: string) {
   return nets.faceLandmark68Net.load(url)
+}
+
+export function loadFaceLandmarkTinyModel(url: string) {
+  return nets.faceLandmark68TinyNet.load(url)
 }
 
 export function loadFaceRecognitionModel(url: string) {
@@ -52,6 +58,7 @@ export function loadFaceDetectionModel(url: string) {
 }
 
 export function loadModels(url: string) {
+  console.warn('loadModels will be deprecated in future')
   return Promise.all([
     loadSsdMobilenetv1Model(url),
     loadFaceLandmarkModel(url),
@@ -75,6 +82,11 @@ export function detectLandmarks(
   input: TNetInput
 ): Promise<FaceLandmarks68 | FaceLandmarks68[]> {
   return nets.faceLandmark68Net.detectLandmarks(input)
+}
+export function detectLandmarksTiny(
+  input: TNetInput
+): Promise<FaceLandmarks68 | FaceLandmarks68[]> {
+  return nets.faceLandmark68TinyNet.detectLandmarks(input)
 }
 
 export function computeFaceDescriptor(

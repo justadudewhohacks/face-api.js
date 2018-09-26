@@ -43,7 +43,8 @@ Table of Contents:
 
 ### Face Landmarks
 
-![preview_face_landmarks_boxes](https://user-images.githubusercontent.com/31125521/41507933-65f9b642-723c-11e8-8f4e-aab13303e7ff.jpg)
+![face_landmarks_boxes_1](https://user-images.githubusercontent.com/31125521/46063403-fff9f480-c16c-11e8-900f-e4b7a3828d1d.jpg)
+![face_landmarks_boxes_2](https://user-images.githubusercontent.com/31125521/46063404-00928b00-c16d-11e8-8f29-e9c50afd2bc8.jpg)
 
 ![preview_face_landmarks](https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png)
 
@@ -56,10 +57,6 @@ Table of Contents:
 **MTCNN**
 
 ![mtcnn-preview](https://user-images.githubusercontent.com/31125521/42756818-0a41edaa-88fe-11e8-9033-8cd141b0fa09.gif)
-
-### Face Alignment
-
-![preview_face_alignment](https://user-images.githubusercontent.com/31125521/41526994-1a690818-72e6-11e8-8f3c-d2cf31fe517b.jpg)
 
 <a name="running-the-examples"></a>
 
@@ -89,7 +86,7 @@ The face detection model has been trained on the [WIDERFACE dataset](http://mmla
 
 ### Face Detection - Tiny Yolo v2
 
-The Tiny Yolo v2 implementation is a very performant face detector, which can easily adapt to different input image sizes, thus can be used as an alternative to SSD Mobilenet v1 to trade off accuracy for performance (inference time). In general the models ability to locate smaller face bounding boxes is not as accurate as SSD Mobilenet v1. 
+The Tiny Yolo v2 implementation is a very performant face detector, which can easily adapt to different input image sizes, thus can be used as an alternative to SSD Mobilenet v1 to trade off accuracy for performance (inference time). In general the models ability to locate smaller face bounding boxes is not as accurate as SSD Mobilenet v1.
 
 The face detector has been trained on a custom dataset of ~10K images labeled with bounding boxes and uses depthwise separable convolutions instead of regular convolutions, which ensures very fast inference and allows to have a quantized model size of only 1.7MB making the model extremely mobile and web friendly. Thus, the Tiny Yolo v2 face detector should be your GO-TO face detector on mobile devices.
 
@@ -113,9 +110,7 @@ The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognit
 
 ### 68 Point Face Landmark Detection
 
-This package implements a CNN to detect the 68 point face landmarks for a given face image.
-
-The model has been trained on a variety of public datasets and the model weights are provided by [yinguobing](https://github.com/yinguobing) in [this](https://github.com/yinguobing/head-pose-estimation) repo.
+This package implements a very lightweight and fast, yet accurate 68 point face landmark detector. The default model has a size of only 350kb and the tiny model is only 80kb. Both models employ the ideas of depthwise separable convolutions as well as densely connected blocks. The models have been trained on a dataset of ~35k face images labeled with 68 face landmark points.
 
 <a name="usage"></a>
 
@@ -145,6 +140,7 @@ Assuming the models reside in **public/models**:
 await faceapi.loadFaceDetectionModel('/models')
 // accordingly for the other models:
 // await faceapi.loadFaceLandmarkModel('/models')
+// await faceapi.loadFaceLandmarkTinyModel('/models')
 // await faceapi.loadFaceRecognitionModel('/models')
 // await faceapi.loadMtcnnModel('/models')
 // await faceapi.loadTinyYolov2Model('/models')
@@ -155,19 +151,18 @@ As an alternative, you can also create instance of the neural nets:
 ``` javascript
 const net = new faceapi.FaceDetectionNet()
 // accordingly for the other models:
-// const net = new faceapi.FaceLandmarkNet()
+// const net = new faceapi.FaceLandmark68Net()
+// const net = new faceapi.FaceLandmark68TinyNet()
 // const net = new faceapi.FaceRecognitionNet()
 // const net = new faceapi.Mtcnn()
 // const net = new faceapi.TinyYolov2()
 
 await net.load('/models/face_detection_model-weights_manifest.json')
 // await net.load('/models/face_landmark_68_model-weights_manifest.json')
+// await net.load('/models/face_landmark_68_tiny_model-weights_manifest.json')
 // await net.load('/models/face_recognition_model-weights_manifest.json')
 // await net.load('/models/mtcnn_model-weights_manifest.json')
 // await net.load('/models/tiny_yolov2_separable_conv_model-weights_manifest.json')
-
-// or simply load all models
-await net.load('/models')
 ```
 
 Using instances, you can also load the weights as a Float32Array (in case you want to use the uncompressed models):
