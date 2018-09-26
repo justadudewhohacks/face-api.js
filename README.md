@@ -94,7 +94,7 @@ The face detector has been trained on a custom dataset of ~10K images labeled wi
 
 ### Face Detection & 5 Point Face Landmarks - MTCNN
 
-MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration. By tuning the input parameters, MTCNN is able to detect a wide range of face bounding box sizes. MTCNN is a 3 stage cascaded CNN, which simultanously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with the model size is only 2MB.
+MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration. By tuning the input parameters, MTCNN is able to detect a wide range of face bounding box sizes. MTCNN is a 3 stage cascaded CNN, which simultaneously returns 5 face landmark points along with the bounding boxes and scores for each face. By limiting the minimum size of faces expected in an image, MTCNN allows you to process frames from your webcam in realtime. Additionally with the model size is only 2MB.
 
 MTCNN has been presented in the paper [Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf) by Zhang et al. and the model weights are provided in the official [repo](https://github.com/kpzhang93/MTCNN_face_detection_alignment) of the MTCNN implementation.
 
@@ -222,7 +222,7 @@ Detect faces and get the bounding boxes and scores:
 // defaults parameters shown:
 const forwardParams = {
   scoreThreshold: 0.5,
-  // any number or one of the predifened sizes:
+  // any number or one of the predefined sizes:
   // 'xs' (224 x 224) | 'sm' (320 x 320) | 'md' (416 x 416) | 'lg' (608 x 608)
   inputSize: 'md'
 }
@@ -249,7 +249,7 @@ const forwardParams = {
   // the score threshold values used to filter the bounding
   // boxes of stage 1, 2 and 3
   scoreThresholds: [0.6, 0.7, 0.7],
-  // mininum face size to expect, the higher the faster processing will be,
+  // minimum face size to expect, the higher the faster processing will be,
   // but smaller faces won't be detected
   minFaceSize: 20
 }
