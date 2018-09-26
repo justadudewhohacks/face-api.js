@@ -1,18 +1,10 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import {
-  bufferToImage,
-  createFaceLandmarkNet,
-  Dimensions,
-  isTensor3D,
-  NetInput,
-  Point,
-  TMediaElement,
-  toNetInput,
-} from '../../../src';
+import { bufferToImage, Dimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { FaceLandmark68Net } from '../../../src/faceLandmarkNet/FaceLandmark68Net';
-import { describeWithNets, expectAllTensorsReleased, expectMaxDelta } from '../../utils';
+import { createFaceLandmarkNet } from '../../../src/faceLandmarkNet';
+import { FaceLandmark68TinyNet } from '../../../src/faceLandmarkNet/FaceLandmark68TinyNet';
+import { describeWithNets, expectAllTensorsReleased, expectMaxDelta, expectPointClose } from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
   if (input instanceof tf.Tensor) {
@@ -22,7 +14,7 @@ function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
   return input
 }
 
-describe('faceLandmarkNet', () => {
+describe('faceLandmark68TinyNet', () => {
 
   let imgEl1: HTMLImageElement
   let imgEl2: HTMLImageElement
@@ -38,76 +30,76 @@ describe('faceLandmarkNet', () => {
     imgEl2 = await bufferToImage(img2)
     const imgRect = await (await fetch('base/test/images/face_rectangular.png')).blob()
     imgElRect = await bufferToImage(imgRect)
-    faceLandmarkPositions1 = await (await fetch('base/test/data/faceLandmarkPositions1.json')).json()
-    faceLandmarkPositions2 = await (await fetch('base/test/data/faceLandmarkPositions2.json')).json()
-    faceLandmarkPositionsRect = await (await fetch('base/test/data/faceLandmarkPositionsRect.json')).json()
+    faceLandmarkPositions1 = await (await fetch('base/test/data/faceLandmarkPositions1Tiny.json')).json()
+    faceLandmarkPositions2 = await (await fetch('base/test/data/faceLandmarkPositions2Tiny.json')).json()
+    faceLandmarkPositionsRect = await (await fetch('base/test/data/faceLandmarkPositionsRectTiny.json')).json()
   })
 
-  describeWithNets('uncompressed weights', { withFaceLandmarkNet: { quantized: false } }, ({ faceLandmarkNet }) => {
+  describeWithNets('uncompressed weights', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {
 
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
 
-      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as FaceLandmarks68
+      const result = await faceLandmark68TinyNet.detectLandmarks(imgEl1) as FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositions1[i].x, 1)
-        expectMaxDelta(y, faceLandmarkPositions1[i].y, 1)
+      result.getPositions().forEach((pt, i) => {
+        const { x, y } = faceLandmarkPositions1[i]
+        expectPointClose(pt, { x, y }, 5)
       })
     })
 
     it('computes face landmarks for rectangular input', async () => {
       const { width, height } = imgElRect
 
-      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as FaceLandmarks68
+      const result = await faceLandmark68TinyNet.detectLandmarks(imgElRect) as FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositionsRect[i].x, 2)
-        expectMaxDelta(y, faceLandmarkPositionsRect[i].y, 2)
+      result.getPositions().forEach((pt, i) => {
+        const { x, y } = faceLandmarkPositionsRect[i]
+        expectPointClose(pt, { x, y }, 5)
       })
     })
 
   })
 
-  describeWithNets('quantized weights', { withFaceLandmarkNet: { quantized: true } }, ({ faceLandmarkNet }) => {
+  describeWithNets('quantized weights', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {
 
     it('computes face landmarks for squared input', async () => {
       const { width, height } = imgEl1
 
-      const result = await faceLandmarkNet.detectLandmarks(imgEl1) as FaceLandmarks68
+      const result = await faceLandmark68TinyNet.detectLandmarks(imgEl1) as FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositions1[i].x, 2)
-        expectMaxDelta(y, faceLandmarkPositions1[i].y, 2)
+      result.getPositions().forEach((pt, i) => {
+        const { x, y } = faceLandmarkPositions1[i]
+        expectPointClose(pt, { x, y }, 5)
       })
     })
 
     it('computes face landmarks for rectangular input', async () => {
       const { width, height } = imgElRect
 
-      const result = await faceLandmarkNet.detectLandmarks(imgElRect) as FaceLandmarks68
+      const result = await faceLandmark68TinyNet.detectLandmarks(imgElRect) as FaceLandmarks68
       expect(result.getImageWidth()).toEqual(width)
       expect(result.getImageHeight()).toEqual(height)
       expect(result.getShift().x).toEqual(0)
       expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach(({ x, y }, i) => {
-        expectMaxDelta(x, faceLandmarkPositionsRect[i].x, 6)
-        expectMaxDelta(y, faceLandmarkPositionsRect[i].y, 6)
+      result.getPositions().forEach((pt, i) => {
+        const { x, y } = faceLandmarkPositionsRect[i]
+        expectPointClose(pt, { x, y }, 5)
       })
     })
 
   })
 
-  describeWithNets('batch inputs', { withFaceLandmarkNet: { quantized: false } }, ({ faceLandmarkNet }) => {
+  describeWithNets('batch inputs', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {
 
     it('computes face landmarks for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]
@@ -118,7 +110,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks68[]
+      const results = await faceLandmark68TinyNet.detectLandmarks(inputs) as FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -127,9 +119,9 @@ describe('faceLandmarkNet', () => {
         expect(result.getImageHeight()).toEqual(height)
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 2)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 2)
+        result.getPositions().forEach((pt, i) => {
+          const { x, y } = faceLandmarkPositions[batchIdx][i]
+          expectPointClose(pt, { x, y }, 5)
         })
       })
     })
@@ -143,7 +135,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks68[]
+      const results = await faceLandmark68TinyNet.detectLandmarks(inputs) as FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -152,9 +144,9 @@ describe('faceLandmarkNet', () => {
         expect(result.getImageHeight()).toEqual(height)
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 1)
+        result.getPositions().forEach((pt, i) => {
+          const { x, y } = faceLandmarkPositions[batchIdx][i]
+          expectPointClose(pt, { x, y }, 3)
         })
       })
     })
@@ -168,7 +160,7 @@ describe('faceLandmarkNet', () => {
         faceLandmarkPositionsRect
       ]
 
-      const results = await faceLandmarkNet.detectLandmarks(inputs) as FaceLandmarks68[]
+      const results = await faceLandmark68TinyNet.detectLandmarks(inputs) as FaceLandmarks68[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
@@ -177,16 +169,16 @@ describe('faceLandmarkNet', () => {
         expect(result.getImageHeight()).toEqual(height)
         expect(result.getShift().x).toEqual(0)
         expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach(({ x, y }, i) => {
-          expectMaxDelta(x, faceLandmarkPositions[batchIdx][i].x, 1)
-          expectMaxDelta(y, faceLandmarkPositions[batchIdx][i].y, 1)
+        result.getPositions().forEach((pt, i) => {
+          const { x, y } = faceLandmarkPositions[batchIdx][i]
+          expectPointClose(pt, { x, y }, 3)
         })
       })
     })
 
   })
 
-  describeWithNets('no memory leaks', { withFaceLandmarkNet: { quantized: true } }, ({ faceLandmarkNet }) => {
+  describeWithNets('no memory leaks', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {
 
     describe('NeuralNetwork, uncompressed model', () => {
 
@@ -205,7 +197,7 @@ describe('faceLandmarkNet', () => {
 
       it('disposes all param tensors', async () => {
         await expectAllTensorsReleased(async () => {
-          const net = new FaceLandmark68Net()
+          const net = new FaceLandmark68TinyNet()
           await net.load('base/weights')
           net.dispose()
         })
@@ -218,7 +210,7 @@ describe('faceLandmarkNet', () => {
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput([imgEl1])
-          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          const outTensor = await faceLandmark68TinyNet.forwardInput(netInput)
           outTensor.dispose()
         })
       })
@@ -226,7 +218,7 @@ describe('faceLandmarkNet', () => {
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput([imgEl1, imgEl1, imgEl1])
-          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          const outTensor = await faceLandmark68TinyNet.forwardInput(netInput)
           outTensor.dispose()
         })
       })
@@ -236,7 +228,7 @@ describe('faceLandmarkNet', () => {
 
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput([tensor])
-          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          const outTensor = await faceLandmark68TinyNet.forwardInput(netInput)
           outTensor.dispose()
         })
 
@@ -248,7 +240,7 @@ describe('faceLandmarkNet', () => {
 
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput(tensors)
-          const outTensor = await faceLandmarkNet.forwardInput(netInput)
+          const outTensor = await faceLandmark68TinyNet.forwardInput(netInput)
           outTensor.dispose()
         })
 
@@ -259,7 +251,7 @@ describe('faceLandmarkNet', () => {
         const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensor))
+          const outTensor = await faceLandmark68TinyNet.forwardInput(await toNetInput(tensor))
           outTensor.dispose()
         })
 
@@ -271,7 +263,7 @@ describe('faceLandmarkNet', () => {
           .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceLandmarkNet.forwardInput(await toNetInput(tensors))
+          const outTensor = await faceLandmark68TinyNet.forwardInput(await toNetInput(tensors))
           outTensor.dispose()
         })
 
@@ -284,13 +276,13 @@ describe('faceLandmarkNet', () => {
 
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks(imgEl1)
+          await faceLandmark68TinyNet.detectLandmarks(imgEl1)
         })
       })
 
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks([imgEl1, imgEl1, imgEl1])
+          await faceLandmark68TinyNet.detectLandmarks([imgEl1, imgEl1, imgEl1])
         })
       })
 
@@ -298,7 +290,7 @@ describe('faceLandmarkNet', () => {
         const tensor = tf.fromPixels(imgEl1)
 
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks(tensor)
+          await faceLandmark68TinyNet.detectLandmarks(tensor)
         })
 
         tensor.dispose()
@@ -309,7 +301,7 @@ describe('faceLandmarkNet', () => {
 
 
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks(tensors)
+          await faceLandmark68TinyNet.detectLandmarks(tensors)
         })
 
         tensors.forEach(t => t.dispose())
@@ -319,7 +311,7 @@ describe('faceLandmarkNet', () => {
         const tensor = tf.tidy(() => tf.fromPixels(imgEl1).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks(tensor)
+          await faceLandmark68TinyNet.detectLandmarks(tensor)
         })
 
         tensor.dispose()
@@ -330,7 +322,7 @@ describe('faceLandmarkNet', () => {
           .map(el => tf.tidy(() => tf.fromPixels(el).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          await faceLandmarkNet.detectLandmarks(tensors)
+          await faceLandmark68TinyNet.detectLandmarks(tensors)
         })
 
         tensors.forEach(t => t.dispose())
