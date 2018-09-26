@@ -18,7 +18,7 @@
   </div>
   <script>
 
-    const net = new faceapi.FaceLandmark68LargeNet()
+    const net = new faceapi.FaceLandmark68Net()
     const modelCheckpoint = 'tmp/densenet4/checkpoints/landmarks_epoch46_lr00001_12_lr000001_18.weights'
     const crops = 4
 
@@ -27,9 +27,9 @@
     }
 
     async function load() {
-      //await net.load('./')
-      const weights = await loadNetWeights(modelCheckpoint)
-      await net.load(weights)
+      await net.load('./')
+      //const weights = await loadNetWeights(modelCheckpoint)
+      //await net.load(weights)
       console.log('model loaded')
     }
 

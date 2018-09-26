@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var allFacesFactory_1 = require("./allFacesFactory");
 var FaceDetectionNet_1 = require("./faceDetectionNet/FaceDetectionNet");
 var FaceLandmark68Net_1 = require("./faceLandmarkNet/FaceLandmark68Net");
+var FaceLandmark68TinyNet_1 = require("./faceLandmarkNet/FaceLandmark68TinyNet");
 var FaceRecognitionNet_1 = require("./faceRecognitionNet/FaceRecognitionNet");
 var Mtcnn_1 = require("./mtcnn/Mtcnn");
 var TinyYolov2_1 = require("./tinyYolov2/TinyYolov2");
@@ -14,6 +15,7 @@ exports.recognitionNet = new FaceRecognitionNet_1.FaceRecognitionNet();
 exports.nets = {
     ssdMobilenetv1: exports.detectionNet,
     faceLandmark68Net: exports.landmarkNet,
+    faceLandmark68TinyNet: new FaceLandmark68TinyNet_1.FaceLandmark68TinyNet(),
     faceRecognitionNet: exports.recognitionNet,
     mtcnn: new Mtcnn_1.Mtcnn(),
     tinyYolov2: new TinyYolov2_1.TinyYolov2()
@@ -26,6 +28,10 @@ function loadFaceLandmarkModel(url) {
     return exports.nets.faceLandmark68Net.load(url);
 }
 exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
+function loadFaceLandmarkTinyModel(url) {
+    return exports.nets.faceLandmark68TinyNet.load(url);
+}
+exports.loadFaceLandmarkTinyModel = loadFaceLandmarkTinyModel;
 function loadFaceRecognitionModel(url) {
     return exports.nets.faceRecognitionNet.load(url);
 }
@@ -43,6 +49,7 @@ function loadFaceDetectionModel(url) {
 }
 exports.loadFaceDetectionModel = loadFaceDetectionModel;
 function loadModels(url) {
+    console.warn('loadModels will be deprecated in future');
     return Promise.all([
         loadSsdMobilenetv1Model(url),
         loadFaceLandmarkModel(url),
@@ -61,6 +68,10 @@ function detectLandmarks(input) {
     return exports.nets.faceLandmark68Net.detectLandmarks(input);
 }
 exports.detectLandmarks = detectLandmarks;
+function detectLandmarksTiny(input) {
+    return exports.nets.faceLandmark68TinyNet.detectLandmarks(input);
+}
+exports.detectLandmarksTiny = detectLandmarksTiny;
 function computeFaceDescriptor(input) {
     return exports.nets.faceRecognitionNet.computeFaceDescriptor(input);
 }

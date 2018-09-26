@@ -4,10 +4,10 @@ var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var depthwiseSeparableConv_1 = require("./depthwiseSeparableConv");
-var extractParams_1 = require("./extractParams");
+var extractParamsTiny_1 = require("./extractParamsTiny");
 var FaceLandmark68NetBase_1 = require("./FaceLandmark68NetBase");
 var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
+var loadQuantizedParamsTiny_1 = require("./loadQuantizedParamsTiny");
 function denseBlock(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {
@@ -17,20 +17,18 @@ function denseBlock(x, denseBlockParams, isFirstLayer) {
         var out2 = depthwiseSeparableConv_1.depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
         var in3 = tf.relu(tf.add(out1, out2));
         var out3 = depthwiseSeparableConv_1.depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
-        var in4 = tf.relu(tf.add(out1, tf.add(out2, out3)));
-        var out4 = depthwiseSeparableConv_1.depthwiseSeparableConv(in4, denseBlockParams.conv3, [1, 1]);
-        return tf.relu(tf.add(out1, tf.add(out2, tf.add(out3, out4))));
+        return tf.relu(tf.add(out1, tf.add(out2, out3)));
     });
 }
-var FaceLandmark68Net = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceLandmark68Net, _super);
-    function FaceLandmark68Net() {
-        return _super.call(this, 'FaceLandmark68LargeNet') || this;
+var FaceLandmark68TinyNet = /** @class */ (function (_super) {
+    tslib_1.__extends(FaceLandmark68TinyNet, _super);
+    function FaceLandmark68TinyNet() {
+        return _super.call(this, 'FaceLandmark68TinyNet') || this;
     }
-    FaceLandmark68Net.prototype.runNet = function (input) {
+    FaceLandmark68TinyNet.prototype.runNet = function (input) {
         var params = this.params;
         if (!params) {
-            throw new Error('FaceLandmark68LargeNet - load model before inference');
+            throw new Error('FaceLandmark68TinyNet - load model before inference');
         }
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(112, true);
@@ -39,18 +37,17 @@ var FaceLandmark68Net = /** @class */ (function (_super) {
             var out = denseBlock(normalized, params.dense0, true);
             out = denseBlock(out, params.dense1);
             out = denseBlock(out, params.dense2);
-            out = denseBlock(out, params.dense3);
-            out = tf.avgPool(out, [7, 7], [2, 2], 'valid');
+            out = tf.avgPool(out, [14, 14], [2, 2], 'valid');
             return fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
         });
     };
-    FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    FaceLandmark68TinyNet.prototype.loadQuantizedParams = function (uri) {
+        return loadQuantizedParamsTiny_1.loadQuantizedParamsTiny(uri);
     };
-    FaceLandmark68Net.prototype.extractParams = function (weights) {
-        return extractParams_1.extractParams(weights);
+    FaceLandmark68TinyNet.prototype.extractParams = function (weights) {
+        return extractParamsTiny_1.extractParamsTiny(weights);
     };
-    return FaceLandmark68Net;
+    return FaceLandmark68TinyNet;
 }(FaceLandmark68NetBase_1.FaceLandmark68NetBase));
-exports.FaceLandmark68Net = FaceLandmark68Net;
-//# sourceMappingURL=FaceLandmark68Net.js.map
+exports.FaceLandmark68TinyNet = FaceLandmark68TinyNet;
+//# sourceMappingURL=FaceLandmark68TinyNet.js.map

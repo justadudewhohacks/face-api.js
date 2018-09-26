@@ -3148,38 +3148,69 @@
         return createFaceDetectionNet(weights);
     }
 
+    function depthwiseSeparableConv(x, params, stride) {
+        return tidy(function () {
+            var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
+            out = add(out, params.bias);
+            return out;
+        });
+    }
+
+    function extractorsFactory$4(extractWeights, paramMappings) {
+        function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
+            var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
+            var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        }
+        function extractFCParams(channelsIn, channelsOut, mappedPrefix) {
+            var weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/bias" });
+            return {
+                weights: weights,
+                bias: bias
+            };
+        }
+        var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+        function extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer) {
+            if (isFirstLayer === void 0) { isFirstLayer = false; }
+            var conv0 = isFirstLayer
+                ? extractConvParams(channelsIn, channelsOut, 3, mappedPrefix + "/conv0")
+                : extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix + "/conv0");
+            var conv1 = extractSeparableConvParams(channelsOut, channelsOut, mappedPrefix + "/conv1");
+            var conv2 = extractSeparableConvParams(channelsOut, channelsOut, mappedPrefix + "/conv2");
+            return { conv0: conv0, conv1: conv1, conv2: conv2 };
+        }
+        function extractDenseBlock4Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer) {
+            if (isFirstLayer === void 0) { isFirstLayer = false; }
+            var _a = extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer), conv0 = _a.conv0, conv1 = _a.conv1, conv2 = _a.conv2;
+            var conv3 = extractSeparableConvParams(channelsOut, channelsOut, mappedPrefix + "/conv3");
+            return { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3 };
+        }
+        return {
+            extractDenseBlock3Params: extractDenseBlock3Params,
+            extractDenseBlock4Params: extractDenseBlock4Params,
+            extractFCParams: extractFCParams
+        };
+    }
+
     function extractParams$2(weights) {
         var paramMappings = [];
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
-        var extractFCParams = extractFCParamsFactory(extractWeights, paramMappings);
-        var conv0 = extractConvParams(3, 32, 3, 'conv0');
-        var conv1 = extractConvParams(32, 64, 3, 'conv1');
-        var conv2 = extractConvParams(64, 64, 3, 'conv2');
-        var conv3 = extractConvParams(64, 64, 3, 'conv3');
-        var conv4 = extractConvParams(64, 64, 3, 'conv4');
-        var conv5 = extractConvParams(64, 128, 3, 'conv5');
-        var conv6 = extractConvParams(128, 128, 3, 'conv6');
-        var conv7 = extractConvParams(128, 256, 3, 'conv7');
-        var fc0 = extractFCParams(6400, 1024, 'fc0');
-        var fc1 = extractFCParams(1024, 136, 'fc1');
+        var _b = extractorsFactory$4(extractWeights, paramMappings), extractDenseBlock4Params = _b.extractDenseBlock4Params, extractFCParams = _b.extractFCParams;
+        var dense0 = extractDenseBlock4Params(3, 32, 'dense0', true);
+        var dense1 = extractDenseBlock4Params(32, 64, 'dense1');
+        var dense2 = extractDenseBlock4Params(64, 128, 'dense2');
+        var dense3 = extractDenseBlock4Params(128, 256, 'dense3');
+        var fc = extractFCParams(256, 136, 'fc');
         if (getRemainingWeights().length !== 0) {
             throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
         return {
             paramMappings: paramMappings,
-            params: {
-                conv0: conv0,
-                conv1: conv1,
-                conv2: conv2,
-                conv3: conv3,
-                conv4: conv4,
-                conv5: conv5,
-                conv6: conv6,
-                conv7: conv7,
-                fc0: fc0,
-                fc1: fc1
-            }
+            params: { dense0: dense0, dense1: dense1, dense2: dense2, dense3: dense3, fc: fc }
         };
     }
 
@@ -3297,45 +3328,67 @@
         });
     }
 
-    var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
-    function extractorsFactory$4(weightMap, paramMappings) {
+    function loadParamsFactory(weightMap, paramMappings) {
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
-        function extractConvParams(prefix, mappedPrefix) {
-            var filters = extractWeightEntry(prefix + "/kernel", 4, mappedPrefix + "/filters");
-            var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+        function extractConvParams(prefix) {
+            var filters = extractWeightEntry(prefix + "/filters", 4);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
             return { filters: filters, bias: bias };
         }
-        function extractFcParams(prefix, mappedPrefix) {
-            var weights = extractWeightEntry(prefix + "/kernel", 2, mappedPrefix + "/weights");
-            var bias = extractWeightEntry(prefix + "/bias", 1, mappedPrefix + "/bias");
+        function extractSeparableConvParams(prefix) {
+            var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
+            var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        }
+        function extractDenseBlock3Params(prefix, isFirstLayer) {
+            if (isFirstLayer === void 0) { isFirstLayer = false; }
+            var conv0 = isFirstLayer
+                ? extractConvParams(prefix + "/conv0")
+                : extractSeparableConvParams(prefix + "/conv0");
+            var conv1 = extractSeparableConvParams(prefix + "/conv1");
+            var conv2 = extractSeparableConvParams(prefix + "/conv2");
+            return { conv0: conv0, conv1: conv1, conv2: conv2 };
+        }
+        function extractDenseBlock4Params(prefix, isFirstLayer) {
+            if (isFirstLayer === void 0) { isFirstLayer = false; }
+            var conv0 = isFirstLayer
+                ? extractConvParams(prefix + "/conv0")
+                : extractSeparableConvParams(prefix + "/conv0");
+            var conv1 = extractSeparableConvParams(prefix + "/conv1");
+            var conv2 = extractSeparableConvParams(prefix + "/conv2");
+            var conv3 = extractSeparableConvParams(prefix + "/conv3");
+            return { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3 };
+        }
+        function extractFcParams(prefix) {
+            var weights = extractWeightEntry(prefix + "/weights", 2);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
             return { weights: weights, bias: bias };
         }
         return {
-            extractConvParams: extractConvParams,
+            extractDenseBlock3Params: extractDenseBlock3Params,
+            extractDenseBlock4Params: extractDenseBlock4Params,
             extractFcParams: extractFcParams
         };
     }
+
+    var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
     function loadQuantizedParams$2(uri) {
         return __awaiter$1(this, void 0, void 0, function () {
-            var weightMap, paramMappings, _a, extractConvParams, extractFcParams, params;
+            var weightMap, paramMappings, _a, extractDenseBlock4Params, extractFcParams, params;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$1)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
-                        _a = extractorsFactory$4(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractFcParams = _a.extractFcParams;
+                        _a = loadParamsFactory(weightMap, paramMappings), extractDenseBlock4Params = _a.extractDenseBlock4Params, extractFcParams = _a.extractFcParams;
                         params = {
-                            conv0: extractConvParams('conv2d_0', 'conv0'),
-                            conv1: extractConvParams('conv2d_1', 'conv1'),
-                            conv2: extractConvParams('conv2d_2', 'conv2'),
-                            conv3: extractConvParams('conv2d_3', 'conv3'),
-                            conv4: extractConvParams('conv2d_4', 'conv4'),
-                            conv5: extractConvParams('conv2d_5', 'conv5'),
-                            conv6: extractConvParams('conv2d_6', 'conv6'),
-                            conv7: extractConvParams('conv2d_7', 'conv7'),
-                            fc0: extractFcParams('dense', 'fc0'),
-                            fc1: extractFcParams('logits', 'fc1')
+                            dense0: extractDenseBlock4Params('dense0', true),
+                            dense1: extractDenseBlock4Params('dense1'),
+                            dense2: extractDenseBlock4Params('dense2'),
+                            dense3: extractDenseBlock4Params('dense3'),
+                            fc: extractFcParams('fc')
                         };
                         disposeUnusedWeightTensors(weightMap, paramMappings);
                         return [2 /*return*/, { params: params, paramMappings: paramMappings }];
@@ -3344,39 +3397,40 @@
         });
     }
 
-    function conv(x, params) {
-        return convLayer(x, params, 'valid', true);
-    }
-    function maxPool$1(x, strides) {
-        if (strides === void 0) { strides = [2, 2]; }
-        return maxPool(x, [2, 2], strides, 'valid');
+    function denseBlock(x, denseBlockParams, isFirstLayer) {
+        if (isFirstLayer === void 0) { isFirstLayer = false; }
+        return tidy(function () {
+            var out1 = relu(isFirstLayer
+                ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
+                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
+            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+            var in3 = relu(add(out1, out2));
+            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            var in4 = relu(add(out1, add(out2, out3)));
+            var out4 = depthwiseSeparableConv(in4, denseBlockParams.conv3, [1, 1]);
+            return relu(add(out1, add(out2, add(out3, out4))));
+        });
     }
     var FaceLandmark68Net = /** @class */ (function (_super) {
         __extends$1(FaceLandmark68Net, _super);
         function FaceLandmark68Net() {
-            return _super.call(this, 'FaceLandmark68Net') || this;
+            return _super.call(this, 'FaceLandmark68LargeNet') || this;
         }
         FaceLandmark68Net.prototype.runNet = function (input) {
             var params = this.params;
             if (!params) {
-                throw new Error('FaceLandmark68Net - load model before inference');
+                throw new Error('FaceLandmark68LargeNet - load model before inference');
             }
             return tidy(function () {
-                var batchTensor = input.toBatchTensor(128, true).toFloat();
-                var out = conv(batchTensor, params.conv0);
-                out = maxPool$1(out);
-                out = conv(out, params.conv1);
-                out = conv(out, params.conv2);
-                out = maxPool$1(out);
-                out = conv(out, params.conv3);
-                out = conv(out, params.conv4);
-                out = maxPool$1(out);
-                out = conv(out, params.conv5);
-                out = conv(out, params.conv6);
-                out = maxPool$1(out, [1, 1]);
-                out = conv(out, params.conv7);
-                var fc0 = relu(fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc0));
-                return fullyConnectedLayer(fc0, params.fc1);
+                var batchTensor = input.toBatchTensor(112, true);
+                var meanRgb = [122.782, 117.001, 104.298];
+                var normalized = normalize(batchTensor, meanRgb).div(scalar(255));
+                var out = denseBlock(normalized, params.dense0, true);
+                out = denseBlock(out, params.dense1);
+                out = denseBlock(out, params.dense2);
+                out = denseBlock(out, params.dense3);
+                out = avgPool(out, [7, 7], [2, 2], 'valid');
+                return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
             });
         };
         FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
@@ -3386,6 +3440,89 @@
             return extractParams$2(weights);
         };
         return FaceLandmark68Net;
+    }(FaceLandmark68NetBase));
+
+    function extractParamsTiny(weights) {
+        var paramMappings = [];
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var _b = extractorsFactory$4(extractWeights, paramMappings), extractDenseBlock3Params = _b.extractDenseBlock3Params, extractFCParams = _b.extractFCParams;
+        var dense0 = extractDenseBlock3Params(3, 32, 'dense0', true);
+        var dense1 = extractDenseBlock3Params(32, 64, 'dense1');
+        var dense2 = extractDenseBlock3Params(64, 128, 'dense2');
+        var fc = extractFCParams(128, 136, 'fc');
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+        }
+        return {
+            paramMappings: paramMappings,
+            params: { dense0: dense0, dense1: dense1, dense2: dense2, fc: fc }
+        };
+    }
+
+    var DEFAULT_MODEL_NAME$2 = 'face_landmark_68_tiny_model';
+    function loadQuantizedParamsTiny(uri) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var weightMap, paramMappings, _a, extractDenseBlock3Params, extractFcParams, params;
+            return __generator$1(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$2)];
+                    case 1:
+                        weightMap = _b.sent();
+                        paramMappings = [];
+                        _a = loadParamsFactory(weightMap, paramMappings), extractDenseBlock3Params = _a.extractDenseBlock3Params, extractFcParams = _a.extractFcParams;
+                        params = {
+                            dense0: extractDenseBlock3Params('dense0', true),
+                            dense1: extractDenseBlock3Params('dense1'),
+                            dense2: extractDenseBlock3Params('dense2'),
+                            fc: extractFcParams('fc')
+                        };
+                        disposeUnusedWeightTensors(weightMap, paramMappings);
+                        return [2 /*return*/, { params: params, paramMappings: paramMappings }];
+                }
+            });
+        });
+    }
+
+    function denseBlock$1(x, denseBlockParams, isFirstLayer) {
+        if (isFirstLayer === void 0) { isFirstLayer = false; }
+        return tidy(function () {
+            var out1 = relu(isFirstLayer
+                ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
+                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
+            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+            var in3 = relu(add(out1, out2));
+            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            return relu(add(out1, add(out2, out3)));
+        });
+    }
+    var FaceLandmark68TinyNet = /** @class */ (function (_super) {
+        __extends$1(FaceLandmark68TinyNet, _super);
+        function FaceLandmark68TinyNet() {
+            return _super.call(this, 'FaceLandmark68TinyNet') || this;
+        }
+        FaceLandmark68TinyNet.prototype.runNet = function (input) {
+            var params = this.params;
+            if (!params) {
+                throw new Error('FaceLandmark68TinyNet - load model before inference');
+            }
+            return tidy(function () {
+                var batchTensor = input.toBatchTensor(112, true);
+                var meanRgb = [122.782, 117.001, 104.298];
+                var normalized = normalize(batchTensor, meanRgb).div(scalar(255));
+                var out = denseBlock$1(normalized, params.dense0, true);
+                out = denseBlock$1(out, params.dense1);
+                out = denseBlock$1(out, params.dense2);
+                out = avgPool(out, [14, 14], [2, 2], 'valid');
+                return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
+            });
+        };
+        FaceLandmark68TinyNet.prototype.loadQuantizedParams = function (uri) {
+            return loadQuantizedParamsTiny(uri);
+        };
+        FaceLandmark68TinyNet.prototype.extractParams = function (weights) {
+            return extractParamsTiny(weights);
+        };
+        return FaceLandmark68TinyNet;
     }(FaceLandmark68NetBase));
 
     var FaceLandmarkNet = /** @class */ (function (_super) {
@@ -3417,7 +3554,7 @@
         out = scale(out, params.scale);
         return withRelu ? relu(out) : out;
     }
-    function conv$1(x, params) {
+    function conv(x, params) {
         return convLayer$1(x, params, [1, 1], true);
     }
     function convNoRelu(x, params) {
@@ -3512,7 +3649,7 @@
         return { params: params, paramMappings: paramMappings };
     }
 
-    var DEFAULT_MODEL_NAME$2 = 'face_recognition_model';
+    var DEFAULT_MODEL_NAME$3 = 'face_recognition_model';
     function extractorsFactory$6(weightMap, paramMappings) {
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractScaleLayerParams(prefix) {
@@ -3542,7 +3679,7 @@
             var weightMap, paramMappings, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc, params;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$2)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$3)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
@@ -3593,7 +3730,7 @@
     }
 
     function residual(x, params) {
-        var out = conv$1(x, params.conv1);
+        var out = conv(x, params.conv1);
         out = convNoRelu(out, params.conv2);
         out = add(out, x);
         out = relu(out);
@@ -3916,7 +4053,7 @@
         };
     }
 
-    var DEFAULT_MODEL_NAME$3 = 'mtcnn_model';
+    var DEFAULT_MODEL_NAME$4 = 'mtcnn_model';
     function extractorsFactory$8(weightMap, paramMappings) {
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractConvParams(prefix) {
@@ -3977,7 +4114,7 @@
             var weightMap, paramMappings, _a, extractPNetParams, extractRNetParams, extractONetParams, pnet, rnet, onet;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$3)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$4)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
@@ -4478,7 +4615,7 @@
         new Point(9.041765, 10.66308)
     ];
     var MEAN_RGB_SEPARABLE = [117.001, 114.697, 97.404];
-    var DEFAULT_MODEL_NAME$4 = 'tiny_yolov2_model';
+    var DEFAULT_MODEL_NAME$5 = 'tiny_yolov2_model';
     var DEFAULT_MODEL_NAME_SEPARABLE_CONV = 'tiny_yolov2_separable_conv_model';
 
     var TinyYolov2$1 = /** @class */ (function (_super) {
@@ -4530,7 +4667,7 @@
             });
         };
         TinyYolov2$$1.prototype.loadQuantizedParams = function (modelUri) {
-            var defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME$4;
+            var defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME$5;
             return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
         };
         return TinyYolov2$$1;
@@ -4544,6 +4681,7 @@
     var nets = {
         ssdMobilenetv1: detectionNet,
         faceLandmark68Net: landmarkNet,
+        faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
         faceRecognitionNet: recognitionNet,
         mtcnn: new Mtcnn(),
         tinyYolov2: new TinyYolov2$1()
@@ -4553,6 +4691,9 @@
     }
     function loadFaceLandmarkModel(url) {
         return nets.faceLandmark68Net.load(url);
+    }
+    function loadFaceLandmarkTinyModel(url) {
+        return nets.faceLandmark68TinyNet.load(url);
     }
     function loadFaceRecognitionModel(url) {
         return nets.faceRecognitionNet.load(url);
@@ -4567,6 +4708,7 @@
         return loadSsdMobilenetv1Model(url);
     }
     function loadModels(url) {
+        console.warn('loadModels will be deprecated in future');
         return Promise.all([
             loadSsdMobilenetv1Model(url),
             loadFaceLandmarkModel(url),
@@ -4581,6 +4723,9 @@
     var ssdMobilenetv1 = locateFaces;
     function detectLandmarks(input) {
         return nets.faceLandmark68Net.detectLandmarks(input);
+    }
+    function detectLandmarksTiny(input) {
+        return nets.faceLandmark68TinyNet.detectLandmarks(input);
     }
     function computeFaceDescriptor(input) {
         return nets.faceRecognitionNet.computeFaceDescriptor(input);
@@ -4678,6 +4823,7 @@
     exports.createFaceLandmarkNet = createFaceLandmarkNet;
     exports.faceLandmarkNet = faceLandmarkNet;
     exports.FaceLandmark68Net = FaceLandmark68Net;
+    exports.FaceLandmark68TinyNet = FaceLandmark68TinyNet;
     exports.createFaceRecognitionNet = createFaceRecognitionNet;
     exports.faceRecognitionNet = faceRecognitionNet;
     exports.FaceRecognitionNet = FaceRecognitionNet;
@@ -4687,6 +4833,7 @@
     exports.nets = nets;
     exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
     exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
+    exports.loadFaceLandmarkTinyModel = loadFaceLandmarkTinyModel;
     exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
     exports.loadMtcnnModel = loadMtcnnModel;
     exports.loadTinyYolov2Model = loadTinyYolov2Model;
@@ -4695,6 +4842,7 @@
     exports.locateFaces = locateFaces;
     exports.ssdMobilenetv1 = ssdMobilenetv1;
     exports.detectLandmarks = detectLandmarks;
+    exports.detectLandmarksTiny = detectLandmarksTiny;
     exports.computeFaceDescriptor = computeFaceDescriptor;
     exports.mtcnn = mtcnn;
     exports.tinyYolov2 = tinyYolov2;
