@@ -110,7 +110,7 @@ The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognit
 
 ### 68 Point Face Landmark Detection
 
-This package implements a very lightweight and fast, yet accurate 68 point face landmark detector. The default model has a size of only 350kb and the tiny model is only 80kb. Both models employ the idea of depthwise separable convolutions as well as densely connected blocks. The models have been trained on a dataset of ~35k face images labeled with 68 face landmark points.
+This package implements a very lightweight and fast, yet accurate 68 point face landmark detector. The default model has a size of only 350kb and the tiny model is only 80kb. Both models employ the ideas of depthwise separable convolutions as well as densely connected blocks. The models have been trained on a dataset of ~35k face images labeled with 68 face landmark points.
 
 <a name="usage"></a>
 
@@ -151,8 +151,8 @@ As an alternative, you can also create instance of the neural nets:
 ``` javascript
 const net = new faceapi.FaceDetectionNet()
 // accordingly for the other models:
-// const net = new faceapi.FaceLandmarkNet()
-// const net = new faceapi.FaceLandmarkTinyNet()
+// const net = new faceapi.FaceLandmark68Net()
+// const net = new faceapi.FaceLandmark68TinyNet()
 // const net = new faceapi.FaceRecognitionNet()
 // const net = new faceapi.Mtcnn()
 // const net = new faceapi.TinyYolov2()
