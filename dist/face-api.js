@@ -2186,13 +2186,6 @@
         }
         return SeparableConvParams;
     }());
-    var SizeType;
-    (function (SizeType) {
-        SizeType["XS"] = "xs";
-        SizeType["SM"] = "sm";
-        SizeType["MD"] = "md";
-        SizeType["LG"] = "lg";
-    })(SizeType || (SizeType = {}));
 
     function extractSeparableConvParamsFactory(extractWeights, paramMappings) {
         return function (channelsIn, channelsOut, mappedPrefix) {
@@ -2211,6 +2204,14 @@
             return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
         };
     }
+
+    var SizeType;
+    (function (SizeType) {
+        SizeType["XS"] = "xs";
+        SizeType["SM"] = "sm";
+        SizeType["MD"] = "md";
+        SizeType["LG"] = "lg";
+    })(SizeType || (SizeType = {}));
 
     var isNumber = function (arg) { return typeof arg === 'number'; };
     function validateConfig(config) {
