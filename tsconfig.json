@@ -18,10 +18,10 @@
     "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": true,
     "importHelpers": true,
+    "outDir": "build/commonjs",
     "module": "commonjs",
-    "moduleResolution": "node",
     "target": "es5",
-    "outDir": "build",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "lib": ["es2015", "dom"],
     "typeRoots": [

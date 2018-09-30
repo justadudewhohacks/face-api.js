@@ -2,13 +2,15 @@
   "name": "face-api.js",
   "version": "0.14.0",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
-  "main": "./build/index.js",
-  "typings": "./build/index.d.ts",
+  "module": "./build/es6/index.js",
+  "main": "./build/commonjs/index.js",
+  "typings": "./build/commonjs/index.d.ts",
   "scripts": {
     "rollup-min": "rollup -c rollup.config.js --environment minify:true",
     "rollup": "rollup -c rollup.config.js",
-    "build-tsc": "tsc",
-    "build": "npm run rollup && npm run rollup-min && npm run build-tsc",
+    "tsc": "tsc",
+    "tsc-es6": "tsc --p tsconfig.es6.json",
+    "build": "npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
     "test": "karma start"
   },
   "keywords": [
@@ -22,8 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "^0.12.14",
-    "tfjs-image-recognition-base": "0.1.0",
-    "tfjs-tiny-yolov2": "0.1.0",
+    "tfjs-image-recognition-base": "^0.1.1",
+    "tfjs-tiny-yolov2": "^0.1.2",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
@@ -34,7 +36,6 @@
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.2",
     "karma-typescript": "^3.0.12",
-    "karma-typescript-es6-transform": "^1.0.4",
     "rollup": "^0.65.0",
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-node-resolve": "^3.3.0",

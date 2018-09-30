@@ -1,6 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2/build/tinyYolov2/types';
+import { ConvParams, FCParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 export type ConvWithBatchNormParams = BatchNormParams & {
   filter: tf.Tensor4D

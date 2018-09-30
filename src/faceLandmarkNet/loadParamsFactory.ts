@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { extractWeightEntryFactory, ParamMapping } from 'tfjs-image-recognition-base';
-import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2/build/tinyYolov2/types';
+import { ConvParams, FCParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 import { DenseBlock3Params, DenseBlock4Params } from './types';
 

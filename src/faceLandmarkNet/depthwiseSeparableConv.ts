@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2/build/tinyYolov2/types';
+import { SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 export function depthwiseSeparableConv(
   x: tf.Tensor4D,
