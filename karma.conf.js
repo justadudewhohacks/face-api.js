@@ -25,18 +25,14 @@ module.exports = function(config) {
       '**/*.ts': ['karma-typescript']
     },
     karmaTypescriptConfig: {
-      tsconfig: 'tsconfig.test.json',
-      bundlerOptions: {
-        transforms: [
-          require("karma-typescript-es6-transform")()
-        ]
-      }
+      tsconfig: 'tsconfig.test.json'
     },
     browsers: ['Chrome'],
-    browserNoActivityTimeout: 60000,
+    browserNoActivityTimeout: 120000,
+    captureTimeout: 60000,
     client: {
       jasmine: {
-        timeoutInterval: 30000
+        timeoutInterval: 60000
       }
     }
   })

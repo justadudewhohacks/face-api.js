@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, normalize } from 'tfjs-image-recognition-base';
-import { ConvParams } from 'tfjs-tiny-yolov2';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2/build/tinyYolov2/types';
+import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParamsTiny } from './extractParamsTiny';

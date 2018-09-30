@@ -18,7 +18,9 @@ export default {
       }
     }),
     node(),
-    commonjs()
+    commonjs({
+      include: 'node_modules/**'
+    })
   ].concat(minify ? uglify() : []),
   output: {
     extend: true,
