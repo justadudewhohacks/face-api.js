@@ -1,4 +1,4 @@
-import { TinyYolov2Options } from '../tinyYolov2/TinyYolov2Options';
+import { TinyYolov2Options } from 'tfjs-tiny-yolov2';
 
 export class TinyFaceDetectorOptions extends TinyYolov2Options {
   protected _name: string = 'TinyFaceDetectorOptions'

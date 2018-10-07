@@ -1,5 +1,5 @@
 import { Point, TNetInput } from 'tfjs-image-recognition-base';
-import { TinyYolov2 as TinyYolov2Base, TinyYolov2Types } from 'tfjs-tiny-yolov2';
+import { ITinyYolov2Options, TinyYolov2 as TinyYolov2Base } from 'tfjs-tiny-yolov2';
 
 import { FaceDetection } from '../classes';
 import {
@@ -41,7 +41,7 @@ export class TinyYolov2 extends TinyYolov2Base {
     return this.config.anchors
   }
 
-  public async locateFaces(input: TNetInput, forwardParams: TinyYolov2Types.TinyYolov2ForwardParams): Promise<FaceDetection[]> {
+  public async locateFaces(input: TNetInput, forwardParams: ITinyYolov2Options): Promise<FaceDetection[]> {
     const objectDetections = await this.detect(input, forwardParams)
     return objectDetections.map(det => new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }))
   }

@@ -6,14 +6,15 @@ import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
-import { getDefaultMtcnnForwardParams } from './getDefaultMtcnnForwardParams';
 import { getSizesForScale } from './getSizesForScale';
 import { loadQuantizedParams } from './loadQuantizedParams';
+import { IMtcnnOptions, MtcnnOptions } from './MtcnnOptions';
+import { MtcnnResult } from './MtcnnResult';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
-import { MtcnnForwardParams, MtcnnResult, NetParams } from './types';
+import { NetParams } from './types';
 
 export class Mtcnn extends NeuralNetwork<NetParams> {
 
@@ -23,7 +24,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardInput(
     input: NetInput,
-    forwardParams: MtcnnForwardParams = {}
+    forwardParams: IMtcnnOptions = {}
   ): Promise<{ results: MtcnnResult[], stats: any }> {
 
     const { params } = this
@@ -63,7 +64,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       maxNumScales,
       scoreThresholds,
       scaleSteps
-    } = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams)
+    } = new MtcnnOptions(forwardParams)
 
     const scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
       .filter(scale => {
@@ -71,6 +72,15 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
         return Math.min(sizes.width, sizes.height) > CELL_SIZE
       })
       .slice(0, maxNumScales)
+
+
+    console.log({
+      minFaceSize,
+      scaleFactor,
+      maxNumScales,
+      scoreThresholds,
+      scales
+    })
 
     stats.scales = scales
     stats.pyramid = scales.map(scale => getSizesForScale(scale, [height, width]))
@@ -100,8 +110,8 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
     stats.total_stage3 = Date.now() - ts
 
-    const results = out3.boxes.map((box, idx) => ({
-      faceDetection: new FaceDetection(
+    const results = out3.boxes.map((box, idx) => new MtcnnResult(
+      new FaceDetection(
         out3.scores[idx],
         new Rect(
           box.left / width,
@@ -114,18 +124,18 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
           width
         }
       ),
-      faceLandmarks: new FaceLandmarks5(
+      new FaceLandmarks5(
         out3.points[idx].map(pt => pt.div(new Point(width, height))),
         { width, height }
       )
-    }))
+    ))
 
     return onReturn({ results, stats })
   }
 
   public async forward(
     input: TNetInput,
-    forwardParams: MtcnnForwardParams = {}
+    forwardParams: IMtcnnOptions = {}
   ): Promise<MtcnnResult[]> {
     return (
       await this.forwardInput(
@@ -137,7 +147,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
 
   public async forwardWithStats(
     input: TNetInput,
-    forwardParams: MtcnnForwardParams = {}
+    forwardParams: IMtcnnOptions = {}
   ): Promise<{ results: MtcnnResult[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input),

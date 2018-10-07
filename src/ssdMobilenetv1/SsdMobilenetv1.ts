@@ -8,12 +8,13 @@ import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
-import { NetParams } from './types';
+import { NetParams, ISsdMobilenetv1Options } from './types';
+import { SsdMobilenetv1Options } from './SsdMobilenetv1Options';
 
-export class FaceDetectionNet extends NeuralNetwork<NetParams> {
+export class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
 
   constructor() {
-    super('FaceDetectionNet')
+    super('SsdMobilenetv1')
   }
 
   public forwardInput(input: NetInput) {
@@ -21,7 +22,7 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
     const { params } = this
 
     if (!params) {
-      throw new Error('FaceDetectionNet - load model before inference')
+      throw new Error('SsdMobilenetv1 - load model before inference')
     }
 
     return tf.tidy(() => {
@@ -45,9 +46,10 @@ export class FaceDetectionNet extends NeuralNetwork<NetParams> {
 
   public async locateFaces(
     input: TNetInput,
-    minConfidence: number = 0.8,
-    maxResults: number = 100
+    options: ISsdMobilenetv1Options
   ): Promise<FaceDetection[]> {
+
+    const { maxResults, minConfidence } = new SsdMobilenetv1Options(options)
 
     const netInput = await toNetInput(input)
 

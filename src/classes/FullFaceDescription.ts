@@ -1,19 +1,17 @@
 import { FaceDetection } from './FaceDetection';
+import { FaceDetectionWithLandmarks } from './FaceDetectionWithLandmarks';
 import { FaceLandmarks } from './FaceLandmarks';
 
-export class FullFaceDescription {
+export class FullFaceDescription extends FaceDetectionWithLandmarks {
+  private _descriptor: Float32Array
+
   constructor(
-    private _detection: FaceDetection,
-    private _landmarks: FaceLandmarks,
-    private _descriptor: Float32Array
-  ) {}
-
-  public get detection(): FaceDetection {
-    return this._detection
-  }
-
-  public get landmarks(): FaceLandmarks {
-    return this._landmarks
+    detection: FaceDetection,
+    landmarks: FaceLandmarks,
+    descriptor: Float32Array
+  ) {
+    super(detection, landmarks)
+    this._descriptor = descriptor
   }
 
   public get descriptor(): Float32Array {
@@ -21,10 +19,7 @@ export class FullFaceDescription {
   }
 
   public forSize(width: number, height: number): FullFaceDescription {
-    return new FullFaceDescription(
-      this._detection.forSize(width, height),
-      this._landmarks.forSize(width, height),
-      this._descriptor
-    )
+    const { detection, landmarks } = super.forSize(width, height)
+    return new FullFaceDescription(detection, landmarks, this.descriptor)
   }
 }

@@ -40,16 +40,3 @@ export type NetParams = {
   rnet: RNetParams
   onet: ONetParams
 }
-
-export type MtcnnResult = {
-  faceDetection: FaceDetection,
-  faceLandmarks: FaceLandmarks5
-}
-
-export type MtcnnForwardParams = {
-  minFaceSize?: number
-  scaleFactor?: number
-  maxNumScales?: number
-  scoreThresholds?: number[]
-  scaleSteps?: number[]
-}
