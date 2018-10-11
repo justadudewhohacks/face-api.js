@@ -3,6 +3,7 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
+  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <script src="js/imageSelectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -147,33 +148,10 @@
       const options = getFaceDetectorOptions()
 
       const results = await faceapi
-        .detectAllFaces($('#inputImg').get(0), options)
+        .detectAllFaces(inputImgEl, options)
         .withFaceLandmarks()
 
-      drawLandmarks(results)
-    }
-
-    function drawLandmarks(results) {
-      // draw results
-      const { width, height } = $('#inputImg').get(0)
-      const canvas = $('#overlay').get(0)
-      canvas.width = width
-      canvas.height = height
-
-      // resize detection and landmarks in case displayed image is smaller than
-      // original size
-      results = results.map(res => res.forSize(width, height))
-
-      const alignedFaceRectangles = results.map(det => det.alignedRect)
-      faceapi.drawDetection(canvas, alignedFaceRectangles)
-
-      const faceLandmarks = results.map(det => det.landmarks)
-      const drawLandmarksOptions = {
-        lineWidth: 2,
-        drawLines: true,
-        color: 'green'
-      }
-      faceapi.drawLandmarks(canvas, faceLandmarks, drawLandmarksOptions)
+      drawLandmarks(inputImgEl, $('#overlay').get(0), results)
     }
 
     async function run() {

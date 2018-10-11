@@ -93,7 +93,9 @@ async function changeFaceDetector(detector) {
     .forEach(id => $(id).hide())
 
   selectedFaceDetector = detector
-  $('#selectFaceDetector').val(detector)
+  const faceDetectorSelect = $('#selectFaceDetector')
+  faceDetectorSelect.val(detector)
+  faceDetectorSelect.material_select()
 
   $('#loader').show()
   if (!isFaceDetectionModelLoaded()) {

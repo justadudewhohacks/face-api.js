@@ -127,7 +127,7 @@ function renderNavBar(navbarId, exampleUri) {
     })
 
   $('.button-collapse').sideNav({
-    menuWidth: 280
+    menuWidth: 240
   })
 }
 

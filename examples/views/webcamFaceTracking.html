@@ -3,6 +3,7 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
+  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -21,29 +22,41 @@
       <canvas id="overlay" />
     </div>
 
-    <!-- fps_meter -->
-    <div id="fps_meter" class="row side-by-side">
-      <div class="row">
-        <label for="time">Time:</label>
-        <input disabled value="-" id="time" type="text" class="bold">
-      </div>
-      <div class="row">
-        <label for="fps">Estimated Fps:</label>
-        <input disabled value="-" id="fps" type="text" class="bold">
-      </div>
-    </div>
-    <!-- fps_meter -->
+    <div class="row side-by-side">
 
-    <!-- face_detector_selection_control -->
-    <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
-      <select id="selectFaceDetector">
-        <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
-        <option value="tiny_face_detector">Tiny Face Detector</option>
-        <option value="mtcnn">MTCNN</option>
-      </select>
-      <label>Select Face Detector</label>
+      <!-- face_detector_selection_control -->
+      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
+        <select id="selectFaceDetector">
+          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+          <option value="tiny_face_detector">Tiny Face Detector</option>
+          <option value="mtcnn">MTCNN</option>
+        </select>
+        <label>Select Face Detector</label>
+      </div>
+      <!-- face_detector_selection_control -->
+
+      <!-- check boxes -->
+      <div class="row" style="width: 220px;">
+        <input type="checkbox" id="withFaceLandmarksCheckbox" onchange="onChangeWithFaceLandmarks(event)" />
+        <label for="withFaceLandmarksCheckbox">Detect Face Landmarks</label>
+        <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)" />
+        <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
+      </div>
+      <!-- check boxes -->
+
+      <!-- fps_meter -->
+      <div id="fps_meter" class="row side-by-side">
+        <div>
+          <label for="time">Time:</label>
+          <input disabled value="-" id="time" type="text" class="bold">
+          <label for="fps">Estimated Fps:</label>
+          <input disabled value="-" id="fps" type="text" class="bold">
+        </div>
+      </div>
+      <!-- fps_meter -->
+
     </div>
-    <!-- face_detector_selection_control -->
+
 
     <!-- ssd_mobilenetv1_controls -->
     <span id="ssd_mobilenetv1_controls">
@@ -131,6 +144,16 @@
 
   <script>
     let forwardTimes = []
+    let withFaceLandmarks = false
+    let withBoxes = true
+
+    function onChangeWithFaceLandmarks(e) {
+      withFaceLandmarks = $(e.target).prop('checked')
+    }
+
+    function onChangeHideBoundingBoxes(e) {
+      withBoxes = !$(e.target).prop('checked')
+    }
 
     function updateTimeStats(timeInMs) {
       forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
@@ -145,23 +168,29 @@
 
 
       const options = getFaceDetectorOptions()
+
       const ts = Date.now()
-      const detections = await faceapi.detectAllFaces(videoEl, options)
+
+      const faceDetectionTask = faceapi.detectAllFaces(videoEl, options)
+      const results = withFaceLandmarks
+        ? await faceDetectionTask.withFaceLandmarks()
+        : await faceDetectionTask
+
       updateTimeStats(Date.now() - ts)
 
-      // draw results
-      const canvas = $('#overlay').get(0)
-      const { width, height } = faceapi.getMediaDimensions(videoEl)
-      canvas.width = width
-      canvas.height = height
-      faceapi.drawDetection(canvas, detections.map(det => det.forSize(width, height)))
+      const drawFunction = withFaceLandmarks
+        ? drawLandmarks
+        : drawDetections
+
+      drawFunction(videoEl, $('#overlay').get(0), results, withBoxes)
 
       setTimeout(() => onPlay(videoEl))
     }
 
     async function run() {
-      // load face detection model
+      // load face detection and face landmark models
       await changeFaceDetector(TINY_FACE_DETECTOR)
+      await faceapi.loadFaceLandmarkModel('/')
       changeInputSize(128)
 
       // try to access users webcam and stream the images
