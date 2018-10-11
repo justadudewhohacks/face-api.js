@@ -25,10 +25,7 @@ export class FaceLandmarks {
     )
   }
 
-  public getShift(): Point {
-    return new Point(this._shift.x, this._shift.y)
-  }
-
+  public get shift(): Point { return new Point(this._shift.x, this._shift.y) }
   public get imageWidth(): number { return this._imgDims.width }
   public get imageHeight(): number { return this._imgDims.height }
   public get positions(): Point[] { return this._positions }
@@ -45,7 +42,7 @@ export class FaceLandmarks {
     )
   }
 
-  public shift<T extends FaceLandmarks>(x: number, y: number): T {
+  public shiftBy<T extends FaceLandmarks>(x: number, y: number): T {
     return new (this.constructor as any)(
       this.relativePositions,
       this._imgDims,
@@ -54,7 +51,7 @@ export class FaceLandmarks {
   }
 
   public shiftByPoint<T extends FaceLandmarks>(pt: Point): T {
-    return this.shift(pt.x, pt.y)
+    return this.shiftBy(pt.x, pt.y)
   }
 
   /**
@@ -76,7 +73,7 @@ export class FaceLandmarks {
         ? detection.box.floor()
         : detection
 
-      return this.shift(box.x, box.y).align()
+      return this.shiftBy(box.x, box.y).align()
     }
 
     const centers = this.getRefPointsForAlignment()

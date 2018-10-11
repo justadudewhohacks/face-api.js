@@ -46,7 +46,7 @@ export class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
 
   public async locateFaces(
     input: TNetInput,
-    options: ISsdMobilenetv1Options
+    options: ISsdMobilenetv1Options = {}
   ): Promise<FaceDetection[]> {
 
     const { maxResults, minConfidence } = new SsdMobilenetv1Options(options)

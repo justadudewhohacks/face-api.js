@@ -1,20 +1,21 @@
 import { FaceDetection } from './FaceDetection';
 import { FaceLandmarks } from './FaceLandmarks';
+import { FaceLandmarks68 } from './FaceLandmarks68';
 
-export class FaceDetectionWithLandmarks {
+export class FaceDetectionWithLandmarks<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68> {
   private _detection: FaceDetection
-  private _relativeLandmarks: FaceLandmarks
+  private _unshiftedLandmarks: TFaceLandmarks
 
   constructor(
     detection: FaceDetection,
-    relativeLandmarks: FaceLandmarks
+    unshiftedLandmarks: TFaceLandmarks
   ) {
     this._detection = detection
-    this._relativeLandmarks = relativeLandmarks
+    this._unshiftedLandmarks = unshiftedLandmarks
   }
 
   public get detection(): FaceDetection { return this._detection }
-  public get relativeLandmarks(): FaceLandmarks { return this._relativeLandmarks }
+  public get unshiftedLandmarks(): TFaceLandmarks { return this._unshiftedLandmarks }
 
   public get alignedRect(): FaceDetection {
     const rect = this.landmarks.align()
@@ -22,14 +23,18 @@ export class FaceDetectionWithLandmarks {
     return new FaceDetection(this._detection.score, rect.rescale(imageDims.reverse()), imageDims)
   }
 
-  public get landmarks(): FaceLandmarks {
+  public get landmarks(): TFaceLandmarks {
     const { x, y } = this.detection.box
-    return this._relativeLandmarks.shift(x, y)
+    return this._unshiftedLandmarks.shiftBy(x, y)
   }
 
-  public forSize(width: number, height: number): FaceDetectionWithLandmarks {
+  // aliases for backward compatibily
+  get faceDetection(): FaceDetection { return this.detection }
+  get faceLandmarks(): TFaceLandmarks { return this.landmarks }
+
+  public forSize(width: number, height: number): FaceDetectionWithLandmarks<TFaceLandmarks> {
     const resizedDetection = this._detection.forSize(width, height)
-    const resizedLandmarks = this._relativeLandmarks.forSize(resizedDetection.box.width, resizedDetection.box.height)
-    return new FaceDetectionWithLandmarks(resizedDetection, resizedLandmarks)
+    const resizedLandmarks = this._unshiftedLandmarks.forSize<TFaceLandmarks>(resizedDetection.box.width, resizedDetection.box.height)
+    return new FaceDetectionWithLandmarks<TFaceLandmarks>(resizedDetection, resizedLandmarks)
   }
 }

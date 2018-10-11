@@ -9,12 +9,12 @@ import { extractParams } from './extractParams';
 import { getSizesForScale } from './getSizesForScale';
 import { loadQuantizedParams } from './loadQuantizedParams';
 import { IMtcnnOptions, MtcnnOptions } from './MtcnnOptions';
-import { MtcnnResult } from './MtcnnResult';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
 import { NetParams } from './types';
+import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 
 export class Mtcnn extends NeuralNetwork<NetParams> {
 
@@ -25,7 +25,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forwardInput(
     input: NetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<{ results: MtcnnResult[], stats: any }> {
+  ): Promise<{ results: FaceDetectionWithLandmarks[], stats: any }> {
 
     const { params } = this
 
@@ -101,7 +101,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
     stats.total_stage3 = Date.now() - ts
 
-    const results = out3.boxes.map((box, idx) => new MtcnnResult(
+    const results = out3.boxes.map((box, idx) => new FaceDetectionWithLandmarks(
       new FaceDetection(
         out3.scores[idx],
         new Rect(
@@ -116,8 +116,8 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
         }
       ),
       new FaceLandmarks5(
-        out3.points[idx].map(pt => pt.div(new Point(width, height))),
-        { width, height }
+        out3.points[idx].map(pt => pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height))),
+        { width: box.width, height: box.height }
       )
     ))
 
@@ -127,7 +127,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forward(
     input: TNetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<MtcnnResult[]> {
+  ): Promise<FaceDetectionWithLandmarks[]> {
     return (
       await this.forwardInput(
         await toNetInput(input),
@@ -139,7 +139,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forwardWithStats(
     input: TNetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<{ results: MtcnnResult[], stats: any }> {
+  ): Promise<{ results: FaceDetectionWithLandmarks[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input),
       forwardParams
