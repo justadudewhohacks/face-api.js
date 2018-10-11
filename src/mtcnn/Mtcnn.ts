@@ -2,6 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, NeuralNetwork, Point, Rect, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from '../classes/FaceDetection';
+import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
@@ -14,7 +15,6 @@ import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
 import { NetParams } from './types';
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 
 export class Mtcnn extends NeuralNetwork<NetParams> {
 
@@ -25,7 +25,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forwardInput(
     input: NetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<{ results: FaceDetectionWithLandmarks[], stats: any }> {
+  ): Promise<{ results: FaceDetectionWithLandmarks<FaceLandmarks5>[], stats: any }> {
 
     const { params } = this
 
@@ -101,7 +101,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
     stats.total_stage3 = Date.now() - ts
 
-    const results = out3.boxes.map((box, idx) => new FaceDetectionWithLandmarks(
+    const results = out3.boxes.map((box, idx) => new FaceDetectionWithLandmarks<FaceLandmarks5>(
       new FaceDetection(
         out3.scores[idx],
         new Rect(
@@ -127,7 +127,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forward(
     input: TNetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<FaceDetectionWithLandmarks[]> {
+  ): Promise<FaceDetectionWithLandmarks<FaceLandmarks5>[]> {
     return (
       await this.forwardInput(
         await toNetInput(input),
@@ -139,7 +139,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
   public async forwardWithStats(
     input: TNetInput,
     forwardParams: IMtcnnOptions = {}
-  ): Promise<{ results: FaceDetectionWithLandmarks[], stats: any }> {
+  ): Promise<{ results: FaceDetectionWithLandmarks<FaceLandmarks5>[], stats: any }> {
     return this.forwardInput(
       await toNetInput(input),
       forwardParams

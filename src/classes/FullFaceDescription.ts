@@ -1,9 +1,20 @@
 import { FaceDetection } from './FaceDetection';
-import { FaceDetectionWithLandmarks } from './FaceDetectionWithLandmarks';
+import { FaceDetectionWithLandmarks, IFaceDetectionWithLandmarks } from './FaceDetectionWithLandmarks';
 import { FaceLandmarks } from './FaceLandmarks';
 import { FaceLandmarks68 } from './FaceLandmarks68';
 
-export class FullFaceDescription<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68> extends FaceDetectionWithLandmarks<TFaceLandmarks> {
+export interface IFullFaceDescription<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>
+  extends IFaceDetectionWithLandmarks<TFaceLandmarks>{
+
+  detection: FaceDetection,
+  landmarks: TFaceLandmarks,
+  descriptor: Float32Array
+}
+
+export class FullFaceDescription<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>
+  extends FaceDetectionWithLandmarks<TFaceLandmarks>
+  implements IFullFaceDescription<TFaceLandmarks> {
+
   private _descriptor: Float32Array
 
   constructor(

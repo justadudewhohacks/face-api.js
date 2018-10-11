@@ -3,6 +3,7 @@ import { ITinyYolov2Options } from 'tfjs-tiny-yolov2';
 
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
+import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
@@ -63,7 +64,7 @@ export const tinyYolov2 = (input: TNetInput, options: ITinyYolov2Options): Promi
  * @param options (optional, default: see MtcnnOptions constructor for default parameters).
  * @returns Bounding box of each face with score and 5 point face landmarks.
  */
-export const mtcnn = (input: TNetInput, options: MtcnnOptions): Promise<FaceDetectionWithLandmarks[]> =>
+export const mtcnn = (input: TNetInput, options: MtcnnOptions): Promise<FaceDetectionWithLandmarks<FaceLandmarks5>[]> =>
   nets.mtcnn.forward(input, options)
 
 /**

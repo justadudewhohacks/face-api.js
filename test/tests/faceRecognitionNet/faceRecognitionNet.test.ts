@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { bufferToImage, FaceRecognitionNet, NetInput, toNetInput } from '../../../src';
+import { FaceRecognitionNet, fetchImage, fetchJson, NetInput, toNetInput } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
 import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
@@ -15,15 +15,12 @@ describe('faceRecognitionNet', () => {
   let faceDescriptorRect: number[]
 
   beforeAll(async () => {
-    const img1 = await (await fetch('base/test/images/face1.png')).blob()
-    imgEl1 = await bufferToImage(img1)
-    const img2 = await (await fetch('base/test/images/face2.png')).blob()
-    imgEl2 = await bufferToImage(img2)
-    const imgRect = await (await fetch('base/test/images/face_rectangular.png')).blob()
-    imgElRect = await bufferToImage(imgRect)
-    faceDescriptor1 = await (await fetch('base/test/data/faceDescriptor1.json')).json()
-    faceDescriptor2 = await (await fetch('base/test/data/faceDescriptor2.json')).json()
-    faceDescriptorRect = await (await fetch('base/test/data/faceDescriptorRect.json')).json()
+    imgEl1 = await fetchImage('base/test/images/face1.png')
+    imgEl2 = await fetchImage('base/test/images/face2.png')
+    imgElRect = await fetchImage('base/test/images/face_rectangular.png')
+    faceDescriptor1 = await fetchJson<number[]>('base/test/data/faceDescriptor1.json')
+    faceDescriptor2 = await fetchJson<number[]>('base/test/data/faceDescriptor2.json')
+    faceDescriptorRect = await fetchJson<number[]>('base/test/data/faceDescriptorRect.json')
   })
 
   describeWithNets('uncompressed weights', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {

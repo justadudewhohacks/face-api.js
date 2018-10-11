@@ -1,13 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { FaceDetectionNet, FaceRecognitionNet, IPoint, IRect, Mtcnn, NeuralNetwork, TinyYolov2 } from '../src/';
-import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from '../src/allFacesFactory';
 import { FaceDetection } from '../src/classes/FaceDetection';
+import { FaceDetectionWithLandmarks } from '../src/classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
-import { FullFaceDescription } from '../src/classes/FullFaceDescription';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
-import { allFacesMtcnnFunction, allFacesSsdMobilenetv1Function, allFacesTinyYolov2Function } from '../src/globalApi';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
 
@@ -59,16 +57,19 @@ export function sortFaceDetections(boxes: FaceDetection[]) {
 }
 
 export function sortLandmarks(landmarks: FaceLandmarks[]) {
-  return sortByDistanceToOrigin(landmarks, l => l.getPositions()[0])
+  return sortByDistanceToOrigin(landmarks, l => l.positions[0])
 }
 
-export function sortFullFaceDescriptions(descs: FullFaceDescription[]) {
+export function sortByFaceDetection<T extends { detection: FaceDetection }>(descs: T[]) {
   return sortByDistanceToOrigin(descs, d => d.detection.box)
 }
 
-export type ExpectedFullFaceDescription = {
+export type ExpectedFaceDetectionWithLandmarks = {
   detection: IRect
   landmarks: IPoint[]
+}
+
+export type ExpectedFullFaceDescription = ExpectedFaceDetectionWithLandmarks & {
   descriptor: Float32Array
 }
 
@@ -95,9 +96,6 @@ export type WithTinyYolov2Options = WithNetOptions & {
 }
 
 export type InjectNetArgs = {
-  allFacesSsdMobilenetv1: allFacesSsdMobilenetv1Function
-  allFacesTinyYolov2: allFacesTinyYolov2Function
-  allFacesMtcnn: allFacesMtcnnFunction
   faceDetectionNet: FaceDetectionNet
   faceLandmark68Net: FaceLandmark68Net
   faceLandmark68TinyNet: FaceLandmark68TinyNet
@@ -148,9 +146,6 @@ export function describeWithNets(
     let faceRecognitionNet: FaceRecognitionNet = new FaceRecognitionNet()
     let mtcnn: Mtcnn = new Mtcnn()
     let tinyYolov2: TinyYolov2 = new TinyYolov2(options.withTinyYolov2 && options.withTinyYolov2.withSeparableConv)
-    let allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1Factory(faceDetectionNet, faceLandmark68Net, faceRecognitionNet)
-    let allFacesTinyYolov2 = allFacesTinyYolov2Factory(tinyYolov2, faceLandmark68Net, faceRecognitionNet)
-    let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
 
     beforeAll(async () => {
       const {
@@ -219,9 +214,6 @@ export function describeWithNets(
     })
 
     specDefinitions({
-      allFacesSsdMobilenetv1,
-      allFacesTinyYolov2,
-      allFacesMtcnn,
       faceDetectionNet,
       faceLandmark68Net,
       faceLandmark68TinyNet,

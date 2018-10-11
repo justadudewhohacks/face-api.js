@@ -1,22 +1,22 @@
-import { TinyYolov2Types } from 'tfjs-tiny-yolov2';
+import { TinyYolov2SizeType } from 'tfjs-tiny-yolov2';
 
-import { bufferToImage, createTinyYolov2, TinyYolov2 } from '../../../src';
+import { createTinyYolov2, fetchImage, TinyYolov2 } from '../../../src';
+import { expectDetectionResults } from '../../expectDetectionResults';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
-import { expectDetectionResults, expectedTinyYolov2Boxes } from './expectedResults';
+import { expectedTinyYolov2Boxes } from './expectedBoxes';
 
 describe('tinyYolov2', () => {
 
   let imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await bufferToImage(img)
+    imgEl = await fetchImage('base/test/images/faces.jpg')
   })
 
   describeWithNets('quantized weights', { withTinyYolov2: { quantized: true, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.LG })
 
       const expectedScores = [0.8, 0.85, 0.86, 0.83, 0.86, 0.81]
       const maxBoxDelta = 4
@@ -26,7 +26,7 @@ describe('tinyYolov2', () => {
     })
 
     it('inputSize md, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.MD })
 
       const expectedScores = [0.89, 0.81, 0.82, 0.72, 0.81, 0.86]
       const maxBoxDelta = 27
@@ -50,7 +50,7 @@ describe('tinyYolov2', () => {
   describeWithNets('uncompressed weights', { withTinyYolov2: { quantized: false, withSeparableConv: false } }, ({ tinyYolov2 }) => {
 
     it('inputSize lg, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.LG })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.LG })
 
       const expectedScores = [0.81, 0.85, 0.86, 0.83, 0.86, 0.81]
       const maxBoxDelta = 1
@@ -60,7 +60,7 @@ describe('tinyYolov2', () => {
     })
 
     it('inputSize md, finds all faces', async () => {
-      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2Types.SizeType.MD })
+      const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.MD })
 
       const expectedScores = [0.89, 0.82, 0.82, 0.72, 0.81, 0.86]
       const maxBoxDelta = 24

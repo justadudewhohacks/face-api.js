@@ -2,7 +2,14 @@ import { FaceDetection } from './FaceDetection';
 import { FaceLandmarks } from './FaceLandmarks';
 import { FaceLandmarks68 } from './FaceLandmarks68';
 
-export class FaceDetectionWithLandmarks<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68> {
+export interface IFaceDetectionWithLandmarks<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68> {
+  detection: FaceDetection,
+  landmarks: TFaceLandmarks
+}
+
+export class FaceDetectionWithLandmarks<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>
+  implements IFaceDetectionWithLandmarks<TFaceLandmarks> {
+
   private _detection: FaceDetection
   private _unshiftedLandmarks: TFaceLandmarks
 

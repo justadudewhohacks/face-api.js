@@ -1,12 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { bufferToImage, Dimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
+import { fetchImage, fetchJson, IDimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
 import { createFaceLandmarkNet } from '../../../src/faceLandmarkNet';
 import { FaceLandmark68TinyNet } from '../../../src/faceLandmarkNet/FaceLandmark68TinyNet';
-import { describeWithNets, expectAllTensorsReleased, expectMaxDelta, expectPointClose } from '../../utils';
+import { describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
 
-function getInputDims (input: tf.Tensor | TMediaElement): Dimensions {
+function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   if (input instanceof tf.Tensor) {
     const [height, width] = input.shape.slice(isTensor3D(input) ? 0 : 1)
     return { width, height }
@@ -24,15 +24,12 @@ describe('faceLandmark68TinyNet', () => {
   let faceLandmarkPositionsRect: Point[]
 
   beforeAll(async () => {
-    const img1 = await (await fetch('base/test/images/face1.png')).blob()
-    imgEl1 = await bufferToImage(img1)
-    const img2 = await (await fetch('base/test/images/face2.png')).blob()
-    imgEl2 = await bufferToImage(img2)
-    const imgRect = await (await fetch('base/test/images/face_rectangular.png')).blob()
-    imgElRect = await bufferToImage(imgRect)
-    faceLandmarkPositions1 = await (await fetch('base/test/data/faceLandmarkPositions1Tiny.json')).json()
-    faceLandmarkPositions2 = await (await fetch('base/test/data/faceLandmarkPositions2Tiny.json')).json()
-    faceLandmarkPositionsRect = await (await fetch('base/test/data/faceLandmarkPositionsRectTiny.json')).json()
+    imgEl1 = await fetchImage('base/test/images/face1.png')
+    imgEl2 = await fetchImage('base/test/images/face2.png')
+    imgElRect = await fetchImage('base/test/images/face_rectangular.png')
+    faceLandmarkPositions1 = await fetchJson<Point[]>('base/test/data/faceLandmarkPositions1Tiny.json')
+    faceLandmarkPositions2 = await fetchJson<Point[]>('base/test/data/faceLandmarkPositions2Tiny.json')
+    faceLandmarkPositionsRect = await fetchJson<Point[]>('base/test/data/faceLandmarkPositionsRectTiny.json')
   })
 
   describeWithNets('uncompressed weights', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {
@@ -41,11 +38,11 @@ describe('faceLandmark68TinyNet', () => {
       const { width, height } = imgEl1
 
       const result = await faceLandmark68TinyNet.detectLandmarks(imgEl1) as FaceLandmarks68
-      expect(result.getImageWidth()).toEqual(width)
-      expect(result.getImageHeight()).toEqual(height)
-      expect(result.getShift().x).toEqual(0)
-      expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach((pt, i) => {
+      expect(result.imageWidth).toEqual(width)
+      expect(result.imageHeight).toEqual(height)
+      expect(result.shift.x).toEqual(0)
+      expect(result.shift.y).toEqual(0)
+      result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositions1[i]
         expectPointClose(pt, { x, y }, 5)
       })
@@ -55,11 +52,11 @@ describe('faceLandmark68TinyNet', () => {
       const { width, height } = imgElRect
 
       const result = await faceLandmark68TinyNet.detectLandmarks(imgElRect) as FaceLandmarks68
-      expect(result.getImageWidth()).toEqual(width)
-      expect(result.getImageHeight()).toEqual(height)
-      expect(result.getShift().x).toEqual(0)
-      expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach((pt, i) => {
+      expect(result.imageWidth).toEqual(width)
+      expect(result.imageHeight).toEqual(height)
+      expect(result.shift.x).toEqual(0)
+      expect(result.shift.y).toEqual(0)
+      result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositionsRect[i]
         expectPointClose(pt, { x, y }, 5)
       })
@@ -73,11 +70,11 @@ describe('faceLandmark68TinyNet', () => {
       const { width, height } = imgEl1
 
       const result = await faceLandmark68TinyNet.detectLandmarks(imgEl1) as FaceLandmarks68
-      expect(result.getImageWidth()).toEqual(width)
-      expect(result.getImageHeight()).toEqual(height)
-      expect(result.getShift().x).toEqual(0)
-      expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach((pt, i) => {
+      expect(result.imageWidth).toEqual(width)
+      expect(result.imageHeight).toEqual(height)
+      expect(result.shift.x).toEqual(0)
+      expect(result.shift.y).toEqual(0)
+      result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositions1[i]
         expectPointClose(pt, { x, y }, 5)
       })
@@ -87,11 +84,11 @@ describe('faceLandmark68TinyNet', () => {
       const { width, height } = imgElRect
 
       const result = await faceLandmark68TinyNet.detectLandmarks(imgElRect) as FaceLandmarks68
-      expect(result.getImageWidth()).toEqual(width)
-      expect(result.getImageHeight()).toEqual(height)
-      expect(result.getShift().x).toEqual(0)
-      expect(result.getShift().y).toEqual(0)
-      result.getPositions().forEach((pt, i) => {
+      expect(result.imageWidth).toEqual(width)
+      expect(result.imageHeight).toEqual(height)
+      expect(result.shift.x).toEqual(0)
+      expect(result.shift.y).toEqual(0)
+      result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositionsRect[i]
         expectPointClose(pt, { x, y }, 5)
       })
@@ -115,11 +112,11 @@ describe('faceLandmark68TinyNet', () => {
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
         const { width, height } = getInputDims(inputs[batchIdx])
-        expect(result.getImageWidth()).toEqual(width)
-        expect(result.getImageHeight()).toEqual(height)
-        expect(result.getShift().x).toEqual(0)
-        expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach((pt, i) => {
+        expect(result.imageWidth).toEqual(width)
+        expect(result.imageHeight).toEqual(height)
+        expect(result.shift.x).toEqual(0)
+        expect(result.shift.y).toEqual(0)
+        result.positions.forEach((pt, i) => {
           const { x, y } = faceLandmarkPositions[batchIdx][i]
           expectPointClose(pt, { x, y }, 5)
         })
@@ -140,11 +137,11 @@ describe('faceLandmark68TinyNet', () => {
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
         const { width, height } = getInputDims(inputs[batchIdx])
-        expect(result.getImageWidth()).toEqual(width)
-        expect(result.getImageHeight()).toEqual(height)
-        expect(result.getShift().x).toEqual(0)
-        expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach((pt, i) => {
+        expect(result.imageWidth).toEqual(width)
+        expect(result.imageHeight).toEqual(height)
+        expect(result.shift.x).toEqual(0)
+        expect(result.shift.y).toEqual(0)
+        result.positions.forEach((pt, i) => {
           const { x, y } = faceLandmarkPositions[batchIdx][i]
           expectPointClose(pt, { x, y }, 3)
         })
@@ -165,11 +162,11 @@ describe('faceLandmark68TinyNet', () => {
       expect(results.length).toEqual(3)
       results.forEach((result, batchIdx) => {
         const { width, height } = getInputDims(inputs[batchIdx])
-        expect(result.getImageWidth()).toEqual(width)
-        expect(result.getImageHeight()).toEqual(height)
-        expect(result.getShift().x).toEqual(0)
-        expect(result.getShift().y).toEqual(0)
-        result.getPositions().forEach((pt, i) => {
+        expect(result.imageWidth).toEqual(width)
+        expect(result.imageHeight).toEqual(height)
+        expect(result.shift.x).toEqual(0)
+        expect(result.shift.y).toEqual(0)
+        result.positions.forEach((pt, i) => {
           const { x, y } = faceLandmarkPositions[batchIdx][i]
           expectPointClose(pt, { x, y }, 3)
         })

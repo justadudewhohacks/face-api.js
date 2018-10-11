@@ -1,20 +1,21 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased, expectRectClose } from '../../utils';
-import { expectedSsdBoxes, expectDetectionResults } from './expectedResults';
+import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { expectDetectionResults } from '../../expectDetectionResults';
+import { fetchImage } from '../../../src';
+import { expectedSsdBoxes } from './expectedBoxes';
 
 describe('faceDetectionNet', () => {
 
   let imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await faceapi.bufferToImage(img)
+    imgEl = await fetchImage('base/test/images/faces.jpg')
   })
 
   describeWithNets('uncompressed weights', { withFaceDetectionNet: { quantized: false } }, ({ faceDetectionNet }) => {
 
     it('scores > 0.8', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, { minConfidence: 0.8 }) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(3)
 
@@ -25,7 +26,7 @@ describe('faceDetectionNet', () => {
     })
 
     it('scores > 0.5', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, { minConfidence: 0.5 }) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
 
@@ -40,7 +41,7 @@ describe('faceDetectionNet', () => {
   describeWithNets('quantized weights', { withFaceDetectionNet: { quantized: true } }, ({ faceDetectionNet }) => {
 
     it('scores > 0.8', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl) as faceapi.FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, { minConfidence: 0.8 }) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(4)
 
@@ -51,7 +52,7 @@ describe('faceDetectionNet', () => {
     })
 
     it('scores > 0.5', async () => {
-      const detections = await faceDetectionNet.locateFaces(imgEl, 0.5) as faceapi.FaceDetection[]
+      const detections = await faceDetectionNet.locateFaces(imgEl, { minConfidence: 0.5 }) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(6)
 

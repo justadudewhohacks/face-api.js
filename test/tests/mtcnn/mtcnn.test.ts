@@ -1,8 +1,7 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased, sortByDistanceToOrigin } from '../../utils';
-import { expectMtcnnResults } from './expectedResults';
-import { IPoint } from '../../../src';
-
+import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { expectMtcnnResults } from './expectMtcnnResults';
+import { IPoint, fetchImage, fetchJson } from '../../../src';
 
 describe('mtcnn', () => {
 
@@ -10,9 +9,8 @@ describe('mtcnn', () => {
   let expectedMtcnnLandmarks: IPoint[][]
 
   beforeAll(async () => {
-    const img = await (await fetch('base/test/images/faces.jpg')).blob()
-    imgEl = await faceapi.bufferToImage(img)
-    expectedMtcnnLandmarks = await (await fetch('base/test/data/mtcnnFaceLandmarkPositions.json')).json()
+    imgEl = await fetchImage('base/test/images/faces.jpg')
+    expectedMtcnnLandmarks = await fetchJson<IPoint[][]>('base/test/data/mtcnnFaceLandmarkPositions.json')
   })
 
   describeWithNets('uncompressed weights', { withMtcnn: { quantized: false } }, ({ mtcnn }) => {
