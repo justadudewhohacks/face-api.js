@@ -6,7 +6,7 @@ import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1/SsdMobilenetv1Options';
 import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOptions';
 import { ComposableTask } from './ComposableTask';
-import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFacesLandmarksTasks';
+import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
 import { FaceDetectionOptions } from './types';
 

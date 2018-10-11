@@ -41,8 +41,8 @@ export class ComputeSingleFaceDescriptorTask extends ComputeFaceDescriptorsTaskB
       return
     }
 
-    const { detection, landmarks } = detectionWithLandmarks
-    const alignedFaceCanvas = (await extractFaces(this.input, [landmarks.align()]))[0]
+    const { detection, landmarks, alignedRect } = detectionWithLandmarks
+    const alignedFaceCanvas = (await extractFaces(this.input, [alignedRect]))[0]
     const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaceCanvas) as Float32Array
 
     return new FullFaceDescription(detection, landmarks, descriptor)

@@ -73,15 +73,6 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
       })
       .slice(0, maxNumScales)
 
-
-    console.log({
-      minFaceSize,
-      scaleFactor,
-      maxNumScales,
-      scoreThresholds,
-      scales
-    })
-
     stats.scales = scales
     stats.pyramid = scales.map(scale => getSizesForScale(scale, [height, width]))
 

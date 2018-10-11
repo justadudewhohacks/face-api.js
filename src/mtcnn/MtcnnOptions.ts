@@ -43,8 +43,8 @@ export class MtcnnOptions {
     }
 
     if (
-      !Array.isArray(this._scaleSteps)
-        || this._scaleSteps.some(th => typeof th !== 'number')
+      this._scaleSteps
+        && (!Array.isArray(this._scaleSteps) || this._scaleSteps.some(th => typeof th !== 'number'))
     ) {
       throw new Error(`${this._name} - expected scaleSteps to be an array of numbers`)
     }
