@@ -2,7 +2,8 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="commons.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -46,8 +47,7 @@
     }
 
     async function onSelectionChanged(uri) {
-      const imgBuf = await fetchImage(uri)
-      currentImg = await faceapi.bufferToImage(imgBuf)
+      currentImg = await faceapi.fetchImage(uri)
       landmarks = await faceapi.detectLandmarks(currentImg)
       redraw()
     }
@@ -59,7 +59,7 @@
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_landmarks')
+      renderNavBar('#navbar', 'bbt_face_landmark_detection')
       renderFaceImageSelectList(
         '#selectList',
         onSelectionChanged,

@@ -2,7 +2,8 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="commons.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -97,7 +98,7 @@
         .reduce((flat, arr) => flat.concat(arr))
 
       images = await Promise.all(allImgUris.map(
-        async uri => faceapi.bufferToImage(await fetchImage(uri))
+        async uri => faceapi.fetchImage(uri)
       ))
       // warmup
       await measureTimings()

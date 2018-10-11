@@ -4,7 +4,6 @@
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
   <script src="js/faceDetectionControls.js"></script>
-  <script src="js/imageSelectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -18,40 +17,33 @@
       <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <img id="inputImg" src="" style="max-width: 800px;" />
+      <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
       <canvas id="overlay" />
     </div>
 
-    <div class="row side-by-side">
-
-      <!-- face_detector_selection_control -->
-      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
-        <select id="selectFaceDetector">
-          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
-          <option value="tiny_face_detector">Tiny Face Detector</option>
-          <option value="mtcnn">MTCNN</option>
-        </select>
-        <label>Select Face Detector</label>
+    <!-- fps_meter -->
+    <div id="fps_meter" class="row side-by-side">
+      <div class="row">
+        <label for="time">Time:</label>
+        <input disabled value="-" id="time" type="text" class="bold">
       </div>
-      <!-- face_detector_selection_control -->
-
-      <!-- image_selection_control -->
-      <div id="image_selection_control"></div>
-        <div id="selectList"></div>
-        <div class="row">
-          <label for="imgUrlInput">Get image from URL:</label>
-          <input id="imgUrlInput" type="text" class="bold">
-        </div>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="loadImageFromUrl()"
-        >
-          Ok
-        </button>
-      <div id="image_selection_control"></div>
-      <!-- image_selection_control -->
-
+      <div class="row">
+        <label for="fps">Estimated Fps:</label>
+        <input disabled value="-" id="fps" type="text" class="bold">
+      </div>
     </div>
+    <!-- fps_meter -->
+
+    <!-- face_detector_selection_control -->
+    <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
+      <select id="selectFaceDetector">
+        <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+        <option value="tiny_face_detector">Tiny Face Detector</option>
+        <option value="mtcnn">MTCNN</option>
+      </select>
+      <label>Select Face Detector</label>
+    </div>
+    <!-- face_detector_selection_control -->
 
     <!-- ssd_mobilenetv1_controls -->
     <span id="ssd_mobilenetv1_controls">
@@ -82,6 +74,7 @@
         <div class="row input-field" style="margin-right: 20px;">
           <select id="inputSize">
             <option value="" disabled selected>Input Size:</option>
+            <option value="128">128 x 128</option>
             <option value="160">160 x 160</option>
             <option value="224">224 x 224</option>
             <option value="320">320 x 320</option>
@@ -137,38 +130,54 @@
   </body>
 
   <script>
-    async function updateResults() {
-      if (!isFaceDetectionModelLoaded()) {
-        return
-      }
+    let forwardTimes = []
 
-      const inputImgEl = $('#inputImg').get(0)
-      const options = getFaceDetectorOptions()
-
-      const detections = await faceapi.detectAllFaces(inputImgEl, options)
-
-      drawDetections(detections)
+    function updateTimeStats(timeInMs) {
+      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
     }
 
-    function drawDetections(detections) {
-      const { width, height } = $('#inputImg').get(0)
+    async function onPlay(videoEl) {
+      if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+        return setTimeout(() => onPlay(videoEl))
+
+
+      const options = getFaceDetectorOptions()
+      const ts = Date.now()
+      const detections = await faceapi.detectAllFaces(videoEl, options)
+      updateTimeStats(Date.now() - ts)
+
+      // draw results
       const canvas = $('#overlay').get(0)
+      const { width, height } = faceapi.getMediaDimensions(videoEl)
       canvas.width = width
       canvas.height = height
       faceapi.drawDetection(canvas, detections.map(det => det.forSize(width, height)))
+
+      setTimeout(() => onPlay(videoEl))
     }
 
     async function run() {
       // load face detection model
-      await changeFaceDetector(selectedFaceDetector)
+      await changeFaceDetector(TINY_FACE_DETECTOR)
+      changeInputSize(128)
 
-      // start processing image
-      updateResults()
+      // try to access users webcam and stream the images
+      // to the video element
+      const videoEl = $('#inputVideo').get(0)
+      navigator.getUserMedia(
+        { video: {} },
+        stream => videoEl.srcObject = stream,
+        err => console.error(err)
+      )
     }
 
+    function updateResults() {}
+
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_detection')
-      initImageSelectionControls()
+      renderNavBar('#navbar', 'webcam_face_tracking')
       initFaceDetectionControls()
       run()
     })

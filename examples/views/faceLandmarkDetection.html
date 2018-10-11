@@ -137,6 +137,7 @@
   </body>
 
   <script>
+
     async function updateResults() {
       if (!isFaceDetectionModelLoaded()) {
         return
@@ -145,29 +146,47 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const detections = await faceapi.detectAllFaces(inputImgEl, options)
+      const results = await faceapi
+        .detectAllFaces($('#inputImg').get(0), options)
+        .withFaceLandmarks()
 
-      drawDetections(detections)
+      drawLandmarks(results)
     }
 
-    function drawDetections(detections) {
+    function drawLandmarks(results) {
+      // draw results
       const { width, height } = $('#inputImg').get(0)
       const canvas = $('#overlay').get(0)
       canvas.width = width
       canvas.height = height
-      faceapi.drawDetection(canvas, detections.map(det => det.forSize(width, height)))
+
+      // resize detection and landmarks in case displayed image is smaller than
+      // original size
+      results = results.map(res => res.forSize(width, height))
+
+      const alignedFaceRectangles = results.map(det => det.alignedRect)
+      faceapi.drawDetection(canvas, alignedFaceRectangles)
+
+      const faceLandmarks = results.map(det => det.landmarks)
+      const drawLandmarksOptions = {
+        lineWidth: 2,
+        drawLines: true,
+        color: 'green'
+      }
+      faceapi.drawLandmarks(canvas, faceLandmarks, drawLandmarksOptions)
     }
 
     async function run() {
-      // load face detection model
+      // load face detection and face landmark models
       await changeFaceDetector(selectedFaceDetector)
+      await faceapi.loadFaceLandmarkModel('/')
 
       // start processing image
       updateResults()
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_detection')
+      renderNavBar('#navbar', 'face_landmark_detection')
       initImageSelectionControls()
       initFaceDetectionControls()
       run()
