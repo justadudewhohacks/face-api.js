@@ -32,38 +32,6 @@ describe('faceLandmark68TinyNet', () => {
     faceLandmarkPositionsRect = await fetchJson<Point[]>('base/test/data/faceLandmarkPositionsRectTiny.json')
   })
 
-  describeWithNets('uncompressed weights', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {
-
-    it('computes face landmarks for squared input', async () => {
-      const { width, height } = imgEl1
-
-      const result = await faceLandmark68TinyNet.detectLandmarks(imgEl1) as FaceLandmarks68
-      expect(result.imageWidth).toEqual(width)
-      expect(result.imageHeight).toEqual(height)
-      expect(result.shift.x).toEqual(0)
-      expect(result.shift.y).toEqual(0)
-      result.positions.forEach((pt, i) => {
-        const { x, y } = faceLandmarkPositions1[i]
-        expectPointClose(pt, { x, y }, 5)
-      })
-    })
-
-    it('computes face landmarks for rectangular input', async () => {
-      const { width, height } = imgElRect
-
-      const result = await faceLandmark68TinyNet.detectLandmarks(imgElRect) as FaceLandmarks68
-      expect(result.imageWidth).toEqual(width)
-      expect(result.imageHeight).toEqual(height)
-      expect(result.shift.x).toEqual(0)
-      expect(result.shift.y).toEqual(0)
-      result.positions.forEach((pt, i) => {
-        const { x, y } = faceLandmarkPositionsRect[i]
-        expectPointClose(pt, { x, y }, 5)
-      })
-    })
-
-  })
-
   describeWithNets('quantized weights', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {
 
     it('computes face landmarks for squared input', async () => {
@@ -96,7 +64,7 @@ describe('faceLandmark68TinyNet', () => {
 
   })
 
-  describeWithNets('batch inputs', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {
+  describeWithNets('batch inputs', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {
 
     it('computes face landmarks for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]

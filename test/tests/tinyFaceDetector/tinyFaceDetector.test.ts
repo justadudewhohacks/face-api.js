@@ -1,40 +1,39 @@
 import * as faceapi from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription } from '../../utils';
-import { expectedMtcnnBoxes } from './expectMtcnnResults';
-import { fetchImage } from '../../../src';
-import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
+import { fetchImage, TinyFaceDetectorOptions } from '../../../src';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
+import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
 
-describe('mtcnn', () => {
+describe('tinyFaceDetector', () => {
 
   let imgEl: HTMLImageElement
   let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]
-  const expectedScores = [1.0, 1.0, 1.0, 1.0, 0.99, 0.99]
+  const expectedScores = [0.7, 0.82, 0.93, 0.86, 0.79, 0.84]
 
   beforeAll(async () => {
     imgEl = await fetchImage('base/test/images/faces.jpg')
-    expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes)
+    expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 
-  describeWithNets('detectAllFaces', { withAllFacesMtcnn: true }, () => {
+  describeWithNets('globalApi', { withAllFacesTinyFaceDetector: true }, () => {
 
     it('detectAllFaces', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+      const options = new TinyFaceDetectorOptions({
+        inputSize: 416
       })
 
       const results = await faceapi.detectAllFaces(imgEl, options)
 
-      const maxBoxDelta = 2
+      const maxBoxDelta = 1
       expect(results.length).toEqual(6)
-      expectFaceDetections(results, expectedMtcnnBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(results, expectedTinyFaceDetectorBoxes, expectedScores, maxBoxDelta)
     })
 
-    it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+    it('detectAllFaces.withFaceLandmarks()', async () => {
+      const options = new TinyFaceDetectorOptions({
+        inputSize: 416
       })
 
       const results = await faceapi
@@ -42,16 +41,16 @@ describe('mtcnn', () => {
         .withFaceLandmarks()
 
       const deltas = {
-        maxBoxDelta: 2,
-        maxLandmarksDelta: 6
+        maxBoxDelta: 1,
+        maxLandmarksDelta: 10
       }
       expect(results.length).toEqual(6)
       expectFaceDetectionsWithLandmarks(results, expectedFullFaceDescriptions, expectedScores, deltas)
     })
 
     it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+      const options = new TinyFaceDetectorOptions({
+        inputSize: 416
       })
 
       const results = await faceapi
@@ -60,9 +59,9 @@ describe('mtcnn', () => {
         .withFaceDescriptors()
 
       const deltas = {
-        maxBoxDelta: 2,
-        maxLandmarksDelta: 6,
-        maxDescriptorDelta: 0.4
+        maxBoxDelta: 1,
+        maxLandmarksDelta: 10,
+        maxDescriptorDelta: 0.2
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
@@ -71,7 +70,7 @@ describe('mtcnn', () => {
     it('no memory leaks', async () => {
       await expectAllTensorsReleased(async () => {
         await faceapi
-          .detectAllFaces(imgEl, new MtcnnOptions({ minFaceSize: 200 }))
+          .detectAllFaces(imgEl, new TinyFaceDetectorOptions())
           .withFaceLandmarks()
           .withFaceDescriptors()
       })

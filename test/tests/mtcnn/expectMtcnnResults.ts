@@ -16,13 +16,13 @@ export const expectedMtcnnBoxes: IRect[] = sortBoxes([
 export function expectMtcnnResults(
   results: FaceDetectionWithLandmarks<FaceLandmarks5>[],
   expectedMtcnnFaceLandmarks: IPoint[][],
+  expectedScores: number[],
   deltas: BoxAndLandmarksDeltas
 ) {
 
   const expectedMtcnnFaceLandmarksSorted = sortByDistanceToOrigin(expectedMtcnnFaceLandmarks, obj => obj[0])
   const expectedResults = expectedMtcnnBoxes
     .map((detection, i) => ({ detection, landmarks: expectedMtcnnFaceLandmarksSorted[i] }))
-  const expectedScores = results.map(_ => 1.0)
 
   return expectFaceDetectionsWithLandmarks<FaceLandmarks5>(results, expectedResults, expectedScores, deltas)
 }

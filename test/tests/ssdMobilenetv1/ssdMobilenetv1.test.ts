@@ -1,40 +1,39 @@
 import * as faceapi from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription } from '../../utils';
-import { expectedMtcnnBoxes } from './expectMtcnnResults';
-import { fetchImage } from '../../../src';
-import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
+import { fetchImage, SsdMobilenetv1Options } from '../../../src';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
+import { expectedSsdBoxes } from './expectedBoxes';
 
-describe('mtcnn', () => {
+describe('ssdMobilenetv1', () => {
 
   let imgEl: HTMLImageElement
   let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]
-  const expectedScores = [1.0, 1.0, 1.0, 1.0, 0.99, 0.99]
+  const expectedScores = [0.54, 0.81, 0.97, 0.88, 0.84, 0.61]
 
   beforeAll(async () => {
     imgEl = await fetchImage('base/test/images/faces.jpg')
-    expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes)
+    expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedSsdBoxes)
   })
 
-  describeWithNets('detectAllFaces', { withAllFacesMtcnn: true }, () => {
+  describeWithNets('globalApi', { withAllFacesSsdMobilenetv1: true }, () => {
 
     it('detectAllFaces', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+      const options = new SsdMobilenetv1Options({
+        minConfidence: 0.5
       })
 
       const results = await faceapi.detectAllFaces(imgEl, options)
 
-      const maxBoxDelta = 2
+      const maxBoxDelta = 5
       expect(results.length).toEqual(6)
-      expectFaceDetections(results, expectedMtcnnBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(results, expectedSsdBoxes, expectedScores, maxBoxDelta)
     })
 
-    it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+    it('detectAllFaces.withFaceLandmarks()', async () => {
+      const options = new SsdMobilenetv1Options({
+        minConfidence: 0.5
       })
 
       const results = await faceapi
@@ -42,16 +41,16 @@ describe('mtcnn', () => {
         .withFaceLandmarks()
 
       const deltas = {
-        maxBoxDelta: 2,
-        maxLandmarksDelta: 6
+        maxBoxDelta: 5,
+        maxLandmarksDelta: 1
       }
       expect(results.length).toEqual(6)
       expectFaceDetectionsWithLandmarks(results, expectedFullFaceDescriptions, expectedScores, deltas)
     })
 
     it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
-      const options = new MtcnnOptions({
-        minFaceSize: 20
+      const options = new SsdMobilenetv1Options({
+        minConfidence: 0.5
       })
 
       const results = await faceapi
@@ -60,9 +59,9 @@ describe('mtcnn', () => {
         .withFaceDescriptors()
 
       const deltas = {
-        maxBoxDelta: 2,
-        maxLandmarksDelta: 6,
-        maxDescriptorDelta: 0.4
+        maxBoxDelta: 5,
+        maxLandmarksDelta: 1,
+        maxDescriptorDelta: 0.01
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
@@ -71,7 +70,7 @@ describe('mtcnn', () => {
     it('no memory leaks', async () => {
       await expectAllTensorsReleased(async () => {
         await faceapi
-          .detectAllFaces(imgEl, new MtcnnOptions({ minFaceSize: 200 }))
+          .detectAllFaces(imgEl, new SsdMobilenetv1Options())
           .withFaceLandmarks()
           .withFaceDescriptors()
       })

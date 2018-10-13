@@ -1,8 +1,8 @@
 import { IRect } from '../src';
 import { FaceDetection } from '../src/classes/FaceDetection';
-import { expectRectClose, sortBoxes, sortFaceDetections } from './utils';
+import { expectRectClose, sortFaceDetections } from './utils';
 
-export function expectDetectionResults(
+export function expectFaceDetections(
   results: FaceDetection[],
   allExpectedFaceDetections: IRect[],
   expectedScores: number[],

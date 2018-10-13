@@ -22,8 +22,7 @@ describe('faceRecognitionNet', () => {
     faceDescriptor2 = await fetchJson<number[]>('base/test/data/faceDescriptor2.json')
     faceDescriptorRect = await fetchJson<number[]>('base/test/data/faceDescriptorRect.json')
   })
-
-  describeWithNets('uncompressed weights', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
+  describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptor for squared input', async () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgEl1) as Float32Array
@@ -39,26 +38,8 @@ describe('faceRecognitionNet', () => {
 
   })
 
-  // TODO: figure out why descriptors return NaN in the test cases
-  /*
-  describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
-    it('computes face descriptor for squared input', async () => {
-      const result = await faceRecognitionNet.computeFaceDescriptor(imgEl1) as Float32Array
-      expect(result.length).toEqual(128)
-      expect(result).toEqual(new Float32Array(faceDescriptor1))
-    })
-
-    it('computes face descriptor for rectangular input', async () => {
-      const result = await faceRecognitionNet.computeFaceDescriptor(imgElRect) as Float32Array
-      expect(result.length).toEqual(128)
-      expect(result).toEqual(new Float32Array(faceDescriptorRect))
-    })
-
-  })
-  */
-
-  describeWithNets('batch inputs', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
+  describeWithNets('batch inputs', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptors for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]
@@ -113,7 +94,7 @@ describe('faceRecognitionNet', () => {
 
   })
 
-  describeWithNets('no memory leaks', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
+  describeWithNets('no memory leaks', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
     describe('NeuralNetwork, uncompressed model', () => {
 
