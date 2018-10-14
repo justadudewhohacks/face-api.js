@@ -4,7 +4,7 @@ import { FaceLandmarks } from './FaceLandmarks';
 import { FaceLandmarks68 } from './FaceLandmarks68';
 
 export interface IFullFaceDescription<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>
-  extends IFaceDetectionWithLandmarks<TFaceLandmarks>{
+  extends IFaceDetectionWithLandmarks<TFaceLandmarks> {
 
   detection: FaceDetection,
   landmarks: TFaceLandmarks,

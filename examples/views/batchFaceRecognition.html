@@ -48,8 +48,7 @@
 
   <script>
     let images = []
-    let referenceDescriptorsByClass = []
-    let descriptorsByFace = []
+    let faceMatcher = null
     let numImages = 16
     let maxDistance = 0.6
 
@@ -68,15 +67,12 @@
       const canvas = faceapi.createCanvasFromMedia(img)
       $('#faceContainer').append(canvas)
 
-      const bestMatch = getBestMatch(referenceDescriptorsByClass, descriptor)
-      const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-
       const x = 20, y = canvas.height - 20
       faceapi.drawText(
         canvas.getContext('2d'),
         x,
         y,
-        text,
+        faceMatcher.findBestMatch(descriptor).toString(),
         Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
       )
     }
@@ -106,7 +102,7 @@
 
     async function run() {
       await faceapi.loadFaceRecognitionModel('/')
-      referenceDescriptorsByClass = await initBbtFaceDescriptors(faceapi.recognitionNet, 1)
+      faceMatcher = await createBbtFaceMatcher(1)
       $('#loader').hide()
 
       const imgUris = classes

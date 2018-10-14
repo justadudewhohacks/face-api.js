@@ -63,13 +63,10 @@
   </div>
 
   <script>
-    // for 150 x 150 sized face images 0.6 is a good threshold to
-    // judge whether two face descriptors are similar or not
-    const threshold = 0.6
     let interval = 2000
 
     let isStop = false
-    let referenceDescriptorsByClass = []
+    let faceMatcher = null
     let currImageIdx = 2, currClassIdx = 0
     let to = null
 
@@ -116,8 +113,8 @@
         const descriptor = await faceapi.computeFaceDescriptor(input)
         displayTimeStats(Date.now() - ts)
 
-        const bestMatch = getBestMatch(referenceDescriptorsByClass, descriptor)
-        $('#prediction').val(`${bestMatch.distance < threshold ? bestMatch.className : 'unknown'} (${bestMatch.distance})`)
+        const bestMatch = faceMatcher.findBestMatch(descriptor)
+        $('#prediction').val(bestMatch.toString())
 
         currImageIdx = currClassIdx === (classes.length - 1)
           ? currImageIdx + 1
@@ -138,7 +135,7 @@
 
         setStatusText('computing initial descriptors...')
 
-        referenceDescriptorsByClass = await initBbtFaceDescriptors(faceapi.recognitionNet)
+        faceMatcher = await createBbtFaceMatcher(1)
         $('#loader').hide()
 
         runFaceRecognition()

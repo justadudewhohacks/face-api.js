@@ -139,8 +139,7 @@
   </body>
 
   <script>
-    const maxDescriptorDistance = 0.6
-    let referenceDescriptorsByClass = []
+    let faceMatcher = null
 
     async function updateResults() {
       if (!isFaceDetectionModelLoaded()) {
@@ -159,20 +158,17 @@
     }
 
     function drawFaceRecognitionResults(results) {
-      const { width, height } = $('#inputImg').get(0)
       const canvas = $('#overlay').get(0)
-      canvas.width = width
-      canvas.height = height
-
       // resize detection and landmarks in case displayed image is smaller than
       // original size
-      results = results.map(res => res.forSize(width, height))
+      resizedResults = resizeCanvasAndResults($('#inputImg').get(0), canvas, results)
 
-      const boxesWithText = results.map(({ detection, descriptor }) => {
-        const bestMatch = getBestMatch(referenceDescriptorsByClass, descriptor)
-        const text = `${bestMatch.distance < maxDescriptorDistance ? bestMatch.className : 'unknown'} (${bestMatch.distance})`
-        return new faceapi.BoxWithText(detection.box, text)
-      })
+      const boxesWithText = resizedResults.map(({ detection, descriptor }) =>
+        new faceapi.BoxWithText(
+          detection.box,
+          faceMatcher.findBestMatch(descriptor).toString()
+        )
+      )
       faceapi.drawDetection(canvas, boxesWithText)
     }
 
@@ -182,8 +178,8 @@
       await faceapi.loadFaceLandmarkModel('/')
       await faceapi.loadFaceRecognitionModel('/')
 
-      // initialize reference descriptors (1 per bbt character)
-      referenceDescriptorsByClass = await initBbtFaceDescriptors(faceapi.recognitionNet, 1)
+      // initialize face matcher with 1 reference descriptor per bbt character
+      faceMatcher = await createBbtFaceMatcher(1)
 
       // start processing image
       updateResults()
