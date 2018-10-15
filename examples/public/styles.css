@@ -61,13 +61,7 @@
   margin-bottom: 10px;
 }
 
-#overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.overlay {
+#overlay, .overlay {
   position: absolute;
   top: 0;
   left: 0;

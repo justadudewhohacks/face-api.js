@@ -1,7 +1,7 @@
 import { ISsdMobilenetv1Options } from './types';
 
 export class SsdMobilenetv1Options {
-  protected _name: string = 'MtcnnOptions'
+  protected _name: string = 'SsdMobilenetv1Options'
 
   private _minConfidence: number
   private _maxResults: number

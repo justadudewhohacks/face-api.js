@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div>
+      <div class="row center-content" id="loader">
+        <input disabled value="" id="status" type="text" class="bold">
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+      <div class="row center-content">
+        <img id="face" src=""/>
+      </div>
+      <div class="row">
+        <label for="prediction">Prediction:</label>
+        <input disabled value="-" id="prediction" type="text" class="bold">
+      </div>
+      <div class="row">
+        <label for="time">Time:</label>
+        <input disabled value="-" id="time" type="text" class="bold">
+      </div>
+      <div class="row">
+        <label for="fps">Estimated Fps:</label>
+        <input disabled value="-" id="fps" type="text" class="bold">
+      </div>
+      <div class="row">
+        <button
+          class="waves-effect waves-light btn"
+          id="stop"
+          onclick="onToggleStop()"
+        >
+          Stop
+        </button>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onSlower()"
+        >
+          <i class="material-icons left">-</i> Slower
+        </button>
+        <button
+          class="waves-effect waves-light btn"
+          onclick="onFaster()"
+        >
+          <i class="material-icons left">+</i> Faster
+        </button>
+      </div>
+      <div class="row">
+        <label for="interval">Interval:</label>
+        <input disabled value="2000" id="interval" type="text" class="bold">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let interval = 2000
+
+    let isStop = false
+    let faceMatcher = null
+    let currImageIdx = 2, currClassIdx = 0
+    let to = null
+
+    function onSlower() {
+      interval = Math.min(interval + 100, 2000)
+      $('#interval').val(interval)
+    }
+
+    function onFaster() {
+      interval = Math.max(interval - 100, 0)
+      $('#interval').val(interval)
+    }
+
+    function onToggleStop() {
+      clearTimeout(to)
+      isStop = !isStop
+      document.getElementById('stop').innerHTML = isStop ? 'Continue' : 'Stop'
+      setStatusText(isStop ? 'stopped' : 'running face recognition:')
+      if (!isStop) {
+        runFaceRecognition()
+      }
+    }
+
+    function setStatusText(text) {
+      $('#status').val(text)
+    }
+
+    function displayTimeStats(timeInMs) {
+      $('#time').val(`${timeInMs} ms`)
+      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
+    }
+
+    function displayImage(src) {
+      getImg().src = src
+    }
+
+    async function runFaceRecognition() {
+      async function next() {
+        const input = await faceapi.fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
+        const imgEl = $('#face').get(0)
+        imgEl.src = input.src
+
+        const ts = Date.now()
+        const descriptor = await faceapi.computeFaceDescriptor(input)
+        displayTimeStats(Date.now() - ts)
+
+        const bestMatch = faceMatcher.findBestMatch(descriptor)
+        $('#prediction').val(bestMatch.toString())
+
+        currImageIdx = currClassIdx === (classes.length - 1)
+          ? currImageIdx + 1
+          : currImageIdx
+        currClassIdx = (currClassIdx + 1) % classes.length
+
+        currImageIdx = (currImageIdx % 6) || 2
+        to = setTimeout(next, interval)
+      }
+      await next(0, 0)
+    }
+
+    async function run() {
+      try {
+        setStatusText('loading model file...')
+
+        await faceapi.loadFaceRecognitionModel('/')
+
+        setStatusText('computing initial descriptors...')
+
+        faceMatcher = await createBbtFaceMatcher(1)
+        $('#loader').hide()
+
+        runFaceRecognition()
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'bbt_face_matching')
+      run()
+    })
+
+  </script>
+
+</body>
+</html>

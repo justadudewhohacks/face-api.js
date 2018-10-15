@@ -57,12 +57,16 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'BBT Face Landmark Detection'
     },
     {
-      uri: 'bbt_face_recognition',
-      name: 'BBT Face Recognition'
-    },
-    {
       uri: 'bbt_face_similarity',
       name: 'BBT Face Similarity'
+    },
+    {
+      uri: 'bbt_face_matching',
+      name: 'BBT Face Matching'
+    },
+    {
+      uri: 'bbt_face_recognition',
+      name: 'BBT Face Recognition'
     },
     {
       uri: 'batch_face_landmarks',
