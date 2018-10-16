@@ -63,7 +63,7 @@
       <div class="row side-by-side">
         <div class="row">
           <label for="minConfidence">Min Confidence:</label>
-          <input disabled value="0.7" id="minConfidence" type="text" class="bold">
+          <input disabled value="0.5" id="minConfidence" type="text" class="bold">
         </div>
         <button
           class="waves-effect waves-light btn"
@@ -162,29 +162,33 @@
       $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
     }
 
-    async function onPlay(videoEl) {
+    async function onPlay() {
+      const videoEl = $('#inputVideo').get(0)
+
       if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
-        return setTimeout(() => onPlay(videoEl))
+        return setTimeout(() => onPlay())
 
 
       const options = getFaceDetectorOptions()
 
       const ts = Date.now()
 
-      const faceDetectionTask = faceapi.detectAllFaces(videoEl, options)
-      const results = withFaceLandmarks
+      const faceDetectionTask = faceapi.detectSingleFace(videoEl, options)
+      const result = withFaceLandmarks
         ? await faceDetectionTask.withFaceLandmarks()
         : await faceDetectionTask
 
       updateTimeStats(Date.now() - ts)
 
-      const drawFunction = withFaceLandmarks
-        ? drawLandmarks
-        : drawDetections
+      if (result) {
+        const drawFunction = withFaceLandmarks
+          ? drawLandmarks
+          : drawDetections
 
-      drawFunction(videoEl, $('#overlay').get(0), results, withBoxes)
+        drawFunction(videoEl, $('#overlay').get(0), [result], withBoxes)
+      }
 
-      setTimeout(() => onPlay(videoEl))
+      setTimeout(() => onPlay())
     }
 
     async function run() {
@@ -195,12 +199,9 @@
 
       // try to access users webcam and stream the images
       // to the video element
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
       const videoEl = $('#inputVideo').get(0)
-      navigator.getUserMedia(
-        { video: {} },
-        stream => videoEl.srcObject = stream,
-        err => console.error(err)
-      )
+      videoEl.srcObject = stream
     }
 
     function updateResults() {}
