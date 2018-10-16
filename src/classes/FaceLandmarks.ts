@@ -7,7 +7,12 @@ const relX = 0.5
 const relY = 0.43
 const relScale = 0.45
 
-export class FaceLandmarks {
+export interface IFaceLandmarks {
+  positions: Point[]
+  shift: Point
+}
+
+export class FaceLandmarks implements IFaceLandmarks {
   protected _shift: Point
   protected _positions: Point[]
   protected _imgDims: Dimensions

@@ -1,6 +1,11 @@
 import { round } from 'tfjs-image-recognition-base';
 
-export class FaceMatch {
+export interface IFaceMatch {
+  label: string
+  distance: number
+}
+
+export class FaceMatch implements IFaceMatch {
   private _label: string
   private _distance: number
 
