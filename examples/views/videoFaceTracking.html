@@ -161,7 +161,7 @@
     }
 
     async function onPlay(videoEl) {
-      if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+      if(!videoEl.currentTime || videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
         return setTimeout(() => onPlay(videoEl))
 
 

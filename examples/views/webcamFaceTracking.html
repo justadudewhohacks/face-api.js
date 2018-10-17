@@ -180,13 +180,11 @@
 
       updateTimeStats(Date.now() - ts)
 
-      if (result) {
-        const drawFunction = withFaceLandmarks
-          ? drawLandmarks
-          : drawDetections
+      const drawFunction = withFaceLandmarks
+        ? drawLandmarks
+        : drawDetections
 
-        drawFunction(videoEl, $('#overlay').get(0), [result], withBoxes)
-      }
+      drawFunction(videoEl, $('#overlay').get(0), result || [], withBoxes)
 
       setTimeout(() => onPlay())
     }
