@@ -95,21 +95,21 @@ Browse to http://localhost:3000/.
 
 ## Face Detection Models
 
-## SSD Mobilenet V1
+### SSD Mobilenet V1
 
 For face detection, this project implements a SSD (Single Shot Multibox Detector) based on MobileNetV1. The neural net will compute the locations of each face in an image and will return the bounding boxes together with it's probability for each face. This face detector is aiming towards obtaining high accuracy in detecting face bounding boxes instead of low inference time. The size of the quantized model is about 5.4 MB (**ssd_mobilenetv1_model**).
 
 The face detection model has been trained on the [WIDERFACE dataset](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and the weights are provided by [yeephycho](https://github.com/yeephycho) in [this](https://github.com/yeephycho/tensorflow-face-detection) repo.
 
-## Tiny Face Detector
+### Tiny Face Detector
 
 The Tiny Face Detector is a very performant, realtime face detector, which is much faster, smaller and less resource consuming compared to the SSD Mobilenet V1 face detector, in return it performs slightly less well on detecting small faces. This model is extremely mobile and web friendly, thus it should be your GO-TO face detector on mobile devices and resource limited clients. The size of the quantized model is only 190 KB (**tiny_face_detector_model**).
 
 The face detector has been trained on a custom dataset of ~14K images labeled with bounding boxes. Furthermore the model has been trained to predict bounding boxes, which entirely cover facial feature points, thus it in general produces better results in combination with subsequent face landmark detection than SSD Mobilenet V1.
 
-This model is basically an even tinier version of Tiny Yolo V2, replacing the regular convolutions of Yolo with depthwise separable convolutions. Yolo is fully convoltuional, thus can easily adapt to different input image sizes to trade off accuracy for performance (inference time).
+This model is basically an even tinier version of Tiny Yolo V2, replacing the regular convolutions of Yolo with depthwise separable convolutions. Yolo is fully convolutional, thus can easily adapt to different input image sizes to trade off accuracy for performance (inference time).
 
-## MTCNN
+### MTCNN
 
 **Note, this model is mostly kept in this repo for experimental reasons. In general the other face detectors should perform better, but of course you are free to play around with MTCNN.**
 
@@ -511,9 +511,9 @@ Instead of using the high level API, you can directly use the forward methods of
 const detections1 = await faceapi.ssdMobilenetv1(input, options)
 const detections2 = await faceapi.tinyFaceDetector(input, options)
 const detections3 = await faceapi.mtcnn(input, options)
-const landmarks1 = await faceapi.detectFaceLandmarks(input, options)
-const landmarks2 = await faceapi.detectFaceLandmarksTiny(input, options)
-const descriptor = await faceapi.computeDescriptor(input, options)
+const landmarks1 = await faceapi.detectFaceLandmarks(faceImage)
+const landmarks2 = await faceapi.detectFaceLandmarksTiny(faceImage)
+const descriptor = await faceapi.computeDescriptor(alignedFaceImage)
 ```
 
 All global neural network instances are exported via faceapi.nets:
