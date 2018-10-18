@@ -71,8 +71,3 @@ export type NetParams = {
   prediction_layer: PredictionLayerParams,
   output_layer: OutputLayerParams
 }
-
-export interface ISsdMobilenetv1Options {
-  minConfidence?: number
-  maxResults?: number
-}

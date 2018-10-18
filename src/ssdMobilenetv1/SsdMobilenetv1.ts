@@ -8,8 +8,9 @@ import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
-import { NetParams, ISsdMobilenetv1Options } from './types';
-import { SsdMobilenetv1Options } from './SsdMobilenetv1Options';
+import { ISsdMobilenetv1Options, SsdMobilenetv1Options } from './SsdMobilenetv1Options';
+import { NetParams } from './types';
+
 
 export class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
 
