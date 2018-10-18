@@ -184,7 +184,9 @@
         ? drawLandmarks
         : drawDetections
 
-      drawFunction(videoEl, $('#overlay').get(0), result || [], withBoxes)
+      if (result) {
+        drawFunction(videoEl, $('#overlay').get(0), [result], withBoxes)
+      }
 
       setTimeout(() => onPlay())
     }
