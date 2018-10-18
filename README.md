@@ -485,7 +485,7 @@ export interface IFaceLandmarks {
 ``` javascript
 export interface IFaceDetectionWithLandmarks {
   detection: FaceDetection
-  faceLandmarks: FaceLandmarks
+  landmarks: FaceLandmarks
 }
 ```
 
@@ -495,7 +495,7 @@ export interface IFaceDetectionWithLandmarks {
 
 ``` javascript
 export interface IFullFaceDescription extends IFaceDetectionWithLandmarks {
-  faceDescriptor: Float32Array
+  descriptor: Float32Array
 }
 ```
 
