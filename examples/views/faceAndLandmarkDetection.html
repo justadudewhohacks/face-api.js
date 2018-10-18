@@ -24,18 +24,6 @@
     </div>
 
     <div class="row side-by-side">
-
-      <!-- face_detector_selection_control -->
-      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
-        <select id="selectFaceDetector">
-          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
-          <option value="tiny_face_detector">Tiny Face Detector</option>
-          <option value="mtcnn">MTCNN</option>
-        </select>
-        <label>Select Face Detector</label>
-      </div>
-      <!-- face_detector_selection_control -->
-
       <!-- image_selection_control -->
       <div id="selectList"></div>
       <div class="row">
@@ -49,6 +37,29 @@
         Ok
       </button>
       <!-- image_selection_control -->
+    </div>
+
+    <div class="row side-by-side">
+
+      <!-- face_detector_selection_control -->
+      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
+        <select id="selectFaceDetector">
+          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+          <option value="tiny_face_detector">Tiny Face Detector</option>
+          <option value="mtcnn">MTCNN</option>
+        </select>
+        <label>Select Face Detector</label>
+      </div>
+      <!-- face_detector_selection_control -->
+
+      <!-- check boxes -->
+      <div class="row" style="width: 220px;">
+        <input type="checkbox" id="withFaceLandmarksCheckbox" onchange="onChangeWithFaceLandmarks(event)" />
+        <label for="withFaceLandmarksCheckbox">Detect Face Landmarks</label>
+        <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)" />
+        <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
+      </div>
+      <!-- check boxes -->
 
     </div>
 
@@ -136,6 +147,19 @@
   </body>
 
   <script>
+    let withFaceLandmarks = false
+    let withBoxes = true
+
+    function onChangeWithFaceLandmarks(e) {
+      withFaceLandmarks = $(e.target).prop('checked')
+      updateResults()
+    }
+
+    function onChangeHideBoundingBoxes(e) {
+      withBoxes = !$(e.target).prop('checked')
+      updateResults()
+    }
+
     async function updateResults() {
       if (!isFaceDetectionModelLoaded()) {
         return
@@ -144,21 +168,30 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const detections = await faceapi.detectAllFaces(inputImgEl, options)
+      const faceDetectionTask = faceapi.detectAllFaces(inputImgEl, options)
+      const results = withFaceLandmarks
+        ? await faceDetectionTask.withFaceLandmarks()
+        : await faceDetectionTask
 
-      drawDetections(inputImgEl, $('#overlay').get(0), detections)
+
+      const drawFunction = withFaceLandmarks
+        ? drawLandmarks
+        : drawDetections
+
+      drawFunction(inputImgEl, $('#overlay').get(0), results, withBoxes)
     }
 
     async function run() {
-      // load face detection model
-      await changeFaceDetector(selectedFaceDetector)
+      // load face detection and face landmark models
+      await changeFaceDetector(SSD_MOBILENETV1)
+      await faceapi.loadFaceLandmarkModel('/')
 
       // start processing image
       updateResults()
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_detection')
+      renderNavBar('#navbar', 'face_and_landmark_detection')
       initImageSelectionControls()
       initFaceDetectionControls()
       run()

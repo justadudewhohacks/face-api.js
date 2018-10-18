@@ -19,8 +19,7 @@ function drawLandmarks(dimensions, canvas, results, withBoxes = true) {
   const resizedResults = resizeCanvasAndResults(dimensions, canvas, results)
 
   if (withBoxes) {
-    const alignedFaceRectangles = resizedResults.map(det => det.alignedRect)
-    faceapi.drawDetection(canvas, alignedFaceRectangles)
+    faceapi.drawDetection(canvas, resizedResults.map(det => det.detection))
   }
 
   const faceLandmarks = resizedResults.map(det => det.landmarks)
