@@ -1,6 +1,6 @@
 webpackJsonp([65913644794675],{
 
-/***/ 700:
+/***/ 702:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24,13 +24,13 @@ webpackJsonp([65913644794675],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var faceapi = __webpack_require__(23);
-	var withAsyncRendering_1 = __webpack_require__(60);
+	var withAsyncRendering_1 = __webpack_require__(55);
 	
 	exports.DetectFacesWithLandmarks = withAsyncRendering_1.withAsyncRendering(detectFacesWithLandmarks);
 
 /***/ }),
 
-/***/ 97:
+/***/ 98:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -45,12 +45,12 @@ webpackJsonp([65913644794675],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Mui = __webpack_require__(28);
-	var face_api_js_react_1 = __webpack_require__(27);
+	var face_api_js_react_1 = __webpack_require__(26);
 	var React = __webpack_require__(2);
-	var ModalLoader_1 = __webpack_require__(98);
-	var const_1 = __webpack_require__(43);
-	var SelectFaceDetector_1 = __webpack_require__(120);
-	var CenterContent_1 = __webpack_require__(61);
+	var ModalLoader_1 = __webpack_require__(73);
+	var const_1 = __webpack_require__(38);
+	var SelectFaceDetector_1 = __webpack_require__(100);
+	var CenterContent_1 = __webpack_require__(62);
 	
 	var FaceAndLandmarkDetection = function (_React$Component) {
 	    _inherits(FaceAndLandmarkDetection, _React$Component);
@@ -105,14 +105,14 @@ webpackJsonp([65913644794675],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var face_api_js_1 = __webpack_require__(23);
-	var DisplayResults_1 = __webpack_require__(180);
+	var DisplayResults_1 = __webpack_require__(121);
 	var React = __webpack_require__(2);
-	var DetectFaces_1 = __webpack_require__(313);
-	var DetectFacesWithLandmarks_1 = __webpack_require__(700);
-	var FaceAndLandmarkDetection_1 = __webpack_require__(97);
-	var SelectableImage_1 = __webpack_require__(119);
-	var const_1 = __webpack_require__(43);
-	var Root_1 = __webpack_require__(72);
+	var DetectFaces_1 = __webpack_require__(315);
+	var DetectFacesWithLandmarks_1 = __webpack_require__(702);
+	var FaceAndLandmarkDetection_1 = __webpack_require__(98);
+	var SelectableImage_1 = __webpack_require__(99);
+	var const_1 = __webpack_require__(38);
+	var Root_1 = __webpack_require__(61);
 	
 	var default_1 = function (_React$Component) {
 	    _inherits(default_1, _React$Component);

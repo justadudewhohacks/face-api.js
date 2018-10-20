@@ -1,5 +1,9 @@
 {
   "assetsByChunkName": {
+    "component---src-pages-face-recognition-tsx": [
+      "component---src-pages-face-recognition-tsx-0737fdfa89be60e057e7.js",
+      "component---src-pages-face-recognition-tsx-0737fdfa89be60e057e7.js.map"
+    ],
     "path---video-face-tracking": [
       "path---video-face-tracking-a0e39f21c11f6a62c5ab.js",
       "path---video-face-tracking-a0e39f21c11f6a62c5ab.js.map"
@@ -11,6 +15,10 @@
     "path---webcam-face-tracking": [
       "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js",
       "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js.map"
+    ],
+    "path---face-recognition": [
+      "path---face-recognition-a0e39f21c11f6a62c5ab.js",
+      "path---face-recognition-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-webcam-face-tracking-tsx": [
       "component---src-pages-webcam-face-tracking-tsx-3e6dc6579e02b4861491.js",
@@ -41,8 +49,8 @@
       "component---src-pages-video-face-tracking-tsx-af310bdb7128818b7b31.js.map"
     ],
     "commons": [
-      "commons-53e80163f05f6d2b8c87.js",
-      "commons-53e80163f05f6d2b8c87.js.map"
+      "commons-8221a1a03ac7fa90f89d.js",
+      "commons-8221a1a03ac7fa90f89d.js.map"
     ],
     "component---src-pages-404-tsx": [
       "component---src-pages-404-tsx-0ef59857f65b5d25df45.js",
@@ -69,8 +77,8 @@
       "component---src-pages-index-tsx-9eff1478bd67f8b4520c.js.map"
     ],
     "app": [
-      "app-31987f0a235697312b03.js",
-      "app-31987f0a235697312b03.js.map"
+      "app-ea4454cd1bb04d4c71da.js",
+      "app-ea4454cd1bb04d4c71da.js.map"
     ],
     "path---404": [
       "path---404-a0e39f21c11f6a62c5ab.js",

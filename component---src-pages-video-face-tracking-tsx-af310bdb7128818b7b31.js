@@ -1,6 +1,6 @@
 webpackJsonp([147681570848045],{
 
-/***/ 97:
+/***/ 98:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15,12 +15,12 @@ webpackJsonp([147681570848045],{
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Mui = __webpack_require__(28);
-	var face_api_js_react_1 = __webpack_require__(27);
+	var face_api_js_react_1 = __webpack_require__(26);
 	var React = __webpack_require__(2);
-	var ModalLoader_1 = __webpack_require__(98);
-	var const_1 = __webpack_require__(43);
-	var SelectFaceDetector_1 = __webpack_require__(120);
-	var CenterContent_1 = __webpack_require__(61);
+	var ModalLoader_1 = __webpack_require__(73);
+	var const_1 = __webpack_require__(38);
+	var SelectFaceDetector_1 = __webpack_require__(100);
+	var CenterContent_1 = __webpack_require__(62);
 	
 	var FaceAndLandmarkDetection = function (_React$Component) {
 	    _inherits(FaceAndLandmarkDetection, _React$Component);
@@ -60,7 +60,7 @@ webpackJsonp([147681570848045],{
 
 /***/ }),
 
-/***/ 182:
+/***/ 184:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -76,7 +76,7 @@ webpackJsonp([147681570848045],{
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var faceapi = __webpack_require__(23);
 	var React = __webpack_require__(2);
-	var face_api_js_react_1 = __webpack_require__(27);
+	var face_api_js_react_1 = __webpack_require__(26);
 	
 	var TrackFaces = function (_React$Component) {
 	    _inherits(TrackFaces, _React$Component);
@@ -126,7 +126,7 @@ webpackJsonp([147681570848045],{
 
 /***/ }),
 
-/***/ 183:
+/***/ 185:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -138,7 +138,7 @@ webpackJsonp([147681570848045],{
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var face_api_js_react_1 = __webpack_require__(27);
+	var face_api_js_react_1 = __webpack_require__(26);
 	var React = __webpack_require__(2);
 	
 	var VideoWithOverlay = function (_React$Component) {
@@ -219,7 +219,7 @@ webpackJsonp([147681570848045],{
 
 /***/ }),
 
-/***/ 722:
+/***/ 723:
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -235,11 +235,11 @@ webpackJsonp([147681570848045],{
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var face_api_js_1 = __webpack_require__(23);
 	var React = __webpack_require__(2);
-	var FaceAndLandmarkDetection_1 = __webpack_require__(97);
-	var TrackFaces_1 = __webpack_require__(182);
-	var VideoWithOverlay_1 = __webpack_require__(183);
-	var const_1 = __webpack_require__(43);
-	var Root_1 = __webpack_require__(72);
+	var FaceAndLandmarkDetection_1 = __webpack_require__(98);
+	var TrackFaces_1 = __webpack_require__(184);
+	var VideoWithOverlay_1 = __webpack_require__(185);
+	var const_1 = __webpack_require__(38);
+	var Root_1 = __webpack_require__(61);
 	
 	var default_1 = function (_React$Component) {
 	    _inherits(default_1, _React$Component);
