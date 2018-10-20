@@ -13,12 +13,12 @@
       "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-webcam-face-tracking-tsx": [
-      "component---src-pages-webcam-face-tracking-tsx-80bda641546f158de821.js",
-      "component---src-pages-webcam-face-tracking-tsx-80bda641546f158de821.js.map"
+      "component---src-pages-webcam-face-tracking-tsx-4368c2029c29ce5fc05c.js",
+      "component---src-pages-webcam-face-tracking-tsx-4368c2029c29ce5fc05c.js.map"
     ],
     "component---src-pages-face-and-landmark-detection-tsx": [
-      "component---src-pages-face-and-landmark-detection-tsx-0d2389e3ea898bd0c9d7.js",
-      "component---src-pages-face-and-landmark-detection-tsx-0d2389e3ea898bd0c9d7.js.map"
+      "component---src-pages-face-and-landmark-detection-tsx-b2a7c390aa055e1c0209.js",
+      "component---src-pages-face-and-landmark-detection-tsx-b2a7c390aa055e1c0209.js.map"
     ],
     "path---face-and-landmark-detection": [
       "path---face-and-landmark-detection-a0e39f21c11f6a62c5ab.js",
@@ -37,8 +37,8 @@
       "path---index-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-video-face-tracking-tsx": [
-      "component---src-pages-video-face-tracking-tsx-c6315cbf9d5a081f4500.js",
-      "component---src-pages-video-face-tracking-tsx-c6315cbf9d5a081f4500.js.map"
+      "component---src-pages-video-face-tracking-tsx-e858e2891b3bf399629b.js",
+      "component---src-pages-video-face-tracking-tsx-e858e2891b3bf399629b.js.map"
     ],
     "commons": [
       "commons-d64db16cb8a222a15ce7.js",
@@ -57,8 +57,8 @@
       "path---bbt-face-landmark-detection-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-bbt-face-recognition-tsx": [
-      "component---src-pages-bbt-face-recognition-tsx-3b7f52f2334c00557bca.js",
-      "component---src-pages-bbt-face-recognition-tsx-3b7f52f2334c00557bca.js.map"
+      "component---src-pages-bbt-face-recognition-tsx-1cc81e7df1e0b57a1f9b.js",
+      "component---src-pages-bbt-face-recognition-tsx-1cc81e7df1e0b57a1f9b.js.map"
     ],
     "path---bbt-face-recognition": [
       "path---bbt-face-recognition-a0e39f21c11f6a62c5ab.js",
