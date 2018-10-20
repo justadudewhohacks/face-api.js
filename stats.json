@@ -13,8 +13,8 @@
       "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-webcam-face-tracking-tsx": [
-      "component---src-pages-webcam-face-tracking-tsx-d5cd2ef483ac167897cd.js",
-      "component---src-pages-webcam-face-tracking-tsx-d5cd2ef483ac167897cd.js.map"
+      "component---src-pages-webcam-face-tracking-tsx-3e6dc6579e02b4861491.js",
+      "component---src-pages-webcam-face-tracking-tsx-3e6dc6579e02b4861491.js.map"
     ],
     "component---src-pages-face-and-landmark-detection-tsx": [
       "component---src-pages-face-and-landmark-detection-tsx-b2a7c390aa055e1c0209.js",
@@ -37,12 +37,12 @@
       "path---index-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-video-face-tracking-tsx": [
-      "component---src-pages-video-face-tracking-tsx-e858e2891b3bf399629b.js",
-      "component---src-pages-video-face-tracking-tsx-e858e2891b3bf399629b.js.map"
+      "component---src-pages-video-face-tracking-tsx-af310bdb7128818b7b31.js",
+      "component---src-pages-video-face-tracking-tsx-af310bdb7128818b7b31.js.map"
     ],
     "commons": [
-      "commons-0318ab7469e3d79b9bf9.js",
-      "commons-0318ab7469e3d79b9bf9.js.map"
+      "commons-53e80163f05f6d2b8c87.js",
+      "commons-53e80163f05f6d2b8c87.js.map"
     ],
     "component---src-pages-404-tsx": [
       "component---src-pages-404-tsx-0ef59857f65b5d25df45.js",
