@@ -1,52 +1,48 @@
 {
   "assetsByChunkName": {
-    "component---src-pages-face-recognition-tsx": [
-      "component---src-pages-face-recognition-tsx-3adefb3e32858e0a0bf7.js",
-      "component---src-pages-face-recognition-tsx-3adefb3e32858e0a0bf7.js.map"
+    "path---video-face-tracking": [
+      "path---video-face-tracking-a0e39f21c11f6a62c5ab.js",
+      "path---video-face-tracking-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "path---face-detection-webcam-mtcnn": [
-      "path---face-detection-webcam-mtcnn-a0e39f21c11f6a62c5ab.js",
-      "path---face-detection-webcam-mtcnn-a0e39f21c11f6a62c5ab.js.map"
+    "component---src-pages-bbt-face-similarity-tsx": [
+      "component---src-pages-bbt-face-similarity-tsx-3b9bfe3491c89d1a7ac3.js",
+      "component---src-pages-bbt-face-similarity-tsx-3b9bfe3491c89d1a7ac3.js.map"
     ],
-    "path---face-recognition-mtcnn": [
-      "path---face-recognition-mtcnn-a0e39f21c11f6a62c5ab.js",
-      "path---face-recognition-mtcnn-a0e39f21c11f6a62c5ab.js.map"
+    "path---webcam-face-tracking": [
+      "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js",
+      "path---webcam-face-tracking-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "path---face-recognition": [
-      "path---face-recognition-a0e39f21c11f6a62c5ab.js",
-      "path---face-recognition-a0e39f21c11f6a62c5ab.js.map"
+    "component---src-pages-webcam-face-tracking-tsx": [
+      "component---src-pages-webcam-face-tracking-tsx-80bda641546f158de821.js",
+      "component---src-pages-webcam-face-tracking-tsx-80bda641546f158de821.js.map"
     ],
-    "component---src-pages-face-detection-webcam-mtcnn-tsx": [
-      "component---src-pages-face-detection-webcam-mtcnn-tsx-044ac5c51ac4b8131d5d.js",
-      "component---src-pages-face-detection-webcam-mtcnn-tsx-044ac5c51ac4b8131d5d.js.map"
+    "component---src-pages-face-and-landmark-detection-tsx": [
+      "component---src-pages-face-and-landmark-detection-tsx-0d2389e3ea898bd0c9d7.js",
+      "component---src-pages-face-and-landmark-detection-tsx-0d2389e3ea898bd0c9d7.js.map"
     ],
-    "component---src-pages-face-detection-tsx": [
-      "component---src-pages-face-detection-tsx-56280eb2d35058cd2f5f.js",
-      "component---src-pages-face-detection-tsx-56280eb2d35058cd2f5f.js.map"
+    "path---face-and-landmark-detection": [
+      "path---face-and-landmark-detection-a0e39f21c11f6a62c5ab.js",
+      "path---face-and-landmark-detection-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "path---face-detection": [
-      "path---face-detection-a0e39f21c11f6a62c5ab.js",
-      "path---face-detection-a0e39f21c11f6a62c5ab.js.map"
+    "component---src-pages-bbt-face-landmark-detection-tsx": [
+      "component---src-pages-bbt-face-landmark-detection-tsx-cb224321231a934fccb4.js",
+      "component---src-pages-bbt-face-landmark-detection-tsx-cb224321231a934fccb4.js.map"
     ],
-    "component---src-pages-face-recognition-mtcnn-tsx": [
-      "component---src-pages-face-recognition-mtcnn-tsx-7b54f16f66a6fd55e468.js",
-      "component---src-pages-face-recognition-mtcnn-tsx-7b54f16f66a6fd55e468.js.map"
+    "path---bbt-face-similarity": [
+      "path---bbt-face-similarity-a0e39f21c11f6a62c5ab.js",
+      "path---bbt-face-similarity-a0e39f21c11f6a62c5ab.js.map"
     ],
     "path---index": [
       "path---index-a0e39f21c11f6a62c5ab.js",
       "path---index-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "path---face-landmarks": [
-      "path---face-landmarks-a0e39f21c11f6a62c5ab.js",
-      "path---face-landmarks-a0e39f21c11f6a62c5ab.js.map"
-    ],
-    "component---src-pages-face-similarity-tsx": [
-      "component---src-pages-face-similarity-tsx-2698a236d952fcfb121f.js",
-      "component---src-pages-face-similarity-tsx-2698a236d952fcfb121f.js.map"
+    "component---src-pages-video-face-tracking-tsx": [
+      "component---src-pages-video-face-tracking-tsx-c6315cbf9d5a081f4500.js",
+      "component---src-pages-video-face-tracking-tsx-c6315cbf9d5a081f4500.js.map"
     ],
     "commons": [
-      "commons-c34e6b9134ae2317c018.js",
-      "commons-c34e6b9134ae2317c018.js.map"
+      "commons-d64db16cb8a222a15ce7.js",
+      "commons-d64db16cb8a222a15ce7.js.map"
     ],
     "component---src-pages-404-tsx": [
       "component---src-pages-404-tsx-0ef59857f65b5d25df45.js",
@@ -56,21 +52,25 @@
       "path---404-html-a0e39f21c11f6a62c5ab.js",
       "path---404-html-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "component---src-pages-face-landmarks-tsx": [
-      "component---src-pages-face-landmarks-tsx-7a4a620301ff7ff839c5.js",
-      "component---src-pages-face-landmarks-tsx-7a4a620301ff7ff839c5.js.map"
+    "path---bbt-face-landmark-detection": [
+      "path---bbt-face-landmark-detection-a0e39f21c11f6a62c5ab.js",
+      "path---bbt-face-landmark-detection-a0e39f21c11f6a62c5ab.js.map"
     ],
-    "path---face-similarity": [
-      "path---face-similarity-a0e39f21c11f6a62c5ab.js",
-      "path---face-similarity-a0e39f21c11f6a62c5ab.js.map"
+    "component---src-pages-bbt-face-recognition-tsx": [
+      "component---src-pages-bbt-face-recognition-tsx-3b7f52f2334c00557bca.js",
+      "component---src-pages-bbt-face-recognition-tsx-3b7f52f2334c00557bca.js.map"
+    ],
+    "path---bbt-face-recognition": [
+      "path---bbt-face-recognition-a0e39f21c11f6a62c5ab.js",
+      "path---bbt-face-recognition-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-index-tsx": [
       "component---src-pages-index-tsx-9eff1478bd67f8b4520c.js",
       "component---src-pages-index-tsx-9eff1478bd67f8b4520c.js.map"
     ],
     "app": [
-      "app-98104ea3af7dadd494fa.js",
-      "app-98104ea3af7dadd494fa.js.map"
+      "app-31987f0a235697312b03.js",
+      "app-31987f0a235697312b03.js.map"
     ],
     "path---404": [
       "path---404-a0e39f21c11f6a62c5ab.js",
