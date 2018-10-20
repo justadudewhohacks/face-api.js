@@ -1,8 +1,8 @@
 {
   "assetsByChunkName": {
     "component---src-pages-face-recognition-tsx": [
-      "component---src-pages-face-recognition-tsx-0737fdfa89be60e057e7.js",
-      "component---src-pages-face-recognition-tsx-0737fdfa89be60e057e7.js.map"
+      "component---src-pages-face-recognition-tsx-2934105157cb845e0974.js",
+      "component---src-pages-face-recognition-tsx-2934105157cb845e0974.js.map"
     ],
     "path---video-face-tracking": [
       "path---video-face-tracking-a0e39f21c11f6a62c5ab.js",
@@ -21,20 +21,20 @@
       "path---face-recognition-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-webcam-face-tracking-tsx": [
-      "component---src-pages-webcam-face-tracking-tsx-3e6dc6579e02b4861491.js",
-      "component---src-pages-webcam-face-tracking-tsx-3e6dc6579e02b4861491.js.map"
+      "component---src-pages-webcam-face-tracking-tsx-14a69ac1d240290a2172.js",
+      "component---src-pages-webcam-face-tracking-tsx-14a69ac1d240290a2172.js.map"
     ],
     "component---src-pages-face-and-landmark-detection-tsx": [
-      "component---src-pages-face-and-landmark-detection-tsx-b2a7c390aa055e1c0209.js",
-      "component---src-pages-face-and-landmark-detection-tsx-b2a7c390aa055e1c0209.js.map"
+      "component---src-pages-face-and-landmark-detection-tsx-ff86b603ba15f198e592.js",
+      "component---src-pages-face-and-landmark-detection-tsx-ff86b603ba15f198e592.js.map"
     ],
     "path---face-and-landmark-detection": [
       "path---face-and-landmark-detection-a0e39f21c11f6a62c5ab.js",
       "path---face-and-landmark-detection-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-bbt-face-landmark-detection-tsx": [
-      "component---src-pages-bbt-face-landmark-detection-tsx-cb224321231a934fccb4.js",
-      "component---src-pages-bbt-face-landmark-detection-tsx-cb224321231a934fccb4.js.map"
+      "component---src-pages-bbt-face-landmark-detection-tsx-6868e4f705c3cd8161d8.js",
+      "component---src-pages-bbt-face-landmark-detection-tsx-6868e4f705c3cd8161d8.js.map"
     ],
     "path---bbt-face-similarity": [
       "path---bbt-face-similarity-a0e39f21c11f6a62c5ab.js",
@@ -45,12 +45,12 @@
       "path---index-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-video-face-tracking-tsx": [
-      "component---src-pages-video-face-tracking-tsx-af310bdb7128818b7b31.js",
-      "component---src-pages-video-face-tracking-tsx-af310bdb7128818b7b31.js.map"
+      "component---src-pages-video-face-tracking-tsx-09bbf09a17c06b3c9f15.js",
+      "component---src-pages-video-face-tracking-tsx-09bbf09a17c06b3c9f15.js.map"
     ],
     "commons": [
-      "commons-8221a1a03ac7fa90f89d.js",
-      "commons-8221a1a03ac7fa90f89d.js.map"
+      "commons-d3b7380f2b2cd2fef5c7.js",
+      "commons-d3b7380f2b2cd2fef5c7.js.map"
     ],
     "component---src-pages-404-tsx": [
       "component---src-pages-404-tsx-0ef59857f65b5d25df45.js",
@@ -65,8 +65,8 @@
       "path---bbt-face-landmark-detection-a0e39f21c11f6a62c5ab.js.map"
     ],
     "component---src-pages-bbt-face-recognition-tsx": [
-      "component---src-pages-bbt-face-recognition-tsx-1cc81e7df1e0b57a1f9b.js",
-      "component---src-pages-bbt-face-recognition-tsx-1cc81e7df1e0b57a1f9b.js.map"
+      "component---src-pages-bbt-face-recognition-tsx-b14649d6f8a3bd2806b3.js",
+      "component---src-pages-bbt-face-recognition-tsx-b14649d6f8a3bd2806b3.js.map"
     ],
     "path---bbt-face-recognition": [
       "path---bbt-face-recognition-a0e39f21c11f6a62c5ab.js",
