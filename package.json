@@ -17,7 +17,8 @@
     "test-ssdmobilenetv1": "set UUT=ssdMobilenetv1&& karma start",
     "test-tinyfacedetector": "set UUT=tinyFaceDetector&& karma start",
     "test-mtcnn": "set UUT=mtcnn&& karma start",
-    "test-tinyyolov2": "set UUT=tinyYolov2&& karma start"
+    "test-tinyyolov2": "set UUT=tinyYolov2&& karma start",
+    "docs": "typedoc --options ./typedoc.config.js ./src"
   },
   "keywords": [
     "face",
