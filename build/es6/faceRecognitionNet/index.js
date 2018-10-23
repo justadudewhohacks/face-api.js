@@ -5,8 +5,4 @@ export function createFaceRecognitionNet(weights) {
     net.extractWeights(weights);
     return net;
 }
-export function faceRecognitionNet(weights) {
-    console.warn('faceRecognitionNet(weights: Float32Array) will be deprecated in future, use createFaceRecognitionNet instead');
-    return createFaceRecognitionNet(weights);
-}
 //# sourceMappingURL=index.js.map

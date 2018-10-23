@@ -23,12 +23,12 @@ function denseBlock(x, denseBlockParams, isFirstLayer) {
 var FaceLandmark68Net = /** @class */ (function (_super) {
     tslib_1.__extends(FaceLandmark68Net, _super);
     function FaceLandmark68Net() {
-        return _super.call(this, 'FaceLandmark68LargeNet') || this;
+        return _super.call(this, 'FaceLandmark68Net') || this;
     }
     FaceLandmark68Net.prototype.runNet = function (input) {
         var params = this.params;
         if (!params) {
-            throw new Error('FaceLandmark68LargeNet - load model before inference');
+            throw new Error('FaceLandmark68Net - load model before inference');
         }
         return tf.tidy(function () {
             var batchTensor = input.toBatchTensor(112, true);

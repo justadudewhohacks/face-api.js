@@ -1,18 +1,21 @@
-import { Dimensions, Point, Rect } from 'tfjs-image-recognition-base';
+import { Dimensions, IDimensions, Point, Rect } from 'tfjs-image-recognition-base';
 import { FaceDetection } from './FaceDetection';
-export declare class FaceLandmarks {
-    protected _imageWidth: number;
-    protected _imageHeight: number;
+export interface IFaceLandmarks {
+    positions: Point[];
+    shift: Point;
+}
+export declare class FaceLandmarks implements IFaceLandmarks {
     protected _shift: Point;
-    protected _faceLandmarks: Point[];
-    constructor(relativeFaceLandmarkPositions: Point[], imageDims: Dimensions, shift?: Point);
-    getShift(): Point;
-    getImageWidth(): number;
-    getImageHeight(): number;
-    getPositions(): Point[];
-    getRelativePositions(): Point[];
+    protected _positions: Point[];
+    protected _imgDims: Dimensions;
+    constructor(relativeFaceLandmarkPositions: Point[], imgDims: IDimensions, shift?: Point);
+    readonly shift: Point;
+    readonly imageWidth: number;
+    readonly imageHeight: number;
+    readonly positions: Point[];
+    readonly relativePositions: Point[];
     forSize<T extends FaceLandmarks>(width: number, height: number): T;
-    shift<T extends FaceLandmarks>(x: number, y: number): T;
+    shiftBy<T extends FaceLandmarks>(x: number, y: number): T;
     shiftByPoint<T extends FaceLandmarks>(pt: Point): T;
     /**
      * Aligns the face landmarks after face detection from the relative positions of the faces

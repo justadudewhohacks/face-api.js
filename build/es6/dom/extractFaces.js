@@ -36,7 +36,7 @@ export function extractFaces(input, detections) {
                 case 5:
                     ctx = getContext2dOrThrow(canvas);
                     boxes = detections.map(function (det) { return det instanceof FaceDetection
-                        ? det.forSize(canvas.width, canvas.height).getBox().floor()
+                        ? det.forSize(canvas.width, canvas.height).box.floor()
                         : det; })
                         .map(function (box) { return box.clipAtImageBorders(canvas.width, canvas.height); });
                     return [2 /*return*/, boxes.map(function (_a) {

@@ -29,7 +29,7 @@ function drawLandmarks(canvasArg, faceLandmarks, options) {
         // else draw points
         var ptOffset = lineWidth / 2;
         ctx.fillStyle = color;
-        landmarks.getPositions().forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
+        landmarks.positions.forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
     });
 }
 exports.drawLandmarks = drawLandmarks;

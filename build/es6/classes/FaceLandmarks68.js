@@ -7,25 +7,25 @@ var FaceLandmarks68 = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     FaceLandmarks68.prototype.getJawOutline = function () {
-        return this._faceLandmarks.slice(0, 17);
+        return this.positions.slice(0, 17);
     };
     FaceLandmarks68.prototype.getLeftEyeBrow = function () {
-        return this._faceLandmarks.slice(17, 22);
+        return this.positions.slice(17, 22);
     };
     FaceLandmarks68.prototype.getRightEyeBrow = function () {
-        return this._faceLandmarks.slice(22, 27);
+        return this.positions.slice(22, 27);
     };
     FaceLandmarks68.prototype.getNose = function () {
-        return this._faceLandmarks.slice(27, 36);
+        return this.positions.slice(27, 36);
     };
     FaceLandmarks68.prototype.getLeftEye = function () {
-        return this._faceLandmarks.slice(36, 42);
+        return this.positions.slice(36, 42);
     };
     FaceLandmarks68.prototype.getRightEye = function () {
-        return this._faceLandmarks.slice(42, 48);
+        return this.positions.slice(42, 48);
     };
     FaceLandmarks68.prototype.getMouth = function () {
-        return this._faceLandmarks.slice(48, 68);
+        return this.positions.slice(48, 68);
     };
     FaceLandmarks68.prototype.getRefPointsForAlignment = function () {
         return [

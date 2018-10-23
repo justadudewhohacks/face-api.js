@@ -1,23 +1,12 @@
-var FullFaceDescription = /** @class */ (function () {
-    function FullFaceDescription(_detection, _landmarks, _descriptor) {
-        this._detection = _detection;
-        this._landmarks = _landmarks;
-        this._descriptor = _descriptor;
+import * as tslib_1 from "tslib";
+import { FaceDetectionWithLandmarks } from './FaceDetectionWithLandmarks';
+var FullFaceDescription = /** @class */ (function (_super) {
+    tslib_1.__extends(FullFaceDescription, _super);
+    function FullFaceDescription(detection, unshiftedLandmarks, descriptor) {
+        var _this = _super.call(this, detection, unshiftedLandmarks) || this;
+        _this._descriptor = descriptor;
+        return _this;
     }
-    Object.defineProperty(FullFaceDescription.prototype, "detection", {
-        get: function () {
-            return this._detection;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(FullFaceDescription.prototype, "landmarks", {
-        get: function () {
-            return this._landmarks;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(FullFaceDescription.prototype, "descriptor", {
         get: function () {
             return this._descriptor;
@@ -26,9 +15,10 @@ var FullFaceDescription = /** @class */ (function () {
         configurable: true
     });
     FullFaceDescription.prototype.forSize = function (width, height) {
-        return new FullFaceDescription(this._detection.forSize(width, height), this._landmarks.forSize(width, height), this._descriptor);
+        var _a = _super.prototype.forSize.call(this, width, height), detection = _a.detection, landmarks = _a.landmarks;
+        return new FullFaceDescription(detection, landmarks, this.descriptor);
     };
     return FullFaceDescription;
-}());
+}(FaceDetectionWithLandmarks));
 export { FullFaceDescription };
 //# sourceMappingURL=FullFaceDescription.js.map

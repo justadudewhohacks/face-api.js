@@ -1,7 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
-import { FaceDetection } from '../classes/FaceDetection';
-import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 export declare type SharedParams = {
     conv1: ConvParams;
     prelu1_alpha: tf.Tensor1D;
@@ -33,15 +31,4 @@ export declare type NetParams = {
     pnet: PNetParams;
     rnet: RNetParams;
     onet: ONetParams;
-};
-export declare type MtcnnResult = {
-    faceDetection: FaceDetection;
-    faceLandmarks: FaceLandmarks5;
-};
-export declare type MtcnnForwardParams = {
-    minFaceSize?: number;
-    scaleFactor?: number;
-    maxNumScales?: number;
-    scoreThresholds?: number[];
-    scaleSteps?: number[];
 };

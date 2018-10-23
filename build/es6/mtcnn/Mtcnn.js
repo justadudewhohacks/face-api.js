@@ -2,13 +2,14 @@ import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, Point, Rect, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
+import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
-import { getDefaultMtcnnForwardParams } from './getDefaultMtcnnForwardParams';
 import { getSizesForScale } from './getSizesForScale';
 import { loadQuantizedParams } from './loadQuantizedParams';
+import { MtcnnOptions } from './MtcnnOptions';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
 import { stage2 } from './stage2';
@@ -45,7 +46,7 @@ var Mtcnn = /** @class */ (function (_super) {
                             return results;
                         };
                         _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
-                        _b = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
+                        _b = new MtcnnOptions(forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
                         scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
                             .filter(function (scale) {
                             var sizes = getSizesForScale(scale, [height, width]);
@@ -79,13 +80,10 @@ var Mtcnn = /** @class */ (function (_super) {
                     case 3:
                         out3 = _c.sent();
                         stats.total_stage3 = Date.now() - ts;
-                        results = out3.boxes.map(function (box, idx) { return ({
-                            faceDetection: new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
-                                height: height,
-                                width: width
-                            }),
-                            faceLandmarks: new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.div(new Point(width, height)); }), { width: width, height: height })
-                        }); });
+                        results = out3.boxes.map(function (box, idx) { return new FaceDetectionWithLandmarks(new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                            height: height,
+                            width: width
+                        }), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
                         return [2 /*return*/, onReturn({ results: results, stats: stats })];
                 }
             });

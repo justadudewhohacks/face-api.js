@@ -9,9 +9,4 @@ function createFaceRecognitionNet(weights) {
     return net;
 }
 exports.createFaceRecognitionNet = createFaceRecognitionNet;
-function faceRecognitionNet(weights) {
-    console.warn('faceRecognitionNet(weights: Float32Array) will be deprecated in future, use createFaceRecognitionNet instead');
-    return createFaceRecognitionNet(weights);
-}
-exports.faceRecognitionNet = faceRecognitionNet;
 //# sourceMappingURL=index.js.map

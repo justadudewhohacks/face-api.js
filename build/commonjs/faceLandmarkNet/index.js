@@ -18,9 +18,4 @@ function createFaceLandmarkNet(weights) {
     return net;
 }
 exports.createFaceLandmarkNet = createFaceLandmarkNet;
-function faceLandmarkNet(weights) {
-    console.warn('faceLandmarkNet(weights: Float32Array) will be deprecated in future, use createFaceLandmarkNet instead');
-    return createFaceLandmarkNet(weights);
-}
-exports.faceLandmarkNet = faceLandmarkNet;
 //# sourceMappingURL=index.js.map

@@ -243,11 +243,777 @@
         variableGrads: variableGrads
     });
 
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+    /* global Reflect, Promise */
+
+    var extendStatics$1 = function(d, b) {
+        extendStatics$1 = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics$1(d, b);
+    };
+
+    function __extends$1(d, b) {
+        extendStatics$1(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    var __assign$1 = function() {
+        __assign$1 = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign$1.apply(this, arguments);
+    };
+
+    function __awaiter$1(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator$1(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
+    var commonjsGlobal$1 = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    function createCommonjsModule$1(fn, module) {
+    	return module = { exports: {} }, fn(module, module.exports), module.exports;
+    }
+
+    var isBuffer = function isBuffer(arg) {
+      return arg instanceof Buffer;
+    };
+
+    var inherits_browser = createCommonjsModule$1(function (module) {
+    if (typeof Object.create === 'function') {
+      // implementation from standard node.js 'util' module
+      module.exports = function inherits(ctor, superCtor) {
+        ctor.super_ = superCtor;
+        ctor.prototype = Object.create(superCtor.prototype, {
+          constructor: {
+            value: ctor,
+            enumerable: false,
+            writable: true,
+            configurable: true
+          }
+        });
+      };
+    } else {
+      // old school shim for old browsers
+      module.exports = function inherits(ctor, superCtor) {
+        ctor.super_ = superCtor;
+        var TempCtor = function () {};
+        TempCtor.prototype = superCtor.prototype;
+        ctor.prototype = new TempCtor();
+        ctor.prototype.constructor = ctor;
+      };
+    }
+    });
+
+    var inherits = createCommonjsModule$1(function (module) {
+    try {
+      var util = util$1;
+      if (typeof util.inherits !== 'function') throw '';
+      module.exports = util.inherits;
+    } catch (e) {
+      module.exports = inherits_browser;
+    }
+    });
+
+    var util$1 = createCommonjsModule$1(function (module, exports) {
+    // Copyright Joyent, Inc. and other Node contributors.
+    //
+    // Permission is hereby granted, free of charge, to any person obtaining a
+    // copy of this software and associated documentation files (the
+    // "Software"), to deal in the Software without restriction, including
+    // without limitation the rights to use, copy, modify, merge, publish,
+    // distribute, sublicense, and/or sell copies of the Software, and to permit
+    // persons to whom the Software is furnished to do so, subject to the
+    // following conditions:
+    //
+    // The above copyright notice and this permission notice shall be included
+    // in all copies or substantial portions of the Software.
+    //
+    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+    // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+    // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+    // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+    var formatRegExp = /%[sdj%]/g;
+    exports.format = function(f) {
+      if (!isString(f)) {
+        var objects = [];
+        for (var i = 0; i < arguments.length; i++) {
+          objects.push(inspect(arguments[i]));
+        }
+        return objects.join(' ');
+      }
+
+      var i = 1;
+      var args = arguments;
+      var len = args.length;
+      var str = String(f).replace(formatRegExp, function(x) {
+        if (x === '%%') return '%';
+        if (i >= len) return x;
+        switch (x) {
+          case '%s': return String(args[i++]);
+          case '%d': return Number(args[i++]);
+          case '%j':
+            try {
+              return JSON.stringify(args[i++]);
+            } catch (_) {
+              return '[Circular]';
+            }
+          default:
+            return x;
+        }
+      });
+      for (var x = args[i]; i < len; x = args[++i]) {
+        if (isNull(x) || !isObject(x)) {
+          str += ' ' + x;
+        } else {
+          str += ' ' + inspect(x);
+        }
+      }
+      return str;
+    };
+
+
+    // Mark that a method should not be used.
+    // Returns a modified function which warns once by default.
+    // If --no-deprecation is set, then it is a no-op.
+    exports.deprecate = function(fn, msg) {
+      // Allow for deprecating things in the process of starting up.
+      if (isUndefined(commonjsGlobal$1.process)) {
+        return function() {
+          return exports.deprecate(fn, msg).apply(this, arguments);
+        };
+      }
+
+      if (process.noDeprecation === true) {
+        return fn;
+      }
+
+      var warned = false;
+      function deprecated() {
+        if (!warned) {
+          if (process.throwDeprecation) {
+            throw new Error(msg);
+          } else if (process.traceDeprecation) {
+            console.trace(msg);
+          } else {
+            console.error(msg);
+          }
+          warned = true;
+        }
+        return fn.apply(this, arguments);
+      }
+
+      return deprecated;
+    };
+
+
+    var debugs = {};
+    var debugEnviron;
+    exports.debuglog = function(set) {
+      if (isUndefined(debugEnviron))
+        debugEnviron = process.env.NODE_DEBUG || '';
+      set = set.toUpperCase();
+      if (!debugs[set]) {
+        if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+          var pid = process.pid;
+          debugs[set] = function() {
+            var msg = exports.format.apply(exports, arguments);
+            console.error('%s %d: %s', set, pid, msg);
+          };
+        } else {
+          debugs[set] = function() {};
+        }
+      }
+      return debugs[set];
+    };
+
+
+    /**
+     * Echos the value of a value. Trys to print the value out
+     * in the best way possible given the different types.
+     *
+     * @param {Object} obj The object to print out.
+     * @param {Object} opts Optional options object that alters the output.
+     */
+    /* legacy: obj, showHidden, depth, colors*/
+    function inspect(obj, opts) {
+      // default options
+      var ctx = {
+        seen: [],
+        stylize: stylizeNoColor
+      };
+      // legacy...
+      if (arguments.length >= 3) ctx.depth = arguments[2];
+      if (arguments.length >= 4) ctx.colors = arguments[3];
+      if (isBoolean(opts)) {
+        // legacy...
+        ctx.showHidden = opts;
+      } else if (opts) {
+        // got an "options" object
+        exports._extend(ctx, opts);
+      }
+      // set default options
+      if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+      if (isUndefined(ctx.depth)) ctx.depth = 2;
+      if (isUndefined(ctx.colors)) ctx.colors = false;
+      if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+      if (ctx.colors) ctx.stylize = stylizeWithColor;
+      return formatValue(ctx, obj, ctx.depth);
+    }
+    exports.inspect = inspect;
+
+
+    // http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+    inspect.colors = {
+      'bold' : [1, 22],
+      'italic' : [3, 23],
+      'underline' : [4, 24],
+      'inverse' : [7, 27],
+      'white' : [37, 39],
+      'grey' : [90, 39],
+      'black' : [30, 39],
+      'blue' : [34, 39],
+      'cyan' : [36, 39],
+      'green' : [32, 39],
+      'magenta' : [35, 39],
+      'red' : [31, 39],
+      'yellow' : [33, 39]
+    };
+
+    // Don't use 'blue' not visible on cmd.exe
+    inspect.styles = {
+      'special': 'cyan',
+      'number': 'yellow',
+      'boolean': 'yellow',
+      'undefined': 'grey',
+      'null': 'bold',
+      'string': 'green',
+      'date': 'magenta',
+      // "name": intentionally not styling
+      'regexp': 'red'
+    };
+
+
+    function stylizeWithColor(str, styleType) {
+      var style = inspect.styles[styleType];
+
+      if (style) {
+        return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+               '\u001b[' + inspect.colors[style][1] + 'm';
+      } else {
+        return str;
+      }
+    }
+
+
+    function stylizeNoColor(str, styleType) {
+      return str;
+    }
+
+
+    function arrayToHash(array) {
+      var hash = {};
+
+      array.forEach(function(val, idx) {
+        hash[val] = true;
+      });
+
+      return hash;
+    }
+
+
+    function formatValue(ctx, value, recurseTimes) {
+      // Provide a hook for user-specified inspect functions.
+      // Check that value is an object with an inspect function on it
+      if (ctx.customInspect &&
+          value &&
+          isFunction(value.inspect) &&
+          // Filter out the util module, it's inspect function is special
+          value.inspect !== exports.inspect &&
+          // Also filter out any prototype objects using the circular check.
+          !(value.constructor && value.constructor.prototype === value)) {
+        var ret = value.inspect(recurseTimes, ctx);
+        if (!isString(ret)) {
+          ret = formatValue(ctx, ret, recurseTimes);
+        }
+        return ret;
+      }
+
+      // Primitive types cannot have properties
+      var primitive = formatPrimitive(ctx, value);
+      if (primitive) {
+        return primitive;
+      }
+
+      // Look up the keys of the object.
+      var keys = Object.keys(value);
+      var visibleKeys = arrayToHash(keys);
+
+      if (ctx.showHidden) {
+        keys = Object.getOwnPropertyNames(value);
+      }
+
+      // IE doesn't make error fields non-enumerable
+      // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+      if (isError(value)
+          && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+        return formatError(value);
+      }
+
+      // Some type of object without properties can be shortcutted.
+      if (keys.length === 0) {
+        if (isFunction(value)) {
+          var name = value.name ? ': ' + value.name : '';
+          return ctx.stylize('[Function' + name + ']', 'special');
+        }
+        if (isRegExp(value)) {
+          return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+        }
+        if (isDate(value)) {
+          return ctx.stylize(Date.prototype.toString.call(value), 'date');
+        }
+        if (isError(value)) {
+          return formatError(value);
+        }
+      }
+
+      var base = '', array = false, braces = ['{', '}'];
+
+      // Make Array say that they are Array
+      if (isArray(value)) {
+        array = true;
+        braces = ['[', ']'];
+      }
+
+      // Make functions say that they are functions
+      if (isFunction(value)) {
+        var n = value.name ? ': ' + value.name : '';
+        base = ' [Function' + n + ']';
+      }
+
+      // Make RegExps say that they are RegExps
+      if (isRegExp(value)) {
+        base = ' ' + RegExp.prototype.toString.call(value);
+      }
+
+      // Make dates with properties first say the date
+      if (isDate(value)) {
+        base = ' ' + Date.prototype.toUTCString.call(value);
+      }
+
+      // Make error with message first say the error
+      if (isError(value)) {
+        base = ' ' + formatError(value);
+      }
+
+      if (keys.length === 0 && (!array || value.length == 0)) {
+        return braces[0] + base + braces[1];
+      }
+
+      if (recurseTimes < 0) {
+        if (isRegExp(value)) {
+          return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+        } else {
+          return ctx.stylize('[Object]', 'special');
+        }
+      }
+
+      ctx.seen.push(value);
+
+      var output;
+      if (array) {
+        output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+      } else {
+        output = keys.map(function(key) {
+          return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+        });
+      }
+
+      ctx.seen.pop();
+
+      return reduceToSingleString(output, base, braces);
+    }
+
+
+    function formatPrimitive(ctx, value) {
+      if (isUndefined(value))
+        return ctx.stylize('undefined', 'undefined');
+      if (isString(value)) {
+        var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                                 .replace(/'/g, "\\'")
+                                                 .replace(/\\"/g, '"') + '\'';
+        return ctx.stylize(simple, 'string');
+      }
+      if (isNumber(value))
+        return ctx.stylize('' + value, 'number');
+      if (isBoolean(value))
+        return ctx.stylize('' + value, 'boolean');
+      // For some reason typeof null is "object", so special case here.
+      if (isNull(value))
+        return ctx.stylize('null', 'null');
+    }
+
+
+    function formatError(value) {
+      return '[' + Error.prototype.toString.call(value) + ']';
+    }
+
+
+    function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+      var output = [];
+      for (var i = 0, l = value.length; i < l; ++i) {
+        if (hasOwnProperty(value, String(i))) {
+          output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+              String(i), true));
+        } else {
+          output.push('');
+        }
+      }
+      keys.forEach(function(key) {
+        if (!key.match(/^\d+$/)) {
+          output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+              key, true));
+        }
+      });
+      return output;
+    }
+
+
+    function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+      var name, str, desc;
+      desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+      if (desc.get) {
+        if (desc.set) {
+          str = ctx.stylize('[Getter/Setter]', 'special');
+        } else {
+          str = ctx.stylize('[Getter]', 'special');
+        }
+      } else {
+        if (desc.set) {
+          str = ctx.stylize('[Setter]', 'special');
+        }
+      }
+      if (!hasOwnProperty(visibleKeys, key)) {
+        name = '[' + key + ']';
+      }
+      if (!str) {
+        if (ctx.seen.indexOf(desc.value) < 0) {
+          if (isNull(recurseTimes)) {
+            str = formatValue(ctx, desc.value, null);
+          } else {
+            str = formatValue(ctx, desc.value, recurseTimes - 1);
+          }
+          if (str.indexOf('\n') > -1) {
+            if (array) {
+              str = str.split('\n').map(function(line) {
+                return '  ' + line;
+              }).join('\n').substr(2);
+            } else {
+              str = '\n' + str.split('\n').map(function(line) {
+                return '   ' + line;
+              }).join('\n');
+            }
+          }
+        } else {
+          str = ctx.stylize('[Circular]', 'special');
+        }
+      }
+      if (isUndefined(name)) {
+        if (array && key.match(/^\d+$/)) {
+          return str;
+        }
+        name = JSON.stringify('' + key);
+        if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+          name = name.substr(1, name.length - 2);
+          name = ctx.stylize(name, 'name');
+        } else {
+          name = name.replace(/'/g, "\\'")
+                     .replace(/\\"/g, '"')
+                     .replace(/(^"|"$)/g, "'");
+          name = ctx.stylize(name, 'string');
+        }
+      }
+
+      return name + ': ' + str;
+    }
+
+
+    function reduceToSingleString(output, base, braces) {
+      var length = output.reduce(function(prev, cur) {
+        if (cur.indexOf('\n') >= 0) ;
+        return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+      }, 0);
+
+      if (length > 60) {
+        return braces[0] +
+               (base === '' ? '' : base + '\n ') +
+               ' ' +
+               output.join(',\n  ') +
+               ' ' +
+               braces[1];
+      }
+
+      return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+    }
+
+
+    // NOTE: These type checking functions intentionally don't use `instanceof`
+    // because it is fragile and can be easily faked with `Object.create()`.
+    function isArray(ar) {
+      return Array.isArray(ar);
+    }
+    exports.isArray = isArray;
+
+    function isBoolean(arg) {
+      return typeof arg === 'boolean';
+    }
+    exports.isBoolean = isBoolean;
+
+    function isNull(arg) {
+      return arg === null;
+    }
+    exports.isNull = isNull;
+
+    function isNullOrUndefined(arg) {
+      return arg == null;
+    }
+    exports.isNullOrUndefined = isNullOrUndefined;
+
+    function isNumber(arg) {
+      return typeof arg === 'number';
+    }
+    exports.isNumber = isNumber;
+
+    function isString(arg) {
+      return typeof arg === 'string';
+    }
+    exports.isString = isString;
+
+    function isSymbol(arg) {
+      return typeof arg === 'symbol';
+    }
+    exports.isSymbol = isSymbol;
+
+    function isUndefined(arg) {
+      return arg === void 0;
+    }
+    exports.isUndefined = isUndefined;
+
+    function isRegExp(re) {
+      return isObject(re) && objectToString(re) === '[object RegExp]';
+    }
+    exports.isRegExp = isRegExp;
+
+    function isObject(arg) {
+      return typeof arg === 'object' && arg !== null;
+    }
+    exports.isObject = isObject;
+
+    function isDate(d) {
+      return isObject(d) && objectToString(d) === '[object Date]';
+    }
+    exports.isDate = isDate;
+
+    function isError(e) {
+      return isObject(e) &&
+          (objectToString(e) === '[object Error]' || e instanceof Error);
+    }
+    exports.isError = isError;
+
+    function isFunction(arg) {
+      return typeof arg === 'function';
+    }
+    exports.isFunction = isFunction;
+
+    function isPrimitive(arg) {
+      return arg === null ||
+             typeof arg === 'boolean' ||
+             typeof arg === 'number' ||
+             typeof arg === 'string' ||
+             typeof arg === 'symbol' ||  // ES6 symbol
+             typeof arg === 'undefined';
+    }
+    exports.isPrimitive = isPrimitive;
+
+    exports.isBuffer = isBuffer;
+
+    function objectToString(o) {
+      return Object.prototype.toString.call(o);
+    }
+
+
+    function pad(n) {
+      return n < 10 ? '0' + n.toString(10) : n.toString(10);
+    }
+
+
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+                  'Oct', 'Nov', 'Dec'];
+
+    // 26 Feb 16:19:34
+    function timestamp() {
+      var d = new Date();
+      var time = [pad(d.getHours()),
+                  pad(d.getMinutes()),
+                  pad(d.getSeconds())].join(':');
+      return [d.getDate(), months[d.getMonth()], time].join(' ');
+    }
+
+
+    // log is just a thin wrapper to console.log that prepends a timestamp
+    exports.log = function() {
+      console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+    };
+
+
+    /**
+     * Inherit the prototype methods from one constructor into another.
+     *
+     * The Function.prototype.inherits from lang.js rewritten as a standalone
+     * function (not on Function.prototype). NOTE: If this file is to be loaded
+     * during bootstrapping this function needs to be rewritten using some native
+     * functions as prototype setup using normal JavaScript does not work as
+     * expected during bootstrapping (see mirror.js in r114903).
+     *
+     * @param {function} ctor Constructor function which needs to inherit the
+     *     prototype.
+     * @param {function} superCtor Constructor function to inherit prototype from.
+     */
+    exports.inherits = inherits;
+
+    exports._extend = function(origin, add) {
+      // Don't do anything if add isn't an object
+      if (!add || !isObject(add)) return origin;
+
+      var keys = Object.keys(add);
+      var i = keys.length;
+      while (i--) {
+        origin[keys[i]] = add[keys[i]];
+      }
+      return origin;
+    };
+
+    function hasOwnProperty(obj, prop) {
+      return Object.prototype.hasOwnProperty.call(obj, prop);
+    }
+    });
+    var util_1 = util$1.format;
+    var util_2 = util$1.deprecate;
+    var util_3 = util$1.debuglog;
+    var util_4 = util$1.inspect;
+    var util_5 = util$1.isArray;
+    var util_6 = util$1.isBoolean;
+    var util_7 = util$1.isNull;
+    var util_8 = util$1.isNullOrUndefined;
+    var util_9 = util$1.isNumber;
+    var util_10 = util$1.isString;
+    var util_11 = util$1.isSymbol;
+    var util_12 = util$1.isUndefined;
+    var util_13 = util$1.isRegExp;
+    var util_14 = util$1.isObject;
+    var util_15 = util$1.isDate;
+    var util_16 = util$1.isError;
+    var util_17 = util$1.isFunction;
+    var util_18 = util$1.isPrimitive;
+    var util_19 = util$1.isBuffer;
+    var util_20 = util$1.log;
+    var util_21 = util$1.inherits;
+    var util_22 = util$1._extend;
+
+    var Dimensions = /** @class */ (function () {
+        function Dimensions(width, height) {
+            if (!util_9(width) || !util_9(height)) {
+                throw new Error("Dimensions.constructor - expected width and height to be valid numbers, instead have " + JSON.stringify({ width: width, height: height }));
+            }
+            this._width = width;
+            this._height = height;
+        }
+        Object.defineProperty(Dimensions.prototype, "width", {
+            get: function () { return this._width; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Dimensions.prototype, "height", {
+            get: function () { return this._height; },
+            enumerable: true,
+            configurable: true
+        });
+        Dimensions.prototype.reverse = function () {
+            return new Dimensions(1 / this.width, 1 / this.height);
+        };
+        return Dimensions;
+    }());
+
     var Point = /** @class */ (function () {
         function Point(x, y) {
-            this.x = x;
-            this.y = y;
+            this._x = x;
+            this._y = y;
         }
+        Object.defineProperty(Point.prototype, "x", {
+            get: function () { return this._x; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Point.prototype, "y", {
+            get: function () { return this._y; },
+            enumerable: true,
+            configurable: true
+        });
         Point.prototype.add = function (pt) {
             return new Point(this.x + pt.x, this.y + pt.y);
         };
@@ -304,10 +1070,7 @@
     function computeReshapedDimensions(_a, inputSize) {
         var width = _a.width, height = _a.height;
         var scale = inputSize / Math.max(height, width);
-        return {
-            height: Math.round(height * scale),
-            width: Math.round(width * scale)
-        };
+        return new Dimensions(Math.round(width * scale), Math.round(height * scale));
     }
     function getCenterPoint(pts) {
         return pts.reduce(function (sum$$1, pt) { return sum$$1.add(pt); }, new Point(0, 0))
@@ -328,7 +1091,7 @@
         // allowNegativeDimensions flag again
         function Box(_box, allowNegativeDimensions) {
             if (allowNegativeDimensions === void 0) { allowNegativeDimensions = false; }
-            var box = _box || {};
+            var box = (_box || {});
             var isBbox = [box.left, box.top, box.right, box.bottom].every(isValidNumber);
             var isRect = [box.x, box.y, box.width, box.height].every(isValidNumber);
             if (!isRect && !isBbox) {
@@ -356,65 +1119,47 @@
             }
         };
         Object.defineProperty(Box.prototype, "x", {
-            get: function () {
-                return this._x;
-            },
+            get: function () { return this._x; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "y", {
-            get: function () {
-                return this._y;
-            },
+            get: function () { return this._y; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "width", {
-            get: function () {
-                return this._width;
-            },
+            get: function () { return this._width; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "height", {
-            get: function () {
-                return this._height;
-            },
+            get: function () { return this._height; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "left", {
-            get: function () {
-                return this.x;
-            },
+            get: function () { return this.x; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "top", {
-            get: function () {
-                return this.y;
-            },
+            get: function () { return this.y; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "right", {
-            get: function () {
-                return this.x + this.width;
-            },
+            get: function () { return this.x + this.width; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "bottom", {
-            get: function () {
-                return this.y + this.height;
-            },
+            get: function () { return this.y + this.height; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "area", {
-            get: function () {
-                return this.width * this.height;
-            },
+            get: function () { return this.width * this.height; },
             enumerable: true,
             configurable: true
         });
@@ -510,89 +1255,27 @@
         return Box;
     }());
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-    /* global Reflect, Promise */
-
-    var extendStatics$1 = function(d, b) {
-        extendStatics$1 = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics$1(d, b);
-    };
-
-    function __extends$1(d, b) {
-        extendStatics$1(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    }
-
-    var __assign$1 = function() {
-        __assign$1 = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign$1.apply(this, arguments);
-    };
-
-    function __awaiter$1(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
-    function __generator$1(thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    }
-
     var BoundingBox = /** @class */ (function (_super) {
         __extends$1(BoundingBox, _super);
         function BoundingBox(left, top, right, bottom) {
             return _super.call(this, { left: left, top: top, right: right, bottom: bottom }) || this;
         }
         return BoundingBox;
+    }(Box));
+
+    var BoxWithText = /** @class */ (function (_super) {
+        __extends$1(BoxWithText, _super);
+        function BoxWithText(box, text) {
+            var _this = _super.call(this, box) || this;
+            _this._text = text;
+            return _this;
+        }
+        Object.defineProperty(BoxWithText.prototype, "text", {
+            get: function () { return this._text; },
+            enumerable: true,
+            configurable: true
+        });
+        return BoxWithText;
     }(Box));
 
     var LabeledBox = /** @class */ (function (_super) {
@@ -609,99 +1292,63 @@
             }
         };
         Object.defineProperty(LabeledBox.prototype, "label", {
-            get: function () {
-                return this._label;
-            },
+            get: function () { return this._label; },
             enumerable: true,
             configurable: true
         });
         return LabeledBox;
     }(Box));
 
-    var Rect = /** @class */ (function (_super) {
-        __extends$1(Rect, _super);
-        function Rect(x, y, width, height) {
-            return _super.call(this, { x: x, y: y, width: width, height: height }) || this;
-        }
-        return Rect;
-    }(Box));
-
     var ObjectDetection = /** @class */ (function () {
         function ObjectDetection(score, classScore, className, relativeBox, imageDims) {
-            var width = imageDims.width, height = imageDims.height;
-            this._imageWidth = width;
-            this._imageHeight = height;
+            this._imageDims = new Dimensions(imageDims.width, imageDims.height);
             this._score = score;
             this._classScore = classScore;
             this._className = className;
-            this._box = new Rect(relativeBox.x * width, relativeBox.y * height, relativeBox.width * width, relativeBox.height * height);
+            this._box = new Box(relativeBox).rescale(this._imageDims);
         }
         Object.defineProperty(ObjectDetection.prototype, "score", {
-            get: function () {
-                return this._score;
-            },
+            get: function () { return this._score; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "classScore", {
-            get: function () {
-                return this._classScore;
-            },
+            get: function () { return this._classScore; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "className", {
-            get: function () {
-                return this._className;
-            },
+            get: function () { return this._className; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "box", {
-            get: function () {
-                return this._box;
-            },
+            get: function () { return this._box; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ObjectDetection.prototype, "imageDims", {
+            get: function () { return this._imageDims; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "imageWidth", {
-            get: function () {
-                return this._imageWidth;
-            },
+            get: function () { return this.imageDims.width; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "imageHeight", {
-            get: function () {
-                return this._imageHeight;
-            },
+            get: function () { return this.imageDims.height; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ObjectDetection.prototype, "relativeBox", {
-            get: function () {
-                return new Rect(this._box.x / this._imageWidth, this._box.y / this._imageHeight, this._box.width / this._imageWidth, this._box.height / this._imageHeight);
-            },
+            get: function () { return new Box(this._box).rescale(this.imageDims.reverse()); },
             enumerable: true,
             configurable: true
         });
-        ObjectDetection.prototype.getScore = function () {
-            return this.score;
-        };
-        ObjectDetection.prototype.getBox = function () {
-            return this.box;
-        };
-        ObjectDetection.prototype.getImageWidth = function () {
-            return this.imageWidth;
-        };
-        ObjectDetection.prototype.getImageHeight = function () {
-            return this.imageHeight;
-        };
-        ObjectDetection.prototype.getRelativeBox = function () {
-            return this.relativeBox;
-        };
         ObjectDetection.prototype.forSize = function (width, height) {
-            return new ObjectDetection(this.score, this.classScore, this.className, this.getRelativeBox(), { width: width, height: height });
+            return new ObjectDetection(this.score, this.classScore, this.className, this.relativeBox, { width: width, height: height });
         };
         return ObjectDetection;
     }());
@@ -722,21 +1369,25 @@
             }
         };
         Object.defineProperty(PredictedBox.prototype, "score", {
-            get: function () {
-                return this._score;
-            },
+            get: function () { return this._score; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(PredictedBox.prototype, "classScore", {
-            get: function () {
-                return this._classScore;
-            },
+            get: function () { return this._classScore; },
             enumerable: true,
             configurable: true
         });
         return PredictedBox;
     }(LabeledBox));
+
+    var Rect = /** @class */ (function (_super) {
+        __extends$1(Rect, _super);
+        function Rect(x, y, width, height) {
+            return _super.call(this, { x: x, y: y, width: width, height: height }) || this;
+        }
+        return Rect;
+    }(Box));
 
     function disposeUnusedWeightTensors(weightMap, paramMappings) {
         Object.keys(weightMap).forEach(function (path) {
@@ -860,12 +1511,12 @@
 
     function getMediaDimensions(input) {
         if (input instanceof HTMLImageElement) {
-            return { width: input.naturalWidth, height: input.naturalHeight };
+            return new Dimensions(input.naturalWidth, input.naturalHeight);
         }
         if (input instanceof HTMLVideoElement) {
-            return { width: input.videoWidth, height: input.videoHeight };
+            return new Dimensions(input.videoWidth, input.videoHeight);
         }
-        return input;
+        return new Dimensions(input.width, input.height);
     }
 
     function createCanvas(_a) {
@@ -906,7 +1557,8 @@
     }
 
     function drawText(ctx, x, y, text, options) {
-        var drawOptions = Object.assign(getDefaultDrawOptions(), (options || {}));
+        if (options === void 0) { options = {}; }
+        var drawOptions = Object.assign(getDefaultDrawOptions(), options);
         var padText = 2 + drawOptions.lineWidth;
         ctx.fillStyle = drawOptions.textColor;
         ctx.font = drawOptions.fontSize + "px " + drawOptions.fontStyle;
@@ -923,19 +1575,90 @@
     function drawDetection(canvasArg, detection, options) {
         var canvas = resolveInput(canvasArg);
         if (!(canvas instanceof HTMLCanvasElement)) {
-            throw new Error('drawBox - expected canvas to be of type: HTMLCanvasElement');
+            throw new Error('drawDetection - expected canvas to be of type: HTMLCanvasElement');
         }
         var detectionArray = Array.isArray(detection)
             ? detection
             : [detection];
         detectionArray.forEach(function (det) {
-            var _a = det.getBox(), x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+            var _a = det instanceof ObjectDetection ? det.box : det, x = _a.x, y = _a.y, width = _a.width, height = _a.height;
             var drawOptions = getDefaultDrawOptions(options);
             var ctx = getContext2dOrThrow(canvas);
             drawBox(ctx, x, y, width, height, drawOptions);
-            if (drawOptions.withScore) {
-                drawText(ctx, x, y, det.className + " (" + round$1(det.score) + ")", drawOptions);
+            var withScore = drawOptions.withScore;
+            var text = det instanceof BoxWithText
+                ? det.text
+                : ((withScore && det instanceof PredictedBox)
+                    ? "" + round$1(det.score)
+                    : (det instanceof ObjectDetection
+                        ? "" + det.className + (withScore ? " (" + round$1(det.score) + ")" : '')
+                        : ''));
+            if (text) {
+                drawText(ctx, x, y + height, text, drawOptions);
             }
+        });
+    }
+
+    function fetchOrThrow(url, init) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var res;
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetch(url, init)];
+                    case 1:
+                        res = _a.sent();
+                        if (!(res.status < 400)) {
+                            throw new Error("failed to fetch: (" + res.status + ") " + res.statusText + ", from url: " + res.url);
+                        }
+                        return [2 /*return*/, res];
+                }
+            });
+        });
+    }
+
+    function fetchImage(uri) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var res, blob;
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetchOrThrow(uri)];
+                    case 1:
+                        res = _a.sent();
+                        return [4 /*yield*/, (res).blob()];
+                    case 2:
+                        blob = _a.sent();
+                        if (!blob.type.startsWith('image/')) {
+                            throw new Error("fetchImage - expected blob type to be of type image/*, instead have: " + blob.type + ", for url: " + res.url);
+                        }
+                        return [2 /*return*/, bufferToImage(blob)];
+                }
+            });
+        });
+    }
+
+    function fetchJson(uri) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetchOrThrow(uri)];
+                    case 1: return [2 /*return*/, (_a.sent()).json()];
+                }
+            });
+        });
+    }
+
+    function fetchNetWeights(uri) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var _a;
+            return __generator$1(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = Float32Array.bind;
+                        return [4 /*yield*/, fetchOrThrow(uri)];
+                    case 1: return [4 /*yield*/, (_b.sent()).arrayBuffer()];
+                    case 2: return [2 /*return*/, new (_a.apply(Float32Array, [void 0, _b.sent()]))()];
+                }
+            });
         });
     }
 
@@ -989,9 +1712,8 @@
                 switch (_b.label) {
                     case 0:
                         _a = getModelUris(uri, defaultModelName), manifestUri = _a.manifestUri, modelBaseUri = _a.modelBaseUri;
-                        return [4 /*yield*/, fetch(manifestUri)];
-                    case 1: return [4 /*yield*/, (_b.sent()).json()];
-                    case 2:
+                        return [4 /*yield*/, fetchJson(manifestUri)];
+                    case 1:
                         manifest = _b.sent();
                         return [2 /*return*/, io.loadWeights(manifest, modelBaseUri)];
                 }
@@ -1298,16 +2020,17 @@
             this._paramMappings = [];
         }
         Object.defineProperty(NeuralNetwork.prototype, "params", {
-            get: function () {
-                return this._params;
-            },
+            get: function () { return this._params; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NeuralNetwork.prototype, "paramMappings", {
-            get: function () {
-                return this._paramMappings;
-            },
+            get: function () { return this._paramMappings; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NeuralNetwork.prototype, "isLoaded", {
+            get: function () { return !!this.params; },
             enumerable: true,
             configurable: true
         });
@@ -1431,43 +2154,105 @@
         return FaceDetection;
     }(ObjectDetection));
 
+    var FaceDetectionWithLandmarks = /** @class */ (function () {
+        function FaceDetectionWithLandmarks(detection, unshiftedLandmarks) {
+            this._detection = detection;
+            this._unshiftedLandmarks = unshiftedLandmarks;
+        }
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "detection", {
+            get: function () { return this._detection; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "unshiftedLandmarks", {
+            get: function () { return this._unshiftedLandmarks; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "alignedRect", {
+            get: function () {
+                var rect = this.landmarks.align();
+                var imageDims = this.detection.imageDims;
+                return new FaceDetection(this._detection.score, rect.rescale(imageDims.reverse()), imageDims);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "landmarks", {
+            get: function () {
+                var _a = this.detection.box, x = _a.x, y = _a.y;
+                return this._unshiftedLandmarks.shiftBy(x, y);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "faceDetection", {
+            // aliases for backward compatibily
+            get: function () { return this.detection; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "faceLandmarks", {
+            get: function () { return this.landmarks; },
+            enumerable: true,
+            configurable: true
+        });
+        FaceDetectionWithLandmarks.prototype.forSize = function (width, height) {
+            var resizedDetection = this._detection.forSize(width, height);
+            var resizedLandmarks = this._unshiftedLandmarks.forSize(resizedDetection.box.width, resizedDetection.box.height);
+            return new FaceDetectionWithLandmarks(resizedDetection, resizedLandmarks);
+        };
+        return FaceDetectionWithLandmarks;
+    }());
+
     // face alignment constants
     var relX = 0.5;
     var relY = 0.43;
     var relScale = 0.45;
     var FaceLandmarks = /** @class */ (function () {
-        function FaceLandmarks(relativeFaceLandmarkPositions, imageDims, shift) {
+        function FaceLandmarks(relativeFaceLandmarkPositions, imgDims, shift) {
             if (shift === void 0) { shift = new Point(0, 0); }
-            var width = imageDims.width, height = imageDims.height;
-            this._imageWidth = width;
-            this._imageHeight = height;
+            var width = imgDims.width, height = imgDims.height;
+            this._imgDims = new Dimensions(width, height);
             this._shift = shift;
-            this._faceLandmarks = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
+            this._positions = relativeFaceLandmarkPositions.map(function (pt) { return pt.mul(new Point(width, height)).add(shift); });
         }
-        FaceLandmarks.prototype.getShift = function () {
-            return new Point(this._shift.x, this._shift.y);
-        };
-        FaceLandmarks.prototype.getImageWidth = function () {
-            return this._imageWidth;
-        };
-        FaceLandmarks.prototype.getImageHeight = function () {
-            return this._imageHeight;
-        };
-        FaceLandmarks.prototype.getPositions = function () {
-            return this._faceLandmarks;
-        };
-        FaceLandmarks.prototype.getRelativePositions = function () {
-            var _this = this;
-            return this._faceLandmarks.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this._imageWidth, _this._imageHeight)); });
-        };
+        Object.defineProperty(FaceLandmarks.prototype, "shift", {
+            get: function () { return new Point(this._shift.x, this._shift.y); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceLandmarks.prototype, "imageWidth", {
+            get: function () { return this._imgDims.width; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceLandmarks.prototype, "imageHeight", {
+            get: function () { return this._imgDims.height; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceLandmarks.prototype, "positions", {
+            get: function () { return this._positions; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceLandmarks.prototype, "relativePositions", {
+            get: function () {
+                var _this = this;
+                return this._positions.map(function (pt) { return pt.sub(_this._shift).div(new Point(_this.imageWidth, _this.imageHeight)); });
+            },
+            enumerable: true,
+            configurable: true
+        });
         FaceLandmarks.prototype.forSize = function (width, height) {
-            return new this.constructor(this.getRelativePositions(), { width: width, height: height });
+            return new this.constructor(this.relativePositions, { width: width, height: height });
         };
-        FaceLandmarks.prototype.shift = function (x, y) {
-            return new this.constructor(this.getRelativePositions(), { width: this._imageWidth, height: this._imageHeight }, new Point(x, y));
+        FaceLandmarks.prototype.shiftBy = function (x, y) {
+            return new this.constructor(this.relativePositions, this._imgDims, new Point(x, y));
         };
         FaceLandmarks.prototype.shiftByPoint = function (pt) {
-            return this.shift(pt.x, pt.y);
+            return this.shiftBy(pt.x, pt.y);
         };
         /**
          * Aligns the face landmarks after face detection from the relative positions of the faces
@@ -1483,9 +2268,9 @@
         FaceLandmarks.prototype.align = function (detection) {
             if (detection) {
                 var box = detection instanceof FaceDetection
-                    ? detection.getBox().floor()
+                    ? detection.box.floor()
                     : detection;
-                return this.shift(box.x, box.y).align();
+                return this.shiftBy(box.x, box.y).align();
             }
             var centers = this.getRefPointsForAlignment();
             var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
@@ -1496,7 +2281,7 @@
             // TODO: pad in case rectangle is out of image bounds
             var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
             var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
-            return new Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y));
+            return new Rect(x, y, Math.min(size, this.imageWidth + x), Math.min(size, this.imageHeight + y));
         };
         FaceLandmarks.prototype.getRefPointsForAlignment = function () {
             throw new Error('getRefPointsForAlignment not implemented by base class');
@@ -1510,7 +2295,7 @@
             return _super !== null && _super.apply(this, arguments) || this;
         }
         FaceLandmarks5.prototype.getRefPointsForAlignment = function () {
-            var pts = this.getPositions();
+            var pts = this.positions;
             return [
                 pts[0],
                 pts[1],
@@ -1526,25 +2311,25 @@
             return _super !== null && _super.apply(this, arguments) || this;
         }
         FaceLandmarks68.prototype.getJawOutline = function () {
-            return this._faceLandmarks.slice(0, 17);
+            return this.positions.slice(0, 17);
         };
         FaceLandmarks68.prototype.getLeftEyeBrow = function () {
-            return this._faceLandmarks.slice(17, 22);
+            return this.positions.slice(17, 22);
         };
         FaceLandmarks68.prototype.getRightEyeBrow = function () {
-            return this._faceLandmarks.slice(22, 27);
+            return this.positions.slice(22, 27);
         };
         FaceLandmarks68.prototype.getNose = function () {
-            return this._faceLandmarks.slice(27, 36);
+            return this.positions.slice(27, 36);
         };
         FaceLandmarks68.prototype.getLeftEye = function () {
-            return this._faceLandmarks.slice(36, 42);
+            return this.positions.slice(36, 42);
         };
         FaceLandmarks68.prototype.getRightEye = function () {
-            return this._faceLandmarks.slice(42, 48);
+            return this.positions.slice(42, 48);
         };
         FaceLandmarks68.prototype.getMouth = function () {
-            return this._faceLandmarks.slice(48, 68);
+            return this.positions.slice(48, 68);
         };
         FaceLandmarks68.prototype.getRefPointsForAlignment = function () {
             return [
@@ -1556,26 +2341,35 @@
         return FaceLandmarks68;
     }(FaceLandmarks));
 
-    var FullFaceDescription = /** @class */ (function () {
-        function FullFaceDescription(_detection, _landmarks, _descriptor) {
-            this._detection = _detection;
-            this._landmarks = _landmarks;
-            this._descriptor = _descriptor;
+    var FaceMatch = /** @class */ (function () {
+        function FaceMatch(label, distance) {
+            this._label = label;
+            this._distance = distance;
         }
-        Object.defineProperty(FullFaceDescription.prototype, "detection", {
-            get: function () {
-                return this._detection;
-            },
+        Object.defineProperty(FaceMatch.prototype, "label", {
+            get: function () { return this._label; },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(FullFaceDescription.prototype, "landmarks", {
-            get: function () {
-                return this._landmarks;
-            },
+        Object.defineProperty(FaceMatch.prototype, "distance", {
+            get: function () { return this._distance; },
             enumerable: true,
             configurable: true
         });
+        FaceMatch.prototype.toString = function (withDistance) {
+            if (withDistance === void 0) { withDistance = true; }
+            return "" + this.label + (withDistance ? " (" + round$1(this.distance) + ")" : '');
+        };
+        return FaceMatch;
+    }());
+
+    var FullFaceDescription = /** @class */ (function (_super) {
+        __extends$1(FullFaceDescription, _super);
+        function FullFaceDescription(detection, unshiftedLandmarks, descriptor) {
+            var _this = _super.call(this, detection, unshiftedLandmarks) || this;
+            _this._descriptor = descriptor;
+            return _this;
+        }
         Object.defineProperty(FullFaceDescription.prototype, "descriptor", {
             get: function () {
                 return this._descriptor;
@@ -1584,9 +2378,34 @@
             configurable: true
         });
         FullFaceDescription.prototype.forSize = function (width, height) {
-            return new FullFaceDescription(this._detection.forSize(width, height), this._landmarks.forSize(width, height), this._descriptor);
+            var _a = _super.prototype.forSize.call(this, width, height), detection = _a.detection, landmarks = _a.landmarks;
+            return new FullFaceDescription(detection, landmarks, this.descriptor);
         };
         return FullFaceDescription;
+    }(FaceDetectionWithLandmarks));
+
+    var LabeledFaceDescriptors = /** @class */ (function () {
+        function LabeledFaceDescriptors(label, descriptors) {
+            if (!(typeof label === 'string')) {
+                throw new Error('LabeledFaceDescriptors - constructor expected label to be a string');
+            }
+            if (!Array.isArray(descriptors) || descriptors.some(function (desc) { return !(desc instanceof Float32Array); })) {
+                throw new Error('LabeledFaceDescriptors - constructor expected descriptors to be an array of Float32Array');
+            }
+            this._label = label;
+            this._descriptors = descriptors;
+        }
+        Object.defineProperty(LabeledFaceDescriptors.prototype, "label", {
+            get: function () { return this._label; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LabeledFaceDescriptors.prototype, "descriptors", {
+            get: function () { return this._descriptors; },
+            enumerable: true,
+            configurable: true
+        });
+        return LabeledFaceDescriptors;
     }());
 
     function drawContour(ctx, points, isClosed) {
@@ -1636,7 +2455,7 @@
             // else draw points
             var ptOffset = lineWidth / 2;
             ctx.fillStyle = color;
-            landmarks.getPositions().forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
+            landmarks.positions.forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
         });
     }
 
@@ -1675,7 +2494,7 @@
                     case 5:
                         ctx = getContext2dOrThrow(canvas);
                         boxes = detections.map(function (det) { return det instanceof FaceDetection
-                            ? det.forSize(canvas.width, canvas.height).getBox().floor()
+                            ? det.forSize(canvas.width, canvas.height).box.floor()
                             : det; })
                             .map(function (box) { return box.clipAtImageBorders(canvas.width, canvas.height); });
                         return [2 /*return*/, boxes.map(function (_a) {
@@ -1709,7 +2528,7 @@
                 return [2 /*return*/, tidy(function () {
                         var _a = imageTensor.shape.slice(isTensor4D(imageTensor) ? 1 : 0), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
                         var boxes = detections.map(function (det) { return det instanceof FaceDetection
-                            ? det.forSize(imgWidth, imgHeight).getBox()
+                            ? det.forSize(imgWidth, imgHeight).box
                             : det; })
                             .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
                         var faceTensors = boxes.map(function (_a) {
@@ -1732,425 +2551,11 @@
             .reduce(function (res, diff) { return res + Math.pow(diff, 2); }, 0));
     }
 
-    function extractorsFactory(extractWeights, paramMappings) {
-        function extractDepthwiseConvParams(numChannels, mappedPrefix) {
-            var filters = tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
-            var batch_norm_scale = tensor1d(extractWeights(numChannels));
-            var batch_norm_offset = tensor1d(extractWeights(numChannels));
-            var batch_norm_mean = tensor1d(extractWeights(numChannels));
-            var batch_norm_variance = tensor1d(extractWeights(numChannels));
-            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/batch_norm_scale" }, { paramPath: mappedPrefix + "/batch_norm_offset" }, { paramPath: mappedPrefix + "/batch_norm_mean" }, { paramPath: mappedPrefix + "/batch_norm_variance" });
-            return {
-                filters: filters,
-                batch_norm_scale: batch_norm_scale,
-                batch_norm_offset: batch_norm_offset,
-                batch_norm_mean: batch_norm_mean,
-                batch_norm_variance: batch_norm_variance
-            };
-        }
-        function extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, isPointwiseConv) {
-            var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
-            var bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/" + (isPointwiseConv ? 'batch_norm_offset' : 'bias') });
-            return { filters: filters, bias: bias };
-        }
-        function extractPointwiseConvParams(channelsIn, channelsOut, filterSize, mappedPrefix) {
-            var _a = extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, true), filters = _a.filters, bias = _a.bias;
-            return {
-                filters: filters,
-                batch_norm_offset: bias
-            };
-        }
-        function extractConvPairParams(channelsIn, channelsOut, mappedPrefix) {
-            var depthwise_conv = extractDepthwiseConvParams(channelsIn, mappedPrefix + "/depthwise_conv");
-            var pointwise_conv = extractPointwiseConvParams(channelsIn, channelsOut, 1, mappedPrefix + "/pointwise_conv");
-            return { depthwise_conv: depthwise_conv, pointwise_conv: pointwise_conv };
-        }
-        function extractMobilenetV1Params() {
-            var conv_0 = extractPointwiseConvParams(3, 32, 3, 'mobilenetv1/conv_0');
-            var conv_1 = extractConvPairParams(32, 64, 'mobilenetv1/conv_1');
-            var conv_2 = extractConvPairParams(64, 128, 'mobilenetv1/conv_2');
-            var conv_3 = extractConvPairParams(128, 128, 'mobilenetv1/conv_3');
-            var conv_4 = extractConvPairParams(128, 256, 'mobilenetv1/conv_4');
-            var conv_5 = extractConvPairParams(256, 256, 'mobilenetv1/conv_5');
-            var conv_6 = extractConvPairParams(256, 512, 'mobilenetv1/conv_6');
-            var conv_7 = extractConvPairParams(512, 512, 'mobilenetv1/conv_7');
-            var conv_8 = extractConvPairParams(512, 512, 'mobilenetv1/conv_8');
-            var conv_9 = extractConvPairParams(512, 512, 'mobilenetv1/conv_9');
-            var conv_10 = extractConvPairParams(512, 512, 'mobilenetv1/conv_10');
-            var conv_11 = extractConvPairParams(512, 512, 'mobilenetv1/conv_11');
-            var conv_12 = extractConvPairParams(512, 1024, 'mobilenetv1/conv_12');
-            var conv_13 = extractConvPairParams(1024, 1024, 'mobilenetv1/conv_13');
-            return {
-                conv_0: conv_0,
-                conv_1: conv_1,
-                conv_2: conv_2,
-                conv_3: conv_3,
-                conv_4: conv_4,
-                conv_5: conv_5,
-                conv_6: conv_6,
-                conv_7: conv_7,
-                conv_8: conv_8,
-                conv_9: conv_9,
-                conv_10: conv_10,
-                conv_11: conv_11,
-                conv_12: conv_12,
-                conv_13: conv_13
-            };
-        }
-        function extractPredictionLayerParams() {
-            var conv_0 = extractPointwiseConvParams(1024, 256, 1, 'prediction_layer/conv_0');
-            var conv_1 = extractPointwiseConvParams(256, 512, 3, 'prediction_layer/conv_1');
-            var conv_2 = extractPointwiseConvParams(512, 128, 1, 'prediction_layer/conv_2');
-            var conv_3 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_3');
-            var conv_4 = extractPointwiseConvParams(256, 128, 1, 'prediction_layer/conv_4');
-            var conv_5 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_5');
-            var conv_6 = extractPointwiseConvParams(256, 64, 1, 'prediction_layer/conv_6');
-            var conv_7 = extractPointwiseConvParams(64, 128, 3, 'prediction_layer/conv_7');
-            var box_encoding_0_predictor = extractConvParams(512, 12, 1, 'prediction_layer/box_predictor_0/box_encoding_predictor');
-            var class_predictor_0 = extractConvParams(512, 9, 1, 'prediction_layer/box_predictor_0/class_predictor');
-            var box_encoding_1_predictor = extractConvParams(1024, 24, 1, 'prediction_layer/box_predictor_1/box_encoding_predictor');
-            var class_predictor_1 = extractConvParams(1024, 18, 1, 'prediction_layer/box_predictor_1/class_predictor');
-            var box_encoding_2_predictor = extractConvParams(512, 24, 1, 'prediction_layer/box_predictor_2/box_encoding_predictor');
-            var class_predictor_2 = extractConvParams(512, 18, 1, 'prediction_layer/box_predictor_2/class_predictor');
-            var box_encoding_3_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_3/box_encoding_predictor');
-            var class_predictor_3 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_3/class_predictor');
-            var box_encoding_4_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_4/box_encoding_predictor');
-            var class_predictor_4 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_4/class_predictor');
-            var box_encoding_5_predictor = extractConvParams(128, 24, 1, 'prediction_layer/box_predictor_5/box_encoding_predictor');
-            var class_predictor_5 = extractConvParams(128, 18, 1, 'prediction_layer/box_predictor_5/class_predictor');
-            var box_predictor_0 = {
-                box_encoding_predictor: box_encoding_0_predictor,
-                class_predictor: class_predictor_0
-            };
-            var box_predictor_1 = {
-                box_encoding_predictor: box_encoding_1_predictor,
-                class_predictor: class_predictor_1
-            };
-            var box_predictor_2 = {
-                box_encoding_predictor: box_encoding_2_predictor,
-                class_predictor: class_predictor_2
-            };
-            var box_predictor_3 = {
-                box_encoding_predictor: box_encoding_3_predictor,
-                class_predictor: class_predictor_3
-            };
-            var box_predictor_4 = {
-                box_encoding_predictor: box_encoding_4_predictor,
-                class_predictor: class_predictor_4
-            };
-            var box_predictor_5 = {
-                box_encoding_predictor: box_encoding_5_predictor,
-                class_predictor: class_predictor_5
-            };
-            return {
-                conv_0: conv_0,
-                conv_1: conv_1,
-                conv_2: conv_2,
-                conv_3: conv_3,
-                conv_4: conv_4,
-                conv_5: conv_5,
-                conv_6: conv_6,
-                conv_7: conv_7,
-                box_predictor_0: box_predictor_0,
-                box_predictor_1: box_predictor_1,
-                box_predictor_2: box_predictor_2,
-                box_predictor_3: box_predictor_3,
-                box_predictor_4: box_predictor_4,
-                box_predictor_5: box_predictor_5
-            };
-        }
-        return {
-            extractMobilenetV1Params: extractMobilenetV1Params,
-            extractPredictionLayerParams: extractPredictionLayerParams
-        };
-    }
-    function extractParams(weights) {
-        var paramMappings = [];
-        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
-        var mobilenetv1 = extractMobilenetV1Params();
-        var prediction_layer = extractPredictionLayerParams();
-        var extra_dim = tensor3d(extractWeights(5118 * 4), [1, 5118, 4]);
-        var output_layer = {
-            extra_dim: extra_dim
-        };
-        paramMappings.push({ paramPath: 'output_layer/extra_dim' });
-        if (getRemainingWeights().length !== 0) {
-            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
-        }
-        return {
-            params: {
-                mobilenetv1: mobilenetv1,
-                prediction_layer: prediction_layer,
-                output_layer: output_layer
-            },
-            paramMappings: paramMappings
-        };
-    }
-
-    var DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model';
-    function extractorsFactory$1(weightMap, paramMappings) {
-        var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
-        function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
-            var filters = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/weights", 4, mappedPrefix + "/filters");
-            var batch_norm_offset = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset", 1, mappedPrefix + "/batch_norm_offset");
-            return { filters: filters, batch_norm_offset: batch_norm_offset };
-        }
-        function extractConvPairParams(idx) {
-            var mappedPrefix = "mobilenetv1/conv_" + idx;
-            var prefixDepthwiseConv = "MobilenetV1/Conv2d_" + idx + "_depthwise";
-            var mappedPrefixDepthwiseConv = mappedPrefix + "/depthwise_conv";
-            var mappedPrefixPointwiseConv = mappedPrefix + "/pointwise_conv";
-            var filters = extractWeightEntry(prefixDepthwiseConv + "/depthwise_weights", 4, mappedPrefixDepthwiseConv + "/filters");
-            var batch_norm_scale = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/gamma", 1, mappedPrefixDepthwiseConv + "/batch_norm_scale");
-            var batch_norm_offset = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/beta", 1, mappedPrefixDepthwiseConv + "/batch_norm_offset");
-            var batch_norm_mean = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_mean", 1, mappedPrefixDepthwiseConv + "/batch_norm_mean");
-            var batch_norm_variance = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_variance", 1, mappedPrefixDepthwiseConv + "/batch_norm_variance");
-            return {
-                depthwise_conv: {
-                    filters: filters,
-                    batch_norm_scale: batch_norm_scale,
-                    batch_norm_offset: batch_norm_offset,
-                    batch_norm_mean: batch_norm_mean,
-                    batch_norm_variance: batch_norm_variance
-                },
-                pointwise_conv: extractPointwiseConvParams('MobilenetV1', idx, mappedPrefixPointwiseConv)
-            };
-        }
-        function extractMobilenetV1Params() {
-            return {
-                conv_0: extractPointwiseConvParams('MobilenetV1', 0, 'mobilenetv1/conv_0'),
-                conv_1: extractConvPairParams(1),
-                conv_2: extractConvPairParams(2),
-                conv_3: extractConvPairParams(3),
-                conv_4: extractConvPairParams(4),
-                conv_5: extractConvPairParams(5),
-                conv_6: extractConvPairParams(6),
-                conv_7: extractConvPairParams(7),
-                conv_8: extractConvPairParams(8),
-                conv_9: extractConvPairParams(9),
-                conv_10: extractConvPairParams(10),
-                conv_11: extractConvPairParams(11),
-                conv_12: extractConvPairParams(12),
-                conv_13: extractConvPairParams(13)
-            };
-        }
-        function extractConvParams(prefix, mappedPrefix) {
-            var filters = extractWeightEntry(prefix + "/weights", 4, mappedPrefix + "/filters");
-            var bias = extractWeightEntry(prefix + "/biases", 1, mappedPrefix + "/bias");
-            return { filters: filters, bias: bias };
-        }
-        function extractBoxPredictorParams(idx) {
-            var box_encoding_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor", "prediction_layer/box_predictor_" + idx + "/box_encoding_predictor");
-            var class_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/ClassPredictor", "prediction_layer/box_predictor_" + idx + "/class_predictor");
-            return { box_encoding_predictor: box_encoding_predictor, class_predictor: class_predictor };
-        }
-        function extractPredictionLayerParams() {
-            return {
-                conv_0: extractPointwiseConvParams('Prediction', 0, 'prediction_layer/conv_0'),
-                conv_1: extractPointwiseConvParams('Prediction', 1, 'prediction_layer/conv_1'),
-                conv_2: extractPointwiseConvParams('Prediction', 2, 'prediction_layer/conv_2'),
-                conv_3: extractPointwiseConvParams('Prediction', 3, 'prediction_layer/conv_3'),
-                conv_4: extractPointwiseConvParams('Prediction', 4, 'prediction_layer/conv_4'),
-                conv_5: extractPointwiseConvParams('Prediction', 5, 'prediction_layer/conv_5'),
-                conv_6: extractPointwiseConvParams('Prediction', 6, 'prediction_layer/conv_6'),
-                conv_7: extractPointwiseConvParams('Prediction', 7, 'prediction_layer/conv_7'),
-                box_predictor_0: extractBoxPredictorParams(0),
-                box_predictor_1: extractBoxPredictorParams(1),
-                box_predictor_2: extractBoxPredictorParams(2),
-                box_predictor_3: extractBoxPredictorParams(3),
-                box_predictor_4: extractBoxPredictorParams(4),
-                box_predictor_5: extractBoxPredictorParams(5)
-            };
-        }
-        return {
-            extractMobilenetV1Params: extractMobilenetV1Params,
-            extractPredictionLayerParams: extractPredictionLayerParams
-        };
-    }
-    function loadQuantizedParams(uri) {
-        return __awaiter$1(this, void 0, void 0, function () {
-            var weightMap, paramMappings, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim, params;
-            return __generator$1(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
-                    case 1:
-                        weightMap = _b.sent();
-                        paramMappings = [];
-                        _a = extractorsFactory$1(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
-                        extra_dim = weightMap['Output/extra_dim'];
-                        paramMappings.push({ originalPath: 'Output/extra_dim', paramPath: 'output_layer/extra_dim' });
-                        if (!isTensor3D(extra_dim)) {
-                            throw new Error("expected weightMap['Output/extra_dim'] to be a Tensor3D, instead have " + extra_dim);
-                        }
-                        params = {
-                            mobilenetv1: extractMobilenetV1Params(),
-                            prediction_layer: extractPredictionLayerParams(),
-                            output_layer: {
-                                extra_dim: extra_dim
-                            }
-                        };
-                        disposeUnusedWeightTensors(weightMap, paramMappings);
-                        return [2 /*return*/, { params: params, paramMappings: paramMappings }];
-                }
-            });
-        });
-    }
-
-    function pointwiseConvLayer(x, params, strides) {
+    function depthwiseSeparableConv(x, params, stride) {
         return tidy(function () {
-            var out = conv2d(x, params.filters, strides, 'same');
-            out = add(out, params.batch_norm_offset);
-            return clipByValue(out, 0, 6);
-        });
-    }
-
-    var epsilon = 0.0010000000474974513;
-    function depthwiseConvLayer(x, params, strides) {
-        return tidy(function () {
-            var out = depthwiseConv2d(x, params.filters, strides, 'same');
-            out = batchNormalization(out, params.batch_norm_mean, params.batch_norm_variance, epsilon, params.batch_norm_scale, params.batch_norm_offset);
-            return clipByValue(out, 0, 6);
-        });
-    }
-    function getStridesForLayerIdx(layerIdx) {
-        return [2, 4, 6, 12].some(function (idx) { return idx === layerIdx; }) ? [2, 2] : [1, 1];
-    }
-    function mobileNetV1(x, params) {
-        return tidy(function () {
-            var conv11 = null;
-            var out = pointwiseConvLayer(x, params.conv_0, [2, 2]);
-            var convPairParams = [
-                params.conv_1,
-                params.conv_2,
-                params.conv_3,
-                params.conv_4,
-                params.conv_5,
-                params.conv_6,
-                params.conv_7,
-                params.conv_8,
-                params.conv_9,
-                params.conv_10,
-                params.conv_11,
-                params.conv_12,
-                params.conv_13
-            ];
-            convPairParams.forEach(function (param, i) {
-                var layerIdx = i + 1;
-                var depthwiseConvStrides = getStridesForLayerIdx(layerIdx);
-                out = depthwiseConvLayer(out, param.depthwise_conv, depthwiseConvStrides);
-                out = pointwiseConvLayer(out, param.pointwise_conv, [1, 1]);
-                if (layerIdx === 11) {
-                    conv11 = out;
-                }
-            });
-            if (conv11 === null) {
-                throw new Error('mobileNetV1 - output of conv layer 11 is null');
-            }
-            return {
-                out: out,
-                conv11: conv11
-            };
-        });
-    }
-
-    function nonMaxSuppression$2(boxes, scores, maxOutputSize, iouThreshold, scoreThreshold) {
-        var numBoxes = boxes.shape[0];
-        var outputSize = Math.min(maxOutputSize, numBoxes);
-        var candidates = scores
-            .map(function (score, boxIndex) { return ({ score: score, boxIndex: boxIndex }); })
-            .filter(function (c) { return c.score > scoreThreshold; })
-            .sort(function (c1, c2) { return c2.score - c1.score; });
-        var suppressFunc = function (x) { return x <= iouThreshold ? 1 : 0; };
-        var selected = [];
-        candidates.forEach(function (c) {
-            if (selected.length >= outputSize) {
-                return;
-            }
-            var originalScore = c.score;
-            for (var j = selected.length - 1; j >= 0; --j) {
-                var iou = IOU(boxes, c.boxIndex, selected[j]);
-                if (iou === 0.0) {
-                    continue;
-                }
-                c.score *= suppressFunc(iou);
-                if (c.score <= scoreThreshold) {
-                    break;
-                }
-            }
-            if (originalScore === c.score) {
-                selected.push(c.boxIndex);
-            }
-        });
-        return selected;
-    }
-    function IOU(boxes, i, j) {
-        var yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2));
-        var xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3));
-        var ymaxI = Math.max(boxes.get(i, 0), boxes.get(i, 2));
-        var xmaxI = Math.max(boxes.get(i, 1), boxes.get(i, 3));
-        var yminJ = Math.min(boxes.get(j, 0), boxes.get(j, 2));
-        var xminJ = Math.min(boxes.get(j, 1), boxes.get(j, 3));
-        var ymaxJ = Math.max(boxes.get(j, 0), boxes.get(j, 2));
-        var xmaxJ = Math.max(boxes.get(j, 1), boxes.get(j, 3));
-        var areaI = (ymaxI - yminI) * (xmaxI - xminI);
-        var areaJ = (ymaxJ - yminJ) * (xmaxJ - xminJ);
-        if (areaI <= 0 || areaJ <= 0) {
-            return 0.0;
-        }
-        var intersectionYmin = Math.max(yminI, yminJ);
-        var intersectionXmin = Math.max(xminI, xminJ);
-        var intersectionYmax = Math.min(ymaxI, ymaxJ);
-        var intersectionXmax = Math.min(xmaxI, xmaxJ);
-        var intersectionArea = Math.max(intersectionYmax - intersectionYmin, 0.0) *
-            Math.max(intersectionXmax - intersectionXmin, 0.0);
-        return intersectionArea / (areaI + areaJ - intersectionArea);
-    }
-
-    function getCenterCoordinatesAndSizesLayer(x) {
-        var vec = unstack(transpose(x, [1, 0]));
-        var sizes = [
-            sub(vec[2], vec[0]),
-            sub(vec[3], vec[1])
-        ];
-        var centers = [
-            add(vec[0], div(sizes[0], scalar(2))),
-            add(vec[1], div(sizes[1], scalar(2)))
-        ];
-        return {
-            sizes: sizes,
-            centers: centers
-        };
-    }
-    function decodeBoxesLayer(x0, x1) {
-        var _a = getCenterCoordinatesAndSizesLayer(x0), sizes = _a.sizes, centers = _a.centers;
-        var vec = unstack(transpose(x1, [1, 0]));
-        var div0_out = div(mul(exp(div(vec[2], scalar(5))), sizes[0]), scalar(2));
-        var add0_out = add(mul(div(vec[0], scalar(10)), sizes[0]), centers[0]);
-        var div1_out = div(mul(exp(div(vec[3], scalar(5))), sizes[1]), scalar(2));
-        var add1_out = add(mul(div(vec[1], scalar(10)), sizes[1]), centers[1]);
-        return transpose(stack([
-            sub(add0_out, div0_out),
-            sub(add1_out, div1_out),
-            add(add0_out, div0_out),
-            add(add1_out, div1_out)
-        ]), [1, 0]);
-    }
-    function outputLayer(boxPredictions, classPredictions, params) {
-        return tidy(function () {
-            var batchSize = boxPredictions.shape[0];
-            var boxes = decodeBoxesLayer(reshape(tile(params.extra_dim, [batchSize, 1, 1]), [-1, 4]), reshape(boxPredictions, [-1, 4]));
-            boxes = reshape(boxes, [batchSize, (boxes.shape[0] / batchSize), 4]);
-            var scoresAndClasses = sigmoid(slice(classPredictions, [0, 0, 1], [-1, -1, -1]));
-            var scores = slice(scoresAndClasses, [0, 0, 0], [-1, -1, 1]);
-            scores = reshape(scores, [batchSize, scores.shape[1]]);
-            var boxesByBatch = unstack(boxes);
-            var scoresByBatch = unstack(scores);
-            return {
-                boxes: boxesByBatch,
-                scores: scoresByBatch
-            };
+            var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
+            out = add(out, params.bias);
+            return out;
         });
     }
 
@@ -2211,14 +2616,6 @@
         };
     }
 
-    var SizeType;
-    (function (SizeType) {
-        SizeType["XS"] = "xs";
-        SizeType["SM"] = "sm";
-        SizeType["MD"] = "md";
-        SizeType["LG"] = "lg";
-    })(SizeType || (SizeType = {}));
-
     var isNumber = function (arg) { return typeof arg === 'number'; };
     function validateConfig(config) {
         if (!config) {
@@ -2253,7 +2650,6 @@
         return config;
     }
 
-    var INPUT_SIZES = { xs: 224, sm: 320, md: 416, lg: 608 };
     var CELL_SIZE = 32;
     var DEFAULT_FILTER_SIZES = [
         3, 16, 32, 64, 128, 256, 512, 1024, 1024
@@ -2270,21 +2666,24 @@
     function convWithBatchNorm(x, params) {
         return tidy(function () {
             var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
-            if (params instanceof SeparableConvParams) {
-                out = separableConv2d(out, params.depthwise_filter, params.pointwise_filter, [1, 1], 'valid');
-                out = add(out, params.bias);
-            }
-            else {
-                out = conv2d(out, params.conv.filters, [1, 1], 'valid');
-                out = sub(out, params.bn.sub);
-                out = mul(out, params.bn.truediv);
-                out = add(out, params.conv.bias);
-            }
+            out = conv2d(out, params.conv.filters, [1, 1], 'valid');
+            out = sub(out, params.bn.sub);
+            out = mul(out, params.bn.truediv);
+            out = add(out, params.conv.bias);
             return leaky(out);
         });
     }
 
-    function extractorsFactory$2(extractWeights, paramMappings) {
+    function depthwiseSeparableConv$1(x, params) {
+        return tidy(function () {
+            var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
+            out = separableConv2d(out, params.depthwise_filter, params.pointwise_filter, [1, 1], 'valid');
+            out = add(out, params.bias);
+            return leaky(out);
+        });
+    }
+
+    function extractorsFactory(extractWeights, paramMappings) {
         var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
         function extractBatchNormParams(size, mappedPrefix) {
             var sub$$1 = tensor1d(extractWeights(size));
@@ -2304,41 +2703,46 @@
             extractSeparableConvParams: extractSeparableConvParams
         };
     }
-    function extractParams$1(weights, withSeparableConvs, boxEncodingSize, filterSizes) {
+    function extractParams(weights, config, boxEncodingSize, filterSizes) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var paramMappings = [];
-        var _b = extractorsFactory$2(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
-        var extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
-        var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
-        var conv0 = extractConvFn(s0, s1, 'conv0');
-        var conv1 = extractConvFn(s1, s2, 'conv1');
-        var conv2 = extractConvFn(s2, s3, 'conv2');
-        var conv3 = extractConvFn(s3, s4, 'conv3');
-        var conv4 = extractConvFn(s4, s5, 'conv4');
-        var conv5 = extractConvFn(s5, s6, 'conv5');
-        var conv6 = extractConvFn(s6, s7, 'conv6');
-        var conv7 = extractConvFn(s7, s8, 'conv7');
-        var conv8 = extractConvParams(s8, 5 * boxEncodingSize, 1, 'conv8');
+        var _b = extractorsFactory(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
+        var params;
+        if (config.withSeparableConvs) {
+            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
+            var conv0 = config.isFirstLayerConv2d
+                ? extractConvParams(s0, s1, 3, 'conv0')
+                : extractSeparableConvParams(s0, s1, 'conv0');
+            var conv1 = extractSeparableConvParams(s1, s2, 'conv1');
+            var conv2 = extractSeparableConvParams(s2, s3, 'conv2');
+            var conv3 = extractSeparableConvParams(s3, s4, 'conv3');
+            var conv4 = extractSeparableConvParams(s4, s5, 'conv4');
+            var conv5 = extractSeparableConvParams(s5, s6, 'conv5');
+            var conv6 = s7 ? extractSeparableConvParams(s6, s7, 'conv6') : undefined;
+            var conv7 = s8 ? extractSeparableConvParams(s7, s8, 'conv7') : undefined;
+            var conv8 = extractConvParams(s8 || s7 || s6, 5 * boxEncodingSize, 1, 'conv8');
+            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
+        }
+        else {
+            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
+            var conv0 = extractConvWithBatchNormParams(s0, s1, 'conv0');
+            var conv1 = extractConvWithBatchNormParams(s1, s2, 'conv1');
+            var conv2 = extractConvWithBatchNormParams(s2, s3, 'conv2');
+            var conv3 = extractConvWithBatchNormParams(s3, s4, 'conv3');
+            var conv4 = extractConvWithBatchNormParams(s4, s5, 'conv4');
+            var conv5 = extractConvWithBatchNormParams(s5, s6, 'conv5');
+            var conv6 = extractConvWithBatchNormParams(s6, s7, 'conv6');
+            var conv7 = extractConvWithBatchNormParams(s7, s8, 'conv7');
+            var conv8 = extractConvParams(s8, 5 * boxEncodingSize, 1, 'conv8');
+            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
+        }
         if (getRemainingWeights().length !== 0) {
             throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
-        var params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
         return { params: params, paramMappings: paramMappings };
     }
 
-    function getDefaultForwardParams(params) {
-        return Object.assign({}, {
-            inputSize: SizeType.MD,
-            scoreThreshold: 0.5
-        }, params);
-    }
-    function getDefaultBackwardOptions(options) {
-        return Object.assign({}, {
-            minBoxSize: CELL_SIZE
-        }, options);
-    }
-
-    function extractorsFactory$3(weightMap, paramMappings) {
+    function extractorsFactory$1(weightMap, paramMappings) {
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractBatchNormParams(prefix) {
             var sub = extractWeightEntry(prefix + "/sub", 1);
@@ -2362,35 +2766,83 @@
             extractSeparableConvParams: extractSeparableConvParams
         };
     }
-    function loadQuantizedParams$1(uri, withSeparableConvs, defaultModelName) {
+    function loadQuantizedParams(uri, config, defaultModelName) {
         if (defaultModelName === void 0) { defaultModelName = ''; }
         return __awaiter$1(this, void 0, void 0, function () {
-            var weightMap, paramMappings, _a, extractConvParams, extractConvWithBatchNormParams, extractSeparableConvParams, extractConvFn, params;
+            var weightMap, paramMappings, _a, extractConvParams, extractConvWithBatchNormParams, extractSeparableConvParams, params, numFilters;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, loadWeightMap(uri, defaultModelName)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
-                        _a = extractorsFactory$3(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
-                        extractConvFn = withSeparableConvs ? extractSeparableConvParams : extractConvWithBatchNormParams;
-                        params = {
-                            conv0: extractConvFn('conv0'),
-                            conv1: extractConvFn('conv1'),
-                            conv2: extractConvFn('conv2'),
-                            conv3: extractConvFn('conv3'),
-                            conv4: extractConvFn('conv4'),
-                            conv5: extractConvFn('conv5'),
-                            conv6: extractConvFn('conv6'),
-                            conv7: extractConvFn('conv7'),
-                            conv8: extractConvParams('conv8')
-                        };
+                        _a = extractorsFactory$1(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
+                        if (config.withSeparableConvs) {
+                            numFilters = (config.filterSizes && config.filterSizes.length || 9);
+                            params = {
+                                conv0: config.isFirstLayerConv2d ? extractConvParams('conv0') : extractSeparableConvParams('conv0'),
+                                conv1: extractSeparableConvParams('conv1'),
+                                conv2: extractSeparableConvParams('conv2'),
+                                conv3: extractSeparableConvParams('conv3'),
+                                conv4: extractSeparableConvParams('conv4'),
+                                conv5: extractSeparableConvParams('conv5'),
+                                conv6: numFilters > 7 ? extractSeparableConvParams('conv6') : undefined,
+                                conv7: numFilters > 8 ? extractSeparableConvParams('conv7') : undefined,
+                                conv8: extractConvParams('conv8')
+                            };
+                        }
+                        else {
+                            params = {
+                                conv0: extractConvWithBatchNormParams('conv0'),
+                                conv1: extractConvWithBatchNormParams('conv1'),
+                                conv2: extractConvWithBatchNormParams('conv2'),
+                                conv3: extractConvWithBatchNormParams('conv3'),
+                                conv4: extractConvWithBatchNormParams('conv4'),
+                                conv5: extractConvWithBatchNormParams('conv5'),
+                                conv6: extractConvWithBatchNormParams('conv6'),
+                                conv7: extractConvWithBatchNormParams('conv7'),
+                                conv8: extractConvParams('conv8')
+                            };
+                        }
                         disposeUnusedWeightTensors(weightMap, paramMappings);
                         return [2 /*return*/, { params: params, paramMappings: paramMappings }];
                 }
             });
         });
     }
+
+    var TinyYolov2SizeType;
+    (function (TinyYolov2SizeType) {
+        TinyYolov2SizeType[TinyYolov2SizeType["XS"] = 224] = "XS";
+        TinyYolov2SizeType[TinyYolov2SizeType["SM"] = 320] = "SM";
+        TinyYolov2SizeType[TinyYolov2SizeType["MD"] = 416] = "MD";
+        TinyYolov2SizeType[TinyYolov2SizeType["LG"] = 608] = "LG";
+    })(TinyYolov2SizeType || (TinyYolov2SizeType = {}));
+    var TinyYolov2Options = /** @class */ (function () {
+        function TinyYolov2Options(_a) {
+            var _b = _a === void 0 ? {} : _a, inputSize = _b.inputSize, scoreThreshold = _b.scoreThreshold;
+            this._name = 'TinyYolov2Options';
+            this._inputSize = inputSize || 416;
+            this._scoreThreshold = scoreThreshold || 0.5;
+            if (typeof this._inputSize !== 'number' || this._inputSize % 32 !== 0) {
+                throw new Error(this._name + " - expected inputSize to be a number divisible by 32");
+            }
+            if (typeof this._scoreThreshold !== 'number' || this._scoreThreshold <= 0 || this._scoreThreshold >= 1) {
+                throw new Error(this._name + " - expected scoreThreshold to be a number between 0 and 1");
+            }
+        }
+        Object.defineProperty(TinyYolov2Options.prototype, "inputSize", {
+            get: function () { return this._inputSize; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TinyYolov2Options.prototype, "scoreThreshold", {
+            get: function () { return this._scoreThreshold; },
+            enumerable: true,
+            configurable: true
+        });
+        return TinyYolov2Options;
+    }());
 
     var TinyYolov2 = /** @class */ (function (_super) {
         __extends$1(TinyYolov2, _super);
@@ -2421,36 +2873,58 @@
             enumerable: true,
             configurable: true
         });
+        TinyYolov2.prototype.runTinyYolov2 = function (x, params) {
+            var out = convWithBatchNorm(x, params.conv0);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv1);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv2);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv3);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv4);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv5);
+            out = maxPool(out, [2, 2], [1, 1], 'same');
+            out = convWithBatchNorm(out, params.conv6);
+            out = convWithBatchNorm(out, params.conv7);
+            return convLayer(out, params.conv8, 'valid', false);
+        };
+        TinyYolov2.prototype.runMobilenet = function (x, params) {
+            var out = this.config.isFirstLayerConv2d
+                ? leaky(convLayer(x, params.conv0, 'valid', false))
+                : depthwiseSeparableConv$1(x, params.conv0);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv$1(out, params.conv1);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv$1(out, params.conv2);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv$1(out, params.conv3);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv$1(out, params.conv4);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv$1(out, params.conv5);
+            out = maxPool(out, [2, 2], [1, 1], 'same');
+            out = params.conv6 ? depthwiseSeparableConv$1(out, params.conv6) : out;
+            out = params.conv7 ? depthwiseSeparableConv$1(out, params.conv7) : out;
+            return convLayer(out, params.conv8, 'valid', false);
+        };
         TinyYolov2.prototype.forwardInput = function (input, inputSize) {
             var _this = this;
             var params = this.params;
             if (!params) {
                 throw new Error('TinyYolov2 - load model before inference');
             }
-            var out = tidy(function () {
+            return tidy(function () {
                 var batchTensor = input.toBatchTensor(inputSize, false).toFloat();
                 batchTensor = _this.config.meanRgb
                     ? normalize(batchTensor, _this.config.meanRgb)
                     : batchTensor;
                 batchTensor = batchTensor.div(scalar(256));
-                var out = convWithBatchNorm(batchTensor, params.conv0);
-                out = maxPool(out, [2, 2], [2, 2], 'same');
-                out = convWithBatchNorm(out, params.conv1);
-                out = maxPool(out, [2, 2], [2, 2], 'same');
-                out = convWithBatchNorm(out, params.conv2);
-                out = maxPool(out, [2, 2], [2, 2], 'same');
-                out = convWithBatchNorm(out, params.conv3);
-                out = maxPool(out, [2, 2], [2, 2], 'same');
-                out = convWithBatchNorm(out, params.conv4);
-                out = maxPool(out, [2, 2], [2, 2], 'same');
-                out = convWithBatchNorm(out, params.conv5);
-                out = maxPool(out, [2, 2], [1, 1], 'same');
-                out = convWithBatchNorm(out, params.conv6);
-                out = convWithBatchNorm(out, params.conv7);
-                out = convLayer(out, params.conv8, 'valid', false);
-                return out;
+                return _this.config.withSeparableConvs
+                    ? _this.runMobilenet(batchTensor, params)
+                    : _this.runTinyYolov2(batchTensor, params);
             });
-            return out;
         };
         TinyYolov2.prototype.forward = function (input, inputSize) {
             return __awaiter$1(this, void 0, void 0, function () {
@@ -2470,17 +2944,11 @@
             if (forwardParams === void 0) { forwardParams = {}; }
             return __awaiter$1(this, void 0, void 0, function () {
                 var _this = this;
-                var _a, _inputSize, scoreThreshold, inputSize, netInput, out, out0, inputDimensions, results, boxes, scores, classScores, classNames, indices, detections;
+                var _a, inputSize, scoreThreshold, netInput, out, out0, inputDimensions, results, boxes, scores, classScores, classNames, indices, detections;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
                         case 0:
-                            _a = getDefaultForwardParams(forwardParams), _inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
-                            inputSize = typeof _inputSize === 'string'
-                                ? INPUT_SIZES[_inputSize]
-                                : _inputSize;
-                            if (typeof inputSize !== 'number') {
-                                throw new Error("TinyYolov2 - unknown inputSize: " + inputSize + ", expected number or one of xs | sm | md | lg");
-                            }
+                            _a = new TinyYolov2Options(forwardParams), inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
                             return [4 /*yield*/, toNetInput(input)];
                         case 1:
                             netInput = _b.sent();
@@ -2513,15 +2981,15 @@
             if (!modelUri) {
                 throw new Error('loadQuantizedParams - please specify the modelUri');
             }
-            return loadQuantizedParams$1(modelUri, this.config.withSeparableConvs, defaultModelName);
+            return loadQuantizedParams(modelUri, this.config, defaultModelName);
         };
         TinyYolov2.prototype.extractParams = function (weights) {
             var filterSizes = this.config.filterSizes || DEFAULT_FILTER_SIZES;
             var numFilters = filterSizes ? filterSizes.length : undefined;
-            if (numFilters !== 9) {
-                throw new Error("TinyYolov2 - expected 9 convolutional filters, but found " + numFilters + " filterSizes in config");
+            if (numFilters !== 7 && numFilters !== 8 && numFilters !== 9) {
+                throw new Error("TinyYolov2 - expected 7 | 8 | 9 convolutional filters, but found " + numFilters + " filterSizes in config");
             }
-            return extractParams$1(weights, this.config.withSeparableConvs, this.boxEncodingSize, filterSizes);
+            return extractParams(weights, this.config, this.boxEncodingSize, filterSizes);
         };
         TinyYolov2.prototype.extractBoxes = function (outputTensor, inputBlobDimensions, scoreThreshold) {
             var _this = this;
@@ -2899,6 +3367,12 @@
         return TinyYolov2LossFunction;
     }());
 
+    function getDefaultBackwardOptions(options) {
+        return Object.assign({}, {
+            minBoxSize: CELL_SIZE
+        }, options);
+    }
+
     var TinyYolov2Trainable = /** @class */ (function (_super) {
         __extends$1(TinyYolov2Trainable, _super);
         function TinyYolov2Trainable(trainableConfig, optimizer) {
@@ -3000,170 +3474,7 @@
         return TinyYolov2Trainable;
     }(TinyYolov2));
 
-    var TinyYolov2Types;
-    (function (TinyYolov2Types) {
-        TinyYolov2Types.SizeType = SizeType;
-    })(TinyYolov2Types || (TinyYolov2Types = {}));
-
-    function boxPredictionLayer(x, params) {
-        return tidy(function () {
-            var batchSize = x.shape[0];
-            var boxPredictionEncoding = reshape(convLayer(x, params.box_encoding_predictor), [batchSize, -1, 1, 4]);
-            var classPrediction = reshape(convLayer(x, params.class_predictor), [batchSize, -1, 3]);
-            return {
-                boxPredictionEncoding: boxPredictionEncoding,
-                classPrediction: classPrediction
-            };
-        });
-    }
-
-    function predictionLayer(x, conv11, params) {
-        return tidy(function () {
-            var conv0 = pointwiseConvLayer(x, params.conv_0, [1, 1]);
-            var conv1 = pointwiseConvLayer(conv0, params.conv_1, [2, 2]);
-            var conv2 = pointwiseConvLayer(conv1, params.conv_2, [1, 1]);
-            var conv3 = pointwiseConvLayer(conv2, params.conv_3, [2, 2]);
-            var conv4 = pointwiseConvLayer(conv3, params.conv_4, [1, 1]);
-            var conv5 = pointwiseConvLayer(conv4, params.conv_5, [2, 2]);
-            var conv6 = pointwiseConvLayer(conv5, params.conv_6, [1, 1]);
-            var conv7 = pointwiseConvLayer(conv6, params.conv_7, [2, 2]);
-            var boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0);
-            var boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1);
-            var boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2);
-            var boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3);
-            var boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4);
-            var boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5);
-            var boxPredictions = concat([
-                boxPrediction0.boxPredictionEncoding,
-                boxPrediction1.boxPredictionEncoding,
-                boxPrediction2.boxPredictionEncoding,
-                boxPrediction3.boxPredictionEncoding,
-                boxPrediction4.boxPredictionEncoding,
-                boxPrediction5.boxPredictionEncoding
-            ], 1);
-            var classPredictions = concat([
-                boxPrediction0.classPrediction,
-                boxPrediction1.classPrediction,
-                boxPrediction2.classPrediction,
-                boxPrediction3.classPrediction,
-                boxPrediction4.classPrediction,
-                boxPrediction5.classPrediction
-            ], 1);
-            return {
-                boxPredictions: boxPredictions,
-                classPredictions: classPredictions
-            };
-        });
-    }
-
-    var FaceDetectionNet = /** @class */ (function (_super) {
-        __extends$1(FaceDetectionNet, _super);
-        function FaceDetectionNet() {
-            return _super.call(this, 'FaceDetectionNet') || this;
-        }
-        FaceDetectionNet.prototype.forwardInput = function (input) {
-            var params = this.params;
-            if (!params) {
-                throw new Error('FaceDetectionNet - load model before inference');
-            }
-            return tidy(function () {
-                var batchTensor = input.toBatchTensor(512, false).toFloat();
-                var x = sub(mul(batchTensor, scalar(0.007843137718737125)), scalar(1));
-                var features = mobileNetV1(x, params.mobilenetv1);
-                var _a = predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
-                return outputLayer(boxPredictions, classPredictions, params.output_layer);
-            });
-        };
-        FaceDetectionNet.prototype.forward = function (input) {
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _a;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input)];
-                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
-                    }
-                });
-            });
-        };
-        FaceDetectionNet.prototype.locateFaces = function (input, minConfidence, maxResults) {
-            if (minConfidence === void 0) { minConfidence = 0.8; }
-            if (maxResults === void 0) { maxResults = 100; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var netInput, _a, _boxes, _scores, boxes, scores, i, scoresData, _b, _c, iouThreshold, indices, reshapedDims, inputSize, padX, padY, results;
-                return __generator$1(this, function (_d) {
-                    switch (_d.label) {
-                        case 0: return [4 /*yield*/, toNetInput(input)];
-                        case 1:
-                            netInput = _d.sent();
-                            _a = this.forwardInput(netInput), _boxes = _a.boxes, _scores = _a.scores;
-                            boxes = _boxes[0];
-                            scores = _scores[0];
-                            for (i = 1; i < _boxes.length; i++) {
-                                _boxes[i].dispose();
-                                _scores[i].dispose();
-                            }
-                            _c = (_b = Array).from;
-                            return [4 /*yield*/, scores.data()];
-                        case 2:
-                            scoresData = _c.apply(_b, [_d.sent()]);
-                            iouThreshold = 0.5;
-                            indices = nonMaxSuppression$2(boxes, scoresData, maxResults, iouThreshold, minConfidence);
-                            reshapedDims = netInput.getReshapedInputDimensions(0);
-                            inputSize = netInput.inputSize;
-                            padX = inputSize / reshapedDims.width;
-                            padY = inputSize / reshapedDims.height;
-                            results = indices
-                                .map(function (idx) {
-                                var _a = [
-                                    Math.max(0, boxes.get(idx, 0)),
-                                    Math.min(1.0, boxes.get(idx, 2))
-                                ].map(function (val) { return val * padY; }), top = _a[0], bottom = _a[1];
-                                var _b = [
-                                    Math.max(0, boxes.get(idx, 1)),
-                                    Math.min(1.0, boxes.get(idx, 3))
-                                ].map(function (val) { return val * padX; }), left = _b[0], right = _b[1];
-                                return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), {
-                                    height: netInput.getInputHeight(0),
-                                    width: netInput.getInputWidth(0)
-                                });
-                            });
-                            boxes.dispose();
-                            scores.dispose();
-                            return [2 /*return*/, results];
-                    }
-                });
-            });
-        };
-        FaceDetectionNet.prototype.loadQuantizedParams = function (uri) {
-            return loadQuantizedParams(uri);
-        };
-        FaceDetectionNet.prototype.extractParams = function (weights) {
-            return extractParams(weights);
-        };
-        return FaceDetectionNet;
-    }(NeuralNetwork));
-
-    function createFaceDetectionNet(weights) {
-        var net = new FaceDetectionNet();
-        net.extractWeights(weights);
-        return net;
-    }
-    function faceDetectionNet(weights) {
-        console.warn('faceDetectionNet(weights: Float32Array) will be deprecated in future, use createFaceDetectionNet instead');
-        return createFaceDetectionNet(weights);
-    }
-
-    function depthwiseSeparableConv(x, params, stride) {
-        return tidy(function () {
-            var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
-            out = add(out, params.bias);
-            return out;
-        });
-    }
-
-    function extractorsFactory$4(extractWeights, paramMappings) {
+    function extractorsFactory$2(extractWeights, paramMappings) {
         function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
             var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
             var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
@@ -3203,10 +3514,10 @@
         };
     }
 
-    function extractParams$2(weights) {
+    function extractParams$1(weights) {
         var paramMappings = [];
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory$4(extractWeights, paramMappings), extractDenseBlock4Params = _b.extractDenseBlock4Params, extractFCParams = _b.extractFCParams;
+        var _b = extractorsFactory$2(extractWeights, paramMappings), extractDenseBlock4Params = _b.extractDenseBlock4Params, extractFCParams = _b.extractFCParams;
         var dense0 = extractDenseBlock4Params(3, 32, 'dense0', true);
         var dense1 = extractDenseBlock4Params(32, 64, 'dense1');
         var dense2 = extractDenseBlock4Params(64, 128, 'dense2');
@@ -3379,13 +3690,13 @@
         };
     }
 
-    var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_model';
-    function loadQuantizedParams$2(uri) {
+    var DEFAULT_MODEL_NAME = 'face_landmark_68_model';
+    function loadQuantizedParams$1(uri) {
         return __awaiter$1(this, void 0, void 0, function () {
             var weightMap, paramMappings, _a, extractDenseBlock4Params, extractFcParams, params;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$1)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
@@ -3421,12 +3732,12 @@
     var FaceLandmark68Net = /** @class */ (function (_super) {
         __extends$1(FaceLandmark68Net, _super);
         function FaceLandmark68Net() {
-            return _super.call(this, 'FaceLandmark68LargeNet') || this;
+            return _super.call(this, 'FaceLandmark68Net') || this;
         }
         FaceLandmark68Net.prototype.runNet = function (input) {
             var params = this.params;
             if (!params) {
-                throw new Error('FaceLandmark68LargeNet - load model before inference');
+                throw new Error('FaceLandmark68Net - load model before inference');
             }
             return tidy(function () {
                 var batchTensor = input.toBatchTensor(112, true);
@@ -3441,10 +3752,10 @@
             });
         };
         FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
-            return loadQuantizedParams$2(uri);
+            return loadQuantizedParams$1(uri);
         };
         FaceLandmark68Net.prototype.extractParams = function (weights) {
-            return extractParams$2(weights);
+            return extractParams$1(weights);
         };
         return FaceLandmark68Net;
     }(FaceLandmark68NetBase));
@@ -3452,7 +3763,7 @@
     function extractParamsTiny(weights) {
         var paramMappings = [];
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory$4(extractWeights, paramMappings), extractDenseBlock3Params = _b.extractDenseBlock3Params, extractFCParams = _b.extractFCParams;
+        var _b = extractorsFactory$2(extractWeights, paramMappings), extractDenseBlock3Params = _b.extractDenseBlock3Params, extractFCParams = _b.extractFCParams;
         var dense0 = extractDenseBlock3Params(3, 32, 'dense0', true);
         var dense1 = extractDenseBlock3Params(32, 64, 'dense1');
         var dense2 = extractDenseBlock3Params(64, 128, 'dense2');
@@ -3466,13 +3777,13 @@
         };
     }
 
-    var DEFAULT_MODEL_NAME$2 = 'face_landmark_68_tiny_model';
+    var DEFAULT_MODEL_NAME$1 = 'face_landmark_68_tiny_model';
     function loadQuantizedParamsTiny(uri) {
         return __awaiter$1(this, void 0, void 0, function () {
             var weightMap, paramMappings, _a, extractDenseBlock3Params, extractFcParams, params;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$2)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$1)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
@@ -3544,10 +3855,6 @@
         net.extractWeights(weights);
         return net;
     }
-    function faceLandmarkNet(weights) {
-        console.warn('faceLandmarkNet(weights: Float32Array) will be deprecated in future, use createFaceLandmarkNet instead');
-        return createFaceLandmarkNet(weights);
-    }
 
     function scale(x, params) {
         return add(mul(x, params.weights), params.biases);
@@ -3571,7 +3878,7 @@
         return convLayer$1(x, params, [2, 2], true, 'valid');
     }
 
-    function extractorsFactory$5(extractWeights, paramMappings) {
+    function extractorsFactory$3(extractWeights, paramMappings) {
         function extractFilterValues(numFilterValues, numFilters, filterSize) {
             var weights = extractWeights(numFilterValues);
             var depth = weights.length / (numFilters * filterSize * filterSize);
@@ -3611,10 +3918,10 @@
             extractResidualLayerParams: extractResidualLayerParams
         };
     }
-    function extractParams$3(weights) {
+    function extractParams$2(weights) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var paramMappings = [];
-        var _b = extractorsFactory$5(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
+        var _b = extractorsFactory$3(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
         var conv32_down = extractConvLayerParams(4704, 32, 7, 'conv32_down');
         var conv32_1 = extractResidualLayerParams(9216, 32, 3, 'conv32_1');
         var conv32_2 = extractResidualLayerParams(9216, 32, 3, 'conv32_2');
@@ -3656,8 +3963,8 @@
         return { params: params, paramMappings: paramMappings };
     }
 
-    var DEFAULT_MODEL_NAME$3 = 'face_recognition_model';
-    function extractorsFactory$6(weightMap, paramMappings) {
+    var DEFAULT_MODEL_NAME$2 = 'face_recognition_model';
+    function extractorsFactory$4(weightMap, paramMappings) {
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractScaleLayerParams(prefix) {
             var weights = extractWeightEntry(prefix + "/scale/weights", 1);
@@ -3681,16 +3988,16 @@
             extractResidualLayerParams: extractResidualLayerParams
         };
     }
-    function loadQuantizedParams$3(uri) {
+    function loadQuantizedParams$2(uri) {
         return __awaiter$1(this, void 0, void 0, function () {
             var weightMap, paramMappings, _a, extractConvLayerParams, extractResidualLayerParams, conv32_down, conv32_1, conv32_2, conv32_3, conv64_down, conv64_1, conv64_2, conv64_3, conv128_down, conv128_1, conv128_2, conv256_down, conv256_1, conv256_2, conv256_down_out, fc, params;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$3)];
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$2)];
                     case 1:
                         weightMap = _b.sent();
                         paramMappings = [];
-                        _a = extractorsFactory$6(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
+                        _a = extractorsFactory$4(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
                         conv32_down = extractConvLayerParams('conv32_down');
                         conv32_1 = extractResidualLayerParams('conv32_1');
                         conv32_2 = extractResidualLayerParams('conv32_2');
@@ -3836,10 +4143,10 @@
             });
         };
         FaceRecognitionNet.prototype.loadQuantizedParams = function (uri) {
-            return loadQuantizedParams$3(uri);
+            return loadQuantizedParams$2(uri);
         };
         FaceRecognitionNet.prototype.extractParams = function (weights) {
-            return extractParams$3(weights);
+            return extractParams$2(weights);
         };
         return FaceRecognitionNet;
     }(NeuralNetwork));
@@ -3849,130 +4156,704 @@
         net.extractWeights(weights);
         return net;
     }
-    function faceRecognitionNet(weights) {
-        console.warn('faceRecognitionNet(weights: Float32Array) will be deprecated in future, use createFaceRecognitionNet instead');
-        return createFaceRecognitionNet(weights);
+
+    var MtcnnOptions = /** @class */ (function () {
+        function MtcnnOptions(_a) {
+            var _b = _a === void 0 ? {} : _a, minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
+            this._name = 'MtcnnOptions';
+            this._minFaceSize = minFaceSize || 20;
+            this._scaleFactor = scaleFactor || 0.709;
+            this._maxNumScales = maxNumScales || 10;
+            this._scoreThresholds = scoreThresholds || [0.6, 0.7, 0.7];
+            this._scaleSteps = scaleSteps;
+            if (typeof this._minFaceSize !== 'number' || this._minFaceSize < 0) {
+                throw new Error(this._name + " - expected minFaceSize to be a number > 0");
+            }
+            if (typeof this._scaleFactor !== 'number' || this._scaleFactor <= 0 || this._scaleFactor >= 1) {
+                throw new Error(this._name + " - expected scaleFactor to be a number between 0 and 1");
+            }
+            if (typeof this._maxNumScales !== 'number' || this._maxNumScales < 0) {
+                throw new Error(this._name + " - expected maxNumScales to be a number > 0");
+            }
+            if (!Array.isArray(this._scoreThresholds)
+                || this._scoreThresholds.length !== 3
+                || this._scoreThresholds.some(function (th) { return typeof th !== 'number'; })) {
+                throw new Error(this._name + " - expected scoreThresholds to be an array of numbers of length 3");
+            }
+            if (this._scaleSteps
+                && (!Array.isArray(this._scaleSteps) || this._scaleSteps.some(function (th) { return typeof th !== 'number'; }))) {
+                throw new Error(this._name + " - expected scaleSteps to be an array of numbers");
+            }
+        }
+        Object.defineProperty(MtcnnOptions.prototype, "minFaceSize", {
+            get: function () { return this._minFaceSize; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MtcnnOptions.prototype, "scaleFactor", {
+            get: function () { return this._scaleFactor; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MtcnnOptions.prototype, "maxNumScales", {
+            get: function () { return this._maxNumScales; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MtcnnOptions.prototype, "scoreThresholds", {
+            get: function () { return this._scoreThresholds; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MtcnnOptions.prototype, "scaleSteps", {
+            get: function () { return this._scaleSteps; },
+            enumerable: true,
+            configurable: true
+        });
+        return MtcnnOptions;
+    }());
+
+    function extractorsFactory$5(extractWeights, paramMappings) {
+        function extractDepthwiseConvParams(numChannels, mappedPrefix) {
+            var filters = tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
+            var batch_norm_scale = tensor1d(extractWeights(numChannels));
+            var batch_norm_offset = tensor1d(extractWeights(numChannels));
+            var batch_norm_mean = tensor1d(extractWeights(numChannels));
+            var batch_norm_variance = tensor1d(extractWeights(numChannels));
+            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/batch_norm_scale" }, { paramPath: mappedPrefix + "/batch_norm_offset" }, { paramPath: mappedPrefix + "/batch_norm_mean" }, { paramPath: mappedPrefix + "/batch_norm_variance" });
+            return {
+                filters: filters,
+                batch_norm_scale: batch_norm_scale,
+                batch_norm_offset: batch_norm_offset,
+                batch_norm_mean: batch_norm_mean,
+                batch_norm_variance: batch_norm_variance
+            };
+        }
+        function extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, isPointwiseConv) {
+            var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/" + (isPointwiseConv ? 'batch_norm_offset' : 'bias') });
+            return { filters: filters, bias: bias };
+        }
+        function extractPointwiseConvParams(channelsIn, channelsOut, filterSize, mappedPrefix) {
+            var _a = extractConvParams(channelsIn, channelsOut, filterSize, mappedPrefix, true), filters = _a.filters, bias = _a.bias;
+            return {
+                filters: filters,
+                batch_norm_offset: bias
+            };
+        }
+        function extractConvPairParams(channelsIn, channelsOut, mappedPrefix) {
+            var depthwise_conv = extractDepthwiseConvParams(channelsIn, mappedPrefix + "/depthwise_conv");
+            var pointwise_conv = extractPointwiseConvParams(channelsIn, channelsOut, 1, mappedPrefix + "/pointwise_conv");
+            return { depthwise_conv: depthwise_conv, pointwise_conv: pointwise_conv };
+        }
+        function extractMobilenetV1Params() {
+            var conv_0 = extractPointwiseConvParams(3, 32, 3, 'mobilenetv1/conv_0');
+            var conv_1 = extractConvPairParams(32, 64, 'mobilenetv1/conv_1');
+            var conv_2 = extractConvPairParams(64, 128, 'mobilenetv1/conv_2');
+            var conv_3 = extractConvPairParams(128, 128, 'mobilenetv1/conv_3');
+            var conv_4 = extractConvPairParams(128, 256, 'mobilenetv1/conv_4');
+            var conv_5 = extractConvPairParams(256, 256, 'mobilenetv1/conv_5');
+            var conv_6 = extractConvPairParams(256, 512, 'mobilenetv1/conv_6');
+            var conv_7 = extractConvPairParams(512, 512, 'mobilenetv1/conv_7');
+            var conv_8 = extractConvPairParams(512, 512, 'mobilenetv1/conv_8');
+            var conv_9 = extractConvPairParams(512, 512, 'mobilenetv1/conv_9');
+            var conv_10 = extractConvPairParams(512, 512, 'mobilenetv1/conv_10');
+            var conv_11 = extractConvPairParams(512, 512, 'mobilenetv1/conv_11');
+            var conv_12 = extractConvPairParams(512, 1024, 'mobilenetv1/conv_12');
+            var conv_13 = extractConvPairParams(1024, 1024, 'mobilenetv1/conv_13');
+            return {
+                conv_0: conv_0,
+                conv_1: conv_1,
+                conv_2: conv_2,
+                conv_3: conv_3,
+                conv_4: conv_4,
+                conv_5: conv_5,
+                conv_6: conv_6,
+                conv_7: conv_7,
+                conv_8: conv_8,
+                conv_9: conv_9,
+                conv_10: conv_10,
+                conv_11: conv_11,
+                conv_12: conv_12,
+                conv_13: conv_13
+            };
+        }
+        function extractPredictionLayerParams() {
+            var conv_0 = extractPointwiseConvParams(1024, 256, 1, 'prediction_layer/conv_0');
+            var conv_1 = extractPointwiseConvParams(256, 512, 3, 'prediction_layer/conv_1');
+            var conv_2 = extractPointwiseConvParams(512, 128, 1, 'prediction_layer/conv_2');
+            var conv_3 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_3');
+            var conv_4 = extractPointwiseConvParams(256, 128, 1, 'prediction_layer/conv_4');
+            var conv_5 = extractPointwiseConvParams(128, 256, 3, 'prediction_layer/conv_5');
+            var conv_6 = extractPointwiseConvParams(256, 64, 1, 'prediction_layer/conv_6');
+            var conv_7 = extractPointwiseConvParams(64, 128, 3, 'prediction_layer/conv_7');
+            var box_encoding_0_predictor = extractConvParams(512, 12, 1, 'prediction_layer/box_predictor_0/box_encoding_predictor');
+            var class_predictor_0 = extractConvParams(512, 9, 1, 'prediction_layer/box_predictor_0/class_predictor');
+            var box_encoding_1_predictor = extractConvParams(1024, 24, 1, 'prediction_layer/box_predictor_1/box_encoding_predictor');
+            var class_predictor_1 = extractConvParams(1024, 18, 1, 'prediction_layer/box_predictor_1/class_predictor');
+            var box_encoding_2_predictor = extractConvParams(512, 24, 1, 'prediction_layer/box_predictor_2/box_encoding_predictor');
+            var class_predictor_2 = extractConvParams(512, 18, 1, 'prediction_layer/box_predictor_2/class_predictor');
+            var box_encoding_3_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_3/box_encoding_predictor');
+            var class_predictor_3 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_3/class_predictor');
+            var box_encoding_4_predictor = extractConvParams(256, 24, 1, 'prediction_layer/box_predictor_4/box_encoding_predictor');
+            var class_predictor_4 = extractConvParams(256, 18, 1, 'prediction_layer/box_predictor_4/class_predictor');
+            var box_encoding_5_predictor = extractConvParams(128, 24, 1, 'prediction_layer/box_predictor_5/box_encoding_predictor');
+            var class_predictor_5 = extractConvParams(128, 18, 1, 'prediction_layer/box_predictor_5/class_predictor');
+            var box_predictor_0 = {
+                box_encoding_predictor: box_encoding_0_predictor,
+                class_predictor: class_predictor_0
+            };
+            var box_predictor_1 = {
+                box_encoding_predictor: box_encoding_1_predictor,
+                class_predictor: class_predictor_1
+            };
+            var box_predictor_2 = {
+                box_encoding_predictor: box_encoding_2_predictor,
+                class_predictor: class_predictor_2
+            };
+            var box_predictor_3 = {
+                box_encoding_predictor: box_encoding_3_predictor,
+                class_predictor: class_predictor_3
+            };
+            var box_predictor_4 = {
+                box_encoding_predictor: box_encoding_4_predictor,
+                class_predictor: class_predictor_4
+            };
+            var box_predictor_5 = {
+                box_encoding_predictor: box_encoding_5_predictor,
+                class_predictor: class_predictor_5
+            };
+            return {
+                conv_0: conv_0,
+                conv_1: conv_1,
+                conv_2: conv_2,
+                conv_3: conv_3,
+                conv_4: conv_4,
+                conv_5: conv_5,
+                conv_6: conv_6,
+                conv_7: conv_7,
+                box_predictor_0: box_predictor_0,
+                box_predictor_1: box_predictor_1,
+                box_predictor_2: box_predictor_2,
+                box_predictor_3: box_predictor_3,
+                box_predictor_4: box_predictor_4,
+                box_predictor_5: box_predictor_5
+            };
+        }
+        return {
+            extractMobilenetV1Params: extractMobilenetV1Params,
+            extractPredictionLayerParams: extractPredictionLayerParams
+        };
+    }
+    function extractParams$3(weights) {
+        var paramMappings = [];
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var _b = extractorsFactory$5(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
+        var mobilenetv1 = extractMobilenetV1Params();
+        var prediction_layer = extractPredictionLayerParams();
+        var extra_dim = tensor3d(extractWeights(5118 * 4), [1, 5118, 4]);
+        var output_layer = {
+            extra_dim: extra_dim
+        };
+        paramMappings.push({ paramPath: 'output_layer/extra_dim' });
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+        }
+        return {
+            params: {
+                mobilenetv1: mobilenetv1,
+                prediction_layer: prediction_layer,
+                output_layer: output_layer
+            },
+            paramMappings: paramMappings
+        };
     }
 
-    function computeDescriptorsFactory(recognitionNet) {
-        return function (input, alignedFaceBoxes, useBatchProcessing) {
+    var DEFAULT_MODEL_NAME$3 = 'ssd_mobilenetv1_model';
+    function extractorsFactory$6(weightMap, paramMappings) {
+        var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+        function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
+            var filters = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/weights", 4, mappedPrefix + "/filters");
+            var batch_norm_offset = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset", 1, mappedPrefix + "/batch_norm_offset");
+            return { filters: filters, batch_norm_offset: batch_norm_offset };
+        }
+        function extractConvPairParams(idx) {
+            var mappedPrefix = "mobilenetv1/conv_" + idx;
+            var prefixDepthwiseConv = "MobilenetV1/Conv2d_" + idx + "_depthwise";
+            var mappedPrefixDepthwiseConv = mappedPrefix + "/depthwise_conv";
+            var mappedPrefixPointwiseConv = mappedPrefix + "/pointwise_conv";
+            var filters = extractWeightEntry(prefixDepthwiseConv + "/depthwise_weights", 4, mappedPrefixDepthwiseConv + "/filters");
+            var batch_norm_scale = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/gamma", 1, mappedPrefixDepthwiseConv + "/batch_norm_scale");
+            var batch_norm_offset = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/beta", 1, mappedPrefixDepthwiseConv + "/batch_norm_offset");
+            var batch_norm_mean = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_mean", 1, mappedPrefixDepthwiseConv + "/batch_norm_mean");
+            var batch_norm_variance = extractWeightEntry(prefixDepthwiseConv + "/BatchNorm/moving_variance", 1, mappedPrefixDepthwiseConv + "/batch_norm_variance");
+            return {
+                depthwise_conv: {
+                    filters: filters,
+                    batch_norm_scale: batch_norm_scale,
+                    batch_norm_offset: batch_norm_offset,
+                    batch_norm_mean: batch_norm_mean,
+                    batch_norm_variance: batch_norm_variance
+                },
+                pointwise_conv: extractPointwiseConvParams('MobilenetV1', idx, mappedPrefixPointwiseConv)
+            };
+        }
+        function extractMobilenetV1Params() {
+            return {
+                conv_0: extractPointwiseConvParams('MobilenetV1', 0, 'mobilenetv1/conv_0'),
+                conv_1: extractConvPairParams(1),
+                conv_2: extractConvPairParams(2),
+                conv_3: extractConvPairParams(3),
+                conv_4: extractConvPairParams(4),
+                conv_5: extractConvPairParams(5),
+                conv_6: extractConvPairParams(6),
+                conv_7: extractConvPairParams(7),
+                conv_8: extractConvPairParams(8),
+                conv_9: extractConvPairParams(9),
+                conv_10: extractConvPairParams(10),
+                conv_11: extractConvPairParams(11),
+                conv_12: extractConvPairParams(12),
+                conv_13: extractConvPairParams(13)
+            };
+        }
+        function extractConvParams(prefix, mappedPrefix) {
+            var filters = extractWeightEntry(prefix + "/weights", 4, mappedPrefix + "/filters");
+            var bias = extractWeightEntry(prefix + "/biases", 1, mappedPrefix + "/bias");
+            return { filters: filters, bias: bias };
+        }
+        function extractBoxPredictorParams(idx) {
+            var box_encoding_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/BoxEncodingPredictor", "prediction_layer/box_predictor_" + idx + "/box_encoding_predictor");
+            var class_predictor = extractConvParams("Prediction/BoxPredictor_" + idx + "/ClassPredictor", "prediction_layer/box_predictor_" + idx + "/class_predictor");
+            return { box_encoding_predictor: box_encoding_predictor, class_predictor: class_predictor };
+        }
+        function extractPredictionLayerParams() {
+            return {
+                conv_0: extractPointwiseConvParams('Prediction', 0, 'prediction_layer/conv_0'),
+                conv_1: extractPointwiseConvParams('Prediction', 1, 'prediction_layer/conv_1'),
+                conv_2: extractPointwiseConvParams('Prediction', 2, 'prediction_layer/conv_2'),
+                conv_3: extractPointwiseConvParams('Prediction', 3, 'prediction_layer/conv_3'),
+                conv_4: extractPointwiseConvParams('Prediction', 4, 'prediction_layer/conv_4'),
+                conv_5: extractPointwiseConvParams('Prediction', 5, 'prediction_layer/conv_5'),
+                conv_6: extractPointwiseConvParams('Prediction', 6, 'prediction_layer/conv_6'),
+                conv_7: extractPointwiseConvParams('Prediction', 7, 'prediction_layer/conv_7'),
+                box_predictor_0: extractBoxPredictorParams(0),
+                box_predictor_1: extractBoxPredictorParams(1),
+                box_predictor_2: extractBoxPredictorParams(2),
+                box_predictor_3: extractBoxPredictorParams(3),
+                box_predictor_4: extractBoxPredictorParams(4),
+                box_predictor_5: extractBoxPredictorParams(5)
+            };
+        }
+        return {
+            extractMobilenetV1Params: extractMobilenetV1Params,
+            extractPredictionLayerParams: extractPredictionLayerParams
+        };
+    }
+    function loadQuantizedParams$3(uri) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var weightMap, paramMappings, _a, extractMobilenetV1Params, extractPredictionLayerParams, extra_dim, params;
+            return __generator$1(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME$3)];
+                    case 1:
+                        weightMap = _b.sent();
+                        paramMappings = [];
+                        _a = extractorsFactory$6(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
+                        extra_dim = weightMap['Output/extra_dim'];
+                        paramMappings.push({ originalPath: 'Output/extra_dim', paramPath: 'output_layer/extra_dim' });
+                        if (!isTensor3D(extra_dim)) {
+                            throw new Error("expected weightMap['Output/extra_dim'] to be a Tensor3D, instead have " + extra_dim);
+                        }
+                        params = {
+                            mobilenetv1: extractMobilenetV1Params(),
+                            prediction_layer: extractPredictionLayerParams(),
+                            output_layer: {
+                                extra_dim: extra_dim
+                            }
+                        };
+                        disposeUnusedWeightTensors(weightMap, paramMappings);
+                        return [2 /*return*/, { params: params, paramMappings: paramMappings }];
+                }
+            });
+        });
+    }
+
+    function pointwiseConvLayer(x, params, strides) {
+        return tidy(function () {
+            var out = conv2d(x, params.filters, strides, 'same');
+            out = add(out, params.batch_norm_offset);
+            return clipByValue(out, 0, 6);
+        });
+    }
+
+    var epsilon = 0.0010000000474974513;
+    function depthwiseConvLayer(x, params, strides) {
+        return tidy(function () {
+            var out = depthwiseConv2d(x, params.filters, strides, 'same');
+            out = batchNormalization(out, params.batch_norm_mean, params.batch_norm_variance, epsilon, params.batch_norm_scale, params.batch_norm_offset);
+            return clipByValue(out, 0, 6);
+        });
+    }
+    function getStridesForLayerIdx(layerIdx) {
+        return [2, 4, 6, 12].some(function (idx) { return idx === layerIdx; }) ? [2, 2] : [1, 1];
+    }
+    function mobileNetV1(x, params) {
+        return tidy(function () {
+            var conv11 = null;
+            var out = pointwiseConvLayer(x, params.conv_0, [2, 2]);
+            var convPairParams = [
+                params.conv_1,
+                params.conv_2,
+                params.conv_3,
+                params.conv_4,
+                params.conv_5,
+                params.conv_6,
+                params.conv_7,
+                params.conv_8,
+                params.conv_9,
+                params.conv_10,
+                params.conv_11,
+                params.conv_12,
+                params.conv_13
+            ];
+            convPairParams.forEach(function (param, i) {
+                var layerIdx = i + 1;
+                var depthwiseConvStrides = getStridesForLayerIdx(layerIdx);
+                out = depthwiseConvLayer(out, param.depthwise_conv, depthwiseConvStrides);
+                out = pointwiseConvLayer(out, param.pointwise_conv, [1, 1]);
+                if (layerIdx === 11) {
+                    conv11 = out;
+                }
+            });
+            if (conv11 === null) {
+                throw new Error('mobileNetV1 - output of conv layer 11 is null');
+            }
+            return {
+                out: out,
+                conv11: conv11
+            };
+        });
+    }
+
+    function nonMaxSuppression$2(boxes, scores, maxOutputSize, iouThreshold, scoreThreshold) {
+        var numBoxes = boxes.shape[0];
+        var outputSize = Math.min(maxOutputSize, numBoxes);
+        var candidates = scores
+            .map(function (score, boxIndex) { return ({ score: score, boxIndex: boxIndex }); })
+            .filter(function (c) { return c.score > scoreThreshold; })
+            .sort(function (c1, c2) { return c2.score - c1.score; });
+        var suppressFunc = function (x) { return x <= iouThreshold ? 1 : 0; };
+        var selected = [];
+        candidates.forEach(function (c) {
+            if (selected.length >= outputSize) {
+                return;
+            }
+            var originalScore = c.score;
+            for (var j = selected.length - 1; j >= 0; --j) {
+                var iou = IOU(boxes, c.boxIndex, selected[j]);
+                if (iou === 0.0) {
+                    continue;
+                }
+                c.score *= suppressFunc(iou);
+                if (c.score <= scoreThreshold) {
+                    break;
+                }
+            }
+            if (originalScore === c.score) {
+                selected.push(c.boxIndex);
+            }
+        });
+        return selected;
+    }
+    function IOU(boxes, i, j) {
+        var yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2));
+        var xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3));
+        var ymaxI = Math.max(boxes.get(i, 0), boxes.get(i, 2));
+        var xmaxI = Math.max(boxes.get(i, 1), boxes.get(i, 3));
+        var yminJ = Math.min(boxes.get(j, 0), boxes.get(j, 2));
+        var xminJ = Math.min(boxes.get(j, 1), boxes.get(j, 3));
+        var ymaxJ = Math.max(boxes.get(j, 0), boxes.get(j, 2));
+        var xmaxJ = Math.max(boxes.get(j, 1), boxes.get(j, 3));
+        var areaI = (ymaxI - yminI) * (xmaxI - xminI);
+        var areaJ = (ymaxJ - yminJ) * (xmaxJ - xminJ);
+        if (areaI <= 0 || areaJ <= 0) {
+            return 0.0;
+        }
+        var intersectionYmin = Math.max(yminI, yminJ);
+        var intersectionXmin = Math.max(xminI, xminJ);
+        var intersectionYmax = Math.min(ymaxI, ymaxJ);
+        var intersectionXmax = Math.min(xmaxI, xmaxJ);
+        var intersectionArea = Math.max(intersectionYmax - intersectionYmin, 0.0) *
+            Math.max(intersectionXmax - intersectionXmin, 0.0);
+        return intersectionArea / (areaI + areaJ - intersectionArea);
+    }
+
+    function getCenterCoordinatesAndSizesLayer(x) {
+        var vec = unstack(transpose(x, [1, 0]));
+        var sizes = [
+            sub(vec[2], vec[0]),
+            sub(vec[3], vec[1])
+        ];
+        var centers = [
+            add(vec[0], div(sizes[0], scalar(2))),
+            add(vec[1], div(sizes[1], scalar(2)))
+        ];
+        return {
+            sizes: sizes,
+            centers: centers
+        };
+    }
+    function decodeBoxesLayer(x0, x1) {
+        var _a = getCenterCoordinatesAndSizesLayer(x0), sizes = _a.sizes, centers = _a.centers;
+        var vec = unstack(transpose(x1, [1, 0]));
+        var div0_out = div(mul(exp(div(vec[2], scalar(5))), sizes[0]), scalar(2));
+        var add0_out = add(mul(div(vec[0], scalar(10)), sizes[0]), centers[0]);
+        var div1_out = div(mul(exp(div(vec[3], scalar(5))), sizes[1]), scalar(2));
+        var add1_out = add(mul(div(vec[1], scalar(10)), sizes[1]), centers[1]);
+        return transpose(stack([
+            sub(add0_out, div0_out),
+            sub(add1_out, div1_out),
+            add(add0_out, div0_out),
+            add(add1_out, div1_out)
+        ]), [1, 0]);
+    }
+    function outputLayer(boxPredictions, classPredictions, params) {
+        return tidy(function () {
+            var batchSize = boxPredictions.shape[0];
+            var boxes = decodeBoxesLayer(reshape(tile(params.extra_dim, [batchSize, 1, 1]), [-1, 4]), reshape(boxPredictions, [-1, 4]));
+            boxes = reshape(boxes, [batchSize, (boxes.shape[0] / batchSize), 4]);
+            var scoresAndClasses = sigmoid(slice(classPredictions, [0, 0, 1], [-1, -1, -1]));
+            var scores = slice(scoresAndClasses, [0, 0, 0], [-1, -1, 1]);
+            scores = reshape(scores, [batchSize, scores.shape[1]]);
+            var boxesByBatch = unstack(boxes);
+            var scoresByBatch = unstack(scores);
+            return {
+                boxes: boxesByBatch,
+                scores: scoresByBatch
+            };
+        });
+    }
+
+    function boxPredictionLayer(x, params) {
+        return tidy(function () {
+            var batchSize = x.shape[0];
+            var boxPredictionEncoding = reshape(convLayer(x, params.box_encoding_predictor), [batchSize, -1, 1, 4]);
+            var classPrediction = reshape(convLayer(x, params.class_predictor), [batchSize, -1, 3]);
+            return {
+                boxPredictionEncoding: boxPredictionEncoding,
+                classPrediction: classPrediction
+            };
+        });
+    }
+
+    function predictionLayer(x, conv11, params) {
+        return tidy(function () {
+            var conv0 = pointwiseConvLayer(x, params.conv_0, [1, 1]);
+            var conv1 = pointwiseConvLayer(conv0, params.conv_1, [2, 2]);
+            var conv2 = pointwiseConvLayer(conv1, params.conv_2, [1, 1]);
+            var conv3 = pointwiseConvLayer(conv2, params.conv_3, [2, 2]);
+            var conv4 = pointwiseConvLayer(conv3, params.conv_4, [1, 1]);
+            var conv5 = pointwiseConvLayer(conv4, params.conv_5, [2, 2]);
+            var conv6 = pointwiseConvLayer(conv5, params.conv_6, [1, 1]);
+            var conv7 = pointwiseConvLayer(conv6, params.conv_7, [2, 2]);
+            var boxPrediction0 = boxPredictionLayer(conv11, params.box_predictor_0);
+            var boxPrediction1 = boxPredictionLayer(x, params.box_predictor_1);
+            var boxPrediction2 = boxPredictionLayer(conv1, params.box_predictor_2);
+            var boxPrediction3 = boxPredictionLayer(conv3, params.box_predictor_3);
+            var boxPrediction4 = boxPredictionLayer(conv5, params.box_predictor_4);
+            var boxPrediction5 = boxPredictionLayer(conv7, params.box_predictor_5);
+            var boxPredictions = concat([
+                boxPrediction0.boxPredictionEncoding,
+                boxPrediction1.boxPredictionEncoding,
+                boxPrediction2.boxPredictionEncoding,
+                boxPrediction3.boxPredictionEncoding,
+                boxPrediction4.boxPredictionEncoding,
+                boxPrediction5.boxPredictionEncoding
+            ], 1);
+            var classPredictions = concat([
+                boxPrediction0.classPrediction,
+                boxPrediction1.classPrediction,
+                boxPrediction2.classPrediction,
+                boxPrediction3.classPrediction,
+                boxPrediction4.classPrediction,
+                boxPrediction5.classPrediction
+            ], 1);
+            return {
+                boxPredictions: boxPredictions,
+                classPredictions: classPredictions
+            };
+        });
+    }
+
+    var SsdMobilenetv1Options = /** @class */ (function () {
+        function SsdMobilenetv1Options(_a) {
+            var _b = _a === void 0 ? {} : _a, minConfidence = _b.minConfidence, maxResults = _b.maxResults;
+            this._name = 'SsdMobilenetv1Options';
+            this._minConfidence = minConfidence || 0.5;
+            this._maxResults = maxResults || 100;
+            if (typeof this._minConfidence !== 'number' || this._minConfidence <= 0 || this._minConfidence >= 1) {
+                throw new Error(this._name + " - expected minConfidence to be a number between 0 and 1");
+            }
+            if (typeof this._maxResults !== 'number') {
+                throw new Error(this._name + " - expected maxResults to be a number");
+            }
+        }
+        Object.defineProperty(SsdMobilenetv1Options.prototype, "minConfidence", {
+            get: function () { return this._minConfidence; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SsdMobilenetv1Options.prototype, "maxResults", {
+            get: function () { return this._maxResults; },
+            enumerable: true,
+            configurable: true
+        });
+        return SsdMobilenetv1Options;
+    }());
+
+    var SsdMobilenetv1 = /** @class */ (function (_super) {
+        __extends$1(SsdMobilenetv1, _super);
+        function SsdMobilenetv1() {
+            return _super.call(this, 'SsdMobilenetv1') || this;
+        }
+        SsdMobilenetv1.prototype.forwardInput = function (input) {
+            var params = this.params;
+            if (!params) {
+                throw new Error('SsdMobilenetv1 - load model before inference');
+            }
+            return tidy(function () {
+                var batchTensor = input.toBatchTensor(512, false).toFloat();
+                var x = sub(mul(batchTensor, scalar(0.007843137718737125)), scalar(1));
+                var features = mobileNetV1(x, params.mobilenetv1);
+                var _a = predictionLayer(features.out, features.conv11, params.prediction_layer), boxPredictions = _a.boxPredictions, classPredictions = _a.classPredictions;
+                return outputLayer(boxPredictions, classPredictions, params.output_layer);
+            });
+        };
+        SsdMobilenetv1.prototype.forward = function (input) {
             return __awaiter$1(this, void 0, void 0, function () {
-                var alignedFaceCanvases, descriptors, _a;
+                var _a;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, extractFaces(input, alignedFaceBoxes)];
-                        case 1:
-                            alignedFaceCanvases = _b.sent();
-                            if (!useBatchProcessing) return [3 /*break*/, 3];
-                            return [4 /*yield*/, recognitionNet.computeFaceDescriptor(alignedFaceCanvases)];
-                        case 2:
-                            _a = _b.sent();
-                            return [3 /*break*/, 5];
-                        case 3: return [4 /*yield*/, Promise.all(alignedFaceCanvases.map(function (canvas) { return recognitionNet.computeFaceDescriptor(canvas); }))];
-                        case 4:
-                            _a = _b.sent();
-                            _b.label = 5;
-                        case 5:
-                            descriptors = _a;
-                            return [2 /*return*/, descriptors];
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
                     }
                 });
             });
         };
-    }
-    function allFacesFactory(detectFaces, landmarkNet, recognitionNet) {
-        var computeDescriptors = computeDescriptorsFactory(recognitionNet);
-        return function (input, useBatchProcessing) {
-            if (useBatchProcessing === void 0) { useBatchProcessing = false; }
+        SsdMobilenetv1.prototype.locateFaces = function (input, options) {
+            if (options === void 0) { options = {}; }
             return __awaiter$1(this, void 0, void 0, function () {
-                var detections, faceCanvases, faceLandmarksByFace, _a, alignedFaceBoxes, descriptors;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0: return [4 /*yield*/, detectFaces(input)];
+                var _a, maxResults, minConfidence, netInput, _b, _boxes, _scores, boxes, scores, i, scoresData, _c, _d, iouThreshold, indices, reshapedDims, inputSize, padX, padY, results;
+                return __generator$1(this, function (_e) {
+                    switch (_e.label) {
+                        case 0:
+                            _a = new SsdMobilenetv1Options(options), maxResults = _a.maxResults, minConfidence = _a.minConfidence;
+                            return [4 /*yield*/, toNetInput(input)];
                         case 1:
-                            detections = _b.sent();
-                            return [4 /*yield*/, extractFaces(input, detections)];
+                            netInput = _e.sent();
+                            _b = this.forwardInput(netInput), _boxes = _b.boxes, _scores = _b.scores;
+                            boxes = _boxes[0];
+                            scores = _scores[0];
+                            for (i = 1; i < _boxes.length; i++) {
+                                _boxes[i].dispose();
+                                _scores[i].dispose();
+                            }
+                            _d = (_c = Array).from;
+                            return [4 /*yield*/, scores.data()];
                         case 2:
-                            faceCanvases = _b.sent();
-                            if (!useBatchProcessing) return [3 /*break*/, 4];
-                            return [4 /*yield*/, landmarkNet.detectLandmarks(faceCanvases)];
-                        case 3:
-                            _a = _b.sent();
-                            return [3 /*break*/, 6];
-                        case 4: return [4 /*yield*/, Promise.all(faceCanvases.map(function (canvas) { return landmarkNet.detectLandmarks(canvas); }))];
-                        case 5:
-                            _a = _b.sent();
-                            _b.label = 6;
-                        case 6:
-                            faceLandmarksByFace = _a;
-                            alignedFaceBoxes = faceLandmarksByFace.map(function (landmarks, i) { return landmarks.align(detections[i].getBox()); });
-                            return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
-                        case 7:
-                            descriptors = _b.sent();
-                            return [2 /*return*/, detections.map(function (detection, i) {
-                                    return new FullFaceDescription(detection, faceLandmarksByFace[i].shiftByPoint(new Point(detection.box.x, detection.box.y)), descriptors[i]);
-                                })];
-                    }
-                });
-            });
-        };
-    }
-    function allFacesSsdMobilenetv1Factory(ssdMobilenetv1, landmarkNet, recognitionNet) {
-        return function (input, minConfidence, useBatchProcessing) {
-            if (minConfidence === void 0) { minConfidence = 0.8; }
-            if (useBatchProcessing === void 0) { useBatchProcessing = false; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var detectFaces, allFaces;
-                return __generator$1(this, function (_a) {
-                    detectFaces = function (input) { return ssdMobilenetv1.locateFaces(input, minConfidence); };
-                    allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
-                    return [2 /*return*/, allFaces(input, useBatchProcessing)];
-                });
-            });
-        };
-    }
-    function allFacesTinyYolov2Factory(tinyYolov2, landmarkNet, recognitionNet) {
-        return function (input, forwardParams, useBatchProcessing) {
-            if (forwardParams === void 0) { forwardParams = {}; }
-            if (useBatchProcessing === void 0) { useBatchProcessing = false; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var detectFaces, allFaces;
-                return __generator$1(this, function (_a) {
-                    detectFaces = function (input) { return tinyYolov2.locateFaces(input, forwardParams); };
-                    allFaces = allFacesFactory(detectFaces, landmarkNet, recognitionNet);
-                    return [2 /*return*/, allFaces(input, useBatchProcessing)];
-                });
-            });
-        };
-    }
-    function allFacesMtcnnFactory(mtcnn, recognitionNet) {
-        var computeDescriptors = computeDescriptorsFactory(recognitionNet);
-        return function (input, mtcnnForwardParams, useBatchProcessing) {
-            if (mtcnnForwardParams === void 0) { mtcnnForwardParams = {}; }
-            if (useBatchProcessing === void 0) { useBatchProcessing = false; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var results, alignedFaceBoxes, descriptors;
-                return __generator$1(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, mtcnn.forward(input, mtcnnForwardParams)];
-                        case 1:
-                            results = _a.sent();
-                            alignedFaceBoxes = results.map(function (_a) {
-                                var faceLandmarks = _a.faceLandmarks;
-                                return faceLandmarks.align();
+                            scoresData = _d.apply(_c, [_e.sent()]);
+                            iouThreshold = 0.5;
+                            indices = nonMaxSuppression$2(boxes, scoresData, maxResults, iouThreshold, minConfidence);
+                            reshapedDims = netInput.getReshapedInputDimensions(0);
+                            inputSize = netInput.inputSize;
+                            padX = inputSize / reshapedDims.width;
+                            padY = inputSize / reshapedDims.height;
+                            results = indices
+                                .map(function (idx) {
+                                var _a = [
+                                    Math.max(0, boxes.get(idx, 0)),
+                                    Math.min(1.0, boxes.get(idx, 2))
+                                ].map(function (val) { return val * padY; }), top = _a[0], bottom = _a[1];
+                                var _b = [
+                                    Math.max(0, boxes.get(idx, 1)),
+                                    Math.min(1.0, boxes.get(idx, 3))
+                                ].map(function (val) { return val * padX; }), left = _b[0], right = _b[1];
+                                return new FaceDetection(scoresData[idx], new Rect(left, top, right - left, bottom - top), {
+                                    height: netInput.getInputHeight(0),
+                                    width: netInput.getInputWidth(0)
+                                });
                             });
-                            return [4 /*yield*/, computeDescriptors(input, alignedFaceBoxes, useBatchProcessing)];
-                        case 2:
-                            descriptors = _a.sent();
-                            return [2 /*return*/, results.map(function (_a, i) {
-                                    var faceDetection = _a.faceDetection, faceLandmarks = _a.faceLandmarks;
-                                    return new FullFaceDescription(faceDetection, faceLandmarks, descriptors[i]);
-                                })];
+                            boxes.dispose();
+                            scores.dispose();
+                            return [2 /*return*/, results];
                     }
                 });
             });
         };
+        SsdMobilenetv1.prototype.loadQuantizedParams = function (uri) {
+            return loadQuantizedParams$3(uri);
+        };
+        SsdMobilenetv1.prototype.extractParams = function (weights) {
+            return extractParams$3(weights);
+        };
+        return SsdMobilenetv1;
+    }(NeuralNetwork));
+
+    function createSsdMobilenetv1(weights) {
+        var net = new SsdMobilenetv1();
+        net.extractWeights(weights);
+        return net;
     }
+    function createFaceDetectionNet(weights) {
+        return createSsdMobilenetv1(weights);
+    }
+    // alias for backward compatibily
+    var FaceDetectionNet = /** @class */ (function (_super) {
+        __extends$1(FaceDetectionNet, _super);
+        function FaceDetectionNet() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return FaceDetectionNet;
+    }(SsdMobilenetv1));
+
+    var TinyFaceDetectorOptions = /** @class */ (function (_super) {
+        __extends$1(TinyFaceDetectorOptions, _super);
+        function TinyFaceDetectorOptions() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._name = 'TinyFaceDetectorOptions';
+            return _this;
+        }
+        return TinyFaceDetectorOptions;
+    }(TinyYolov2Options));
+
+    var ComposableTask = /** @class */ (function () {
+        function ComposableTask() {
+        }
+        ComposableTask.prototype.then = function (onfulfilled) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = onfulfilled;
+                            return [4 /*yield*/, this.run()];
+                        case 1: return [2 /*return*/, _a.apply(void 0, [_b.sent()])];
+                    }
+                });
+            });
+        };
+        ComposableTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                return __generator$1(this, function (_a) {
+                    throw new Error('ComposableTask - run is not implemented');
+                });
+            });
+        };
+        return ComposableTask;
+    }());
 
     function bgrToRgbTensor(tensor$$1) {
         return tidy(function () { return stack(unstack(tensor$$1, 3).reverse(), 3); });
@@ -4041,15 +4922,6 @@
             throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
         return { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings };
-    }
-
-    function getDefaultMtcnnForwardParams() {
-        return {
-            minFaceSize: 20,
-            scaleFactor: 0.709,
-            maxNumScales: 10,
-            scoreThresholds: [0.6, 0.7, 0.7]
-        };
     }
 
     function getSizesForScale(scale, _a) {
@@ -4519,7 +5391,7 @@
                                 return results;
                             };
                             _a = imgTensor.shape.slice(1), height = _a[0], width = _a[1];
-                            _b = Object.assign({}, getDefaultMtcnnForwardParams(), forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
+                            _b = new MtcnnOptions(forwardParams), minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
                             scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
                                 .filter(function (scale) {
                                 var sizes = getSizesForScale(scale, [height, width]);
@@ -4553,13 +5425,10 @@
                         case 3:
                             out3 = _c.sent();
                             stats.total_stage3 = Date.now() - ts;
-                            results = out3.boxes.map(function (box, idx) { return ({
-                                faceDetection: new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
-                                    height: height,
-                                    width: width
-                                }),
-                                faceLandmarks: new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.div(new Point(width, height)); }), { width: width, height: height })
-                            }); });
+                            results = out3.boxes.map(function (box, idx) { return new FaceDetectionWithLandmarks(new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                                height: height,
+                                width: width
+                            }), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
                             return [2 /*return*/, onReturn({ results: results, stats: stats })];
                     }
                 });
@@ -4608,6 +5477,60 @@
 
     var IOU_THRESHOLD = 0.4;
     var BOX_ANCHORS = [
+        new Point(1.603231, 2.094468),
+        new Point(6.041143, 7.080126),
+        new Point(2.882459, 3.518061),
+        new Point(4.266906, 5.178857),
+        new Point(9.041765, 10.66308)
+    ];
+    var MEAN_RGB = [117.001, 114.697, 97.404];
+    var DEFAULT_MODEL_NAME$5 = 'tiny_face_detector_model';
+
+    var TinyFaceDetector = /** @class */ (function (_super) {
+        __extends$1(TinyFaceDetector, _super);
+        function TinyFaceDetector() {
+            var _this = this;
+            var config = {
+                withSeparableConvs: true,
+                iouThreshold: IOU_THRESHOLD,
+                classes: ['face'],
+                anchors: BOX_ANCHORS,
+                meanRgb: MEAN_RGB,
+                isFirstLayerConv2d: true,
+                filterSizes: [3, 16, 32, 64, 128, 256, 512]
+            };
+            _this = _super.call(this, config) || this;
+            return _this;
+        }
+        Object.defineProperty(TinyFaceDetector.prototype, "anchors", {
+            get: function () {
+                return this.config.anchors;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TinyFaceDetector.prototype.locateFaces = function (input, forwardParams) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var objectDetections;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.detect(input, forwardParams)];
+                        case 1:
+                            objectDetections = _a.sent();
+                            return [2 /*return*/, objectDetections.map(function (det) { return new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }); })];
+                    }
+                });
+            });
+        };
+        TinyFaceDetector.prototype.loadQuantizedParams = function (modelUri) {
+            var defaultModelName = DEFAULT_MODEL_NAME$5;
+            return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
+        };
+        return TinyFaceDetector;
+    }(TinyYolov2));
+
+    var IOU_THRESHOLD$1 = 0.4;
+    var BOX_ANCHORS$1 = [
         new Point(0.738768, 0.874946),
         new Point(2.42204, 2.65704),
         new Point(4.30971, 7.04493),
@@ -4622,7 +5545,7 @@
         new Point(9.041765, 10.66308)
     ];
     var MEAN_RGB_SEPARABLE = [117.001, 114.697, 97.404];
-    var DEFAULT_MODEL_NAME$5 = 'tiny_yolov2_model';
+    var DEFAULT_MODEL_NAME$6 = 'tiny_yolov2_model';
     var DEFAULT_MODEL_NAME_SEPARABLE_CONV = 'tiny_yolov2_separable_conv_model';
 
     var TinyYolov2$1 = /** @class */ (function (_super) {
@@ -4632,7 +5555,7 @@
             var _this = this;
             var config = Object.assign({}, {
                 withSeparableConvs: withSeparableConvs,
-                iouThreshold: IOU_THRESHOLD,
+                iouThreshold: IOU_THRESHOLD$1,
                 classes: ['face']
             }, withSeparableConvs
                 ? {
@@ -4640,7 +5563,7 @@
                     meanRgb: MEAN_RGB_SEPARABLE
                 }
                 : {
-                    anchors: BOX_ANCHORS,
+                    anchors: BOX_ANCHORS$1,
                     withClassScores: true
                 });
             _this = _super.call(this, config) || this;
@@ -4674,82 +5597,462 @@
             });
         };
         TinyYolov2$$1.prototype.loadQuantizedParams = function (modelUri) {
-            var defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME$5;
+            var defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME$6;
             return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
         };
         return TinyYolov2$$1;
     }(TinyYolov2));
 
-    var detectionNet = new FaceDetectionNet();
-    var landmarkNet = new FaceLandmark68Net();
-    var recognitionNet = new FaceRecognitionNet();
-    // nets need more specific names, to avoid ambiguity in future
-    // when alternative net implementations are provided
     var nets = {
-        ssdMobilenetv1: detectionNet,
-        faceLandmark68Net: landmarkNet,
-        faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
-        faceRecognitionNet: recognitionNet,
+        ssdMobilenetv1: new SsdMobilenetv1(),
+        tinyFaceDetector: new TinyFaceDetector(),
+        tinyYolov2: new TinyYolov2$1(),
         mtcnn: new Mtcnn(),
-        tinyYolov2: new TinyYolov2$1()
+        faceLandmark68Net: new FaceLandmark68Net(),
+        faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
+        faceRecognitionNet: new FaceRecognitionNet()
     };
-    function loadSsdMobilenetv1Model(url) {
-        return nets.ssdMobilenetv1.load(url);
-    }
-    function loadFaceLandmarkModel(url) {
-        return nets.faceLandmark68Net.load(url);
-    }
-    function loadFaceLandmarkTinyModel(url) {
-        return nets.faceLandmark68TinyNet.load(url);
-    }
-    function loadFaceRecognitionModel(url) {
-        return nets.faceRecognitionNet.load(url);
-    }
-    function loadMtcnnModel(url) {
-        return nets.mtcnn.load(url);
-    }
-    function loadTinyYolov2Model(url) {
-        return nets.tinyYolov2.load(url);
-    }
-    function loadFaceDetectionModel(url) {
-        return loadSsdMobilenetv1Model(url);
-    }
-    function loadModels(url) {
-        console.warn('loadModels will be deprecated in future');
-        return Promise.all([
-            loadSsdMobilenetv1Model(url),
-            loadFaceLandmarkModel(url),
-            loadFaceRecognitionModel(url),
-            loadMtcnnModel(url),
-            loadTinyYolov2Model(url)
-        ]);
-    }
-    function locateFaces(input, minConfidence, maxResults) {
-        return nets.ssdMobilenetv1.locateFaces(input, minConfidence, maxResults);
-    }
-    var ssdMobilenetv1 = locateFaces;
-    function detectLandmarks(input) {
+    /**
+     * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
+     *
+     * @param input The input image.
+     * @param options (optional, default: see SsdMobilenetv1Options constructor for default parameters).
+     * @returns Bounding box of each face with score.
+     */
+    var ssdMobilenetv1 = function (input, options) {
+        return nets.ssdMobilenetv1.locateFaces(input, options);
+    };
+    /**
+     * Attempts to detect all faces in an image using the Tiny Face Detector.
+     *
+     * @param input The input image.
+     * @param options (optional, default: see TinyFaceDetectorOptions constructor for default parameters).
+     * @returns Bounding box of each face with score.
+     */
+    var tinyFaceDetector = function (input, options) {
+        return nets.tinyFaceDetector.locateFaces(input, options);
+    };
+    /**
+     * Attempts to detect all faces in an image using the Tiny Yolov2 Network.
+     *
+     * @param input The input image.
+     * @param options (optional, default: see TinyYolov2Options constructor for default parameters).
+     * @returns Bounding box of each face with score.
+     */
+    var tinyYolov2 = function (input, options) {
+        return nets.tinyYolov2.locateFaces(input, options);
+    };
+    /**
+     * Attempts to detect all faces in an image and the 5 point face landmarks
+     * of each detected face using the MTCNN Network.
+     *
+     * @param input The input image.
+     * @param options (optional, default: see MtcnnOptions constructor for default parameters).
+     * @returns Bounding box of each face with score and 5 point face landmarks.
+     */
+    var mtcnn = function (input, options) {
+        return nets.mtcnn.forward(input, options);
+    };
+    /**
+     * Detects the 68 point face landmark positions of the face shown in an image.
+     *
+     * @param inputs The face image extracted from the bounding box of a face. Can
+     * also be an array of input images, which will be batch processed.
+     * @returns 68 point face landmarks or array thereof in case of batch input.
+     */
+    var detectFaceLandmarks = function (input) {
         return nets.faceLandmark68Net.detectLandmarks(input);
-    }
-    function detectLandmarksTiny(input) {
+    };
+    /**
+     * Detects the 68 point face landmark positions of the face shown in an image
+     * using a tinier version of the 68 point face landmark model, which is slightly
+     * faster at inference, but also slightly less accurate.
+     *
+     * @param inputs The face image extracted from the bounding box of a face. Can
+     * also be an array of input images, which will be batch processed.
+     * @returns 68 point face landmarks or array thereof in case of batch input.
+     */
+    var detectFaceLandmarksTiny = function (input) {
         return nets.faceLandmark68TinyNet.detectLandmarks(input);
-    }
-    function computeFaceDescriptor(input) {
+    };
+    /**
+     * Computes a 128 entry vector (face descriptor / face embeddings) from the face shown in an image,
+     * which uniquely represents the features of that persons face. The computed face descriptor can
+     * be used to measure the similarity between faces, by computing the euclidean distance of two
+     * face descriptors.
+     *
+     * @param inputs The face image extracted from the aligned bounding box of a face. Can
+     * also be an array of input images, which will be batch processed.
+     * @returns Face descriptor with 128 entries or array thereof in case of batch input.
+     */
+    var computeFaceDescriptor = function (input) {
         return nets.faceRecognitionNet.computeFaceDescriptor(input);
+    };
+    var loadSsdMobilenetv1Model = function (url) { return nets.ssdMobilenetv1.load(url); };
+    var loadTinyFaceDetectorModel = function (url) { return nets.tinyFaceDetector.load(url); };
+    var loadMtcnnModel = function (url) { return nets.mtcnn.load(url); };
+    var loadTinyYolov2Model = function (url) { return nets.tinyYolov2.load(url); };
+    var loadFaceLandmarkModel = function (url) { return nets.faceLandmark68Net.load(url); };
+    var loadFaceLandmarkTinyModel = function (url) { return nets.faceLandmark68TinyNet.load(url); };
+    var loadFaceRecognitionModel = function (url) { return nets.faceRecognitionNet.load(url); };
+    // backward compatibility
+    var loadFaceDetectionModel = loadSsdMobilenetv1Model;
+    var locateFaces = ssdMobilenetv1;
+    var detectLandmarks = detectFaceLandmarks;
+
+    var ComputeFaceDescriptorsTaskBase = /** @class */ (function (_super) {
+        __extends$1(ComputeFaceDescriptorsTaskBase, _super);
+        function ComputeFaceDescriptorsTaskBase(detectFaceLandmarksTask, input) {
+            var _this = _super.call(this) || this;
+            _this.detectFaceLandmarksTask = detectFaceLandmarksTask;
+            _this.input = input;
+            return _this;
+        }
+        return ComputeFaceDescriptorsTaskBase;
+    }(ComposableTask));
+    var ComputeAllFaceDescriptorsTask = /** @class */ (function (_super) {
+        __extends$1(ComputeAllFaceDescriptorsTask, _super);
+        function ComputeAllFaceDescriptorsTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ComputeAllFaceDescriptorsTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _this = this;
+                var facesWithLandmarks, alignedFaceCanvases;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.detectFaceLandmarksTask];
+                        case 1:
+                            facesWithLandmarks = _a.sent();
+                            return [4 /*yield*/, extractFaces(this.input, facesWithLandmarks.map(function (_a) {
+                                    var landmarks = _a.landmarks;
+                                    return landmarks.align();
+                                }))];
+                        case 2:
+                            alignedFaceCanvases = _a.sent();
+                            return [4 /*yield*/, Promise.all(facesWithLandmarks.map(function (_a, i) {
+                                    var detection = _a.detection, landmarks = _a.landmarks;
+                                    return __awaiter$1(_this, void 0, void 0, function () {
+                                        var descriptor;
+                                        return __generator$1(this, function (_b) {
+                                            switch (_b.label) {
+                                                case 0: return [4 /*yield*/, nets.faceRecognitionNet.computeFaceDescriptor(alignedFaceCanvases[i])];
+                                                case 1:
+                                                    descriptor = _b.sent();
+                                                    return [2 /*return*/, new FullFaceDescription(detection, landmarks, descriptor)];
+                                            }
+                                        });
+                                    });
+                                }))];
+                        case 3: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        };
+        return ComputeAllFaceDescriptorsTask;
+    }(ComputeFaceDescriptorsTaskBase));
+    var ComputeSingleFaceDescriptorTask = /** @class */ (function (_super) {
+        __extends$1(ComputeSingleFaceDescriptorTask, _super);
+        function ComputeSingleFaceDescriptorTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ComputeSingleFaceDescriptorTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var detectionWithLandmarks, detection, landmarks, alignedRect, alignedFaceCanvas, descriptor;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.detectFaceLandmarksTask];
+                        case 1:
+                            detectionWithLandmarks = _a.sent();
+                            if (!detectionWithLandmarks) {
+                                return [2 /*return*/];
+                            }
+                            detection = detectionWithLandmarks.detection, landmarks = detectionWithLandmarks.landmarks, alignedRect = detectionWithLandmarks.alignedRect;
+                            return [4 /*yield*/, extractFaces(this.input, [alignedRect])];
+                        case 2:
+                            alignedFaceCanvas = (_a.sent())[0];
+                            return [4 /*yield*/, nets.faceRecognitionNet.computeFaceDescriptor(alignedFaceCanvas)];
+                        case 3:
+                            descriptor = _a.sent();
+                            return [2 /*return*/, new FullFaceDescription(detection, landmarks, descriptor)];
+                    }
+                });
+            });
+        };
+        return ComputeSingleFaceDescriptorTask;
+    }(ComputeFaceDescriptorsTaskBase));
+
+    var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
+        __extends$1(DetectFaceLandmarksTaskBase, _super);
+        function DetectFaceLandmarksTaskBase(detectFacesTask, input, useTinyLandmarkNet) {
+            var _this = _super.call(this) || this;
+            _this.detectFacesTask = detectFacesTask;
+            _this.input = input;
+            _this.useTinyLandmarkNet = useTinyLandmarkNet;
+            return _this;
+        }
+        Object.defineProperty(DetectFaceLandmarksTaskBase.prototype, "landmarkNet", {
+            get: function () {
+                return this.useTinyLandmarkNet
+                    ? nets.faceLandmark68TinyNet
+                    : nets.faceLandmark68Net;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return DetectFaceLandmarksTaskBase;
+    }(ComposableTask));
+    var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
+        __extends$1(DetectAllFaceLandmarksTask, _super);
+        function DetectAllFaceLandmarksTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DetectAllFaceLandmarksTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _this = this;
+                var detections, faceCanvases, faceLandmarksByFace;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.detectFacesTask];
+                        case 1:
+                            detections = _a.sent();
+                            return [4 /*yield*/, extractFaces(this.input, detections)];
+                        case 2:
+                            faceCanvases = _a.sent();
+                            return [4 /*yield*/, Promise.all(faceCanvases.map(function (canvas) { return _this.landmarkNet.detectLandmarks(canvas); }))];
+                        case 3:
+                            faceLandmarksByFace = _a.sent();
+                            return [2 /*return*/, detections.map(function (detection, i) {
+                                    return new FaceDetectionWithLandmarks(detection, faceLandmarksByFace[i]);
+                                })];
+                    }
+                });
+            });
+        };
+        DetectAllFaceLandmarksTask.prototype.withFaceDescriptors = function () {
+            return new ComputeAllFaceDescriptorsTask(this, this.input);
+        };
+        return DetectAllFaceLandmarksTask;
+    }(DetectFaceLandmarksTaskBase));
+    var DetectSingleFaceLandmarksTask = /** @class */ (function (_super) {
+        __extends$1(DetectSingleFaceLandmarksTask, _super);
+        function DetectSingleFaceLandmarksTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DetectSingleFaceLandmarksTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var detection, faceCanvas, _a, _b;
+                return __generator$1(this, function (_c) {
+                    switch (_c.label) {
+                        case 0: return [4 /*yield*/, this.detectFacesTask];
+                        case 1:
+                            detection = _c.sent();
+                            if (!detection) {
+                                return [2 /*return*/];
+                            }
+                            return [4 /*yield*/, extractFaces(this.input, [detection])];
+                        case 2:
+                            faceCanvas = (_c.sent())[0];
+                            _a = FaceDetectionWithLandmarks.bind;
+                            _b = [void 0, detection];
+                            return [4 /*yield*/, this.landmarkNet.detectLandmarks(faceCanvas)];
+                        case 3: return [2 /*return*/, new (_a.apply(FaceDetectionWithLandmarks, _b.concat([_c.sent()])))()];
+                    }
+                });
+            });
+        };
+        DetectSingleFaceLandmarksTask.prototype.withFaceDescriptor = function () {
+            return new ComputeSingleFaceDescriptorTask(this, this.input);
+        };
+        return DetectSingleFaceLandmarksTask;
+    }(DetectFaceLandmarksTaskBase));
+
+    function detectSingleFace(input, options) {
+        if (options === void 0) { options = new SsdMobilenetv1Options(); }
+        return new DetectSingleFaceTask(input, options);
     }
-    function mtcnn(input, forwardParams) {
-        return nets.mtcnn.forward(input, forwardParams);
+    function detectAllFaces(input, options) {
+        if (options === void 0) { options = new SsdMobilenetv1Options(); }
+        return new DetectAllFacesTask(input, options);
     }
-    function tinyYolov2(input, forwardParams) {
-        return nets.tinyYolov2.locateFaces(input, forwardParams);
+    var DetectFacesTaskBase = /** @class */ (function (_super) {
+        __extends$1(DetectFacesTaskBase, _super);
+        function DetectFacesTaskBase(input, options) {
+            if (options === void 0) { options = new SsdMobilenetv1Options(); }
+            var _this = _super.call(this) || this;
+            _this.input = input;
+            _this.options = options;
+            return _this;
+        }
+        return DetectFacesTaskBase;
+    }(ComposableTask));
+    var DetectAllFacesTask = /** @class */ (function (_super) {
+        __extends$1(DetectAllFacesTask, _super);
+        function DetectAllFacesTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DetectAllFacesTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a, input, options, faceDetectionFunction;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this, input = _a.input, options = _a.options;
+                            if (!(options instanceof MtcnnOptions)) return [3 /*break*/, 2];
+                            return [4 /*yield*/, nets.mtcnn.forward(input, options)];
+                        case 1: return [2 /*return*/, (_b.sent())
+                                .map(function (result) { return result.faceDetection; })];
+                        case 2:
+                            faceDetectionFunction = options instanceof TinyFaceDetectorOptions
+                                ? function (input) { return nets.tinyFaceDetector.locateFaces(input, options); }
+                                : (options instanceof SsdMobilenetv1Options
+                                    ? function (input) { return nets.ssdMobilenetv1.locateFaces(input, options); }
+                                    : (options instanceof TinyYolov2Options
+                                        ? function (input) { return nets.tinyYolov2.locateFaces(input, options); }
+                                        : null));
+                            if (!faceDetectionFunction) {
+                                throw new Error('detectFaces - expected options to be instance of TinyFaceDetectorOptions | SsdMobilenetv1Options | MtcnnOptions | TinyYolov2Options');
+                            }
+                            return [2 /*return*/, faceDetectionFunction(input)];
+                    }
+                });
+            });
+        };
+        DetectAllFacesTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
+            if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
+            return new DetectAllFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+        };
+        return DetectAllFacesTask;
+    }(DetectFacesTaskBase));
+    var DetectSingleFaceTask = /** @class */ (function (_super) {
+        __extends$1(DetectSingleFaceTask, _super);
+        function DetectSingleFaceTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DetectSingleFaceTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, new DetectAllFacesTask(this.input, this.options)];
+                        case 1: return [2 /*return*/, (_a.sent())
+                                .sort(function (f1, f2) { return f1.score - f2.score; })[0]];
+                    }
+                });
+            });
+        };
+        DetectSingleFaceTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
+            if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
+            return new DetectSingleFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+        };
+        return DetectSingleFaceTask;
+    }(DetectFacesTaskBase));
+
+    // export allFaces API for backward compatibility
+    function allFacesSsdMobilenetv1(input, minConfidence) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, detectAllFaces(input, new SsdMobilenetv1Options(minConfidence ? { minConfidence: minConfidence } : {}))
+                            .withFaceLandmarks()
+                            .withFaceDescriptors()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
     }
-    var allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1Factory(nets.ssdMobilenetv1, nets.faceLandmark68Net, nets.faceRecognitionNet);
-    var allFacesTinyYolov2 = allFacesTinyYolov2Factory(nets.tinyYolov2, nets.faceLandmark68Net, nets.faceRecognitionNet);
-    var allFacesMtcnn = allFacesMtcnnFactory(nets.mtcnn, nets.faceRecognitionNet);
+    function allFacesTinyYolov2(input, forwardParams) {
+        if (forwardParams === void 0) { forwardParams = {}; }
+        return __awaiter$1(this, void 0, void 0, function () {
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, detectAllFaces(input, new TinyYolov2Options(forwardParams))
+                            .withFaceLandmarks()
+                            .withFaceDescriptors()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    }
+    function allFacesMtcnn(input, forwardParams) {
+        if (forwardParams === void 0) { forwardParams = {}; }
+        return __awaiter$1(this, void 0, void 0, function () {
+            return __generator$1(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, detectAllFaces(input, new MtcnnOptions(forwardParams))
+                            .withFaceLandmarks()
+                            .withFaceDescriptors()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    }
     var allFaces = allFacesSsdMobilenetv1;
+
+    var FaceMatcher = /** @class */ (function () {
+        function FaceMatcher(inputs, distanceThreshold) {
+            if (distanceThreshold === void 0) { distanceThreshold = 0.6; }
+            this._distanceThreshold = distanceThreshold;
+            var inputArray = Array.isArray(inputs) ? inputs : [inputs];
+            if (!inputArray.length) {
+                throw new Error("FaceRecognizer.constructor - expected atleast one input");
+            }
+            var count = 1;
+            var createUniqueLabel = function () { return "person " + count++; };
+            this._labeledDescriptors = inputArray.map(function (desc) {
+                if (desc instanceof LabeledFaceDescriptors) {
+                    return desc;
+                }
+                if (desc instanceof FullFaceDescription) {
+                    return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor]);
+                }
+                if (desc instanceof Float32Array) {
+                    return new LabeledFaceDescriptors(createUniqueLabel(), [desc]);
+                }
+                throw new Error("FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>");
+            });
+        }
+        Object.defineProperty(FaceMatcher.prototype, "labeledDescriptors", {
+            get: function () { return this._labeledDescriptors; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FaceMatcher.prototype, "distanceThreshold", {
+            get: function () { return this._distanceThreshold; },
+            enumerable: true,
+            configurable: true
+        });
+        FaceMatcher.prototype.computeMeanDistance = function (queryDescriptor, descriptors) {
+            return descriptors
+                .map(function (d) { return euclideanDistance(d, queryDescriptor); })
+                .reduce(function (d1, d2) { return d1 + d2; }, 0)
+                / (descriptors.length || 1);
+        };
+        FaceMatcher.prototype.matchDescriptor = function (queryDescriptor) {
+            var _this = this;
+            return this.labeledDescriptors
+                .map(function (_a) {
+                var descriptors = _a.descriptors, label = _a.label;
+                return new FaceMatch(label, _this.computeMeanDistance(queryDescriptor, descriptors));
+            })
+                .reduce(function (best, curr) { return best.distance < curr.distance ? best : curr; });
+        };
+        FaceMatcher.prototype.findBestMatch = function (queryDescriptor) {
+            var bestMatch = this.matchDescriptor(queryDescriptor);
+            return bestMatch.distance < this.distanceThreshold
+                ? bestMatch
+                : new FaceMatch('unknown', bestMatch.distance);
+        };
+        return FaceMatcher;
+    }());
 
     function createMtcnn(weights) {
         var net = new Mtcnn();
+        net.extractWeights(weights);
+        return net;
+    }
+
+    function createTinyFaceDetector(weights) {
+        var net = new TinyFaceDetector();
         net.extractWeights(weights);
         return net;
     }
@@ -4762,8 +6065,10 @@
     }
 
     exports.tf = tfCore_esm;
-    exports.Box = Box;
     exports.BoundingBox = BoundingBox;
+    exports.Box = Box;
+    exports.BoxWithText = BoxWithText;
+    exports.Dimensions = Dimensions;
     exports.LabeledBox = LabeledBox;
     exports.ObjectDetection = ObjectDetection;
     exports.Point = Point;
@@ -4780,6 +6085,10 @@
     exports.drawBox = drawBox;
     exports.drawDetection = drawDetection;
     exports.drawText = drawText;
+    exports.fetchImage = fetchImage;
+    exports.fetchJson = fetchJson;
+    exports.fetchNetWeights = fetchNetWeights;
+    exports.fetchOrThrow = fetchOrThrow;
     exports.getContext2dOrThrow = getContext2dOrThrow;
     exports.getDefaultDrawOptions = getDefaultDrawOptions;
     exports.getMediaDimensions = getMediaDimensions;
@@ -4814,51 +6123,70 @@
     exports.isValidProbablitiy = isValidProbablitiy;
     exports.NeuralNetwork = NeuralNetwork;
     exports.FaceDetection = FaceDetection;
+    exports.FaceDetectionWithLandmarks = FaceDetectionWithLandmarks;
     exports.FaceLandmarks = FaceLandmarks;
     exports.FaceLandmarks5 = FaceLandmarks5;
     exports.FaceLandmarks68 = FaceLandmarks68;
+    exports.FaceMatch = FaceMatch;
     exports.FullFaceDescription = FullFaceDescription;
+    exports.LabeledFaceDescriptors = LabeledFaceDescriptors;
     exports.drawContour = drawContour;
     exports.drawLandmarks = drawLandmarks;
     exports.extractFaces = extractFaces;
     exports.extractFaceTensors = extractFaceTensors;
     exports.euclideanDistance = euclideanDistance;
-    exports.createFaceDetectionNet = createFaceDetectionNet;
-    exports.faceDetectionNet = faceDetectionNet;
-    exports.FaceDetectionNet = FaceDetectionNet;
     exports.FaceLandmarkNet = FaceLandmarkNet;
     exports.createFaceLandmarkNet = createFaceLandmarkNet;
-    exports.faceLandmarkNet = faceLandmarkNet;
     exports.FaceLandmark68Net = FaceLandmark68Net;
     exports.FaceLandmark68TinyNet = FaceLandmark68TinyNet;
     exports.createFaceRecognitionNet = createFaceRecognitionNet;
-    exports.faceRecognitionNet = faceRecognitionNet;
     exports.FaceRecognitionNet = FaceRecognitionNet;
-    exports.detectionNet = detectionNet;
-    exports.landmarkNet = landmarkNet;
-    exports.recognitionNet = recognitionNet;
-    exports.nets = nets;
-    exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
-    exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
-    exports.loadFaceLandmarkTinyModel = loadFaceLandmarkTinyModel;
-    exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
-    exports.loadMtcnnModel = loadMtcnnModel;
-    exports.loadTinyYolov2Model = loadTinyYolov2Model;
-    exports.loadFaceDetectionModel = loadFaceDetectionModel;
-    exports.loadModels = loadModels;
-    exports.locateFaces = locateFaces;
-    exports.ssdMobilenetv1 = ssdMobilenetv1;
-    exports.detectLandmarks = detectLandmarks;
-    exports.detectLandmarksTiny = detectLandmarksTiny;
-    exports.computeFaceDescriptor = computeFaceDescriptor;
-    exports.mtcnn = mtcnn;
-    exports.tinyYolov2 = tinyYolov2;
     exports.allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1;
     exports.allFacesTinyYolov2 = allFacesTinyYolov2;
     exports.allFacesMtcnn = allFacesMtcnn;
     exports.allFaces = allFaces;
+    exports.ComposableTask = ComposableTask;
+    exports.ComputeFaceDescriptorsTaskBase = ComputeFaceDescriptorsTaskBase;
+    exports.ComputeAllFaceDescriptorsTask = ComputeAllFaceDescriptorsTask;
+    exports.ComputeSingleFaceDescriptorTask = ComputeSingleFaceDescriptorTask;
+    exports.detectSingleFace = detectSingleFace;
+    exports.detectAllFaces = detectAllFaces;
+    exports.DetectFacesTaskBase = DetectFacesTaskBase;
+    exports.DetectAllFacesTask = DetectAllFacesTask;
+    exports.DetectSingleFaceTask = DetectSingleFaceTask;
+    exports.DetectFaceLandmarksTaskBase = DetectFaceLandmarksTaskBase;
+    exports.DetectAllFaceLandmarksTask = DetectAllFaceLandmarksTask;
+    exports.DetectSingleFaceLandmarksTask = DetectSingleFaceLandmarksTask;
+    exports.FaceMatcher = FaceMatcher;
+    exports.nets = nets;
+    exports.ssdMobilenetv1 = ssdMobilenetv1;
+    exports.tinyFaceDetector = tinyFaceDetector;
+    exports.tinyYolov2 = tinyYolov2;
+    exports.mtcnn = mtcnn;
+    exports.detectFaceLandmarks = detectFaceLandmarks;
+    exports.detectFaceLandmarksTiny = detectFaceLandmarksTiny;
+    exports.computeFaceDescriptor = computeFaceDescriptor;
+    exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
+    exports.loadTinyFaceDetectorModel = loadTinyFaceDetectorModel;
+    exports.loadMtcnnModel = loadMtcnnModel;
+    exports.loadTinyYolov2Model = loadTinyYolov2Model;
+    exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
+    exports.loadFaceLandmarkTinyModel = loadFaceLandmarkTinyModel;
+    exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
+    exports.loadFaceDetectionModel = loadFaceDetectionModel;
+    exports.locateFaces = locateFaces;
+    exports.detectLandmarks = detectLandmarks;
     exports.createMtcnn = createMtcnn;
     exports.Mtcnn = Mtcnn;
+    exports.MtcnnOptions = MtcnnOptions;
+    exports.createSsdMobilenetv1 = createSsdMobilenetv1;
+    exports.createFaceDetectionNet = createFaceDetectionNet;
+    exports.FaceDetectionNet = FaceDetectionNet;
+    exports.SsdMobilenetv1 = SsdMobilenetv1;
+    exports.SsdMobilenetv1Options = SsdMobilenetv1Options;
+    exports.createTinyFaceDetector = createTinyFaceDetector;
+    exports.TinyFaceDetector = TinyFaceDetector;
+    exports.TinyFaceDetectorOptions = TinyFaceDetectorOptions;
     exports.createTinyYolov2 = createTinyYolov2;
     exports.TinyYolov2 = TinyYolov2$1;
 

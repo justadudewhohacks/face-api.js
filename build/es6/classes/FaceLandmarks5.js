@@ -7,7 +7,7 @@ var FaceLandmarks5 = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     FaceLandmarks5.prototype.getRefPointsForAlignment = function () {
-        var pts = this.getPositions();
+        var pts = this.positions;
         return [
             pts[0],
             pts[1],

@@ -21,7 +21,7 @@ export function extractFaceTensors(imageTensor, detections) {
             return [2 /*return*/, tf.tidy(function () {
                     var _a = imageTensor.shape.slice(isTensor4D(imageTensor) ? 1 : 0), imgHeight = _a[0], imgWidth = _a[1], numChannels = _a[2];
                     var boxes = detections.map(function (det) { return det instanceof FaceDetection
-                        ? det.forSize(imgWidth, imgHeight).getBox()
+                        ? det.forSize(imgWidth, imgHeight).box
                         : det; })
                         .map(function (box) { return box.clipAtImageBorders(imgWidth, imgHeight); });
                     var faceTensors = boxes.map(function (_a) {
