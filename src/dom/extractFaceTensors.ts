@@ -27,7 +27,7 @@ export async function extractFaceTensors(
 
     const boxes = detections.map(
       det => det instanceof FaceDetection
-        ? det.forSize(imgWidth, imgHeight).getBox()
+        ? det.forSize(imgWidth, imgHeight).box
         : det
     )
       .map(box => box.clipAtImageBorders(imgWidth, imgHeight))

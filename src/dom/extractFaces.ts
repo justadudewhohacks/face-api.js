@@ -39,7 +39,7 @@ export async function extractFaces(
   const ctx = getContext2dOrThrow(canvas)
   const boxes = detections.map(
     det => det instanceof FaceDetection
-      ? det.forSize(canvas.width, canvas.height).getBox().floor()
+      ? det.forSize(canvas.width, canvas.height).box.floor()
       : det
   )
     .map(box => box.clipAtImageBorders(canvas.width, canvas.height))

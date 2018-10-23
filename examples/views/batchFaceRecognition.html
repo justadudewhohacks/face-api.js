@@ -2,7 +2,8 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="commons.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -28,7 +29,7 @@
       <div class="row side-by-side">
         <div>
           <label for="numImages">Num Images:</label>
-          <input id="numImages" type="text" class="bold" value="32"/>
+          <input id="numImages" type="text" class="bold" value="16"/>
         </div>
         <button
           class="waves-effect waves-light btn"
@@ -47,13 +48,12 @@
 
   <script>
     let images = []
-    let trainDescriptorsByClass = []
-    let descriptorsByFace = []
-    let numImages = 32
+    let faceMatcher = null
+    let numImages = 16
     let maxDistance = 0.6
 
     function onNumImagesChanged(e) {
-      const val = parseInt(e.target.value) || 32
+      const val = parseInt(e.target.value) || 16
       numImages = Math.min(Math.max(val, 0), 32)
       e.target.value = numImages
     }
@@ -67,15 +67,12 @@
       const canvas = faceapi.createCanvasFromMedia(img)
       $('#faceContainer').append(canvas)
 
-      const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-      const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'unkown'} (${bestMatch.distance})`
-
       const x = 20, y = canvas.height - 20
       faceapi.drawText(
         canvas.getContext('2d'),
         x,
         y,
-        text,
+        faceMatcher.findBestMatch(descriptor).toString(),
         Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
       )
     }
@@ -105,7 +102,7 @@
 
     async function run() {
       await faceapi.loadFaceRecognitionModel('/')
-      trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet, 1)
+      faceMatcher = await createBbtFaceMatcher(1)
       $('#loader').hide()
 
       const imgUris = classes
@@ -114,7 +111,7 @@
         .reduce((flat, arr) => flat.concat(arr))
 
       images = await Promise.all(imgUris.map(
-        async uri => faceapi.bufferToImage(await fetchImage(uri))
+        async uri => faceapi.fetchImage(uri)
       ))
 
       // warmup

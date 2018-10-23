@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetInput, Dimensions } from 'tfjs-image-recognition-base';
+import { IDimensions, isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 
@@ -17,7 +17,7 @@ export class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<NetParams> {
     throw new Error(`${this.__name} - runNet not implemented`)
   }
 
-  public postProcess(output: tf.Tensor2D, inputSize: number, originalDimensions: Dimensions[]): tf.Tensor2D {
+  public postProcess(output: tf.Tensor2D, inputSize: number, originalDimensions: IDimensions[]): tf.Tensor2D {
 
     const inputDimensions = originalDimensions.map(({ width, height }) => {
       const scale = inputSize / Math.max(height, width)

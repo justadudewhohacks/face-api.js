@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+      <div class="row side-by-side">
+        <div class="center-content">
+          <img id="face1" src="" class="margin"/>
+          <div id="selectList1"></div>
+        </div>
+        <div class="center-content">
+          <img id="face2" src="" class="margin"/>
+          <div id="selectList2"></div>
+        </div>
+      </div>
+      <div class="row">
+        <label for="distance">Distance:</label>
+        <input disabled value="-" id="distance" type="text" class="bold">
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const threshold = 0.6
+    let descriptors = { desc1: null, desc2: null }
+
+    function updateResult() {
+      const distance = faceapi.round(
+        faceapi.euclideanDistance(descriptors.desc1, descriptors.desc2)
+      )
+      let text = distance
+      let bgColor = '#ffffff'
+      if (distance > threshold) {
+        text += ' (no match)'
+        bgColor = '#ce7575'
+      }
+      $('#distance').val(text)
+      $('#distance').css('background-color', bgColor)
+    }
+
+    async function onSelectionChanged(which, uri) {
+      const input = await faceapi.fetchImage(uri)
+      const imgEl = $(`#face${which}`).get(0)
+      imgEl.src = input.src
+      descriptors[`desc${which}`] = await faceapi.computeFaceDescriptor(input)
+    }
+
+    async function run() {
+      await  faceapi.loadFaceRecognitionModel()
+      $('#loader').hide()
+      await onSelectionChanged(1, $('#selectList1 select').val())
+      await onSelectionChanged(2, $('#selectList2 select').val())
+      updateResult()
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'bbt_face_similarity')
+      renderFaceImageSelectList(
+        '#selectList1',
+        async (uri) => {
+          await onSelectionChanged(1, uri)
+          updateResult()
+        },
+        { className: 'sheldon', imageIdx: 1 }
+      )
+
+      renderFaceImageSelectList(
+        '#selectList2',
+        async (uri) => {
+          await onSelectionChanged(2, uri)
+          updateResult()
+        },
+        { className: 'howard', imageIdx: 1 }
+      )
+      run()
+    })
+
+  </script>
+
+</body>
+</html>

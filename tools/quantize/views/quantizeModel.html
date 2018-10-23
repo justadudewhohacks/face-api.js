@@ -9,8 +9,8 @@
   <script>
     tf = faceapi.tf
 
-    const uncompressedWeightsUri = `face_landmark_68_model.weights`
-    const net = new faceapi.FaceLandmark68LargeNet()
+    const uncompressedWeightsUri = `tiny_face_detector_model.weights`
+    const net = new faceapi.TinyFaceDetector()
 
     async function load() {
       await net.load(new Float32Array(await (await fetch(uncompressedWeightsUri)).arrayBuffer()))
@@ -21,7 +21,7 @@
       return net.getParamList().map(({ path, tensor }) => ({ name: path, tensor }))
     }
 
-    const modelName = 'face_landmark_68'
+    const modelName = 'tiny_face_detector'
 
     function makeShards(weightArray) {
       const maxLength = 4096 * 1024

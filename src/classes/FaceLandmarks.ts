@@ -1,4 +1,4 @@
-import { Dimensions, getCenterPoint, Point, Rect } from 'tfjs-image-recognition-base';
+import { Dimensions, getCenterPoint, IDimensions, Point, Rect } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from './FaceDetection';
 
@@ -7,65 +7,56 @@ const relX = 0.5
 const relY = 0.43
 const relScale = 0.45
 
-export class FaceLandmarks {
-  protected _imageWidth: number
-  protected _imageHeight: number
+export interface IFaceLandmarks {
+  positions: Point[]
+  shift: Point
+}
+
+export class FaceLandmarks implements IFaceLandmarks {
   protected _shift: Point
-  protected _faceLandmarks: Point[]
+  protected _positions: Point[]
+  protected _imgDims: Dimensions
 
   constructor(
     relativeFaceLandmarkPositions: Point[],
-    imageDims: Dimensions,
+    imgDims: IDimensions,
     shift: Point = new Point(0, 0)
   ) {
-    const { width, height } = imageDims
-    this._imageWidth = width
-    this._imageHeight = height
+    const { width, height } = imgDims
+    this._imgDims = new Dimensions(width, height)
     this._shift = shift
-    this._faceLandmarks = relativeFaceLandmarkPositions.map(
+    this._positions = relativeFaceLandmarkPositions.map(
       pt => pt.mul(new Point(width, height)).add(shift)
     )
   }
 
-  public getShift(): Point {
-    return new Point(this._shift.x, this._shift.y)
-  }
-
-  public getImageWidth(): number {
-    return this._imageWidth
-  }
-
-  public getImageHeight(): number {
-    return this._imageHeight
-  }
-
-  public getPositions(): Point[] {
-    return this._faceLandmarks
-  }
-
-  public getRelativePositions(): Point[] {
-    return this._faceLandmarks.map(
-      pt => pt.sub(this._shift).div(new Point(this._imageWidth, this._imageHeight))
+  public get shift(): Point { return new Point(this._shift.x, this._shift.y) }
+  public get imageWidth(): number { return this._imgDims.width }
+  public get imageHeight(): number { return this._imgDims.height }
+  public get positions(): Point[] { return this._positions }
+  public get relativePositions(): Point[] {
+    return this._positions.map(
+      pt => pt.sub(this._shift).div(new Point(this.imageWidth, this.imageHeight))
     )
   }
 
   public forSize<T extends FaceLandmarks>(width: number, height: number): T {
     return new (this.constructor as any)(
-      this.getRelativePositions(),
+      this.relativePositions,
       { width, height }
     )
   }
 
-  public shift<T extends FaceLandmarks>(x: number, y: number): T {
+  public shiftBy<T extends FaceLandmarks>(x: number, y: number): T {
     return new (this.constructor as any)(
-      this.getRelativePositions(),
-      { width: this._imageWidth, height: this._imageHeight },
+      this.relativePositions,
+      this._imgDims,
       new Point(x, y)
     )
   }
 
   public shiftByPoint<T extends FaceLandmarks>(pt: Point): T {
-    return this.shift(pt.x, pt.y)
+    return this.shiftBy(pt.x, pt.y)
   }
 
   /**
@@ -84,10 +75,10 @@ export class FaceLandmarks {
   ): Rect {
     if (detection) {
       const box = detection instanceof FaceDetection
-        ? detection.getBox().floor()
+        ? detection.box.floor()
         : detection
 
-      return this.shift(box.x, box.y).align()
+      return this.shiftBy(box.x, box.y).align()
     }
 
     const centers = this.getRefPointsForAlignment()
@@ -103,7 +94,7 @@ export class FaceLandmarks {
     const x = Math.floor(Math.max(0, refPoint.x - (relX * size)))
     const y = Math.floor(Math.max(0, refPoint.y - (relY * size)))
 
-    return new Rect(x, y, Math.min(size, this._imageWidth + x), Math.min(size, this._imageHeight + y))
+    return new Rect(x, y, Math.min(size, this.imageWidth + x), Math.min(size, this.imageHeight + y))
   }
 
   protected getRefPointsForAlignment(): Point[] {

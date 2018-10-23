@@ -44,6 +44,6 @@ export function drawLandmarks(
     // else draw points
     const ptOffset = lineWidth / 2
     ctx.fillStyle = color
-    landmarks.getPositions().forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
+    landmarks.positions.forEach(pt => ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth))
   })
 }

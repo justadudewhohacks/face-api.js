@@ -10,8 +10,3 @@ export function createFaceLandmarkNet(weights: Float32Array) {
   net.extractWeights(weights)
   return net
 }
-
-export function faceLandmarkNet(weights: Float32Array) {
-  console.warn('faceLandmarkNet(weights: Float32Array) will be deprecated in future, use createFaceLandmarkNet instead')
-  return createFaceLandmarkNet(weights)
-}

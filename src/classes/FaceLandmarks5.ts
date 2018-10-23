@@ -5,7 +5,7 @@ import { FaceLandmarks } from './FaceLandmarks';
 export class FaceLandmarks5 extends FaceLandmarks {
 
   protected getRefPointsForAlignment(): Point[] {
-    const pts = this.getPositions()
+    const pts = this.positions
     return [
       pts[0],
       pts[1],

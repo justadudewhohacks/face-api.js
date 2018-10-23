@@ -1,0 +1,70 @@
+import { FaceMatch } from '../classes/FaceMatch';
+import { FullFaceDescription } from '../classes/FullFaceDescription';
+import { LabeledFaceDescriptors } from '../classes/LabeledFaceDescriptors';
+import { euclideanDistance } from '../euclideanDistance';
+
+export class FaceMatcher {
+
+  private _labeledDescriptors: LabeledFaceDescriptors[]
+  private _distanceThreshold: number
+
+  constructor(
+    inputs: LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>,
+    distanceThreshold: number = 0.6
+  ) {
+
+    this._distanceThreshold = distanceThreshold
+
+    const inputArray = Array.isArray(inputs) ? inputs : [inputs]
+
+    if (!inputArray.length) {
+      throw new Error(`FaceRecognizer.constructor - expected atleast one input`)
+    }
+
+    let count = 1
+    const createUniqueLabel = () => `person ${count++}`
+
+    this._labeledDescriptors = inputArray.map((desc) => {
+      if (desc instanceof LabeledFaceDescriptors) {
+        return desc
+      }
+
+      if (desc instanceof FullFaceDescription) {
+        return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor])
+      }
+
+      if (desc instanceof Float32Array) {
+        return new LabeledFaceDescriptors(createUniqueLabel(), [desc])
+      }
+
+      throw new Error(`FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>`)
+    })
+  }
+
+  public get labeledDescriptors(): LabeledFaceDescriptors[] { return this._labeledDescriptors }
+  public get distanceThreshold(): number { return this._distanceThreshold }
+
+  public computeMeanDistance(queryDescriptor: Float32Array, descriptors: Float32Array[]): number {
+    return descriptors
+      .map(d => euclideanDistance(d, queryDescriptor))
+      .reduce((d1, d2) => d1 + d2, 0)
+        / (descriptors.length || 1)
+  }
+
+  public matchDescriptor(queryDescriptor: Float32Array): FaceMatch {
+    return this.labeledDescriptors
+      .map(({ descriptors, label }) => new FaceMatch(
+          label,
+          this.computeMeanDistance(queryDescriptor, descriptors)
+      ))
+      .reduce((best, curr) => best.distance < curr.distance ? best : curr)
+  }
+
+  public findBestMatch(queryDescriptor: Float32Array): FaceMatch {
+    const bestMatch = this.matchDescriptor(queryDescriptor)
+    return bestMatch.distance < this.distanceThreshold
+      ? bestMatch
+      : new FaceMatch('unknown', bestMatch.distance)
+  }
+
+}

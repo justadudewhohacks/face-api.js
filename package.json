@@ -11,7 +11,14 @@
     "tsc": "tsc",
     "tsc-es6": "tsc --p tsconfig.es6.json",
     "build": "npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
-    "test": "karma start"
+    "test": "karma start",
+    "test-facelandmarknets": "set UUT=faceLandmarkNet&& karma start",
+    "test-facerecognitionnet": "set UUT=faceRecognitionNet&& karma start",
+    "test-ssdmobilenetv1": "set UUT=ssdMobilenetv1&& karma start",
+    "test-tinyfacedetector": "set UUT=tinyFaceDetector&& karma start",
+    "test-mtcnn": "set UUT=mtcnn&& karma start",
+    "test-tinyyolov2": "set UUT=tinyYolov2&& karma start",
+    "docs": "typedoc --options ./typedoc.config.js ./src"
   },
   "keywords": [
     "face",
@@ -24,8 +31,8 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "^0.13.2",
-    "tfjs-image-recognition-base": "^0.1.2",
-    "tfjs-tiny-yolov2": "^0.1.3",
+    "tfjs-image-recognition-base": "^0.1.3",
+    "tfjs-tiny-yolov2": "^0.2.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

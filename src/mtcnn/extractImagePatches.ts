@@ -1,12 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { Box, createCanvas, Dimensions, getContext2dOrThrow } from 'tfjs-image-recognition-base';
+import { Box, createCanvas, getContext2dOrThrow, IDimensions } from 'tfjs-image-recognition-base';
 
 import { normalize } from './normalize';
 
 export async function extractImagePatches(
   img: HTMLCanvasElement,
   boxes: Box[],
-  { width, height }: Dimensions
+  { width, height }: IDimensions
 ): Promise<tf.Tensor4D[]> {
 
 

@@ -38,7 +38,7 @@ function denseBlock(
 export class FaceLandmark68Net extends FaceLandmark68NetBase<NetParams> {
 
   constructor() {
-    super('FaceLandmark68LargeNet')
+    super('FaceLandmark68Net')
   }
 
   public runNet(input: NetInput): tf.Tensor2D {
@@ -46,7 +46,7 @@ export class FaceLandmark68Net extends FaceLandmark68NetBase<NetParams> {
     const { params } = this
 
     if (!params) {
-      throw new Error('FaceLandmark68LargeNet - load model before inference')
+      throw new Error('FaceLandmark68Net - load model before inference')
     }
 
     return tf.tidy(() => {

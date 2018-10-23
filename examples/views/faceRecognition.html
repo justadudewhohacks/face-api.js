@@ -2,7 +2,9 @@
 <html>
 <head>
   <script src="face-api.js"></script>
-  <script src="commons.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/drawing.js"></script>
+  <script src="js/faceDetectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -11,148 +13,271 @@
 <body>
   <div id="navbar"></div>
   <div class="center-content page-container">
-    <div>
-      <div class="row center-content" id="loader">
-        <input disabled value="" id="status" type="text" class="bold">
-        <div class="progress">
-          <div class="indeterminate"></div>
+
+    <p> Reference Image: </p>
+
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <img id="refImg" src="" style="max-width: 800px;" />
+      <canvas id="refImgOverlay" class="overlay"/>
+    </div>
+
+    <div class="row side-by-side">
+
+      <!-- image_selection_control -->
+      <div class="row">
+        <label>Upload Image:</label>
+        <div>
+          <input id="refImgUploadInput" type="file" class="bold" onchange="uploadRefImage()" accept=".jpg, .jpeg, .png">
         </div>
       </div>
-      <div class="row center-content">
-        <img id="face" src=""/>
-      </div>
       <div class="row">
-        <label for="prediction">Prediction:</label>
-        <input disabled value="-" id="prediction" type="text" class="bold">
+        <label for="refImgUrlInput">Get image from URL:</label>
+        <input id="refImgUrlInput" type="text" class="bold">
       </div>
-      <div class="row">
-        <label for="time">Time:</label>
-        <input disabled value="-" id="time" type="text" class="bold">
-      </div>
-      <div class="row">
-        <label for="fps">Estimated Fps:</label>
-        <input disabled value="-" id="fps" type="text" class="bold">
-      </div>
-      <div class="row">
-        <button
-          class="waves-effect waves-light btn"
-          id="stop"
-          onclick="onToggleStop()"
-        >
-          Stop
-        </button>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onSlower()"
-        >
-          <i class="material-icons left">-</i> Slower
-        </button>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onFaster()"
-        >
-          <i class="material-icons left">+</i> Faster
-        </button>
-      </div>
-      <div class="row">
-        <label for="interval">Interval:</label>
-        <input disabled value="2000" id="interval" type="text" class="bold">
-      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadRefImageFromUrl()"
+      >
+        Ok
+      </button>
+      <!-- image_selection_control -->
+
     </div>
-  </div>
+
+    <p> Query Image: </p>
+
+    <div style="position: relative" class="margin">
+      <img id="queryImg" src="" style="max-width: 800px;" />
+      <canvas id="queryImgOverlay" class="overlay"/>
+    </div>
+
+
+    <div class="row side-by-side">
+
+      <!-- image_selection_control -->
+      <div class="row">
+        <label>Upload Image:</label>
+        <div>
+          <input id="queryImgUploadInput" type="file" class="bold" onchange="uploadQueryImage()" accept=".jpg, .jpeg, .png">
+        </div>
+      </div>
+      <div class="row">
+        <label for="queryImgUrlInput">Get image from URL:</label>
+        <input id="queryImgUrlInput" type="text" class="bold">
+      </div>
+      <button
+        class="waves-effect waves-light btn"
+        onclick="loadQueryImageFromUrl()"
+      >
+        Ok
+      </button>
+      <!-- image_selection_control -->
+
+    </div>
+
+    <div class="center-content">
+      <!-- face_detector_selection_control -->
+      <div id="face_detector_selection_control" class="row input-field">
+        <select id="selectFaceDetector">
+          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+          <option value="tiny_face_detector">Tiny Face Detector</option>
+          <option value="mtcnn">MTCNN</option>
+        </select>
+        <label>Select Face Detector</label>
+      </div>
+      <!-- face_detector_selection_control -->
+
+      <!-- ssd_mobilenetv1_controls -->
+      <span id="ssd_mobilenetv1_controls">
+        <div class="row side-by-side">
+          <div class="row">
+            <label for="minConfidence">Min Confidence:</label>
+            <input disabled value="0.5" id="minConfidence" type="text" class="bold">
+          </div>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onDecreaseMinConfidence()"
+          >
+            <i class="material-icons left">-</i>
+          </button>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onIncreaseMinConfidence()"
+          >
+            <i class="material-icons left">+</i>
+          </button>
+        </div>
+      </span>
+      <!-- ssd_mobilenetv1_controls -->
+
+      <!-- tiny_face_detector_controls -->
+      <span id="tiny_face_detector_controls">
+        <div class="row side-by-side">
+          <div class="row input-field" style="margin-right: 20px;">
+            <select id="inputSize">
+              <option value="" disabled selected>Input Size:</option>
+              <option value="160">160 x 160</option>
+              <option value="224">224 x 224</option>
+              <option value="320">320 x 320</option>
+              <option value="416">416 x 416</option>
+              <option value="512">512 x 512</option>
+              <option value="608">608 x 608</option>
+            </select>
+            <label>Input Size</label>
+          </div>
+          <div class="row">
+            <label for="scoreThreshold">Score Threshold:</label>
+            <input disabled value="0.5" id="scoreThreshold" type="text" class="bold">
+          </div>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onDecreaseScoreThreshold()"
+          >
+            <i class="material-icons left">-</i>
+          </button>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onIncreaseScoreThreshold()"
+          >
+            <i class="material-icons left">+</i>
+          </button>
+        </div>
+      </span>
+      <!-- tiny_face_detector_controls -->
+
+      <!-- mtcnn_controls -->
+      <span id="mtcnn_controls">
+        <div class="row side-by-side">
+          <div class="row">
+            <label for="minFaceSize">Minimum Face Size:</label>
+            <input disabled value="20" id="minFaceSize" type="text" class="bold">
+          </div>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onDecreaseMinFaceSize()"
+          >
+            <i class="material-icons left">-</i>
+          </button>
+          <button
+            class="waves-effect waves-light btn"
+            onclick="onIncreaseMinFaceSize()"
+          >
+            <i class="material-icons left">+</i>
+          </button>
+        </div>
+      </span>
+      <!-- mtcnn_controls -->
+
+    </div>
+
+  </body>
 
   <script>
-    // for 150 x 150 sized face images 0.6 is a good threshold to
-    // judge whether two face descriptors are similar or not
-    const threshold = 0.6
-    let interval = 2000
+    let faceMatcher = null
 
-    let isStop = false
-    let trainDescriptorsByClass = []
-    let currImageIdx = 2, currClassIdx = 0
-    let to = null
-
-    function onSlower() {
-      interval = Math.min(interval + 100, 2000)
-      $('#interval').val(interval)
+    async function uploadRefImage(e) {
+      const imgFile = $('#refImgUploadInput').get(0).files[0]
+      const img = await faceapi.bufferToImage(imgFile)
+      $('#refImg').get(0).src = img.src
+      updateReferenceImageResults()
     }
 
-    function onFaster() {
-      interval = Math.max(interval - 100, 0)
-      $('#interval').val(interval)
+    async function loadRefImageFromUrl(url) {
+      const img = await requestExternalImage($('#refImgUrlInput').val())
+      $('#refImg').get(0).src = img.src
+      updateReferenceImageResults()
     }
 
-    function onToggleStop() {
-      clearTimeout(to)
-      isStop = !isStop
-      document.getElementById('stop').innerHTML = isStop ? 'Continue' : 'Stop'
-      setStatusText(isStop ? 'stopped' : 'running face recognition:')
-      if (!isStop) {
-        runFaceRecognition()
+    async function uploadQueryImage(e) {
+      const imgFile = $('#queryImgUploadInput').get(0).files[0]
+      const img = await faceapi.bufferToImage(imgFile)
+      $('#queryImg').get(0).src = img.src
+      updateQueryImageResults()
+    }
+
+    async function loadQueryImageFromUrl(url) {
+      const img = await requestExternalImage($('#queryImgUrlInput').val())
+      $('#queryImg').get(0).src = img.src
+      updateQueryImageResults()
+    }
+
+    async function updateReferenceImageResults() {
+      const imgEl = $('#refImg').get(0)
+      const canvas = $('#refImgOverlay').get(0)
+
+      const fullFaceDescriptions = await faceapi
+        .detectAllFaces(imgEl, getFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptors()
+
+      if (!fullFaceDescriptions.length) {
+        return
       }
+
+      // create FaceMatcher with automatically assigned labels
+      // from the detection results for the reference image
+      faceMatcher = new faceapi.FaceMatcher(fullFaceDescriptions)
+
+      // resize detection and landmarks in case displayed image is smaller than
+      // original size
+      resizedResults = resizeCanvasAndResults(imgEl, canvas, fullFaceDescriptions)
+      // draw boxes with the corresponding label as text
+      const labels = faceMatcher.labeledDescriptors
+        .map(ld => ld.label)
+      const boxesWithText = resizedResults
+        .map(res => res.detection.box)
+        .map((box, i) => new faceapi.BoxWithText(box, labels[i]))
+      faceapi.drawDetection(canvas, boxesWithText)
     }
 
-    function setStatusText(text) {
-      $('#status').val(text)
-    }
-
-    function displayTimeStats(timeInMs) {
-      $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
-    }
-
-    function displayImage(src) {
-      getImg().src = src
-    }
-
-    async function runFaceRecognition() {
-      async function next() {
-        const imgBuf = await fetchImage(getFaceImageUri(classes[currClassIdx], currImageIdx))
-        const input = await faceapi.bufferToImage(imgBuf)
-        const imgEl = $('#face').get(0)
-        imgEl.src = input.src
-
-        const ts = Date.now()
-        const descriptor = await faceapi.computeFaceDescriptor(input)
-        displayTimeStats(Date.now() - ts)
-
-        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-        $('#prediction').val(`${bestMatch.distance < threshold ? bestMatch.className : 'unkown'} (${bestMatch.distance})`)
-
-        currImageIdx = currClassIdx === (classes.length - 1)
-          ? currImageIdx + 1
-          : currImageIdx
-        currClassIdx = (currClassIdx + 1) % classes.length
-
-        currImageIdx = (currImageIdx % 6) || 2
-        to = setTimeout(next, interval)
+    async function updateQueryImageResults() {
+      if (!faceMatcher) {
+        return
       }
-      await next(0, 0)
+
+      const imgEl = $('#queryImg').get(0)
+      const canvas = $('#queryImgOverlay').get(0)
+
+      const results = await faceapi
+        .detectAllFaces(imgEl, getFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptors()
+
+      // resize detection and landmarks in case displayed image is smaller than
+      // original size
+      resizedResults = resizeCanvasAndResults(imgEl, canvas, results)
+      // draw boxes with the corresponding label as text
+      const boxesWithText = resizedResults.map(({ detection, descriptor }) =>
+        new faceapi.BoxWithText(
+          detection.box,
+          // match each face descriptor to the reference descriptor
+          // with lowest euclidean distance and display the result as text
+          faceMatcher.findBestMatch(descriptor).toString()
+        )
+      )
+      faceapi.drawDetection(canvas, boxesWithText)
+    }
+
+    async function updateResults() {
+      await updateReferenceImageResults()
+      await updateQueryImageResults()
     }
 
     async function run() {
-      try {
-        setStatusText('loading model file...')
-
-        await faceapi.loadFaceRecognitionModel('/')
-
-        setStatusText('computing initial descriptors...')
-
-        trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet)
-        $('#loader').hide()
-
-        runFaceRecognition()
-      } catch (err) {
-        console.error(err)
-      }
+      // load face detection, face landmark model and face recognition models
+      await changeFaceDetector(selectedFaceDetector)
+      await faceapi.loadFaceLandmarkModel('/')
+      await faceapi.loadFaceRecognitionModel('/')
     }
 
     $(document).ready(function() {
       renderNavBar('#navbar', 'face_recognition')
+      initFaceDetectionControls()
       run()
     })
-
   </script>
-
 </body>
 </html>

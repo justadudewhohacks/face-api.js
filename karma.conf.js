@@ -14,6 +14,20 @@ const dataFiles = [
   nocache: false
 }))
 
+const exclude = process.env.UUT
+  ? [
+    'dom',
+    'faceLandmarkNet',
+    'faceRecognitionNet',
+    'ssdMobilenetv1',
+    'tinyFaceDetector',
+    'mtcnn',
+    'tinyYolov2'
+  ]
+    .filter(ex => ex !== process.env.UUT)
+    .map(ex => `test/tests/${ex}/*.ts`)
+  : []
+
 module.exports = function(config) {
   config.set({
     frameworks: ['jasmine', 'karma-typescript'],
@@ -21,6 +35,7 @@ module.exports = function(config) {
       'src/**/*.ts',
       'test/**/*.ts'
     ].concat(dataFiles),
+    exclude,
     preprocessors: {
       '**/*.ts': ['karma-typescript']
     },

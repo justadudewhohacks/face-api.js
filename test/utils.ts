@@ -1,13 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceDetectionNet, FaceRecognitionNet, IPoint, IRect, Mtcnn, NeuralNetwork, TinyYolov2 } from '../src/';
-import { allFacesMtcnnFactory, allFacesSsdMobilenetv1Factory, allFacesTinyYolov2Factory } from '../src/allFacesFactory';
+import * as faceapi from '../src';
+import { FaceRecognitionNet, IPoint, IRect, Mtcnn, NeuralNetwork, TinyYolov2 } from '../src/';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
-import { FullFaceDescription } from '../src/classes/FullFaceDescription';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
-import { allFacesMtcnnFunction, allFacesSsdMobilenetv1Function, allFacesTinyYolov2Function } from '../src/globalApi';
+import { SsdMobilenetv1 } from '../src/ssdMobilenetv1/SsdMobilenetv1';
+import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
 
@@ -59,16 +59,19 @@ export function sortFaceDetections(boxes: FaceDetection[]) {
 }
 
 export function sortLandmarks(landmarks: FaceLandmarks[]) {
-  return sortByDistanceToOrigin(landmarks, l => l.getPositions()[0])
+  return sortByDistanceToOrigin(landmarks, l => l.positions[0])
 }
 
-export function sortFullFaceDescriptions(descs: FullFaceDescription[]) {
+export function sortByFaceDetection<T extends { detection: FaceDetection }>(descs: T[]) {
   return sortByDistanceToOrigin(descs, d => d.detection.box)
 }
 
-export type ExpectedFullFaceDescription = {
+export type ExpectedFaceDetectionWithLandmarks = {
   detection: IRect
   landmarks: IPoint[]
+}
+
+export type ExpectedFullFaceDescription = ExpectedFaceDetectionWithLandmarks & {
   descriptor: Float32Array
 }
 
@@ -95,10 +98,8 @@ export type WithTinyYolov2Options = WithNetOptions & {
 }
 
 export type InjectNetArgs = {
-  allFacesSsdMobilenetv1: allFacesSsdMobilenetv1Function
-  allFacesTinyYolov2: allFacesTinyYolov2Function
-  allFacesMtcnn: allFacesMtcnnFunction
-  faceDetectionNet: FaceDetectionNet
+  ssdMobilenetv1: SsdMobilenetv1
+  tinyFaceDetector: TinyFaceDetector
   faceLandmark68Net: FaceLandmark68Net
   faceLandmark68TinyNet: FaceLandmark68TinyNet
   faceRecognitionNet: FaceRecognitionNet
@@ -109,9 +110,11 @@ export type InjectNetArgs = {
 
 export type DescribeWithNetsOptions = {
   withAllFacesSsdMobilenetv1?: boolean
+  withAllFacesTinyFaceDetector?: boolean
   withAllFacesTinyYolov2?: boolean
   withAllFacesMtcnn?: boolean
-  withFaceDetectionNet?: WithNetOptions
+  withSsdMobilenetv1?: WithNetOptions
+  withTinyFaceDetector?: WithNetOptions
   withFaceLandmark68Net?: WithNetOptions
   withFaceLandmark68TinyNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
@@ -128,11 +131,10 @@ async function initNet<TNet extends NeuralNetwork<any>>(
   uncompressedFilename: string | boolean,
   isUnusedModel: boolean = false
 ) {
-  await net.load(
-    uncompressedFilename
-      ? await loadNetWeights(`base/weights_uncompressed/${uncompressedFilename}`)
-      : (isUnusedModel ? 'base/weights_unused' : 'base/weights')
-  )
+  const url = uncompressedFilename
+    ? await loadNetWeights(`base/weights_uncompressed/${uncompressedFilename}`)
+    : (isUnusedModel ? 'base/weights_unused' : 'base/weights')
+  await net.load(url)
 }
 
 export function describeWithNets(
@@ -142,22 +144,24 @@ export function describeWithNets(
 ) {
 
   describe(description, () => {
-    let faceDetectionNet: FaceDetectionNet = new FaceDetectionNet()
-    let faceLandmark68Net: FaceLandmark68Net = new FaceLandmark68Net()
-    let faceLandmark68TinyNet: FaceLandmark68TinyNet = new FaceLandmark68TinyNet()
-    let faceRecognitionNet: FaceRecognitionNet = new FaceRecognitionNet()
-    let mtcnn: Mtcnn = new Mtcnn()
-    let tinyYolov2: TinyYolov2 = new TinyYolov2(options.withTinyYolov2 && options.withTinyYolov2.withSeparableConv)
-    let allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1Factory(faceDetectionNet, faceLandmark68Net, faceRecognitionNet)
-    let allFacesTinyYolov2 = allFacesTinyYolov2Factory(tinyYolov2, faceLandmark68Net, faceRecognitionNet)
-    let allFacesMtcnn = allFacesMtcnnFactory(mtcnn, faceRecognitionNet)
+    const {
+      ssdMobilenetv1,
+      tinyFaceDetector,
+      faceLandmark68Net,
+      faceLandmark68TinyNet,
+      faceRecognitionNet,
+      mtcnn,
+      tinyYolov2
+    } = faceapi.nets
 
     beforeAll(async () => {
       const {
         withAllFacesSsdMobilenetv1,
+        withAllFacesTinyFaceDetector,
         withAllFacesTinyYolov2,
         withAllFacesMtcnn,
-        withFaceDetectionNet,
+        withSsdMobilenetv1,
+        withTinyFaceDetector,
         withFaceLandmark68Net,
         withFaceLandmark68TinyNet,
         withFaceRecognitionNet,
@@ -165,14 +169,21 @@ export function describeWithNets(
         withTinyYolov2
       } = options
 
-      if (withFaceDetectionNet || withAllFacesSsdMobilenetv1) {
-        await initNet<FaceDetectionNet>(
-          faceDetectionNet,
-          !!withFaceDetectionNet && !withFaceDetectionNet.quantized && 'ssd_mobilenetv1_model.weights'
+      if (withSsdMobilenetv1 || withAllFacesSsdMobilenetv1) {
+        await initNet<SsdMobilenetv1>(
+          ssdMobilenetv1,
+          !!withSsdMobilenetv1 && !withSsdMobilenetv1.quantized && 'ssd_mobilenetv1_model.weights'
         )
       }
 
-      if (withFaceLandmark68Net || withAllFacesSsdMobilenetv1 || withAllFacesTinyYolov2) {
+      if (withTinyFaceDetector || withAllFacesTinyFaceDetector) {
+        await initNet<TinyFaceDetector>(
+          tinyFaceDetector,
+          !!withTinyFaceDetector && !withTinyFaceDetector.quantized && 'tiny_face_detector_model.weights'
+        )
+      }
+
+      if (withFaceLandmark68Net || withAllFacesSsdMobilenetv1  || withAllFacesTinyFaceDetector|| withAllFacesMtcnn || withAllFacesTinyYolov2) {
         await initNet<FaceLandmark68Net>(
           faceLandmark68Net,
           !!withFaceLandmark68Net && !withFaceLandmark68Net.quantized && 'face_landmark_68_model.weights'
@@ -186,10 +197,11 @@ export function describeWithNets(
         )
       }
 
-      if (withFaceRecognitionNet || withAllFacesSsdMobilenetv1 || withAllFacesMtcnn || withAllFacesTinyYolov2) {
+      if (withFaceRecognitionNet || withAllFacesSsdMobilenetv1  || withAllFacesTinyFaceDetector|| withAllFacesMtcnn || withAllFacesTinyYolov2) {
         await initNet<FaceRecognitionNet>(
           faceRecognitionNet,
           // TODO: figure out why quantized weights results in NaNs in testcases
+          // apparently (net weight values differ when loading with karma)
           'face_recognition_model.weights'
         )
       }
@@ -205,24 +217,23 @@ export function describeWithNets(
         await initNet<TinyYolov2>(
           tinyYolov2,
           !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights',
-          withTinyYolov2 && withTinyYolov2.withSeparableConv === false
+          true
         )
       }
     })
 
     afterAll(() => {
-      faceDetectionNet && faceDetectionNet.dispose()
-      faceLandmark68Net && faceLandmark68Net.dispose()
-      faceRecognitionNet && faceRecognitionNet.dispose()
-      mtcnn && mtcnn.dispose(),
-      tinyYolov2 && tinyYolov2.dispose()
+      ssdMobilenetv1.isLoaded && ssdMobilenetv1.dispose()
+      faceLandmark68Net.isLoaded && faceLandmark68Net.dispose()
+      faceRecognitionNet.isLoaded && faceRecognitionNet.dispose()
+      mtcnn.isLoaded && mtcnn.dispose()
+      tinyFaceDetector.isLoaded && tinyFaceDetector.dispose()
+      tinyYolov2.isLoaded && tinyYolov2.dispose()
     })
 
     specDefinitions({
-      allFacesSsdMobilenetv1,
-      allFacesTinyYolov2,
-      allFacesMtcnn,
-      faceDetectionNet,
+      ssdMobilenetv1,
+      tinyFaceDetector,
       faceLandmark68Net,
       faceLandmark68TinyNet,
       faceRecognitionNet,
