@@ -379,7 +379,7 @@ export interface ISsdMobilenetv1Options {
 }
 
 // example
-const options new SsdMobilenetv1Options({ minConfidence: 0.8 })
+const options = new SsdMobilenetv1Options({ minConfidence: 0.8 })
 ```
 
 ### TinyFaceDetectorOptions
@@ -400,7 +400,7 @@ export interface ITinyFaceDetectorOptions {
 }
 
 // example
-const options new TinyFaceDetectorOptions({ inputSize: 320 })
+const options = new TinyFaceDetectorOptions({ inputSize: 320 })
 ```
 
 ### MtcnnOptions
@@ -434,7 +434,7 @@ export interface IMtcnnOptions {
 }
 
 // example
-const options new MtcnnOptions({ minFaceSize: 100, scaleFactor: 0.8 })
+const options = new MtcnnOptions({ minFaceSize: 100, scaleFactor: 0.8 })
 ```
 
 <a name="usage-utility-classes"></a>
@@ -509,7 +509,7 @@ const detections2 = await faceapi.tinyFaceDetector(input, options)
 const detections3 = await faceapi.mtcnn(input, options)
 const landmarks1 = await faceapi.detectFaceLandmarks(faceImage)
 const landmarks2 = await faceapi.detectFaceLandmarksTiny(faceImage)
-const descriptor = await faceapi.computeDescriptor(alignedFaceImage)
+const descriptor = await faceapi.computeFaceDescriptor(alignedFaceImage)
 ```
 
 All global neural network instances are exported via faceapi.nets:
