@@ -50,7 +50,7 @@ Check out my face-api.js tutorials:
 
 ![preview_face-detection-and-recognition](https://user-images.githubusercontent.com/31125521/41526995-1a90e4e6-72e6-11e8-96d4-8b2ccdee5f79.gif)
 
-![preview_face-recognition_gif](https://user-images.githubusercontent.com/31125521/40313021-c3afdfec-5d14-11e8-86df-cf89a00668e2.gif)
+![face-recognition-preview](https://user-images.githubusercontent.com/31125521/47384002-41e36f80-d706-11e8-8cd9-b3102c1bee67.png)
 
 ## Face Similarity
 
@@ -58,19 +58,15 @@ Check out my face-api.js tutorials:
 
 ## Face Landmark Detection
 
-![face_landmarks_boxes_1](https://user-images.githubusercontent.com/31125521/46063403-fff9f480-c16c-11e8-900f-e4b7a3828d1d.jpg)
-
 ![face_landmarks_boxes_2](https://user-images.githubusercontent.com/31125521/46063404-00928b00-c16d-11e8-8f29-e9c50afd2bc8.jpg)
 
 ![preview_face_landmarks](https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png)
 
 ## Realtime Face Tracking
 
-**SSD Mobilenet v1**
+![output](https://user-images.githubusercontent.com/31125521/47383860-ea450400-d705-11e8-9880-d5d15d952661.gif)
 
-![preview_video-facedetection](https://user-images.githubusercontent.com/31125521/41238649-bbf10046-6d96-11e8-9041-1de46c6adccd.jpg)
-
-**MTCNN**
+## MTCNN
 
 ![mtcnn-preview](https://user-images.githubusercontent.com/31125521/42756818-0a41edaa-88fe-11e8-9033-8cd141b0fa09.gif)
 
