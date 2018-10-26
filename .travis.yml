@@ -13,5 +13,4 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 script:
   - npm run test-travis
-  - npm install
   - npm run build
