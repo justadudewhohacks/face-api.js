@@ -37,10 +37,6 @@ exclude = exclude.concat(
     : []
 )
 
-console.log(exclude)
-console.log(process.env.KARMA_BROWSERS)
-console.log(process.env.EXCLUDE_UNCOMPRESSED)
-
 module.exports = function(config) {
   config.set({
     frameworks: ['jasmine', 'karma-typescript'],
@@ -57,6 +53,8 @@ module.exports = function(config) {
     },
     browsers: ['Chrome'],
     browserNoActivityTimeout: 120000,
+    browserDisconnectTolerance: 3,
+    browserDisconnectTimeout : 120000,
     captureTimeout: 60000,
     client: {
       jasmine: {

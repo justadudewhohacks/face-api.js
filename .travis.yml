@@ -3,7 +3,7 @@ language: node_js
 node_js:
   - "10"
 env:
-  - KARMA_BROWSERS=ChromeHeadlessNoSandbox EXCLUDE_UNCOMPRESSED=true
+  - EXCLUDE_UNCOMPRESSED=true
 before_script:
   - npm install
   - npm run build
