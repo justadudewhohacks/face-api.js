@@ -1,5 +1,6 @@
 # face-api.js
 
+[![Build Status](https://travis-ci.org/justadudewhohacks/face-api.js.svg?branch=master)](https://travis-ci.org/justadudewhohacks/face-api.js)
 [![Slack](https://slack.bri.im/badge.svg)](https://slack.bri.im)
 
 **JavaScript API for face detection and face recognition in the browser implemented on top of the tensorflow.js core API ([tensorflow/tfjs-core](https://github.com/tensorflow/tfjs-core))**
@@ -540,7 +541,7 @@ console.log(dist) // 10
 ### Retrieve the Face Landmark Points and Contours
 
 ``` javascript
-const landmarkPositions = landmarks.getPositions()
+const landmarkPositions = landmarks.positions
 
 // or get the positions of individual contours,
 // only available for 68 point face ladnamrks (FaceLandmarks68)
