@@ -26,9 +26,10 @@ describe('tinyFaceDetector', () => {
 
       const results = await faceapi.detectAllFaces(imgEl, options)
 
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 1
       expect(results.length).toEqual(6)
-      expectFaceDetections(results, expectedTinyFaceDetectorBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(results, expectedTinyFaceDetectorBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('detectAllFaces.withFaceLandmarks()', async () => {
@@ -41,6 +42,7 @@ describe('tinyFaceDetector', () => {
         .withFaceLandmarks()
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 1,
         maxLandmarksDelta: 10
       }
@@ -59,6 +61,7 @@ describe('tinyFaceDetector', () => {
         .withFaceDescriptors()
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 1,
         maxLandmarksDelta: 10,
         maxDescriptorDelta: 0.2

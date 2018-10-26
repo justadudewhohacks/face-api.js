@@ -25,6 +25,7 @@ describe('mtcnn.forward', () => {
       expect(results.length).toEqual(6)
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 2,
         maxLandmarksDelta: 5
       }
@@ -40,6 +41,7 @@ describe('mtcnn.forward', () => {
 
       expect(results.length).toEqual(6)
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 15,
         maxLandmarksDelta: 13
       }
@@ -58,6 +60,7 @@ describe('mtcnn.forward', () => {
       expect(results.length).toEqual(6)
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 8,
         maxLandmarksDelta: 7
       }
@@ -73,6 +76,7 @@ describe('mtcnn.forward', () => {
       expect(results.length).toEqual(6)
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 8,
         maxLandmarksDelta: 10
       }

@@ -20,9 +20,10 @@ describe('ssdMobilenetv1.locateFaces, uncompressed', () => {
       expect(detections.length).toEqual(3)
 
       const expectedScores = [-1, -1, 0.98, 0.88, 0.81, -1]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 3
 
-      expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('scores > 0.5', async () => {
@@ -31,9 +32,10 @@ describe('ssdMobilenetv1.locateFaces, uncompressed', () => {
       expect(detections.length).toEqual(6)
 
       const expectedScores = [0.57, 0.74, 0.98, 0.88, 0.81, 0.58]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 3
 
-      expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('no memory leaks', async () => {

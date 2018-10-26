@@ -25,7 +25,7 @@ export function expectFullFaceDescriptions(
 
   expectedFullFaceDescriptions.forEach((expected, i) => {
     const { detection, landmarks, descriptor } = sortedResults[i]
-    expect(detection.score).toBeCloseTo(expected.score, 2)
+    expect(detection.score - expected.score).toBeLessThan(deltas.maxScoreDelta)
     expectRectClose(detection.box, expected.detection, deltas.maxBoxDelta)
     landmarks.positions.forEach((pt, j) => expectPointClose(pt, expected.landmarks[j], deltas.maxLandmarksDelta))
     expect(euclideanDistance(descriptor, expected.descriptor)).toBeLessThan(deltas.maxDescriptorDelta)
