@@ -26,10 +26,10 @@ describe('mtcnn', () => {
       })
 
       const results = await faceapi.detectAllFaces(imgEl, options)
-
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 2
       expect(results.length).toEqual(6)
-      expectFaceDetections(results, expectedMtcnnBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(results, expectedMtcnnBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
@@ -42,6 +42,7 @@ describe('mtcnn', () => {
         .withFaceLandmarks()
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 2,
         maxLandmarksDelta: 6
       }
@@ -60,6 +61,7 @@ describe('mtcnn', () => {
         .withFaceDescriptors()
 
       const deltas = {
+        maxScoreDelta: 0.01,
         maxBoxDelta: 2,
         maxLandmarksDelta: 6,
         maxDescriptorDelta: 0.2

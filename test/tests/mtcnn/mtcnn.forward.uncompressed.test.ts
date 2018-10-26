@@ -13,8 +13,7 @@ describe('mtcnn.forward', () => {
     expectedMtcnnLandmarks = await fetchJson<IPoint[][]>('base/test/data/mtcnnFaceLandmarkPositions.json')
   })
 
-  // "quantized" actually means loaded from manifest.json, since there is no quantization applied to the mtcnn model
-  describeWithNets('quantized weights', { withMtcnn: { quantized: true } }, ({ mtcnn }) => {
+  describeWithNets('uncompressed weights', { withMtcnn: { quantized: false } }, ({ mtcnn }) => {
 
     it('minFaceSize = 20, finds all faces', async () => {
       const forwardParams = {
@@ -85,8 +84,9 @@ describe('mtcnn.forward', () => {
 
     it('no memory leaks', async () => {
       await expectAllTensorsReleased(async () => {
-        const net = new faceapi.Mtcnn()
-        await net.load('base/weights')
+        const res = await fetch('base/weights_uncompressed/mtcnn_model.weights')
+        const weights = new Float32Array(await res.arrayBuffer())
+        const net = faceapi.createMtcnn(weights)
         net.dispose()
       })
     })

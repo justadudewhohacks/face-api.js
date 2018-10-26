@@ -145,19 +145,6 @@ describe('faceLandmark68TinyNet', () => {
 
   describeWithNets('no memory leaks', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {
 
-    describe('NeuralNetwork, uncompressed model', () => {
-
-      it('disposes all param tensors', async () => {
-        await expectAllTensorsReleased(async () => {
-          const res = await fetch('base/weights_uncompressed/face_landmark_68_model.weights')
-          const weights = new Float32Array(await res.arrayBuffer())
-          const net = createFaceLandmarkNet(weights)
-          net.dispose()
-        })
-      })
-
-    })
-
     describe('NeuralNetwork, quantized model', () => {
 
       it('disposes all param tensors', async () => {

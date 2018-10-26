@@ -5,7 +5,7 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 import { expectedTinyYolov2Boxes } from './expectedBoxes';
 
-xdescribe('tinyYolov2.locateFaces', () => {
+describe('tinyYolov2.locateFaces', () => {
 
   let imgEl: HTMLImageElement
 
@@ -19,30 +19,33 @@ xdescribe('tinyYolov2.locateFaces', () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.LG })
 
       const expectedScores = [0.8, 0.85, 0.86, 0.83, 0.86, 0.81]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 4
 
       expect(detections.length).toEqual(6)
-      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('inputSize md, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: TinyYolov2SizeType.MD })
 
       const expectedScores = [0.89, 0.81, 0.82, 0.72, 0.81, 0.86]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 27
 
       expect(detections.length).toEqual(6)
-      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('inputSize custom, finds all faces', async () => {
       const detections = await tinyYolov2.locateFaces(imgEl, { inputSize: 416 })
 
       const expectedScores = [0.89, 0.81, 0.82, 0.72, 0.81, 0.86]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 27
 
       expect(detections.length).toEqual(6)
-      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedTinyYolov2Boxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('no memory leaks', async () => {

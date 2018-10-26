@@ -11,6 +11,11 @@ import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
 
+const args: string[] = window['__karma__'].config.jasmine.args
+if (args.some(arg => arg === 'backend_cpu')) {
+  tf.setBackend('cpu')
+}
+
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
   expect(Math.abs(val1 - val2)).toBeLessThan(maxDelta)
 }

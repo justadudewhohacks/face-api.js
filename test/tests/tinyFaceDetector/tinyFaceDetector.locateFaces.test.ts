@@ -20,9 +20,10 @@ describe('tinyFaceDetector.locateFaces', () => {
       expect(detections.length).toEqual(6)
 
       const expectedScores = [0.77, 0.75, 0.88, 0.77, 0.83, 0.85]
-      const maxBoxDelta = 36
+      const maxScoreDelta = 0.01
+      const maxBoxDelta = 40
 
-      expectFaceDetections(detections, expectedTinyFaceDetectorBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedTinyFaceDetectorBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('inputSize 416, finds all faces', async () => {
@@ -31,9 +32,10 @@ describe('tinyFaceDetector.locateFaces', () => {
       expect(detections.length).toEqual(6)
 
       const expectedScores = [0.7, 0.82, 0.93, 0.86, 0.79, 0.84]
+      const maxScoreDelta = 0.01
       const maxBoxDelta = 1
 
-      expectFaceDetections(detections, expectedTinyFaceDetectorBoxes, expectedScores, maxBoxDelta)
+      expectFaceDetections(detections, expectedTinyFaceDetectorBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
 
     it('no memory leaks', async () => {

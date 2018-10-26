@@ -1,6 +1,7 @@
 import { fetchImage, fetchJson } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
-import { describeWithNets } from '../../utils';
+import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
+import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describe('faceRecognitionNet, uncompressed', () => {
 
@@ -28,6 +29,15 @@ describe('faceRecognitionNet, uncompressed', () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgElRect) as Float32Array
       expect(result.length).toEqual(128)
       expect(euclideanDistance(result, faceDescriptorRect)).toBeLessThan(0.1)
+    })
+
+    it('no memory leaks', async () => {
+      await expectAllTensorsReleased(async () => {
+        const res = await fetch('base/weights_uncompressed/face_recognition_model.weights')
+        const weights = new Float32Array(await res.arrayBuffer())
+        const net = createFaceRecognitionNet(weights)
+        net.dispose()
+      })
     })
 
   })

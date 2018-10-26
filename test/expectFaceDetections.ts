@@ -6,6 +6,7 @@ export function expectFaceDetections(
   results: FaceDetection[],
   allExpectedFaceDetections: IRect[],
   expectedScores: number[],
+  maxScoreDelta: number,
   maxBoxDelta: number
 ) {
 
@@ -20,7 +21,7 @@ export function expectFaceDetections(
 
   expectedDetections.forEach((expectedDetection, i) => {
     const det = sortedResults[i]
-    expect(det.score).toBeCloseTo(expectedDetection.score, 2)
+    expect(Math.abs(det.score - expectedDetection.score)).toBeLessThan(maxScoreDelta)
     expectRectClose(det.box, expectedDetection, maxBoxDelta)
   })
 }

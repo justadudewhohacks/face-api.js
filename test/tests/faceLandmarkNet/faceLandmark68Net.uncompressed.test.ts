@@ -1,6 +1,7 @@
 import { fetchImage, fetchJson, Point } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { describeWithNets, expectPointClose } from '../../utils';
+import { createFaceLandmarkNet } from '../../../src/faceLandmarkNet';
+import { describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
 
 describe('faceLandmark68Net, uncompressed', () => {
 
@@ -43,6 +44,15 @@ describe('faceLandmark68Net, uncompressed', () => {
       result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositionsRect[i]
         expectPointClose(pt, { x, y }, 2)
+      })
+    })
+
+    it('no memory leaks', async () => {
+      await expectAllTensorsReleased(async () => {
+        const res = await fetch('base/weights_uncompressed/face_landmark_68_model.weights')
+        const weights = new Float32Array(await res.arrayBuffer())
+        const net = createFaceLandmarkNet(weights)
+        net.dispose()
       })
     })
 
