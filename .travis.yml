@@ -2,6 +2,8 @@ sudo: required
 language: node_js
 node_js:
   - "10"
+addons:
+  chrome: stable
 env:
   - EXCLUDE_UNCOMPRESSED=true
 before_script:

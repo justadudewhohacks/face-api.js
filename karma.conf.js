@@ -38,6 +38,11 @@ exclude = exclude.concat(
 )
 
 module.exports = function(config) {
+  const args = []
+  if (process.env.BACKEND_CPU) {
+    args.push('backend_cpu')
+  }
+
   config.set({
     frameworks: ['jasmine', 'karma-typescript'],
     files: [
@@ -58,7 +63,8 @@ module.exports = function(config) {
     captureTimeout: 60000,
     client: {
       jasmine: {
-        timeoutInterval: 60000
+        timeoutInterval: 60000,
+        args
       }
     }
   })
