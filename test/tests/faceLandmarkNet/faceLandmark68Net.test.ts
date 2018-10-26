@@ -64,7 +64,7 @@ describe('faceLandmark68Net', () => {
 
   })
 
-  describeWithNets('batch inputs', { withFaceLandmark68Net: { quantized: false } }, ({ faceLandmark68Net }) => {
+  describeWithNets('batch inputs', { withFaceLandmark68Net: { quantized: true } }, ({ faceLandmark68Net }) => {
 
     it('computes face landmarks for batch of image elements', async () => {
       const inputs = [imgEl1, imgEl2, imgElRect]
