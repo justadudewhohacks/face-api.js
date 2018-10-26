@@ -2,7 +2,6 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { FaceRecognitionNet, fetchImage, fetchJson, NetInput, toNetInput } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
-import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describe('faceRecognitionNet', () => {
@@ -96,19 +95,6 @@ describe('faceRecognitionNet', () => {
   })
 
   describeWithNets('no memory leaks', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
-
-    describe('NeuralNetwork, uncompressed model', () => {
-
-      it('disposes all param tensors', async () => {
-        await expectAllTensorsReleased(async () => {
-          const res = await fetch('base/weights_uncompressed/face_recognition_model.weights')
-          const weights = new Float32Array(await res.arrayBuffer())
-          const net = createFaceRecognitionNet(weights)
-          net.dispose()
-        })
-      })
-
-    })
 
     describe('NeuralNetwork, quantized model', () => {
 

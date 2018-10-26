@@ -18,7 +18,8 @@
     "test-tinyfacedetector": "set UUT=tinyFaceDetector&& karma start",
     "test-mtcnn": "set UUT=mtcnn&& karma start",
     "test-tinyyolov2": "set UUT=tinyYolov2&& karma start",
-    "test-travis": "set KARMA_BROWSERS=ChromeHeadlessNoSandbox&& karma start --single-run",
+    "test-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& karma start",
+    "test-travis": "set KARMA_BROWSERS=ChromeHeadlessNoSandbox&& set EXCLUDE_UNCOMPRESSED=true&& karma start --single-run",
     "docs": "typedoc --options ./typedoc.config.js ./src"
   },
   "keywords": [

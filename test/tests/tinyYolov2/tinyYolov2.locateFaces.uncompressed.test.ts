@@ -5,7 +5,7 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 import { expectedTinyYolov2Boxes } from './expectedBoxes';
 
-xdescribe('tinyYolov2.locateFaces, uncompressed', () => {
+describe('tinyYolov2.locateFaces, uncompressed', () => {
 
   let imgEl: HTMLImageElement
 
