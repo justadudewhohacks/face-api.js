@@ -22,6 +22,7 @@ describe('faceRecognitionNet', () => {
     faceDescriptor2 = await fetchJson<number[]>('base/test/data/faceDescriptor2.json')
     faceDescriptorRect = await fetchJson<number[]>('base/test/data/faceDescriptorRect.json')
   })
+
   describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
 
     it('computes face descriptor for squared input', async () => {

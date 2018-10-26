@@ -2,9 +2,7 @@ import { fetchImage, fetchJson } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
 import { describeWithNets } from '../../utils';
 
-// TODO: figure out why quantized weights results in NaNs in testcases
-// apparently (net weight values differ when loading with karma)
-xdescribe('faceRecognitionNet, uncompressed', () => {
+describe('faceRecognitionNet, uncompressed', () => {
 
   let imgEl1: HTMLImageElement
   let imgElRect: HTMLImageElement
