@@ -37,6 +37,8 @@ exclude = exclude.concat(
     : []
 )
 
+console.log(exclude)
+
 module.exports = function(config) {
   config.set({
     frameworks: ['jasmine', 'karma-typescript'],
