@@ -58,7 +58,7 @@
         }
 
         if (isSkipQuantization) {
-          quantizedTensorArrays.push(tensor.dataSync())
+          quantizedTensorArrays.push(new Uint8Array(tensor.dataSync().buffer))
           weightEntries.push(weightEntry)
           return
         }

@@ -200,9 +200,7 @@ export function describeWithNets(
       if (withFaceRecognitionNet || withAllFacesSsdMobilenetv1  || withAllFacesTinyFaceDetector|| withAllFacesMtcnn || withAllFacesTinyYolov2) {
         await initNet<FaceRecognitionNet>(
           faceRecognitionNet,
-          // TODO: figure out why quantized weights results in NaNs in testcases
-          // apparently (net weight values differ when loading with karma)
-          'face_recognition_model.weights'
+          !!withFaceRecognitionNet && !withFaceRecognitionNet.quantized && 'face_recognition_model.weights'
         )
       }
 

@@ -62,7 +62,7 @@ describe('mtcnn', () => {
       const deltas = {
         maxBoxDelta: 2,
         maxLandmarksDelta: 6,
-        maxDescriptorDelta: 0.4
+        maxDescriptorDelta: 0.2
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
