@@ -10,7 +10,7 @@
     "rollup": "rollup -c rollup.config.js",
     "tsc": "tsc",
     "tsc-es6": "tsc --p tsconfig.es6.json",
-    "build": "npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
+    "build": "rm -rf ./build && rm -rf ./dist && npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
     "test": "karma start",
     "test-facelandmarknets": "set UUT=faceLandmarkNet&& karma start",
     "test-facerecognitionnet": "set UUT=faceRecognitionNet&& karma start",
