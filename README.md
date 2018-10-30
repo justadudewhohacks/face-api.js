@@ -204,9 +204,9 @@ const detection = await faceapi.detectSingleFace(input)
 By default **detectAllFaces** and **detectSingleFace** utilize the SSD Mobilenet V1 Face Detector. You can specify the face detector by passing the corresponding options object:
 
 ``` javascript
-const detections1 = await faceapi.detectAllFaces(input, new SsdMobilenetv1Options())
-const detections2 = await faceapi.detectAllFaces(input, new TinyFaceDetectorOptions())
-const detections3 = await faceapi.detectAllFaces(input, new MtcnnOptions())
+const detections1 = await faceapi.detectAllFaces(input, new faceapi.SsdMobilenetv1Options())
+const detections2 = await faceapi.detectAllFaces(input, new faceapi.inyFaceDetectorOptions())
+const detections3 = await faceapi.detectAllFaces(input, new faceapi.MtcnnOptions())
 ```
 
 You can tune the options of each face detector as shown [here](#usage-face-detection-options).
@@ -380,7 +380,7 @@ export interface ISsdMobilenetv1Options {
 }
 
 // example
-const options = new SsdMobilenetv1Options({ minConfidence: 0.8 })
+const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.8 })
 ```
 
 ### TinyFaceDetectorOptions
@@ -401,7 +401,7 @@ export interface ITinyFaceDetectorOptions {
 }
 
 // example
-const options = new TinyFaceDetectorOptions({ inputSize: 320 })
+const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 320 })
 ```
 
 ### MtcnnOptions
@@ -435,7 +435,7 @@ export interface IMtcnnOptions {
 }
 
 // example
-const options = new MtcnnOptions({ minFaceSize: 100, scaleFactor: 0.8 })
+const options = new faceapi.MtcnnOptions({ minFaceSize: 100, scaleFactor: 0.8 })
 ```
 
 <a name="usage-utility-classes"></a>
