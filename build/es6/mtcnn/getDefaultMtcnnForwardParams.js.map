@@ -1,1 +1,0 @@
-{"version":3,"file":"getDefaultMtcnnForwardParams.js","sourceRoot":"","sources":["../../../src/mtcnn/getDefaultMtcnnForwardParams.ts"],"names":[],"mappings":"AAAA,MAAM;IACJ,OAAO;QACL,WAAW,EAAE,EAAE;QACf,WAAW,EAAE,KAAK;QAClB,YAAY,EAAE,EAAE;QAChB,eAAe,EAAE,CAAC,GAAG,EAAE,GAAG,EAAE,GAAG,CAAC;KACjC,CAAA;AACH,CAAC"}
