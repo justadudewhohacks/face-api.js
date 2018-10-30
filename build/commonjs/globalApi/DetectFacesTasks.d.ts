@@ -3,8 +3,6 @@ import { FaceDetection } from '../classes/FaceDetection';
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { FaceDetectionOptions } from './types';
-export declare function detectSingleFace(input: TNetInput, options?: FaceDetectionOptions): DetectSingleFaceTask;
-export declare function detectAllFaces(input: TNetInput, options?: FaceDetectionOptions): DetectAllFacesTask;
 export declare class DetectFacesTaskBase<TReturn> extends ComposableTask<TReturn> {
     protected input: TNetInput;
     protected options: FaceDetectionOptions;

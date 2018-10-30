@@ -8,16 +8,6 @@ var TinyFaceDetectorOptions_1 = require("../tinyFaceDetector/TinyFaceDetectorOpt
 var ComposableTask_1 = require("./ComposableTask");
 var DetectFaceLandmarksTasks_1 = require("./DetectFaceLandmarksTasks");
 var nets_1 = require("./nets");
-function detectSingleFace(input, options) {
-    if (options === void 0) { options = new SsdMobilenetv1Options_1.SsdMobilenetv1Options(); }
-    return new DetectSingleFaceTask(input, options);
-}
-exports.detectSingleFace = detectSingleFace;
-function detectAllFaces(input, options) {
-    if (options === void 0) { options = new SsdMobilenetv1Options_1.SsdMobilenetv1Options(); }
-    return new DetectAllFacesTask(input, options);
-}
-exports.detectAllFaces = detectAllFaces;
 var DetectFacesTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFacesTaskBase, _super);
     function DetectFacesTaskBase(input, options) {

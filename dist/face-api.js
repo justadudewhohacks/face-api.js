@@ -2541,16 +2541,6 @@
         });
     }
 
-    function euclideanDistance(arr1, arr2) {
-        if (arr1.length !== arr2.length)
-            throw new Error('euclideanDistance: arr1.length !== arr2.length');
-        var desc1 = Array.from(arr1);
-        var desc2 = Array.from(arr2);
-        return Math.sqrt(desc1
-            .map(function (val, i) { return val - desc2[i]; })
-            .reduce(function (res, diff) { return res + Math.pow(diff, 2); }, 0));
-    }
-
     function depthwiseSeparableConv(x, params, stride) {
         return tidy(function () {
             var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
@@ -5867,14 +5857,6 @@
         return DetectSingleFaceLandmarksTask;
     }(DetectFaceLandmarksTaskBase));
 
-    function detectSingleFace(input, options) {
-        if (options === void 0) { options = new SsdMobilenetv1Options(); }
-        return new DetectSingleFaceTask(input, options);
-    }
-    function detectAllFaces(input, options) {
-        if (options === void 0) { options = new SsdMobilenetv1Options(); }
-        return new DetectAllFacesTask(input, options);
-    }
     var DetectFacesTaskBase = /** @class */ (function (_super) {
         __extends$1(DetectFacesTaskBase, _super);
         function DetectFacesTaskBase(input, options) {
@@ -5947,6 +5929,15 @@
         return DetectSingleFaceTask;
     }(DetectFacesTaskBase));
 
+    function detectSingleFace(input, options) {
+        if (options === void 0) { options = new SsdMobilenetv1Options(); }
+        return new DetectSingleFaceTask(input, options);
+    }
+    function detectAllFaces(input, options) {
+        if (options === void 0) { options = new SsdMobilenetv1Options(); }
+        return new DetectAllFacesTask(input, options);
+    }
+
     // export allFaces API for backward compatibility
     function allFacesSsdMobilenetv1(input, minConfidence) {
         return __awaiter$1(this, void 0, void 0, function () {
@@ -5987,6 +5978,16 @@
         });
     }
     var allFaces = allFacesSsdMobilenetv1;
+
+    function euclideanDistance(arr1, arr2) {
+        if (arr1.length !== arr2.length)
+            throw new Error('euclideanDistance: arr1.length !== arr2.length');
+        var desc1 = Array.from(arr1);
+        var desc2 = Array.from(arr2);
+        return Math.sqrt(desc1
+            .map(function (val, i) { return val - desc2[i]; })
+            .reduce(function (res, diff) { return res + Math.pow(diff, 2); }, 0));
+    }
 
     var FaceMatcher = /** @class */ (function () {
         function FaceMatcher(inputs, distanceThreshold) {
@@ -6134,7 +6135,6 @@
     exports.drawLandmarks = drawLandmarks;
     exports.extractFaces = extractFaces;
     exports.extractFaceTensors = extractFaceTensors;
-    exports.euclideanDistance = euclideanDistance;
     exports.FaceLandmarkNet = FaceLandmarkNet;
     exports.createFaceLandmarkNet = createFaceLandmarkNet;
     exports.FaceLandmark68Net = FaceLandmark68Net;
@@ -6189,6 +6189,7 @@
     exports.TinyFaceDetectorOptions = TinyFaceDetectorOptions;
     exports.createTinyYolov2 = createTinyYolov2;
     exports.TinyYolov2 = TinyYolov2$1;
+    exports.euclideanDistance = euclideanDistance;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
