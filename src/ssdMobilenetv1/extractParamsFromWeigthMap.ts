@@ -3,14 +3,11 @@ import {
   disposeUnusedWeightTensors,
   extractWeightEntryFactory,
   isTensor3D,
-  loadWeightMap,
   ParamMapping,
 } from 'tfjs-image-recognition-base';
 import { ConvParams } from 'tfjs-tiny-yolov2';
 
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
-
-const DEFAULT_MODEL_NAME = 'ssd_mobilenetv1_model'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
@@ -114,11 +111,10 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
   }
 }
 
-export async function loadQuantizedParams(
-  uri: string | undefined
-): Promise<{ params: NetParams, paramMappings: ParamMapping[] }> {
+export function extractParamsFromWeigthMap(
+  weightMap: tf.NamedTensorMap
+): { params: NetParams, paramMappings: ParamMapping[] } {
 
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
   const paramMappings: ParamMapping[] = []
 
   const {

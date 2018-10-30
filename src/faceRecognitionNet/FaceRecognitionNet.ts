@@ -3,7 +3,7 @@ import { NetInput, NeuralNetwork, normalize, TNetInput, toNetInput } from 'tfjs-
 
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
-import { loadQuantizedParams } from './loadQuantizedParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
 
@@ -78,8 +78,12 @@ export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
       : faceDescriptorsForBatch[0]
   }
 
-  protected loadQuantizedParams(uri: string | undefined) {
-    return loadQuantizedParams(uri)
+  protected getDefaultModelName(): string {
+    return 'face_recognition_model'
+  }
+
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeigthMap(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {

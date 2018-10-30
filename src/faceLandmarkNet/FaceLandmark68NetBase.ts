@@ -3,7 +3,7 @@ import { IDimensions, isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetIn
 
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 
-export class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<NetParams> {
+export abstract class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<NetParams> {
 
   // TODO: make super.name protected
   private __name: string
@@ -13,9 +13,7 @@ export class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<NetParams> {
     this.__name = _name
   }
 
-  public runNet(_: NetInput): tf.Tensor2D {
-    throw new Error(`${this.__name} - runNet not implemented`)
-  }
+  public abstract runNet(netInput: NetInput): tf.Tensor2D
 
   public postProcess(output: tf.Tensor2D, inputSize: number, originalDimensions: IDimensions[]): tf.Tensor2D {
 

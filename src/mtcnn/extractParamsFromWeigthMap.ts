@@ -1,15 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import {
-  disposeUnusedWeightTensors,
-  extractWeightEntryFactory,
-  loadWeightMap,
-  ParamMapping,
-} from 'tfjs-image-recognition-base';
+import { disposeUnusedWeightTensors, extractWeightEntryFactory, ParamMapping } from 'tfjs-image-recognition-base';
 import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
 
 import { NetParams, ONetParams, PNetParams, RNetParams, SharedParams } from './types';
-
-const DEFAULT_MODEL_NAME = 'mtcnn_model'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
@@ -87,11 +80,10 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
 }
 
-export async function loadQuantizedParams(
-  uri: string | undefined
-): Promise<{ params: NetParams, paramMappings: ParamMapping[] }> {
+export function extractParamsFromWeigthMap(
+  weightMap: tf.NamedTensorMap
+): { params: NetParams, paramMappings: ParamMapping[] } {
 
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
   const paramMappings: ParamMapping[] = []
 
   const {
