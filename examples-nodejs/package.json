@@ -1,0 +1,8 @@
+{
+  "author": "justadudewhohacks",
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^0.1.19",
+    "canvas": "^2.0.1"
+  }
+}
