@@ -1,7 +1,10 @@
 sudo: required
 language: node_js
 node_js:
+  - "node"
   - "10"
+  - "8"
+  - "6"
 env:
   - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
 addons:
