@@ -64,7 +64,7 @@ describe('ssdMobilenetv1', () => {
         maxScoreDelta: 0.01,
         maxBoxDelta: 5,
         maxLandmarksDelta: 2,
-        maxDescriptorDelta: 0.1
+        maxDescriptorDelta: 0.2
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
