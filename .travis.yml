@@ -7,7 +7,9 @@ env:
 addons:
   chrome: stable
 before_install:
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost
+ - export DISPLAY=:99.0
+ - sh -e /etc/init.d/xvfb start
+ - sleep 3 # give xvfb some time to start
 script:
   - npm run test-travis
   - npm run build
