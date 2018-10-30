@@ -6,6 +6,8 @@ env:
   - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
 addons:
   chrome: stable
+before_install:
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost
 script:
   - npm run test-travis
   - npm run build
