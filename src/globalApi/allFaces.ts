@@ -4,7 +4,7 @@ import { ITinyYolov2Options, TinyYolov2Options } from 'tfjs-tiny-yolov2';
 import { FullFaceDescription } from '../classes';
 import { IMtcnnOptions, MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1';
-import { detectAllFaces } from './DetectFacesTasks';
+import { detectAllFaces } from './detectFaces';
 
 // export allFaces API for backward compatibility
 
