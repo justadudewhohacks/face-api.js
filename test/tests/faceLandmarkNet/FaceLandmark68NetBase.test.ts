@@ -2,11 +2,28 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { FaceLandmark68NetBase } from '../../../src/faceLandmarkNet/FaceLandmark68NetBase';
 
+class FakeFaceLandmark68NetBase extends FaceLandmark68NetBase<any> {
+  public runNet(_: any): any {
+  }
+
+  protected getDefaultModelName(): any {
+    throw new Error('FakeNeuralNetwork - getDefaultModelName not implemented')
+  }
+
+  protected extractParams(_: any): any {
+    throw new Error('FakeNeuralNetwork - extractParams not implemented')
+  }
+
+  protected extractParamsFromWeigthMap(_: any): any {
+    throw new Error('FakeNeuralNetwork - extractParamsFromWeigthMap not implemented')
+  }
+}
+
 describe('FaceLandmark68NetBase', () => {
 
   describe('postProcess', () => {
 
-    const net = new FaceLandmark68NetBase('')
+    const net = new FakeFaceLandmark68NetBase('')
 
     describe('single batch', () => {
 
