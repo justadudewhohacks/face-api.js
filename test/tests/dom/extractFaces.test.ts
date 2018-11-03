@@ -1,13 +1,14 @@
-import { bufferToImage, createCanvasFromMedia, extractFaces, Rect } from '../../../src';
+import { createCanvasFromMedia, env, extractFaces, Rect } from '../../../src';
+import { loadImage } from '../../env';
 
 describe('extractFaces', () => {
 
-  let imgEl: HTMLImageElement, canvasEl: HTMLCanvasElement
+  let imgEl: HTMLImageElement, canvasEl: HTMLCanvasElement, Canvas: typeof HTMLCanvasElement
 
   beforeAll(async () => {
-    const img = await (await fetch('base/test/images/face1.png')).blob()
-    imgEl = await bufferToImage(img)
+    imgEl = await loadImage('test/images/face1.png')
     canvasEl = createCanvasFromMedia(imgEl)
+    Canvas = env.getEnv().Canvas
   })
 
   describe('extracts canvases', () => {
@@ -17,7 +18,7 @@ describe('extractFaces', () => {
       const canvases = await extractFaces(imgEl, [rect])
 
       expect(canvases.length).toEqual(1)
-      expect(canvases[0] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[0] instanceof Canvas).toBe(true)
       expect(canvases[0].width).toEqual(50)
       expect(canvases[0].height).toEqual(60)
     })
@@ -30,10 +31,10 @@ describe('extractFaces', () => {
       const canvases = await extractFaces(imgEl, rects)
 
       expect(canvases.length).toEqual(2)
-      expect(canvases[0] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[0] instanceof Canvas).toBe(true)
       expect(canvases[0].width).toEqual(50)
       expect(canvases[0].height).toEqual(60)
-      expect(canvases[1] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[1] instanceof Canvas).toBe(true)
       expect(canvases[1].width).toEqual(70)
       expect(canvases[1].height).toEqual(80)
     })
@@ -43,7 +44,7 @@ describe('extractFaces', () => {
       const canvases = await extractFaces(canvasEl, [rect])
 
       expect(canvases.length).toEqual(1)
-      expect(canvases[0] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[0] instanceof Canvas).toBe(true)
       expect(canvases[0].width).toEqual(50)
       expect(canvases[0].height).toEqual(60)
     })
@@ -56,10 +57,10 @@ describe('extractFaces', () => {
       const canvases = await extractFaces(canvasEl, rects)
 
       expect(canvases.length).toEqual(2)
-      expect(canvases[0] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[0] instanceof Canvas).toBe(true)
       expect(canvases[0].width).toEqual(50)
       expect(canvases[0].height).toEqual(60)
-      expect(canvases[1] instanceof HTMLCanvasElement).toBe(true)
+      expect(canvases[1] instanceof Canvas).toBe(true)
       expect(canvases[1].width).toEqual(70)
       expect(canvases[1].height).toEqual(80)
     })

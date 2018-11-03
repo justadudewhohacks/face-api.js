@@ -1,12 +1,12 @@
-import { bufferToImage, extractFaceTensors, Rect, tf } from '../../../src';
+import { createCanvasFromMedia, extractFaceTensors, Rect, tf } from '../../../src';
+import { loadImage } from '../../env';
 
 describe('extractFaceTensors', () => {
 
   let imgTensor: tf.Tensor3D
 
   beforeAll(async () => {
-    const img = await (await fetch('base/test/images/face1.png')).blob()
-    imgTensor = tf.fromPixels(await bufferToImage(img))
+    imgTensor = tf.fromPixels(createCanvasFromMedia(await loadImage('test/images/face1.png')))
   })
 
   describe('extracts tensors', () => {

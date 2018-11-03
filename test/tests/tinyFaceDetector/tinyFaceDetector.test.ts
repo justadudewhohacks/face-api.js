@@ -5,6 +5,7 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
+import { loadImage } from '../../env';
 
 describe('tinyFaceDetector', () => {
 
@@ -13,7 +14,7 @@ describe('tinyFaceDetector', () => {
   const expectedScores = [0.7, 0.82, 0.93, 0.86, 0.79, 0.84]
 
   beforeAll(async () => {
-    imgEl = await fetchImage('base/test/images/faces.jpg')
+    imgEl = await loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 
@@ -26,8 +27,8 @@ describe('tinyFaceDetector', () => {
 
       const results = await faceapi.detectAllFaces(imgEl, options)
 
-      const maxScoreDelta = 0.01
-      const maxBoxDelta = 1
+      const maxScoreDelta = 0.05
+      const maxBoxDelta = 5
       expect(results.length).toEqual(6)
       expectFaceDetections(results, expectedTinyFaceDetectorBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
@@ -42,8 +43,8 @@ describe('tinyFaceDetector', () => {
         .withFaceLandmarks()
 
       const deltas = {
-        maxScoreDelta: 0.01,
-        maxBoxDelta: 1,
+        maxScoreDelta: 0.05,
+        maxBoxDelta: 5,
         maxLandmarksDelta: 10
       }
       expect(results.length).toEqual(6)
@@ -61,8 +62,8 @@ describe('tinyFaceDetector', () => {
         .withFaceDescriptors()
 
       const deltas = {
-        maxScoreDelta: 0.01,
-        maxBoxDelta: 1,
+        maxScoreDelta: 0.05,
+        maxBoxDelta: 5,
         maxLandmarksDelta: 10,
         maxDescriptorDelta: 0.2
       }

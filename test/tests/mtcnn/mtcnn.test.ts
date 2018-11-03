@@ -1,11 +1,16 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription } from '../../utils';
-import { expectedMtcnnBoxes } from './expectMtcnnResults';
-import { fetchImage } from '../../../src';
 import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
+import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
-import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
+import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
+import {
+  assembleExpectedFullFaceDescriptions,
+  describeWithNets,
+  expectAllTensorsReleased,
+  ExpectedFullFaceDescription,
+} from '../../utils';
+import { expectedMtcnnBoxes } from './expectMtcnnResults';
 
 describe('mtcnn', () => {
 
@@ -14,7 +19,7 @@ describe('mtcnn', () => {
   const expectedScores = [1.0, 1.0, 1.0, 1.0, 0.99, 0.99]
 
   beforeAll(async () => {
-    imgEl = await fetchImage('base/test/images/faces.jpg')
+    imgEl = await loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes)
   })
 
@@ -27,7 +32,7 @@ describe('mtcnn', () => {
 
       const results = await faceapi.detectAllFaces(imgEl, options)
       const maxScoreDelta = 0.01
-      const maxBoxDelta = 2
+      const maxBoxDelta = 10
       expect(results.length).toEqual(6)
       expectFaceDetections(results, expectedMtcnnBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
     })
@@ -43,7 +48,7 @@ describe('mtcnn', () => {
 
       const deltas = {
         maxScoreDelta: 0.01,
-        maxBoxDelta: 2,
+        maxBoxDelta: 10,
         maxLandmarksDelta: 6
       }
       expect(results.length).toEqual(6)
@@ -62,7 +67,7 @@ describe('mtcnn', () => {
 
       const deltas = {
         maxScoreDelta: 0.01,
-        maxBoxDelta: 2,
+        maxBoxDelta: 10,
         maxLandmarksDelta: 6,
         maxDescriptorDelta: 0.2
       }

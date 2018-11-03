@@ -1,20 +1,20 @@
-import { fetchImage, fetchJson } from '../../../src';
+import { createCanvasFromMedia } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
-import { createFaceRecognitionNet } from '../../../src/faceRecognitionNet';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { loadImage, loadJson } from '../../env';
+import { describeWithNets } from '../../utils';
 
 describe('faceRecognitionNet, uncompressed', () => {
 
-  let imgEl1: HTMLImageElement
-  let imgElRect: HTMLImageElement
+  let imgEl1: HTMLCanvasElement
+  let imgElRect: HTMLCanvasElement
   let faceDescriptor1: number[]
   let faceDescriptorRect: number[]
 
   beforeAll(async () => {
-    imgEl1 = await fetchImage('base/test/images/face1.png')
-    imgElRect = await fetchImage('base/test/images/face_rectangular.png')
-    faceDescriptor1 = await fetchJson<number[]>('base/test/data/faceDescriptor1.json')
-    faceDescriptorRect = await fetchJson<number[]>('base/test/data/faceDescriptorRect.json')
+    imgEl1 = createCanvasFromMedia(await loadImage('test/images/face1.png'))
+    imgElRect = createCanvasFromMedia(await loadImage('test/images/face_rectangular.png'))
+    faceDescriptor1 = await loadJson<number[]>('test/data/faceDescriptor1.json')
+    faceDescriptorRect = await loadJson<number[]>('test/data/faceDescriptorRect.json')
   })
 
   describeWithNets('uncompressed weights', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {
@@ -29,15 +29,6 @@ describe('faceRecognitionNet, uncompressed', () => {
       const result = await faceRecognitionNet.computeFaceDescriptor(imgElRect) as Float32Array
       expect(result.length).toEqual(128)
       expect(euclideanDistance(result, faceDescriptorRect)).toBeLessThan(0.1)
-    })
-
-    it('no memory leaks', async () => {
-      await expectAllTensorsReleased(async () => {
-        const res = await fetch('base/weights_uncompressed/face_recognition_model.weights')
-        const weights = new Float32Array(await res.arrayBuffer())
-        const net = createFaceRecognitionNet(weights)
-        net.dispose()
-      })
     })
 
   })

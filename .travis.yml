@@ -3,13 +3,17 @@ language: node_js
 node_js:
   - "10"
 env:
-  - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
+  global:
+    - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
+  matrix:
+    - ENV=browser
+    - ENV=node
 addons:
   chrome: stable
 before_install:
  - export DISPLAY=:99.0
  - sh -e /etc/init.d/xvfb start
- - sleep 3 # give xvfb some time to start
 script:
-  - npm run test-travis
+  - if [ $ENV == 'browser' ]; then npm run test-browser; fi
+  - if [ $ENV == 'node' ]; then npm run test-node; fi
   - npm run build
