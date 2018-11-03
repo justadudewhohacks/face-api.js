@@ -2,7 +2,7 @@ import * as tslib_1 from "tslib";
 import { TinyYolov2Options } from 'tfjs-tiny-yolov2';
 import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1';
-import { detectAllFaces } from './DetectFacesTasks';
+import { detectAllFaces } from './detectFaces';
 // export allFaces API for backward compatibility
 export function allFacesSsdMobilenetv1(input, minConfidence) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {

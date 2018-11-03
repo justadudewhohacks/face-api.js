@@ -6,14 +6,6 @@ import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOpt
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
-export function detectSingleFace(input, options) {
-    if (options === void 0) { options = new SsdMobilenetv1Options(); }
-    return new DetectSingleFaceTask(input, options);
-}
-export function detectAllFaces(input, options) {
-    if (options === void 0) { options = new SsdMobilenetv1Options(); }
-    return new DetectAllFacesTask(input, options);
-}
 var DetectFacesTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFacesTaskBase, _super);
     function DetectFacesTaskBase(input, options) {
