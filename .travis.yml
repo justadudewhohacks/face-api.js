@@ -6,6 +6,7 @@ env:
   - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
 addons:
   chrome: stable
+install: npm install
 before_install:
  - export DISPLAY=:99.0
  - sh -e /etc/init.d/xvfb start
