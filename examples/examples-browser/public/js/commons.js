@@ -1,7 +1,3 @@
-function getImageUri(imageName) {
-  return `images/${imageName}`
-}
-
 async function requestExternalImage(imageUrl) {
   const res = await fetch('fetch_external_image', {
     method: 'post',

@@ -1,7 +1,7 @@
 const classes = ['amy', 'bernadette', 'howard', 'leonard', 'penny', 'raj', 'sheldon', 'stuart']
 
 function getFaceImageUri(className, idx) {
-  return `images/${className}/${className}${idx}.png`
+  return `${className}/${className}${idx}.png`
 }
 
 function renderFaceImageSelectList(selectListId, onChange, initialValue) {

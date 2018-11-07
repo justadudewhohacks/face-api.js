@@ -2,7 +2,6 @@ node_modules
 .rpt2_cache
 
 examples
-examples-nodejs
 proto
 weights
 weights_uncompressed
