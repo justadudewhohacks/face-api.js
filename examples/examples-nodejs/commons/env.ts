@@ -3,7 +3,7 @@
 import '@tensorflow/tfjs-node';
 
 // implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
-import * as canvas from 'canvas';
+const canvas = require('canvas')
 
 import * as faceapi from '../../../src';
 
