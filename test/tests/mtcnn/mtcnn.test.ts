@@ -23,7 +23,7 @@ describe('mtcnn', () => {
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes)
   })
 
-  describeWithNets('detectAllFaces', { withAllFacesMtcnn: true }, () => {
+  describeWithNets('globalApi', { withAllFacesMtcnn: true }, () => {
 
     it('detectAllFaces', async () => {
       const options = new MtcnnOptions({

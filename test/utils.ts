@@ -1,7 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { getContext2dOrThrow } from 'tfjs-image-recognition-base';
 
 import * as faceapi from '../src';
-import { FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
+import { createCanvasFromMedia, FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';

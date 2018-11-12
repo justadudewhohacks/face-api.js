@@ -36,6 +36,10 @@ exclude = exclude.concat(
     : []
 )
 
+// exclude nodejs tests
+exclude = exclude.concat(['**/*.node.test.ts'])
+
+
 module.exports = function(config) {
   const args = []
   if (process.env.BACKEND_CPU) {

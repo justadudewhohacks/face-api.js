@@ -1,5 +1,6 @@
 import {
   createCanvas,
+  env,
   getContext2dOrThrow,
   imageTensorToCanvas,
   Rect,
@@ -8,7 +9,6 @@ import {
 } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from '../classes/FaceDetection';
-import { env } from 'tfjs-image-recognition-base';
 
 /**
  * Extracts the image regions containing the detected faces.
