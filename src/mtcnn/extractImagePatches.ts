@@ -1,5 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { Box, createCanvas, getContext2dOrThrow, IDimensions } from 'tfjs-image-recognition-base';
+import {
+  Box,
+  createCanvas,
+  createCanvasFromMedia,
+  env,
+  getContext2dOrThrow,
+  IDimensions,
+} from 'tfjs-image-recognition-base';
 
 import { normalize } from './normalize';
 
@@ -20,7 +27,7 @@ export async function extractImagePatches(
     const fromY = y - 1
     const imgData = imgCtx.getImageData(fromX, fromY, (ex - fromX), (ey - fromY))
 
-    return createImageBitmap(imgData)
+    return env.isNodejs() ? createCanvasFromMedia(imgData) : createImageBitmap(imgData)
   }))
 
   const imagePatchesDatas: number[][] = []

@@ -5,6 +5,7 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedSsdBoxes } from './expectedBoxes';
+import { loadImage } from '../../env';
 
 describe('ssdMobilenetv1', () => {
 
@@ -13,7 +14,7 @@ describe('ssdMobilenetv1', () => {
   const expectedScores = [0.54, 0.81, 0.97, 0.88, 0.84, 0.61]
 
   beforeAll(async () => {
-    imgEl = await fetchImage('base/test/images/faces.jpg')
+    imgEl = await loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedSsdBoxes)
   })
 
@@ -26,7 +27,7 @@ describe('ssdMobilenetv1', () => {
 
       const results = await faceapi.detectAllFaces(imgEl, options)
 
-      const maxScoreDelta = 0.01
+      const maxScoreDelta = 0.05
       const maxBoxDelta = 5
       expect(results.length).toEqual(6)
       expectFaceDetections(results, expectedSsdBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
@@ -42,7 +43,7 @@ describe('ssdMobilenetv1', () => {
         .withFaceLandmarks()
 
       const deltas = {
-        maxScoreDelta: 0.01,
+        maxScoreDelta: 0.05,
         maxBoxDelta: 5,
         maxLandmarksDelta: 2
       }
@@ -61,7 +62,7 @@ describe('ssdMobilenetv1', () => {
         .withFaceDescriptors()
 
       const deltas = {
-        maxScoreDelta: 0.01,
+        maxScoreDelta: 0.05,
         maxBoxDelta: 5,
         maxLandmarksDelta: 2,
         maxDescriptorDelta: 0.2

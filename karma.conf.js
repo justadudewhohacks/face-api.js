@@ -22,10 +22,9 @@ let exclude = (
         'faceRecognitionNet',
         'ssdMobilenetv1',
         'tinyFaceDetector',
-        'mtcnn',
-        'tinyYolov2'
+        'mtcnn'
       ]
-    : ['tinyYolov2']
+    : []
   )
     .filter(ex => ex !== process.env.UUT)
     .map(ex => `test/tests/${ex}/*.ts`)
@@ -36,6 +35,10 @@ exclude = exclude.concat(
     ? ['**/*.uncompressed.test.ts']
     : []
 )
+
+// exclude nodejs tests
+exclude = exclude.concat(['**/*.node.test.ts'])
+
 
 module.exports = function(config) {
   const args = []

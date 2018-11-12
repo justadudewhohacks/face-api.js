@@ -1,15 +1,13 @@
-import { disposeUnusedWeightTensors, loadWeightMap, ParamMapping } from 'tfjs-image-recognition-base';
+import * as tf from '@tensorflow/tfjs-core';
+import { disposeUnusedWeightTensors, ParamMapping } from 'tfjs-image-recognition-base';
 
 import { loadParamsFactory } from './loadParamsFactory';
 import { TinyNetParams } from './types';
 
-const DEFAULT_MODEL_NAME = 'face_landmark_68_tiny_model'
+export function extractParamsFromWeigthMapTiny(
+  weightMap: tf.NamedTensorMap
+): { params: TinyNetParams, paramMappings: ParamMapping[] } {
 
-export async function loadQuantizedParamsTiny(
-  uri: string | undefined
-): Promise<{ params: TinyNetParams, paramMappings: ParamMapping[] }> {
-
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
   const paramMappings: ParamMapping[] = []
 
   const {

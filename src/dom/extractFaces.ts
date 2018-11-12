@@ -1,5 +1,6 @@
 import {
   createCanvas,
+  env,
   getContext2dOrThrow,
   imageTensorToCanvas,
   Rect,
@@ -21,9 +22,11 @@ export async function extractFaces(
   detections: Array<FaceDetection | Rect>
 ): Promise<HTMLCanvasElement[]> {
 
+  const { Canvas } = env.getEnv()
+
   let canvas = input as HTMLCanvasElement
 
-  if (!(input instanceof HTMLCanvasElement)) {
+  if (!(input instanceof Canvas)) {
     const netInput = await toNetInput(input)
 
     if (netInput.batchSize > 1) {
@@ -31,7 +34,7 @@ export async function extractFaces(
     }
 
     const tensorOrCanvas = netInput.getInput(0)
-    canvas = tensorOrCanvas instanceof HTMLCanvasElement
+    canvas = tensorOrCanvas instanceof Canvas
       ? tensorOrCanvas
       : await imageTensorToCanvas(tensorOrCanvas)
   }

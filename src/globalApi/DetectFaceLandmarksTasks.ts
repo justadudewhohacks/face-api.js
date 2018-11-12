@@ -1,9 +1,10 @@
+import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
-import { extractFaces } from '../dom';
+import { extractFaces, extractFaceTensors } from '../dom';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { ComposableTask } from './ComposableTask';
@@ -31,11 +32,16 @@ export class DetectAllFaceLandmarksTask extends DetectFaceLandmarksTaskBase<Face
   public async run(): Promise<FaceDetectionWithLandmarks[]> {
 
     const detections = await this.detectFacesTask
-    const faceCanvases = await extractFaces(this.input, detections)
 
-    const faceLandmarksByFace = await Promise.all(faceCanvases.map(
-      canvas => this.landmarkNet.detectLandmarks(canvas)
+    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
+      ? await extractFaceTensors(this.input, detections)
+      : await extractFaces(this.input, detections)
+
+    const faceLandmarksByFace = await Promise.all(faces.map(
+      face => this.landmarkNet.detectLandmarks(face)
     )) as FaceLandmarks68[]
+
+    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
     return detections.map((detection, i) =>
       new FaceDetectionWithLandmarks(detection, faceLandmarksByFace[i])
@@ -56,10 +62,18 @@ export class DetectSingleFaceLandmarksTask extends DetectFaceLandmarksTaskBase<F
       return
     }
 
-    const faceCanvas = (await extractFaces(this.input, [detection]))[0]
+    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
+      ? await extractFaceTensors(this.input, [detection])
+      : await extractFaces(this.input, [detection])
+
+
+    const landmarks = await this.landmarkNet.detectLandmarks(faces[0]) as FaceLandmarks68
+
+    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
+
     return new FaceDetectionWithLandmarks(
       detection,
-      await this.landmarkNet.detectLandmarks(faceCanvas) as FaceLandmarks68
+      landmarks
     )
   }
 

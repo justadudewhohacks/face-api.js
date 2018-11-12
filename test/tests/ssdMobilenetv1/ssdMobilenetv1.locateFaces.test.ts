@@ -1,7 +1,7 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
-import { fetchImage } from '../../../src';
+import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 import { expectedSsdBoxes } from './expectedBoxes';
 
 describe('ssdMobilenetv1.locateFaces', () => {
@@ -9,18 +9,18 @@ describe('ssdMobilenetv1.locateFaces', () => {
   let imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    imgEl = await fetchImage('base/test/images/faces.jpg')
+    imgEl = await loadImage('test/images/faces.jpg')
   })
 
   describeWithNets('quantized weights', { withSsdMobilenetv1: { quantized: true } }, ({ ssdMobilenetv1 }) => {
 
-    it('scores > 0.8', async () => {
-      const detections = await ssdMobilenetv1.locateFaces(imgEl, { minConfidence: 0.8 }) as faceapi.FaceDetection[]
+    it('scores > 0.7', async () => {
+      const detections = await ssdMobilenetv1.locateFaces(imgEl, { minConfidence: 0.7 }) as faceapi.FaceDetection[]
 
       expect(detections.length).toEqual(4)
 
       const expectedScores = [-1, 0.81, 0.97, 0.88, 0.84, -1]
-      const maxScoreDelta = 0.01
+      const maxScoreDelta = 0.05
       const maxBoxDelta = 4
 
       expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
@@ -32,18 +32,10 @@ describe('ssdMobilenetv1.locateFaces', () => {
       expect(detections.length).toEqual(6)
 
       const expectedScores = [0.54, 0.81, 0.97, 0.88, 0.84, 0.61]
-      const maxScoreDelta = 0.01
+      const maxScoreDelta = 0.05
       const maxBoxDelta = 5
 
       expectFaceDetections(detections, expectedSsdBoxes, expectedScores, maxScoreDelta, maxBoxDelta)
-    })
-
-    it('no memory leaks', async () => {
-      await expectAllTensorsReleased(async () => {
-        const net = new faceapi.SsdMobilenetv1()
-        await net.load('base/weights')
-        net.dispose()
-      })
     })
 
   })

@@ -1,25 +1,26 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { FaceRecognitionNet, fetchImage, fetchJson, NetInput, toNetInput } from '../../../src';
+import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
+import { loadImage, loadJson } from '../../env';
 import { describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describe('faceRecognitionNet', () => {
 
-  let imgEl1: HTMLImageElement
-  let imgEl2: HTMLImageElement
-  let imgElRect: HTMLImageElement
+  let imgEl1: HTMLCanvasElement
+  let imgEl2: HTMLCanvasElement
+  let imgElRect: HTMLCanvasElement
   let faceDescriptor1: number[]
   let faceDescriptor2: number[]
   let faceDescriptorRect: number[]
 
   beforeAll(async () => {
-    imgEl1 = await fetchImage('base/test/images/face1.png')
-    imgEl2 = await fetchImage('base/test/images/face2.png')
-    imgElRect = await fetchImage('base/test/images/face_rectangular.png')
-    faceDescriptor1 = await fetchJson<number[]>('base/test/data/faceDescriptor1.json')
-    faceDescriptor2 = await fetchJson<number[]>('base/test/data/faceDescriptor2.json')
-    faceDescriptorRect = await fetchJson<number[]>('base/test/data/faceDescriptorRect.json')
+    imgEl1 = createCanvasFromMedia(await loadImage('test/images/face1.png'))
+    imgEl2 = createCanvasFromMedia(await loadImage('test/images/face2.png'))
+    imgElRect = createCanvasFromMedia(await loadImage('test/images/face_rectangular.png'))
+    faceDescriptor1 = await loadJson<number[]>('test/data/faceDescriptor1.json')
+    faceDescriptor2 = await loadJson<number[]>('test/data/faceDescriptor2.json')
+    faceDescriptorRect = await loadJson<number[]>('test/data/faceDescriptorRect.json')
   })
 
   describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
@@ -95,18 +96,6 @@ describe('faceRecognitionNet', () => {
   })
 
   describeWithNets('no memory leaks', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {
-
-    describe('NeuralNetwork, quantized model', () => {
-
-      it('disposes all param tensors', async () => {
-        await expectAllTensorsReleased(async () => {
-          const net = new FaceRecognitionNet()
-          await net.load('base/weights')
-          net.dispose()
-        })
-      })
-
-    })
 
     describe('forwardInput', () => {
 

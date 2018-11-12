@@ -1,20 +1,15 @@
 import * as tf from '@tensorflow/tfjs-core';
+import { getContext2dOrThrow } from 'tfjs-image-recognition-base';
 
 import * as faceapi from '../src';
-import { FaceRecognitionNet, IPoint, IRect, Mtcnn, NeuralNetwork, TinyYolov2 } from '../src/';
+import { createCanvasFromMedia, FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
 import { SsdMobilenetv1 } from '../src/ssdMobilenetv1/SsdMobilenetv1';
 import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
-
-const args: string[] = window['__karma__'].config.jasmine.args
-if (args.some(arg => arg === 'backend_cpu')) {
-  tf.setBackend('cpu')
-}
+import { initNet, loadJson } from './env';
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
   expect(Math.abs(val1 - val2)).toBeLessThan(maxDelta)
@@ -84,8 +79,8 @@ export async function assembleExpectedFullFaceDescriptions(
   detections: IRect[],
   landmarksFile: string = 'facesFaceLandmarkPositions.json'
 ): Promise<ExpectedFullFaceDescription[]> {
-  const landmarks = await (await fetch(`base/test/data/${landmarksFile}`)).json()
-  const descriptors = await (await fetch('base/test/data/facesFaceDescriptors.json')).json()
+  const landmarks = await loadJson(`test/data/${landmarksFile}`)
+  const descriptors = await loadJson('test/data/facesFaceDescriptors.json')
 
   return detections.map((detection, i) => ({
     detection,
@@ -112,7 +107,6 @@ export type InjectNetArgs = {
   tinyYolov2: TinyYolov2
 }
 
-
 export type DescribeWithNetsOptions = {
   withAllFacesSsdMobilenetv1?: boolean
   withAllFacesTinyFaceDetector?: boolean
@@ -125,21 +119,6 @@ export type DescribeWithNetsOptions = {
   withFaceRecognitionNet?: WithNetOptions
   withMtcnn?: WithNetOptions
   withTinyYolov2?: WithTinyYolov2Options
-}
-
-async function loadNetWeights(uri: string): Promise<Float32Array> {
-  return new Float32Array(await (await fetch(uri)).arrayBuffer())
-}
-
-async function initNet<TNet extends NeuralNetwork<any>>(
-  net: TNet,
-  uncompressedFilename: string | boolean,
-  isUnusedModel: boolean = false
-) {
-  const url = uncompressedFilename
-    ? await loadNetWeights(`base/weights_uncompressed/${uncompressedFilename}`)
-    : (isUnusedModel ? 'base/weights_unused' : 'base/weights')
-  await net.load(url)
 }
 
 export function describeWithNets(

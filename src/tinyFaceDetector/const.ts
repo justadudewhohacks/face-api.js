@@ -11,5 +11,3 @@ export const BOX_ANCHORS = [
 ]
 
 export const MEAN_RGB: [number, number, number] = [117.001, 114.697, 97.404]
-
-export const DEFAULT_MODEL_NAME = 'tiny_face_detector_model'

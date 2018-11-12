@@ -6,7 +6,7 @@ import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParamsTiny } from './extractParamsTiny';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
-import { loadQuantizedParamsTiny } from './loadQuantizedParamsTiny';
+import { extractParamsFromWeigthMapTiny } from './extractParamsFromWeigthMapTiny';
 import { DenseBlock3Params, TinyNetParams } from './types';
 
 function denseBlock(
@@ -60,8 +60,12 @@ export class FaceLandmark68TinyNet extends FaceLandmark68NetBase<TinyNetParams> 
     })
   }
 
-  protected loadQuantizedParams(uri: string | undefined) {
-    return loadQuantizedParamsTiny(uri)
+  protected getDefaultModelName(): string {
+    return 'face_landmark_68_tiny_model'
+  }
+
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeigthMapTiny(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {

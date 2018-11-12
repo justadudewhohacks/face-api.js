@@ -7,8 +7,8 @@ import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { getSizesForScale } from './getSizesForScale';
-import { loadQuantizedParams } from './loadQuantizedParams';
 import { IMtcnnOptions, MtcnnOptions } from './MtcnnOptions';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
@@ -146,9 +146,12 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     )
   }
 
-  // none of the param tensors are quantized yet
-  protected loadQuantizedParams(uri: string | undefined) {
-    return loadQuantizedParams(uri)
+  protected getDefaultModelName(): string {
+    return 'mtcnn_model'
+  }
+
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeigthMap(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {

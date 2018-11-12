@@ -9,8 +9,6 @@ import {
 
 import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
-const DEFAULT_MODEL_NAME = 'face_recognition_model'
-
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
@@ -46,11 +44,10 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
 }
 
-export async function loadQuantizedParams(
-  uri: string | undefined
-): Promise<{ params: NetParams, paramMappings: ParamMapping[] }> {
+export function extractParamsFromWeigthMap(
+  weightMap: tf.NamedTensorMap
+): { params: NetParams, paramMappings: ParamMapping[] } {
 
-  const weightMap = await loadWeightMap(uri, DEFAULT_MODEL_NAME)
   const paramMappings: ParamMapping[] = []
 
   const {

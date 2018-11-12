@@ -4,9 +4,9 @@ import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParams } from './extractParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
-import { loadQuantizedParams } from './loadQuantizedParams';
 import { DenseBlock4Params, NetParams } from './types';
 
 function denseBlock(
@@ -64,10 +64,13 @@ export class FaceLandmark68Net extends FaceLandmark68NetBase<NetParams> {
     })
   }
 
-  protected loadQuantizedParams(uri: string | undefined) {
-    return loadQuantizedParams(uri)
+  protected getDefaultModelName(): string {
+    return 'face_landmark_68_model'
   }
 
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeigthMap(weightMap)
+  }
 
   protected extractParams(weights: Float32Array) {
     return extractParams(weights)

@@ -1,5 +1,6 @@
-import { Point, TNetInput } from 'tfjs-image-recognition-base';
-import { ITinyYolov2Options, TinyYolov2 as TinyYolov2Base } from 'tfjs-tiny-yolov2';
+import * as tf from '@tensorflow/tfjs-core';
+import { ParamMapping, Point, TNetInput } from 'tfjs-image-recognition-base';
+import { ITinyYolov2Options, TinyYolov2 as TinyYolov2Base, TinyYolov2NetParams } from 'tfjs-tiny-yolov2';
 
 import { FaceDetection } from '../classes';
 import {
@@ -46,8 +47,11 @@ export class TinyYolov2 extends TinyYolov2Base {
     return objectDetections.map(det => new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }))
   }
 
-  protected loadQuantizedParams(modelUri: string | undefined) {
-    const defaultModelName = this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME
-    return super.loadQuantizedParams(modelUri, defaultModelName) as any
+  protected getDefaultModelName(): string {
+    return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME
+  }
+
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TinyYolov2NetParams, paramMappings: ParamMapping[] } {
+    return super.extractParamsFromWeigthMap(weightMap)
   }
 }

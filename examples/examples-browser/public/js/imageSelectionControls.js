@@ -17,7 +17,7 @@ function renderImageSelectList(selectListId, onChange, initialValue) {
       renderOption(
         select,
         imageName,
-        getImageUri(imageName)
+        imageName
       )
     )
   }
@@ -25,7 +25,7 @@ function renderImageSelectList(selectListId, onChange, initialValue) {
   renderSelectList(
     selectListId,
     onChange,
-    getImageUri(initialValue),
+    initialValue,
     renderChildren
   )
 }
