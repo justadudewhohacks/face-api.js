@@ -4,7 +4,8 @@ node_js:
   - "node"
   - "10"
   - "8"
-  - "6"
+  # node 6 is not compatible with tfjs-node
+  # - "6"
 env:
   global:
     - BACKEND_CPU=true EXCLUDE_UNCOMPRESSED=true
