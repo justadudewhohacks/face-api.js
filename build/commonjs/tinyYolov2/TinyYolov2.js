@@ -52,9 +52,11 @@ var TinyYolov2 = /** @class */ (function (_super) {
             });
         });
     };
-    TinyYolov2.prototype.loadQuantizedParams = function (modelUri) {
-        var defaultModelName = this.withSeparableConvs ? const_1.DEFAULT_MODEL_NAME_SEPARABLE_CONV : const_1.DEFAULT_MODEL_NAME;
-        return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
+    TinyYolov2.prototype.getDefaultModelName = function () {
+        return this.withSeparableConvs ? const_1.DEFAULT_MODEL_NAME_SEPARABLE_CONV : const_1.DEFAULT_MODEL_NAME;
+    };
+    TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
     };
     return TinyYolov2;
 }(tfjs_tiny_yolov2_1.TinyYolov2));

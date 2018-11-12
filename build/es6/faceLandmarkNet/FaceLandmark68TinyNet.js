@@ -5,7 +5,7 @@ import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParamsTiny } from './extractParamsTiny';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
-import { loadQuantizedParamsTiny } from './loadQuantizedParamsTiny';
+import { extractParamsFromWeigthMapTiny } from './extractParamsFromWeigthMapTiny';
 function denseBlock(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {
@@ -39,8 +39,11 @@ var FaceLandmark68TinyNet = /** @class */ (function (_super) {
             return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
         });
     };
-    FaceLandmark68TinyNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParamsTiny(uri);
+    FaceLandmark68TinyNet.prototype.getDefaultModelName = function () {
+        return 'face_landmark_68_tiny_model';
+    };
+    FaceLandmark68TinyNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMapTiny(weightMap);
     };
     FaceLandmark68TinyNet.prototype.extractParams = function (weights) {
         return extractParamsTiny(weights);

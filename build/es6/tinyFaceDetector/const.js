@@ -8,5 +8,4 @@ export var BOX_ANCHORS = [
     new Point(9.041765, 10.66308)
 ];
 export var MEAN_RGB = [117.001, 114.697, 97.404];
-export var DEFAULT_MODEL_NAME = 'tiny_face_detector_model';
 //# sourceMappingURL=const.js.map

@@ -5,13 +5,14 @@ import { TinyNetParams } from './types';
 export declare class FaceLandmark68TinyNet extends FaceLandmark68NetBase<TinyNetParams> {
     constructor();
     runNet(input: NetInput): tf.Tensor2D;
-    protected loadQuantizedParams(uri: string | undefined): Promise<{
+    protected getDefaultModelName(): string;
+    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
         params: TinyNetParams;
         paramMappings: {
             originalPath?: string | undefined;
             paramPath: string;
         }[];
-    }>;
+    };
     protected extractParams(weights: Float32Array): {
         params: TinyNetParams;
         paramMappings: {

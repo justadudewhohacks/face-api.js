@@ -7,7 +7,7 @@ var depthwiseSeparableConv_1 = require("./depthwiseSeparableConv");
 var extractParamsTiny_1 = require("./extractParamsTiny");
 var FaceLandmark68NetBase_1 = require("./FaceLandmark68NetBase");
 var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
-var loadQuantizedParamsTiny_1 = require("./loadQuantizedParamsTiny");
+var extractParamsFromWeigthMapTiny_1 = require("./extractParamsFromWeigthMapTiny");
 function denseBlock(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {
@@ -41,8 +41,11 @@ var FaceLandmark68TinyNet = /** @class */ (function (_super) {
             return fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
         });
     };
-    FaceLandmark68TinyNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParamsTiny_1.loadQuantizedParamsTiny(uri);
+    FaceLandmark68TinyNet.prototype.getDefaultModelName = function () {
+        return 'face_landmark_68_tiny_model';
+    };
+    FaceLandmark68TinyNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMapTiny_1.extractParamsFromWeigthMapTiny(weightMap);
     };
     FaceLandmark68TinyNet.prototype.extractParams = function (weights) {
         return extractParamsTiny_1.extractParamsTiny(weights);

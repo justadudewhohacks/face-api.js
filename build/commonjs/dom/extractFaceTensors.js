@@ -17,6 +17,9 @@ var FaceDetection_1 = require("../classes/FaceDetection");
 function extractFaceTensors(imageTensor, detections) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         return tslib_1.__generator(this, function (_a) {
+            if (!tfjs_image_recognition_base_1.isTensor3D(imageTensor) && !tfjs_image_recognition_base_1.isTensor4D(imageTensor)) {
+                throw new Error('extractFaceTensors - expected image tensor to be 3D or 4D');
+            }
             if (tfjs_image_recognition_base_1.isTensor4D(imageTensor) && imageTensor.shape[0] > 1) {
                 throw new Error('extractFaceTensors - batchSize > 1 not supported');
             }

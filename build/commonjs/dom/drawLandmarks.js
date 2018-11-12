@@ -5,7 +5,7 @@ var FaceLandmarks68_1 = require("../classes/FaceLandmarks68");
 var drawContour_1 = require("./drawContour");
 function drawLandmarks(canvasArg, faceLandmarks, options) {
     var canvas = tfjs_image_recognition_base_1.resolveInput(canvasArg);
-    if (!(canvas instanceof HTMLCanvasElement)) {
+    if (!(canvas instanceof tfjs_image_recognition_base_1.env.getEnv().Canvas)) {
         throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement');
     }
     var drawOptions = Object.assign(tfjs_image_recognition_base_1.getDefaultDrawOptions(options), (options || {}));

@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, toNetInput } from 'tfjs-image-recognition-base';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
-import { loadQuantizedParams } from './loadQuantizedParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { residual, residualDown } from './residualLayer';
 var FaceRecognitionNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceRecognitionNet, _super);
@@ -74,8 +74,11 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
             });
         });
     };
-    FaceRecognitionNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams(uri);
+    FaceRecognitionNet.prototype.getDefaultModelName = function () {
+        return 'face_recognition_model';
+    };
+    FaceRecognitionNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap(weightMap);
     };
     FaceRecognitionNet.prototype.extractParams = function (weights) {
         return extractParams(weights);

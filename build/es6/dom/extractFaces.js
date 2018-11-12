@@ -1,5 +1,5 @@
 import * as tslib_1 from "tslib";
-import { createCanvas, getContext2dOrThrow, imageTensorToCanvas, toNetInput, } from 'tfjs-image-recognition-base';
+import { createCanvas, env, getContext2dOrThrow, imageTensorToCanvas, toNetInput, } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
 /**
  * Extracts the image regions containing the detected faces.
@@ -10,12 +10,13 @@ import { FaceDetection } from '../classes/FaceDetection';
  */
 export function extractFaces(input, detections) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var canvas, netInput, tensorOrCanvas, _a, ctx, boxes;
+        var Canvas, canvas, netInput, tensorOrCanvas, _a, ctx, boxes;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
+                    Canvas = env.getEnv().Canvas;
                     canvas = input;
-                    if (!!(input instanceof HTMLCanvasElement)) return [3 /*break*/, 5];
+                    if (!!(input instanceof Canvas)) return [3 /*break*/, 5];
                     return [4 /*yield*/, toNetInput(input)];
                 case 1:
                     netInput = _b.sent();
@@ -23,7 +24,7 @@ export function extractFaces(input, detections) {
                         throw new Error('extractFaces - batchSize > 1 not supported');
                     }
                     tensorOrCanvas = netInput.getInput(0);
-                    if (!(tensorOrCanvas instanceof HTMLCanvasElement)) return [3 /*break*/, 2];
+                    if (!(tensorOrCanvas instanceof Canvas)) return [3 /*break*/, 2];
                     _a = tensorOrCanvas;
                     return [3 /*break*/, 4];
                 case 2: return [4 /*yield*/, imageTensorToCanvas(tensorOrCanvas)];

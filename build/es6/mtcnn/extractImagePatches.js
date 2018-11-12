@@ -1,6 +1,6 @@
 import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { createCanvas, getContext2dOrThrow } from 'tfjs-image-recognition-base';
+import { createCanvas, createCanvasFromMedia, env, getContext2dOrThrow, } from 'tfjs-image-recognition-base';
 import { normalize } from './normalize';
 export function extractImagePatches(img, boxes, _a) {
     var width = _a.width, height = _a.height;
@@ -18,7 +18,7 @@ export function extractImagePatches(img, boxes, _a) {
                                 fromX = x - 1;
                                 fromY = y - 1;
                                 imgData = imgCtx.getImageData(fromX, fromY, (ex - fromX), (ey - fromY));
-                                return [2 /*return*/, createImageBitmap(imgData)];
+                                return [2 /*return*/, env.isNodejs() ? createCanvasFromMedia(imgData) : createImageBitmap(imgData)];
                             });
                         }); }))];
                 case 1:

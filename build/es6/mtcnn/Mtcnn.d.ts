@@ -1,3 +1,4 @@
+import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, NeuralNetwork, TNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
@@ -14,13 +15,14 @@ export declare class Mtcnn extends NeuralNetwork<NetParams> {
         results: FaceDetectionWithLandmarks<FaceLandmarks5>[];
         stats: any;
     }>;
-    protected loadQuantizedParams(uri: string | undefined): Promise<{
+    protected getDefaultModelName(): string;
+    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: {
             originalPath?: string | undefined;
             paramPath: string;
         }[];
-    }>;
+    };
     protected extractParams(weights: Float32Array): {
         params: NetParams;
         paramMappings: {

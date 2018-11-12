@@ -1,6 +1,5 @@
 import * as tslib_1 from "tslib";
-import { disposeUnusedWeightTensors, extractWeightEntryFactory, loadWeightMap, } from 'tfjs-image-recognition-base';
-var DEFAULT_MODEL_NAME = 'mtcnn_model';
+import { disposeUnusedWeightTensors, extractWeightEntryFactory } from 'tfjs-image-recognition-base';
 function extractorsFactory(weightMap, paramMappings) {
     var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
     function extractConvParams(prefix) {
@@ -56,23 +55,13 @@ function extractorsFactory(weightMap, paramMappings) {
         extractONetParams: extractONetParams
     };
 }
-export function loadQuantizedParams(uri) {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var weightMap, paramMappings, _a, extractPNetParams, extractRNetParams, extractONetParams, pnet, rnet, onet;
-        return tslib_1.__generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, loadWeightMap(uri, DEFAULT_MODEL_NAME)];
-                case 1:
-                    weightMap = _b.sent();
-                    paramMappings = [];
-                    _a = extractorsFactory(weightMap, paramMappings), extractPNetParams = _a.extractPNetParams, extractRNetParams = _a.extractRNetParams, extractONetParams = _a.extractONetParams;
-                    pnet = extractPNetParams();
-                    rnet = extractRNetParams();
-                    onet = extractONetParams();
-                    disposeUnusedWeightTensors(weightMap, paramMappings);
-                    return [2 /*return*/, { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings }];
-            }
-        });
-    });
+export function extractParamsFromWeigthMap(weightMap) {
+    var paramMappings = [];
+    var _a = extractorsFactory(weightMap, paramMappings), extractPNetParams = _a.extractPNetParams, extractRNetParams = _a.extractRNetParams, extractONetParams = _a.extractONetParams;
+    var pnet = extractPNetParams();
+    var rnet = extractRNetParams();
+    var onet = extractONetParams();
+    disposeUnusedWeightTensors(weightMap, paramMappings);
+    return { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings };
 }
-//# sourceMappingURL=loadQuantizedParams.js.map
+//# sourceMappingURL=extractParamsFromWeigthMap.js.map

@@ -7,8 +7,8 @@ import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { getSizesForScale } from './getSizesForScale';
-import { loadQuantizedParams } from './loadQuantizedParams';
 import { MtcnnOptions } from './MtcnnOptions';
 import { pyramidDown } from './pyramidDown';
 import { stage1 } from './stage1';
@@ -120,9 +120,11 @@ var Mtcnn = /** @class */ (function (_super) {
             });
         });
     };
-    // none of the param tensors are quantized yet
-    Mtcnn.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams(uri);
+    Mtcnn.prototype.getDefaultModelName = function () {
+        return 'mtcnn_model';
+    };
+    Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap(weightMap);
     };
     Mtcnn.prototype.extractParams = function (weights) {
         return extractParams(weights);

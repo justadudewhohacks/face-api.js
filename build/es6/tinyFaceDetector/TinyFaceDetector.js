@@ -1,7 +1,7 @@
 import * as tslib_1 from "tslib";
 import { TinyYolov2 as TinyYolov2Base } from 'tfjs-tiny-yolov2';
 import { FaceDetection } from '../classes';
-import { BOX_ANCHORS, DEFAULT_MODEL_NAME, IOU_THRESHOLD, MEAN_RGB } from './const';
+import { BOX_ANCHORS, IOU_THRESHOLD, MEAN_RGB } from './const';
 var TinyFaceDetector = /** @class */ (function (_super) {
     tslib_1.__extends(TinyFaceDetector, _super);
     function TinyFaceDetector() {
@@ -38,9 +38,11 @@ var TinyFaceDetector = /** @class */ (function (_super) {
             });
         });
     };
-    TinyFaceDetector.prototype.loadQuantizedParams = function (modelUri) {
-        var defaultModelName = DEFAULT_MODEL_NAME;
-        return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
+    TinyFaceDetector.prototype.getDefaultModelName = function () {
+        return 'tiny_face_detector_model';
+    };
+    TinyFaceDetector.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
     };
     return TinyFaceDetector;
 }(TinyYolov2Base));

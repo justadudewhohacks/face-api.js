@@ -5,7 +5,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var convLayer_1 = require("./convLayer");
 var extractParams_1 = require("./extractParams");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
+var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
 var residualLayer_1 = require("./residualLayer");
 var FaceRecognitionNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceRecognitionNet, _super);
@@ -76,8 +76,11 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
             });
         });
     };
-    FaceRecognitionNet.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    FaceRecognitionNet.prototype.getDefaultModelName = function () {
+        return 'face_recognition_model';
+    };
+    FaceRecognitionNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
     };
     FaceRecognitionNet.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

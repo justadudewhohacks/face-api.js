@@ -5,9 +5,9 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var depthwiseSeparableConv_1 = require("./depthwiseSeparableConv");
 var extractParams_1 = require("./extractParams");
+var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
 var FaceLandmark68NetBase_1 = require("./FaceLandmark68NetBase");
 var fullyConnectedLayer_1 = require("./fullyConnectedLayer");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
 function denseBlock(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {
@@ -44,8 +44,11 @@ var FaceLandmark68Net = /** @class */ (function (_super) {
             return fullyConnectedLayer_1.fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
         });
     };
-    FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    FaceLandmark68Net.prototype.getDefaultModelName = function () {
+        return 'face_landmark_68_model';
+    };
+    FaceLandmark68Net.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
     };
     FaceLandmark68Net.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

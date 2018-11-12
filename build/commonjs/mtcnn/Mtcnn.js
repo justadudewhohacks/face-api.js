@@ -9,8 +9,8 @@ var FaceLandmarks5_1 = require("../classes/FaceLandmarks5");
 var bgrToRgbTensor_1 = require("./bgrToRgbTensor");
 var config_1 = require("./config");
 var extractParams_1 = require("./extractParams");
+var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
 var getSizesForScale_1 = require("./getSizesForScale");
-var loadQuantizedParams_1 = require("./loadQuantizedParams");
 var MtcnnOptions_1 = require("./MtcnnOptions");
 var pyramidDown_1 = require("./pyramidDown");
 var stage1_1 = require("./stage1");
@@ -122,9 +122,11 @@ var Mtcnn = /** @class */ (function (_super) {
             });
         });
     };
-    // none of the param tensors are quantized yet
-    Mtcnn.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams_1.loadQuantizedParams(uri);
+    Mtcnn.prototype.getDefaultModelName = function () {
+        return 'mtcnn_model';
+    };
+    Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
     };
     Mtcnn.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

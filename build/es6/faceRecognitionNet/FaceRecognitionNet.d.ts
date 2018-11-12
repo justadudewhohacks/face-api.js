@@ -6,13 +6,14 @@ export declare class FaceRecognitionNet extends NeuralNetwork<NetParams> {
     forwardInput(input: NetInput): tf.Tensor2D;
     forward(input: TNetInput): Promise<tf.Tensor2D>;
     computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]>;
-    protected loadQuantizedParams(uri: string | undefined): Promise<{
+    protected getDefaultModelName(): string;
+    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: {
             originalPath?: string | undefined;
             paramPath: string;
         }[];
-    }>;
+    };
     protected extractParams(weights: Float32Array): {
         params: NetParams;
         paramMappings: {

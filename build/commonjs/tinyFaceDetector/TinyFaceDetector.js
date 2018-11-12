@@ -40,9 +40,11 @@ var TinyFaceDetector = /** @class */ (function (_super) {
             });
         });
     };
-    TinyFaceDetector.prototype.loadQuantizedParams = function (modelUri) {
-        var defaultModelName = const_1.DEFAULT_MODEL_NAME;
-        return _super.prototype.loadQuantizedParams.call(this, modelUri, defaultModelName);
+    TinyFaceDetector.prototype.getDefaultModelName = function () {
+        return 'tiny_face_detector_model';
+    };
+    TinyFaceDetector.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
     };
     return TinyFaceDetector;
 }(tfjs_tiny_yolov2_1.TinyYolov2));

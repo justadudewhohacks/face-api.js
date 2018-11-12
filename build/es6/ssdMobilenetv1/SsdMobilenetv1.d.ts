@@ -14,13 +14,14 @@ export declare class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
         scores: tf.Tensor<tf.Rank.R1>[];
     }>;
     locateFaces(input: TNetInput, options?: ISsdMobilenetv1Options): Promise<FaceDetection[]>;
-    protected loadQuantizedParams(uri: string | undefined): Promise<{
+    protected getDefaultModelName(): string;
+    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: {
             originalPath?: string | undefined;
             paramPath: string;
         }[];
-    }>;
+    };
     protected extractParams(weights: Float32Array): {
         params: NetParams;
         paramMappings: {

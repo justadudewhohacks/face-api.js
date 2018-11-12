@@ -10,5 +10,4 @@ exports.BOX_ANCHORS = [
     new tfjs_image_recognition_base_1.Point(9.041765, 10.66308)
 ];
 exports.MEAN_RGB = [117.001, 114.697, 97.404];
-exports.DEFAULT_MODEL_NAME = 'tiny_face_detector_model';
 //# sourceMappingURL=const.js.map

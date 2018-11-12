@@ -3,9 +3,9 @@ import * as tf from '@tensorflow/tfjs-core';
 import { normalize } from 'tfjs-image-recognition-base';
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParams } from './extractParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 import { fullyConnectedLayer } from './fullyConnectedLayer';
-import { loadQuantizedParams } from './loadQuantizedParams';
 function denseBlock(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {
@@ -42,8 +42,11 @@ var FaceLandmark68Net = /** @class */ (function (_super) {
             return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
         });
     };
-    FaceLandmark68Net.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams(uri);
+    FaceLandmark68Net.prototype.getDefaultModelName = function () {
+        return 'face_landmark_68_model';
+    };
+    FaceLandmark68Net.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap(weightMap);
     };
     FaceLandmark68Net.prototype.extractParams = function (weights) {
         return extractParams(weights);

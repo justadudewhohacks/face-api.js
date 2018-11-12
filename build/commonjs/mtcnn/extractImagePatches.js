@@ -20,7 +20,7 @@ function extractImagePatches(img, boxes, _a) {
                                 fromX = x - 1;
                                 fromY = y - 1;
                                 imgData = imgCtx.getImageData(fromX, fromY, (ex - fromX), (ey - fromY));
-                                return [2 /*return*/, createImageBitmap(imgData)];
+                                return [2 /*return*/, tfjs_image_recognition_base_1.env.isNodejs() ? tfjs_image_recognition_base_1.createCanvasFromMedia(imgData) : createImageBitmap(imgData)];
                             });
                         }); }))];
                 case 1:

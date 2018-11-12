@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, Rect, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
 import { extractParams } from './extractParams';
-import { loadQuantizedParams } from './loadQuantizedParams';
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
@@ -90,8 +90,11 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
             });
         });
     };
-    SsdMobilenetv1.prototype.loadQuantizedParams = function (uri) {
-        return loadQuantizedParams(uri);
+    SsdMobilenetv1.prototype.getDefaultModelName = function () {
+        return 'ssd_mobilenetv1_model';
+    };
+    SsdMobilenetv1.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        return extractParamsFromWeigthMap(weightMap);
     };
     SsdMobilenetv1.prototype.extractParams = function (weights) {
         return extractParams(weights);

@@ -1,9 +1,9 @@
-import { getContext2dOrThrow, getDefaultDrawOptions, resolveInput } from 'tfjs-image-recognition-base';
+import { env, getContext2dOrThrow, getDefaultDrawOptions, resolveInput } from 'tfjs-image-recognition-base';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { drawContour } from './drawContour';
 export function drawLandmarks(canvasArg, faceLandmarks, options) {
     var canvas = resolveInput(canvasArg);
-    if (!(canvas instanceof HTMLCanvasElement)) {
+    if (!(canvas instanceof env.getEnv().Canvas)) {
         throw new Error('drawLandmarks - expected canvas to be of type: HTMLCanvasElement');
     }
     var drawOptions = Object.assign(getDefaultDrawOptions(options), (options || {}));

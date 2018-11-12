@@ -1,6 +1,7 @@
 import * as tslib_1 from "tslib";
+import * as tf from '@tensorflow/tfjs-core';
 import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
-import { extractFaces } from '../dom';
+import { extractFaces, extractFaceTensors } from '../dom';
 import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
 import { nets } from './nets';
@@ -33,18 +34,27 @@ var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
     DetectAllFaceLandmarksTask.prototype.run = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var detections, faceCanvases, faceLandmarksByFace;
-            return tslib_1.__generator(this, function (_a) {
-                switch (_a.label) {
+            var detections, faces, _a, faceLandmarksByFace;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, this.detectFacesTask];
                     case 1:
-                        detections = _a.sent();
-                        return [4 /*yield*/, extractFaces(this.input, detections)];
+                        detections = _b.sent();
+                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, extractFaceTensors(this.input, detections)];
                     case 2:
-                        faceCanvases = _a.sent();
-                        return [4 /*yield*/, Promise.all(faceCanvases.map(function (canvas) { return _this.landmarkNet.detectLandmarks(canvas); }))];
-                    case 3:
-                        faceLandmarksByFace = _a.sent();
+                        _a = _b.sent();
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, extractFaces(this.input, detections)];
+                    case 4:
+                        _a = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        faces = _a;
+                        return [4 /*yield*/, Promise.all(faces.map(function (face) { return _this.landmarkNet.detectLandmarks(face); }))];
+                    case 6:
+                        faceLandmarksByFace = _b.sent();
+                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
                         return [2 /*return*/, detections.map(function (detection, i) {
                                 return new FaceDetectionWithLandmarks(detection, faceLandmarksByFace[i]);
                             })];
@@ -65,22 +75,31 @@ var DetectSingleFaceLandmarksTask = /** @class */ (function (_super) {
     }
     DetectSingleFaceLandmarksTask.prototype.run = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var detection, faceCanvas, _a, _b;
-            return tslib_1.__generator(this, function (_c) {
-                switch (_c.label) {
+            var detection, faces, _a, landmarks;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, this.detectFacesTask];
                     case 1:
-                        detection = _c.sent();
+                        detection = _b.sent();
                         if (!detection) {
                             return [2 /*return*/];
                         }
-                        return [4 /*yield*/, extractFaces(this.input, [detection])];
+                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, extractFaceTensors(this.input, [detection])];
                     case 2:
-                        faceCanvas = (_c.sent())[0];
-                        _a = FaceDetectionWithLandmarks.bind;
-                        _b = [void 0, detection];
-                        return [4 /*yield*/, this.landmarkNet.detectLandmarks(faceCanvas)];
-                    case 3: return [2 /*return*/, new (_a.apply(FaceDetectionWithLandmarks, _b.concat([_c.sent()])))()];
+                        _a = _b.sent();
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, extractFaces(this.input, [detection])];
+                    case 4:
+                        _a = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        faces = _a;
+                        return [4 /*yield*/, this.landmarkNet.detectLandmarks(faces[0])];
+                    case 6:
+                        landmarks = _b.sent();
+                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
+                        return [2 /*return*/, new FaceDetectionWithLandmarks(detection, landmarks)];
                 }
             });
         });

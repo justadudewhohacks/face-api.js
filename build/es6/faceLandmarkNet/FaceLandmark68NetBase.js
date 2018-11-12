@@ -9,9 +9,6 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
         _this.__name = _name;
         return _this;
     }
-    FaceLandmark68NetBase.prototype.runNet = function (_) {
-        throw new Error(this.__name + " - runNet not implemented");
-    };
     FaceLandmark68NetBase.prototype.postProcess = function (output, inputSize, originalDimensions) {
         var inputDimensions = originalDimensions.map(function (_a) {
             var width = _a.width, height = _a.height;
