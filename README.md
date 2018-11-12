@@ -16,6 +16,9 @@ Table of Contents:
   * **[Face Detection Models](#models-face-detection)**
   * **[68 Point Face Landmark Detection Models](#models-face-landmark-detection)**
   * **[Face Recognition Model](#models-face-recognition)**
+* **[Getting Started](#getting-started)**
+  * **[face-api.js for the Browser](#getting-started-browser)**
+  * **[face-api.js for Nodejs](#getting-started-nodejs)**
 * **[Usage](#usage)**
   * **[Loading the Models](#usage-loading-models)**
   * **[High Level API](#usage-high-level-api)**
@@ -75,14 +78,41 @@ Check out my face-api.js tutorials:
 
 ## Running the Examples
 
+Clone the repository:
+
 ``` bash
 git clone https://github.com/justadudewhohacks/face-api.js.git
-cd face-api.js/examples
+```
+
+### Running the Browser Examples
+
+``` bash
+cd face-api.js/examples/examples-browser
 npm i
 npm start
 ```
 
 Browse to http://localhost:3000/.
+
+### Running the Nodejs Examples
+
+``` bash
+cd face-api.js/examples/examples-nodejs
+npm i
+```
+
+Now run one of the examples using ts-node:
+
+``` bash
+ts-node faceDetection.ts
+```
+
+Or simply compile and run them with node:
+
+``` bash
+tsc faceDetection.ts
+node faceDetection.js
+```
 
 <a name="models"></a>
 
@@ -130,6 +160,55 @@ The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognit
 
 The size of the quantized model is roughly 6.2 MB (**face_recognition_model**).
 
+<a name="getting-started"></a>
+
+# Getting Started
+
+<a name="getting-started-browser"></a>
+
+## face-api.js for the Browser
+
+Simply include the latest script from [dist/face-api.js](https://github.com/justadudewhohacks/face-api.js/tree/master/dist).
+
+Or install it via npm:
+
+``` bash
+npm i face-api.js
+```
+
+<a name="getting-started-nodejs"></a>
+
+## face-api.js for Nodejs
+
+We can use the equivalent API in a nodejs environment by polyfilling some browser specifics, such as HTMLImageElement, HTMLCanvasElement and ImageData. The easiest way to do so is by installing the node-canvas package.
+
+Alternatively you can simply construct your own tensors from image data and pass tensors as inputs to the API.
+
+Furthermore you want to install @tensorflow/tfjs-node (not required, but highly recommended), which speeds things up drastically by compiling and binding to the native Tensorflow C++ library:
+
+``` bash
+npm i face-api.js canvas @tensorflow/tfjs-node
+```
+
+Now we simply monkey patch the environment to use the polyfills:
+
+``` javascript
+// import nodejs bindings to native tensorflow,
+// not required, but will speed up things drastically (python required)
+import '@tensorflow/tfjs-node';
+
+// implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
+import * as canvas from 'canvas';
+
+import * as faceapi from 'face-api.js';
+
+// patch nodejs environment, we need to provide an implementation of
+// HTMLCanvasElement and HTMLImageElement, additionally an implementation
+// of ImageData is required, in case you want to use the MTCNN
+const { Canvas, Image, ImageData } = canvas
+faceapi.env.monkeyPatch({ Canvas, Image, ImageData })
+```
+
 # Usage
 
 <a name="usage-loading-models"></a>
@@ -150,14 +229,38 @@ await faceapi.loadSsdMobilenetv1Model('/models')
 // await faceapi.loadFaceRecognitionModel('/models')
 ```
 
-Alternatively, you can also create instance of the neural nets:
+All global neural network instances are exported via faceapi.nets:
+
+``` javascript
+console.log(faceapi.nets)
+```
+
+The following is equivalent to `await faceapi.loadSsdMobilenetv1Model('/models')`:
+
+``` javascript
+await faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
+```
+
+In a nodejs environment you can furthermore load the models directly from disk:
+
+``` javascript
+await faceapi.nets.ssdMobilenetv1.loadFromDisk('./models')
+```
+
+You can also load the model from a tf.NamedTensorMap:
+
+``` javascript
+await faceapi.nets.ssdMobilenetv1.loadFromWeightMap(weightMap)
+```
+
+Alternatively, you can also create own instances of the neural nets:
 
 ``` javascript
 const net = new faceapi.SsdMobilenetv1()
 await net.load('/models')
 ```
 
-Using instances, you can also load the weights as a Float32Array (in case you want to use the uncompressed models):
+You can also load the weights as a Float32Array (in case you want to use the uncompressed models):
 
 ``` javascript
 // using fetch
@@ -205,7 +308,7 @@ By default **detectAllFaces** and **detectSingleFace** utilize the SSD Mobilenet
 
 ``` javascript
 const detections1 = await faceapi.detectAllFaces(input, new faceapi.SsdMobilenetv1Options())
-const detections2 = await faceapi.detectAllFaces(input, new faceapi.inyFaceDetectorOptions())
+const detections2 = await faceapi.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
 const detections3 = await faceapi.detectAllFaces(input, new faceapi.MtcnnOptions())
 ```
 
@@ -511,12 +614,6 @@ const detections3 = await faceapi.mtcnn(input, options)
 const landmarks1 = await faceapi.detectFaceLandmarks(faceImage)
 const landmarks2 = await faceapi.detectFaceLandmarksTiny(faceImage)
 const descriptor = await faceapi.computeFaceDescriptor(alignedFaceImage)
-```
-
-All global neural network instances are exported via faceapi.nets:
-
-``` javascript
-console.log(faceapi.nets)
 ```
 
 ### Extracting a Canvas for an Image Region
