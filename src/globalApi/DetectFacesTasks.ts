@@ -58,8 +58,14 @@ export class DetectAllFacesTask extends DetectFacesTaskBase<FaceDetection[]> {
 export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | undefined> {
 
   public async run(): Promise<FaceDetection | undefined> {
-    return (await new DetectAllFacesTask(this.input, this.options))
-      .sort((f1, f2) => f1.score - f2.score)[0]
+    const faceDetections = await new DetectAllFacesTask(this.input, this.options);
+    let faceDetectionWithHighestScore = faceDetections[0];
+    faceDetections.forEach(faceDetection => {
+      if (faceDetection.score > faceDetectionWithHighestScore.score) {
+        faceDetectionWithHighestScore = faceDetection;
+      }
+    });
+    return faceDetectionWithHighestScore;
   }
 
   withFaceLandmarks(useTinyLandmarkNet: boolean = false): DetectSingleFaceLandmarksTask {
