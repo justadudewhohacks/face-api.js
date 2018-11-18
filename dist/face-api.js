@@ -5544,11 +5544,19 @@
         }
         DetectSingleFaceTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
+                var faceDetections, faceDetectionWithHighestScore;
                 return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, new DetectAllFacesTask(this.input, this.options)];
-                        case 1: return [2 /*return*/, (_a.sent())
-                                .sort(function (f1, f2) { return f1.score - f2.score; })[0]];
+                        case 1:
+                            faceDetections = _a.sent();
+                            faceDetectionWithHighestScore = faceDetections[0];
+                            faceDetections.forEach(function (faceDetection) {
+                                if (faceDetection.score > faceDetectionWithHighestScore.score) {
+                                    faceDetectionWithHighestScore = faceDetection;
+                                }
+                            });
+                            return [2 /*return*/, faceDetectionWithHighestScore];
                     }
                 });
             });
