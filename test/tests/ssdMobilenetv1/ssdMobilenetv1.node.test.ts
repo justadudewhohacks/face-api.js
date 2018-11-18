@@ -7,6 +7,7 @@ import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWit
 import { expectedSsdBoxes } from './expectedBoxes';
 import { loadImage } from '../../env';
 import * as tf from '@tensorflow/tfjs-core';
+import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 
 describe('ssdMobilenetv1 - node', () => {
 
@@ -70,6 +71,32 @@ describe('ssdMobilenetv1 - node', () => {
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
+    })
+
+    it('detectSingleFace.withFaceLandmarks().withFaceDescriptor()', async () => {
+      const options = new SsdMobilenetv1Options({
+        minConfidence: 0.5
+      })
+
+      const result = await faceapi
+        .detectSingleFace(imgTensor, options)
+        .withFaceLandmarks()
+        .withFaceDescriptor()
+
+      const deltas = {
+        maxScoreDelta: 0.05,
+        maxBoxDelta: 5,
+        maxLandmarksDelta: 4,
+        maxDescriptorDelta: 0.2
+      }
+
+      expect(result instanceof FullFaceDescription).toBe(true)
+      expectFullFaceDescriptions(
+        [result as FullFaceDescription],
+        [expectedFullFaceDescriptions[2]],
+        [expectedScores[2]],
+        deltas
+      )
     })
 
     it('no memory leaks', async () => {

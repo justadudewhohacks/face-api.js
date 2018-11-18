@@ -1,11 +1,12 @@
 import * as faceapi from '../../../src';
 import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription } from '../../utils';
-import { fetchImage, TinyFaceDetectorOptions } from '../../../src';
+import { TinyFaceDetectorOptions } from '../../../src';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
 import { loadImage } from '../../env';
+import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 
 describe('tinyFaceDetector', () => {
 
@@ -69,6 +70,31 @@ describe('tinyFaceDetector', () => {
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
+    })
+
+    it('detectSingleFace.withFaceLandmarks().withFaceDescriptor()', async () => {
+      const options = new TinyFaceDetectorOptions({
+        inputSize: 416
+      })
+
+      const result = await faceapi
+        .detectSingleFace(imgEl, options)
+        .withFaceLandmarks()
+        .withFaceDescriptor()
+
+      const deltas = {
+        maxScoreDelta: 0.05,
+        maxBoxDelta: 5,
+        maxLandmarksDelta: 10,
+        maxDescriptorDelta: 0.2
+      }
+      expect(result instanceof FullFaceDescription).toBe(true)
+      expectFullFaceDescriptions(
+        [result as FullFaceDescription],
+        [expectedFullFaceDescriptions[2]],
+        [expectedScores[2]],
+        deltas
+      )
     })
 
     it('no memory leaks', async () => {

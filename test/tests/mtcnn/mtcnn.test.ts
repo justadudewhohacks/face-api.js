@@ -1,4 +1,5 @@
 import * as faceapi from '../../../src';
+import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
 import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
@@ -73,6 +74,31 @@ describe('mtcnn', () => {
       }
       expect(results.length).toEqual(6)
       expectFullFaceDescriptions(results, expectedFullFaceDescriptions, expectedScores, deltas)
+    })
+
+    it('detectSingleFace.withFaceLandmarks().withFaceDescriptor()', async () => {
+      const options = new MtcnnOptions({
+        minFaceSize: 20
+      })
+
+      const result = await faceapi
+        .detectSingleFace(imgEl, options)
+        .withFaceLandmarks()
+        .withFaceDescriptor()
+
+      const deltas = {
+        maxScoreDelta: 0.01,
+        maxBoxDelta: 10,
+        maxLandmarksDelta: 6,
+        maxDescriptorDelta: 0.2
+      }
+      expect(result instanceof FullFaceDescription).toBe(true)
+      expectFullFaceDescriptions(
+        [result as FullFaceDescription],
+        [expectedFullFaceDescriptions[0]],
+        [expectedScores[0]],
+        deltas
+      )
     })
 
     it('no memory leaks', async () => {
