@@ -26,6 +26,7 @@ Table of Contents:
   * **[Face Detection Options](#usage-face-detection-options)**
   * **[Utility Classes](#usage-utility-classes)**
   * **[Other Useful Utility](#other-useful-utility)**
+* **[API Documentation](https://justadudewhohacks.github.io/face-api.js/docs/globals.html)**
 
 <a name="resources"></a>
 
