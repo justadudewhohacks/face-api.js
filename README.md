@@ -408,11 +408,11 @@ You can also create labeled reference descriptors as follows:
 ``` javascript
 const labeledDescriptors = [
   new faceapi.LabeledFaceDescriptors(
-    'obama'
+    'obama',
     [descriptorObama1, descriptorObama2]
   ),
   new faceapi.LabeledFaceDescriptors(
-    'trump'
+    'trump',
     [descriptorTrump]
   )
 ]
