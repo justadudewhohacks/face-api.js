@@ -18,3 +18,4 @@ export * from './tinyFaceDetector/index';
 export * from './tinyYolov2/index';
 
 export * from './euclideanDistance';
+export * from './resizeResults';

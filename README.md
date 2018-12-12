@@ -319,13 +319,13 @@ You can tune the options of each face detector as shown [here](#usage-face-detec
 
 **After face detection, we can furthermore predict the facial landmarks for each detected face as follows:**
 
-Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[FaceDetectionWithLandmarks](#interface-face-detection-with-landmarks)>**:
+Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceLandmarks<WithFaceDetection<{}>>](#usage-utility-classes)>**:
 
 ``` javascript
 const detectionsWithLandmarks = await faceapi.detectAllFaces(input).withFaceLandmarks()
 ```
 
-Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks for that face. Returns **[FaceDetectionWithLandmarks](#interface-face-detection-with-landmarks) | undefined**:
+Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks for that face. Returns **[WithFaceLandmarks<WithFaceDetection<{}>>](#usage-utility-classes) | undefined**:
 
 ``` javascript
 const detectionWithLandmarks = await faceapi.detectSingleFace(input).withFaceLandmarks()
@@ -342,16 +342,16 @@ const detectionsWithLandmarks = await faceapi.detectAllFaces(input).withFaceLand
 
 **After face detection and facial landmark prediction the face descriptors for each face can be computed as follows:**
 
-Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[FullFaceDescription](#interface-full-face-description)>**:
+Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#usage-utility-classes)>**:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()
+const results = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()
 ```
 
-Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns **[FullFaceDescription](#interface-full-face-description) | undefined**:
+Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns **[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#usage-utility-classes) | undefined**:
 
 ``` javascript
-const fullFaceDescription = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
+const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
 ```
 
 ### Face Recognition by Matching Descriptors
@@ -361,30 +361,30 @@ To perform face recognition, one can use faceapi.FaceMatcher to compare referenc
 First, we initialize the FaceMatcher with the reference data, for example we can simply detect faces in a **referenceImage** and match the descriptors of the detected faces to faces of subsquent images:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi
+const results = await faceapi
   .detectAllFaces(referenceImage)
   .withFaceLandmarks()
   .withFaceDescriptors()
 
-if (!fullFaceDescriptions.length) {
+if (!results.length) {
   return
 }
 
 // create FaceMatcher with automatically assigned labels
 // from the detection results for the reference image
-const faceMatcher = new faceapi.FaceMatcher(fullFaceDescriptions)
+const faceMatcher = new faceapi.FaceMatcher(results)
 ```
 
 Now we can recognize a persons face shown in **queryImage1**:
 
 ``` javascript
-const singleFullFaceDescription = await faceapi
+const singleResult = await faceapi
   .detectSingleFace(queryImage1)
   .withFaceLandmarks()
   .withFaceDescriptor()
 
-if (singleFullFaceDescription) {
-  const bestMatch = faceMatcher.findBestMatch(singleFullFaceDescription.descriptor)
+if (singleResult) {
+  const bestMatch = faceMatcher.findBestMatch(singleResult.descriptor)
   console.log(bestMatch.toString())
 }
 ```
@@ -392,12 +392,12 @@ if (singleFullFaceDescription) {
 Or we can recognize all faces shown in **queryImage2**:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi
+const results = await faceapi
   .detectAllFaces(queryImage2)
   .withFaceLandmarks()
   .withFaceDescriptors()
 
-fullFaceDescriptions.forEach(fd => {
+results.forEach(fd => {
   const bestMatch = faceMatcher.findBestMatch(fd.descriptor)
   console.log(bestMatch.toString())
 })
@@ -430,7 +430,7 @@ Drawing the detected faces into a canvas:
 const detections = await faceapi.detectAllFaces(input)
 
 // resize the detected boxes in case your displayed image has a different size then the original
-const detectionsForSize = detections.map(det => det.forSize(input.width, input.height))
+const detectionsForSize = faceapi.resizeResults(detections, { width: input.width, height: input.height })
 // draw them into a canvas
 const canvas = document.getElementById('overlay')
 canvas.width = input.width
@@ -446,7 +446,7 @@ const detectionsWithLandmarks = await faceapi
   .withFaceLandmarks()
 
 // resize the detected boxes and landmarks in case your displayed image has a different size then the original
-const detectionsWithLandmarksForSize = detectionsWithLandmarks.map(det => det.forSize(input.width, input.height))
+const detectionsWithLandmarksForSize = faceapi.resizeResults(detectionsWithLandmarks, { width: input.width, height: input.height })
 // draw them into a canvas
 const canvas = document.getElementById('overlay')
 canvas.width = input.width
@@ -579,23 +579,34 @@ export interface IFaceLandmarks {
 }
 ```
 
-<a name="interface-face-detection-with-landmarks"></a>
+<a name="with-face-detection"></a>
 
-### IFaceDetectionWithLandmarks
+### WithFaceDetection
 
 ``` javascript
-export interface IFaceDetectionWithLandmarks {
+export type WithFaceDetection<TSource> TSource & {
   detection: FaceDetection
-  landmarks: FaceLandmarks
 }
 ```
 
-<a name="interface-full-face-description"></a>
+<a name="with-face-landmarks"></a>
 
-### IFullFaceDescription
+### WithFaceLandmarks
 
 ``` javascript
-export interface IFullFaceDescription extends IFaceDetectionWithLandmarks {
+export type WithFaceLandmarks<TSource> TSource & {
+  unshiftedLandmarks: FaceLandmarks
+  landmarks: FaceLandmarks
+  alignedRect: FaceDetection
+}
+```
+
+<a name="with-face-descriptor"></a>
+
+### WithFaceDescriptor
+
+``` javascript
+export type WithFaceDescriptor<TSource> TSource & {
   descriptor: Float32Array
 }
 ```

@@ -7,7 +7,7 @@ function resizeCanvasAndResults(dimensions, canvas, results) {
 
   // resize detections (and landmarks) in case displayed image is smaller than
   // original size
-  return results.map(res => res.forSize(width, height))
+  return faceapi.resizeResults(results, { width, height })
 }
 
 function drawDetections(dimensions, canvas, detections) {
