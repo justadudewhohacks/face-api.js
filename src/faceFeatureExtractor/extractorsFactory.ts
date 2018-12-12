@@ -24,21 +24,6 @@ export function extractorsFactory(extractWeights: ExtractWeightsFunction, paramM
     )
   }
 
-  function extractFCParams(channelsIn: number, channelsOut: number, mappedPrefix: string): FCParams {
-    const weights = tf.tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut])
-    const bias = tf.tensor1d(extractWeights(channelsOut))
-
-    paramMappings.push(
-      { paramPath: `${mappedPrefix}/weights` },
-      { paramPath: `${mappedPrefix}/bias` }
-    )
-
-    return {
-      weights,
-      bias
-    }
-  }
-
   const extractConvParams = extractConvParamsFactory(extractWeights, paramMappings)
 
   function extractDenseBlock3Params(channelsIn: number, channelsOut: number, mappedPrefix: string, isFirstLayer: boolean = false): DenseBlock3Params {
@@ -62,8 +47,7 @@ export function extractorsFactory(extractWeights: ExtractWeightsFunction, paramM
 
   return {
     extractDenseBlock3Params,
-    extractDenseBlock4Params,
-    extractFCParams
+    extractDenseBlock4Params
   }
 
 }

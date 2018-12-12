@@ -11,15 +11,13 @@ export function extractParamsFromWeigthMapTiny(
   const paramMappings: ParamMapping[] = []
 
   const {
-    extractDenseBlock3Params,
-    extractFcParams
+    extractDenseBlock3Params
   } = loadParamsFactory(weightMap, paramMappings)
 
   const params = {
     dense0: extractDenseBlock3Params('dense0', true),
     dense1: extractDenseBlock3Params('dense1'),
-    dense2: extractDenseBlock3Params('dense2'),
-    fc: extractFcParams('fc')
+    dense2: extractDenseBlock3Params('dense2')
   }
 
   disposeUnusedWeightTensors(weightMap, paramMappings)

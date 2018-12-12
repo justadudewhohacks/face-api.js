@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors, ParamMapping } from 'tfjs-image-recognition-base';
+import { disposeUnusedWeightTensors, extractWeightEntryFactory, ParamMapping } from 'tfjs-image-recognition-base';
+import { FCParams } from 'tfjs-tiny-yolov2';
 
-import { loadParamsFactory } from './loadParamsFactory';
 import { NetParams } from './types';
 
 export function extractParamsFromWeigthMap(
@@ -10,16 +10,15 @@ export function extractParamsFromWeigthMap(
 
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractDenseBlock4Params,
-    extractFcParams
-  } = loadParamsFactory(weightMap, paramMappings)
+  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
+
+  function extractFcParams(prefix: string): FCParams {
+    const weights = extractWeightEntry<tf.Tensor2D>(`${prefix}/weights`, 2)
+    const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/bias`, 1)
+    return { weights, bias }
+  }
 
   const params = {
-    dense0: extractDenseBlock4Params('dense0', true),
-    dense1: extractDenseBlock4Params('dense1'),
-    dense2: extractDenseBlock4Params('dense2'),
-    dense3: extractDenseBlock4Params('dense3'),
     fc: extractFcParams('fc')
   }
 

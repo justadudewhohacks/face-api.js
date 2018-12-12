@@ -1,9 +1,10 @@
+import * as tf from '@tensorflow/tfjs-core';
 import { extractWeightsFactory, ParamMapping } from 'tfjs-image-recognition-base';
+import { FCParams } from 'tfjs-tiny-yolov2';
 
-import { extractorsFactory } from './extractorsFactory';
 import { NetParams } from './types';
 
-export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
+export function extractParams(weights: Float32Array, numFilters: number): { params: NetParams, paramMappings: ParamMapping[] } {
 
   const paramMappings: ParamMapping[] = []
 
@@ -12,16 +13,22 @@ export function extractParams(weights: Float32Array): { params: NetParams, param
     getRemainingWeights
   } = extractWeightsFactory(weights)
 
-  const {
-    extractDenseBlock4Params,
-    extractFCParams
-  } = extractorsFactory(extractWeights, paramMappings)
+  function extractFCParams(channelsIn: number, channelsOut: number, mappedPrefix: string): FCParams {
+    const weights = tf.tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut])
+    const bias = tf.tensor1d(extractWeights(channelsOut))
 
-  const dense0 = extractDenseBlock4Params(3, 32, 'dense0', true)
-  const dense1 = extractDenseBlock4Params(32, 64, 'dense1')
-  const dense2 = extractDenseBlock4Params(64, 128, 'dense2')
-  const dense3 = extractDenseBlock4Params(128, 256, 'dense3')
-  const fc = extractFCParams(256, 136, 'fc')
+    paramMappings.push(
+      { paramPath: `${mappedPrefix}/weights` },
+      { paramPath: `${mappedPrefix}/bias` }
+    )
+
+    return {
+      weights,
+      bias
+    }
+  }
+
+  const fc = extractFCParams(numFilters, 136, 'fc')
 
   if (getRemainingWeights().length !== 0) {
     throw new Error(`weights remaing after extract: ${getRemainingWeights().length}`)
@@ -29,6 +36,6 @@ export function extractParams(weights: Float32Array): { params: NetParams, param
 
   return {
     paramMappings,
-    params: { dense0, dense1, dense2, dense3, fc }
+    params: { fc }
   }
 }

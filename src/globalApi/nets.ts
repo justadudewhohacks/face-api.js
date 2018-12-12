@@ -4,6 +4,7 @@ import { ITinyYolov2Options } from 'tfjs-tiny-yolov2';
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { FaceFeatureExtractor, TinyFaceFeatureExtractor } from '../faceFeatureExtractor';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
@@ -17,13 +18,16 @@ import { TinyFaceDetector } from '../tinyFaceDetector/TinyFaceDetector';
 import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOptions';
 import { TinyYolov2 } from '../tinyYolov2/TinyYolov2';
 
+const faceFeatureExtractor = new FaceFeatureExtractor()
+const tinyFaceFeatureExtractor = new TinyFaceFeatureExtractor()
+
 export const nets = {
   ssdMobilenetv1: new SsdMobilenetv1(),
   tinyFaceDetector: new TinyFaceDetector(),
   tinyYolov2: new TinyYolov2(),
   mtcnn: new Mtcnn(),
-  faceLandmark68Net: new FaceLandmark68Net(),
-  faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
+  faceLandmark68Net: new FaceLandmark68Net(faceFeatureExtractor),
+  faceLandmark68TinyNet: new FaceLandmark68TinyNet(tinyFaceFeatureExtractor),
   faceRecognitionNet: new FaceRecognitionNet()
 }
 
