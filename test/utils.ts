@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { getContext2dOrThrow } from 'tfjs-image-recognition-base';
 
 import * as faceapi from '../src';
-import { createCanvasFromMedia, FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
+import { FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
@@ -12,7 +11,7 @@ import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
 import { initNet, loadJson } from './env';
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
-  expect(Math.abs(val1 - val2)).toBeLessThan(maxDelta)
+  expect(Math.abs(val1 - val2)).toBeLessThanOrEqual(maxDelta)
 }
 
 export async function expectAllTensorsReleased(fn: () => any) {
@@ -30,7 +29,16 @@ export function expectPointClose(
   expectedPoint: IPoint,
   maxDelta: number
 ) {
-  expect(pointDistance(result, expectedPoint)).toBeLessThan(maxDelta)
+  expect(pointDistance(result, expectedPoint)).toBeLessThanOrEqual(maxDelta)
+}
+
+export function expectPointsClose(
+  results: IPoint[],
+  expectedPoints: IPoint[],
+  maxDelta: number
+) {
+  expect(results.length).toEqual(expectedPoints.length)
+  results.forEach((pt, j) => expectPointClose(pt, expectedPoints[j], maxDelta))
 }
 
 export function expectRectClose(

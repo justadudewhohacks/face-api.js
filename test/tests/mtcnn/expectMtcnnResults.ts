@@ -1,6 +1,7 @@
 import { IPoint, IRect } from '../../../src';
-import { FaceDetectionWithLandmarks } from '../../../src/classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../../../src/classes/FaceLandmarks5';
+import { WithFaceDetection } from '../../../src/factories/WithFaceDetection';
+import { WithFaceLandmarks } from '../../../src/factories/WithFaceLandmarks';
 import { BoxAndLandmarksDeltas, expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { sortBoxes, sortByDistanceToOrigin } from '../../utils';
 
@@ -14,7 +15,7 @@ export const expectedMtcnnBoxes: IRect[] = sortBoxes([
 ])
 
 export function expectMtcnnResults(
-  results: FaceDetectionWithLandmarks<FaceLandmarks5>[],
+  results: WithFaceLandmarks<WithFaceDetection<{}>, FaceLandmarks5>[],
   expectedMtcnnFaceLandmarks: IPoint[][],
   expectedScores: number[],
   deltas: BoxAndLandmarksDeltas

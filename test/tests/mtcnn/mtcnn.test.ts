@@ -1,5 +1,4 @@
 import * as faceapi from '../../../src';
-import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
 import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
@@ -92,9 +91,10 @@ describe('mtcnn', () => {
         maxLandmarksDelta: 6,
         maxDescriptorDelta: 0.2
       }
-      expect(result instanceof FullFaceDescription).toBe(true)
+      
+      expect(!!result).toBeTruthy()
       expectFullFaceDescriptions(
-        [result as FullFaceDescription],
+        result ? [result] : [],
         [expectedFullFaceDescriptions[0]],
         [expectedScores[0]],
         deltas

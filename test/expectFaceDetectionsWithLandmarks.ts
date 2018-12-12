@@ -1,7 +1,8 @@
-import { FaceDetectionWithLandmarks } from '../src/classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
 import { FaceLandmarks68 } from '../src/classes/FaceLandmarks68';
-import { ExpectedFaceDetectionWithLandmarks, expectPointClose, expectRectClose, sortByFaceDetection } from './utils';
+import { WithFaceDetection } from '../src/factories/WithFaceDetection';
+import { WithFaceLandmarks } from '../src/factories/WithFaceLandmarks';
+import { ExpectedFaceDetectionWithLandmarks, expectPointsClose, expectRectClose, sortByFaceDetection } from './utils';
 
 export type BoxAndLandmarksDeltas = {
   maxScoreDelta: number
@@ -10,7 +11,7 @@ export type BoxAndLandmarksDeltas = {
 }
 
 export function expectFaceDetectionsWithLandmarks<TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>(
-  results: FaceDetectionWithLandmarks<TFaceLandmarks>[],
+  results: WithFaceLandmarks<WithFaceDetection<{}>, TFaceLandmarks>[],
   allExpectedFullFaceDescriptions: ExpectedFaceDetectionWithLandmarks[],
   expectedScores: number[],
   deltas: BoxAndLandmarksDeltas
@@ -29,6 +30,6 @@ export function expectFaceDetectionsWithLandmarks<TFaceLandmarks extends FaceLan
     const { detection, landmarks } = sortedResults[i]
     expect(Math.abs(detection.score - expected.score)).toBeLessThan(deltas.maxScoreDelta)
     expectRectClose(detection.box, expected.detection, deltas.maxBoxDelta)
-    landmarks.positions.forEach((pt, j) => expectPointClose(pt, expected.landmarks[j], deltas.maxLandmarksDelta))
+    expectPointsClose(landmarks.positions, expected.landmarks, deltas.maxLandmarksDelta)
   })
 }

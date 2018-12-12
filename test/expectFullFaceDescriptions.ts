@@ -1,5 +1,7 @@
-import { FullFaceDescription } from '../src/classes/FullFaceDescription';
 import { euclideanDistance } from '../src/euclideanDistance';
+import { WithFaceDescriptor } from '../src/factories/WithFaceDescriptor';
+import { WithFaceDetection } from '../src/factories/WithFaceDetection';
+import { WithFaceLandmarks } from '../src/factories/WithFaceLandmarks';
 import { BoxAndLandmarksDeltas } from './expectFaceDetectionsWithLandmarks';
 import { ExpectedFullFaceDescription, expectPointClose, expectRectClose, sortByFaceDetection } from './utils';
 
@@ -8,7 +10,7 @@ export type FullFaceDescriptionDeltas = BoxAndLandmarksDeltas & {
 }
 
 export function expectFullFaceDescriptions(
-  results: FullFaceDescription[],
+  results: WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>[],
   allExpectedFullFaceDescriptions: ExpectedFullFaceDescription[],
   expectedScores: number[],
   deltas: FullFaceDescriptionDeltas

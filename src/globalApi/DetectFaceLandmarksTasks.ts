@@ -1,19 +1,20 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
-import { FaceDetection } from '../classes/FaceDetection';
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { extractFaces, extractFaceTensors } from '../dom';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
+import { WithFaceDetection } from '../factories/WithFaceDetection';
+import { extendWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
 import { nets } from './nets';
+import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
 
-export class DetectFaceLandmarksTaskBase<ReturnType, DetectFacesReturnType> extends ComposableTask<ReturnType> {
+export class DetectFaceLandmarksTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
-    protected detectFacesTask: ComposableTask<DetectFacesReturnType> | Promise<DetectFacesReturnType>,
+    protected parentTask: ComposableTask<TParentReturn> | Promise<TParentReturn>,
     protected input: TNetInput,
     protected useTinyLandmarkNet: boolean
   ) {
@@ -27,11 +28,14 @@ export class DetectFaceLandmarksTaskBase<ReturnType, DetectFacesReturnType> exte
   }
 }
 
-export class DetectAllFaceLandmarksTask extends DetectFaceLandmarksTaskBase<FaceDetectionWithLandmarks[], FaceDetection[]> {
+export class DetectAllFaceLandmarksTask<
+  TSource extends WithFaceDetection<{}>
+> extends DetectFaceLandmarksTaskBase<WithFaceLandmarks<TSource>[], TSource[]> {
 
-  public async run(): Promise<FaceDetectionWithLandmarks[]> {
+  public async run(): Promise<WithFaceLandmarks<TSource>[]> {
 
-    const detections = await this.detectFacesTask
+    const parentResults = await this.parentTask
+    const detections = parentResults.map(res => res.detection)
 
     const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
       ? await extractFaceTensors(this.input, detections)
@@ -43,25 +47,32 @@ export class DetectAllFaceLandmarksTask extends DetectFaceLandmarksTaskBase<Face
 
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
-    return detections.map((detection, i) =>
-      new FaceDetectionWithLandmarks(detection, faceLandmarksByFace[i])
+    return parentResults.map((parentResult, i) =>
+      extendWithFaceLandmarks<TSource>(parentResult, faceLandmarksByFace[i])
     )
   }
 
-  withFaceDescriptors(): ComputeAllFaceDescriptorsTask {
-    return new ComputeAllFaceDescriptorsTask(this, this.input)
+  withFaceExpressions(): PredictAllFaceExpressionsTask<WithFaceLandmarks<TSource>> {
+    return new PredictAllFaceExpressionsTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
+  withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
+    return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 }
 
-export class DetectSingleFaceLandmarksTask extends DetectFaceLandmarksTaskBase<FaceDetectionWithLandmarks | undefined, FaceDetection | undefined> {
+export class DetectSingleFaceLandmarksTask<
+  TSource extends WithFaceDetection<{}>
+>  extends DetectFaceLandmarksTaskBase<WithFaceLandmarks<TSource> | undefined, TSource | undefined> {
 
-  public async run(): Promise<FaceDetectionWithLandmarks | undefined> {
+  public async run(): Promise<WithFaceLandmarks<TSource> | undefined> {
 
-    const detection = await this.detectFacesTask
-    if (!detection) {
+    const parentResult = await this.parentTask
+    if (!parentResult) {
       return
     }
 
+    const { detection } = parentResult
     const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
       ? await extractFaceTensors(this.input, [detection])
       : await extractFaces(this.input, [detection])
@@ -71,13 +82,14 @@ export class DetectSingleFaceLandmarksTask extends DetectFaceLandmarksTaskBase<F
 
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
-    return new FaceDetectionWithLandmarks(
-      detection,
-      landmarks
-    )
+    return extendWithFaceLandmarks<TSource>(parentResult, landmarks)
   }
 
-  withFaceDescriptor(): ComputeSingleFaceDescriptorTask {
-    return new ComputeSingleFaceDescriptorTask(this, this.input)
+  withFaceExpression(): PredictSingleFaceExpressionTask<WithFaceLandmarks<TSource>> {
+    return new PredictSingleFaceExpressionTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
+  withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {
+    return new ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 }

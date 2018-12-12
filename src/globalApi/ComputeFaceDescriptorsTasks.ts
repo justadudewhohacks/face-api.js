@@ -1,53 +1,58 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
-import { FullFaceDescription } from '../classes/FullFaceDescription';
 import { extractFaces, extractFaceTensors } from '../dom';
+import { extendWithFaceDescriptor, WithFaceDescriptor } from '../factories/WithFaceDescriptor';
+import { WithFaceDetection } from '../factories/WithFaceDetection';
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
 import { nets } from './nets';
 
-export class ComputeFaceDescriptorsTaskBase<TReturn, DetectFaceLandmarksReturnType> extends ComposableTask<TReturn> {
+export class ComputeFaceDescriptorsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
-    protected detectFaceLandmarksTask: ComposableTask<DetectFaceLandmarksReturnType> | Promise<DetectFaceLandmarksReturnType>,
+    protected parentTask: ComposableTask<TParentReturn> | Promise<TParentReturn>,
     protected input: TNetInput
   ) {
     super()
   }
 }
 
-export class ComputeAllFaceDescriptorsTask extends ComputeFaceDescriptorsTaskBase<FullFaceDescription[], FaceDetectionWithLandmarks[]> {
+export class ComputeAllFaceDescriptorsTask<
+  TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
+> extends ComputeFaceDescriptorsTaskBase<WithFaceDescriptor<TSource>[], TSource[]> {
 
-  public async run(): Promise<FullFaceDescription[]> {
+  public async run(): Promise<WithFaceDescriptor<TSource>[]> {
 
-    const facesWithLandmarks = await this.detectFaceLandmarksTask
+    const parentResults = await this.parentTask
 
-    const alignedRects = facesWithLandmarks.map(({ alignedRect }) => alignedRect)
+    const alignedRects = parentResults.map(({ alignedRect }) => alignedRect)
     const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
       ? await extractFaceTensors(this.input, alignedRects)
       : await extractFaces(this.input, alignedRects)
 
-    const fullFaceDescriptions = await Promise.all(facesWithLandmarks.map(async ({ detection, landmarks }, i) => {
+    const results = await Promise.all(parentResults.map(async (parentResult, i) => {
       const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[i]) as Float32Array
-      return new FullFaceDescription(detection, landmarks, descriptor)
+      return extendWithFaceDescriptor<TSource>(parentResult, descriptor)
     }))
 
     alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
-    return fullFaceDescriptions
+    return results
   }
 }
 
-export class ComputeSingleFaceDescriptorTask extends ComputeFaceDescriptorsTaskBase<FullFaceDescription | undefined, FaceDetectionWithLandmarks | undefined> {
+export class ComputeSingleFaceDescriptorTask<
+  TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
+> extends ComputeFaceDescriptorsTaskBase<WithFaceDescriptor<TSource> | undefined, TSource | undefined> {
 
-  public async run(): Promise<FullFaceDescription | undefined> {
+  public async run(): Promise<WithFaceDescriptor<TSource> | undefined> {
 
-    const detectionWithLandmarks = await this.detectFaceLandmarksTask
-    if (!detectionWithLandmarks) {
+    const parentResult = await this.parentTask
+    if (!parentResult) {
       return
     }
 
-    const { detection, landmarks, alignedRect } = detectionWithLandmarks
+    const { alignedRect } = parentResult
     const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
       ? await extractFaceTensors(this.input, [alignedRect])
       : await extractFaces(this.input, [alignedRect])
@@ -55,6 +60,6 @@ export class ComputeSingleFaceDescriptorTask extends ComputeFaceDescriptorsTaskB
 
     alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
-    return new FullFaceDescription(detection, landmarks, descriptor)
+    return extendWithFaceDescriptor(parentResult, descriptor)
   }
 }

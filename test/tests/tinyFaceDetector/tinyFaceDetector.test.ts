@@ -6,7 +6,6 @@ import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
 import { loadImage } from '../../env';
-import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 
 describe('tinyFaceDetector', () => {
 
@@ -88,9 +87,10 @@ describe('tinyFaceDetector', () => {
         maxLandmarksDelta: 10,
         maxDescriptorDelta: 0.2
       }
-      expect(result instanceof FullFaceDescription).toBe(true)
+      
+      expect(!!result).toBeTruthy()
       expectFullFaceDescriptions(
-        [result as FullFaceDescription],
+        result ? [result] : [],
         [expectedFullFaceDescriptions[2]],
         [expectedScores[2]],
         deltas
