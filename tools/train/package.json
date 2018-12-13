@@ -1,8 +1,4 @@
 {
-  "scripts": {
-    "start": "node server.js",
-    "test": "karma start"
-  },
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
