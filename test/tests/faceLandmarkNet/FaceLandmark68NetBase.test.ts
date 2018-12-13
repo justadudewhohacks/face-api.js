@@ -1,10 +1,16 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { FaceFeatureExtractor } from '../../../src/faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceLandmark68NetBase } from '../../../src/faceLandmarkNet/FaceLandmark68NetBase';
 
 class FakeFaceLandmark68NetBase extends FaceLandmark68NetBase<any> {
+
   protected getDefaultModelName(): string {
     throw new Error('FakeFaceLandmark68NetBase - getDefaultModelName not implemented')
+  }
+
+  protected getClassifierChannelsIn(): number {
+    throw new Error('FakeFaceLandmark68NetBase - getClassifierChannelsIn not implemented')
   }
 
   protected extractParams(_: any): any {
@@ -18,13 +24,13 @@ class FakeFaceLandmark68NetBase extends FaceLandmark68NetBase<any> {
   public runNet(): any {
     throw new Error('FakeFaceLandmark68NetBase - extractParamsFromWeigthMap not implemented')
   }
-} 
+}
 
 describe('FaceLandmark68NetBase', () => {
 
   describe('postProcess', () => {
 
-    const net = new FakeFaceLandmark68NetBase('')
+    const net = new FakeFaceLandmark68NetBase('', new FaceFeatureExtractor())
 
     describe('single batch', () => {
 

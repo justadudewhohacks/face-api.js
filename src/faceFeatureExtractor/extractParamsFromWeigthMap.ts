@@ -2,11 +2,11 @@ import * as tf from '@tensorflow/tfjs-core';
 import { disposeUnusedWeightTensors, ParamMapping } from 'tfjs-image-recognition-base';
 
 import { loadParamsFactory } from './loadParamsFactory';
-import { NetParams } from './types';
+import { FaceFeatureExtractorParams } from './types';
 
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
+): { params: FaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
 
   const paramMappings: ParamMapping[] = []
 

@@ -1,9 +1,9 @@
 import { extractWeightsFactory, ParamMapping } from 'tfjs-image-recognition-base';
 
 import { extractorsFactory } from './extractorsFactory';
-import { TinyNetParams } from './types';
+import { TinyFaceFeatureExtractorParams } from './types';
 
-export function extractParamsTiny(weights: Float32Array): { params: TinyNetParams, paramMappings: ParamMapping[] } {
+export function extractParamsTiny(weights: Float32Array): { params: TinyFaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
 
   const paramMappings: ParamMapping[] = []
 

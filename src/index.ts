@@ -8,6 +8,7 @@ export * from 'tfjs-image-recognition-base';
 
 export * from './classes/index';
 export * from './dom/index'
+export * from './faceExpressionNet/index';
 export * from './faceLandmarkNet/index';
 export * from './faceRecognitionNet/index';
 export * from './factories/index';

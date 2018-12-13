@@ -1,19 +1,14 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { IDimensions, isEven, NetInput, NeuralNetwork, Point, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
+import { IDimensions, isEven, NetInput, Point, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { FaceFeatureExtractorParams, TinyFaceFeatureExtractorParams } from '../faceFeatureExtractor/types';
+import { FaceProcessor } from '../faceProcessor/FaceProcessor';
 
-export abstract class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<NetParams> {
-
-  // TODO: make super.name protected
-  private __name: string
-
-  constructor(_name: string) {
-    super(_name)
-    this.__name = _name
-  }
-
-  public abstract runNet(netInput: NetInput): tf.Tensor2D
+export abstract class FaceLandmark68NetBase<
+  TExtractorParams extends FaceFeatureExtractorParams | TinyFaceFeatureExtractorParams
+>
+  extends FaceProcessor<TExtractorParams> {
 
   public postProcess(output: tf.Tensor2D, inputSize: number, originalDimensions: IDimensions[]): tf.Tensor2D {
 
@@ -102,5 +97,9 @@ export abstract class FaceLandmark68NetBase<NetParams> extends NeuralNetwork<Net
     return netInput.isBatchInput
       ? landmarksForBatch
       : landmarksForBatch[0]
+  }
+
+  protected getClassifierChannelsOut(): number {
+    return 136
   }
 }

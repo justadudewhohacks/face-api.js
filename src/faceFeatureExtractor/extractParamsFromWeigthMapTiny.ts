@@ -2,11 +2,11 @@ import * as tf from '@tensorflow/tfjs-core';
 import { disposeUnusedWeightTensors, ParamMapping } from 'tfjs-image-recognition-base';
 
 import { loadParamsFactory } from './loadParamsFactory';
-import { TinyNetParams } from './types';
+import { TinyFaceFeatureExtractorParams } from './types';
 
 export function extractParamsFromWeigthMapTiny(
   weightMap: tf.NamedTensorMap
-): { params: TinyNetParams, paramMappings: ParamMapping[] } {
+): { params: TinyFaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
 
   const paramMappings: ParamMapping[] = []
 

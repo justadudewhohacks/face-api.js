@@ -5,7 +5,7 @@ import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { DenseBlock4Params, NetParams } from './types';
+import { DenseBlock4Params, IFaceFeatureExtractor, FaceFeatureExtractorParams } from './types';
 
 function denseBlock(
   x: tf.Tensor4D,
@@ -33,7 +33,7 @@ function denseBlock(
   })
 }
 
-export class FaceFeatureExtractor extends NeuralNetwork<NetParams> {
+export class FaceFeatureExtractor extends NeuralNetwork<FaceFeatureExtractorParams> implements IFaceFeatureExtractor<FaceFeatureExtractorParams> {
 
   constructor() {
     super('FaceFeatureExtractor')

@@ -18,16 +18,13 @@ import { TinyFaceDetector } from '../tinyFaceDetector/TinyFaceDetector';
 import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOptions';
 import { TinyYolov2 } from '../tinyYolov2/TinyYolov2';
 
-const faceFeatureExtractor = new FaceFeatureExtractor()
-const tinyFaceFeatureExtractor = new TinyFaceFeatureExtractor()
-
 export const nets = {
   ssdMobilenetv1: new SsdMobilenetv1(),
   tinyFaceDetector: new TinyFaceDetector(),
   tinyYolov2: new TinyYolov2(),
   mtcnn: new Mtcnn(),
-  faceLandmark68Net: new FaceLandmark68Net(faceFeatureExtractor),
-  faceLandmark68TinyNet: new FaceLandmark68TinyNet(tinyFaceFeatureExtractor),
+  faceLandmark68Net: new FaceLandmark68Net(),
+  faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
   faceRecognitionNet: new FaceRecognitionNet()
 }
 
