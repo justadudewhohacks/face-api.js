@@ -1,11 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork, normalize } from 'tfjs-image-recognition-base';
+import { NetInput, NeuralNetwork, normalize, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { DenseBlock4Params, IFaceFeatureExtractor, FaceFeatureExtractorParams } from './types';
+import { DenseBlock4Params, FaceFeatureExtractorParams, IFaceFeatureExtractor } from './types';
 
 function denseBlock(
   x: tf.Tensor4D,
@@ -39,7 +39,7 @@ export class FaceFeatureExtractor extends NeuralNetwork<FaceFeatureExtractorPara
     super('FaceFeatureExtractor')
   }
 
-  public forward(input: NetInput): tf.Tensor4D {
+  public forwardInput(input: NetInput): tf.Tensor4D {
 
     const { params } = this
 
@@ -60,6 +60,10 @@ export class FaceFeatureExtractor extends NeuralNetwork<FaceFeatureExtractorPara
 
       return out
     })
+  }
+
+  public async forward(input: TNetInput): Promise<tf.Tensor4D> {
+    return this.forwardInput(await toNetInput(input))
   }
 
   protected getDefaultModelName(): string {

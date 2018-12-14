@@ -42,7 +42,7 @@ export abstract class FaceProcessor<
 
     return tf.tidy(() => {
       const bottleneckFeatures = input instanceof NetInput
-        ? this.faceFeatureExtractor.forward(input)
+        ? this.faceFeatureExtractor.forwardInput(input)
         : input
       return fullyConnectedLayer(bottleneckFeatures.as2D(bottleneckFeatures.shape[0], -1), params.fc)
     })
@@ -51,6 +51,16 @@ export abstract class FaceProcessor<
   public dispose(throwOnRedispose: boolean = true) {
     this.faceFeatureExtractor.dispose(throwOnRedispose)
     super.dispose(throwOnRedispose)
+  }
+
+  public loadClassifierParams(weights: Float32Array) {
+    const { params, paramMappings } = this.extractClassifierParams(weights)
+    this._params = params
+    this._paramMappings = paramMappings
+  }
+
+  public extractClassifierParams(weights: Float32Array) {
+    return extractParams(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut())
   }
 
   protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
@@ -72,6 +82,6 @@ export abstract class FaceProcessor<
     const classifierWeights = weights.slice(weights.length - classifierWeightSize)
 
     this.faceFeatureExtractor.extractWeights(featureExtractorWeights)
-    return extractParams(classifierWeights, cIn, cOut)
+    return this.extractClassifierParams(classifierWeights)
   }
 }

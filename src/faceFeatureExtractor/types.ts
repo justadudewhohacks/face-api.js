@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork } from 'tfjs-image-recognition-base';
+import { NetInput, NeuralNetwork, TNetInput } from 'tfjs-image-recognition-base';
 import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
 
 export type ConvWithBatchNormParams = BatchNormParams & {
@@ -42,5 +42,6 @@ export type FaceFeatureExtractorParams = {
 }
 
 export interface IFaceFeatureExtractor<TNetParams extends TinyFaceFeatureExtractorParams | FaceFeatureExtractorParams> extends NeuralNetwork<TNetParams> {
-  forward(input: NetInput): tf.Tensor4D
+  forwardInput(input: NetInput): tf.Tensor4D
+  forward(input: TNetInput): Promise<tf.Tensor4D>
 }
