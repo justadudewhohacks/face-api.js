@@ -4,12 +4,12 @@ import { NetInput, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceFeatureExtractorParams } from '../faceFeatureExtractor/types';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
-import { EmotionLabels } from './types';
+import { emotionLabels } from './types';
 
 export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams> {
 
   public static getEmotionLabel(emotion: string) {
-    const label = EmotionLabels[emotion.toUpperCase()]
+    const label = emotionLabels[emotion]
 
     if (typeof label !== 'number') {
       throw new Error(`getEmotionLabel - no label for emotion: ${emotion}`)
@@ -22,7 +22,8 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
     if (probabilities.length !== 7) {
       throw new Error(`decodeEmotions - expected probabilities.length to be 7, have: ${probabilities.length}`)
     }
-    return Object.keys(EmotionLabels).map(label => ({ label, probability: probabilities[EmotionLabels[label]] }))
+
+    return Object.keys(emotionLabels).map(label => ({ label, probability: probabilities[emotionLabels[label]] }))
   }
 
   constructor(faceFeatureExtractor: FaceFeatureExtractor = new FaceFeatureExtractor()) {
@@ -45,11 +46,24 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
   }
 
   public async predictExpressions(input: TNetInput) {
-    const out = await this.forward(input)
+    const netInput = await toNetInput(input)
+    const out = await this.forwardInput(netInput)
     const probabilitesByBatch = await Promise.all(tf.unstack(out).map(t => t.data()))
     out.dispose()
 
-    return probabilitesByBatch.map(propablities => FaceExpressionNet.decodeEmotions(propablities as Float32Array))
+    const predictionsByBatch = probabilitesByBatch
+      .map(propablities => {
+        const predictions = {}
+        FaceExpressionNet.decodeEmotions(propablities as Float32Array)
+          .forEach(({ label, probability }) => {
+            predictions[label] = probability
+          })
+        return predictions
+      })
+
+    return netInput.isBatchInput
+      ? predictionsByBatch
+      : predictionsByBatch[0]
   }
 
   public dispose(throwOnRedispose: boolean = true) {

@@ -17,15 +17,15 @@
     window.net = new faceapi.FaceExpressionNet(dummyLandmarkNet.faceFeatureExtractor)
 
     // uri to weights file of last checkpoint
-    const modelCheckpoint = 'tmp/initial_classifier.weights'
-    const startEpoch = 0
+    const modelCheckpoint = 'tmp/face_expression_model_148.weights'
+    const startEpoch = 149
 
-    const learningRate = 0.001 // 0.001
+    const learningRate = 0.001
     window.optimizer = tf.train.adam(learningRate, 0.9, 0.999, 1e-8)
 
     window.saveEveryNthSample = Infinity
 
-    window.batchSize = 16
+    window.batchSize = 32
     //window.batchSize = 32
 
     window.lossValues = []
@@ -57,7 +57,7 @@
       saveWeights(window.net, `face_expression_model_${epoch}.weights`)
 
       const loss = window.lossValues[epoch]
-      saveAs(new Blob([JSON.stringify({ loss, avgLoss: loss / window.trainIds.length })]), `face_expression_model_${epoch}.json`)
+      saveAs(new Blob([JSON.stringify({ loss, avgLoss: loss / (2000 * 7) })]), `face_expression_model_${epoch}.json`)
 
     }
 

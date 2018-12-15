@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="FileSaver.js"></script>
+  <script src="js/commons.js"></script>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script>
+    tf = faceapi.tf
+
+    // load the FaceLandmark68Net and use it's feature extractor since we only
+    // train the output layer of the FaceExpressionNet
+    const dummyLandmarkNet = new faceapi.FaceLandmark68Net()
+    window.net = new faceapi.FaceExpressionNet(dummyLandmarkNet.faceFeatureExtractor)
+
+    // uri to weights file of last checkpoint
+    const modelCheckpoint = 'tmp/face_expression_model_165.weights'
+
+    async function load() {
+      window.testData = await faceapi.fetchJson('testData.json')
+      await dummyLandmarkNet.load('/')
+
+      // fetch the actual output layer weights
+      const classifierWeights = await faceapi.fetchNetWeights(modelCheckpoint)
+      await window.net.loadClassifierParams(classifierWeights)
+
+      console.log('loaded')
+    }
+
+    load()
+
+    async function test() {
+      const emotions = Object.keys(window.testData)
+      let errors = {}
+      let preds = {}
+      let sizes = {}
+
+      for (let emotion of emotions) {
+
+        const container = document.getElementById('container')
+        const span = document.createElement('div')
+        container.appendChild(span)
+
+        console.log(emotion)
+
+        const dataForLabel = window.testData[emotion]
+
+        errors[emotion] = 0
+        preds[emotion] = 0
+        sizes[emotion] = dataForLabel.length
+
+
+        for (let [idx, data] of dataForLabel.entries()) {
+          span.innerHTML =  emotion + ': ' + faceapi.round(idx / dataForLabel.length) * 100 + '%'
+
+          const img = await faceapi.fetchImage(getImageUrl({ ...data, label: emotion }))
+          const pred = await window.net.predictExpressions(img)
+          const bestPred = Object.keys(pred)
+            .map(label => ({ label, probability: pred[label] }))
+            .reduce((best, curr) => curr.probability < best.probability ? curr : best)
+          errors[emotion] += (1 - pred[emotion])
+          pred[emotion] += (bestPred.label === emotion ? 1 : 0)
+
+        }
+
+        span.innerHTML = emotion + ': 100%'
+
+      }
+
+      const totalError = emotions.reduce((err, emotion) => err + errors[emotion], 0)
+
+      console.log('done...')
+      console.log('test set size:', sizes)
+      console.log('preds:', preds)
+      console.log('errors:', errors)
+      console.log('total error:', totalError)
+    }
+
+  </script>
+</body>
+</html>

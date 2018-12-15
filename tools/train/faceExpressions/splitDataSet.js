@@ -34,11 +34,14 @@ const MAX_TRAIN_SAMPLES_PER_CLASS = 2000
 require('./.env')
 const { shuffleArray } = require('../../../')
 const fs = require('fs')
+const path = require('path')
 
-const createImageNameArray = (db, num, ext) =>
-  Array(num).fill(0)
-    .map((_, i) => `${i}${ext}`)
-    .map(img => ({ db, img }))
+const dbEmotionMapping = JSON.parse(fs.readFileSync(
+  path.resolve(
+    process.env.DATA_PATH,
+    'face-expressions/emotionMapping.json'
+  )
+).toString())
 
 const splitArray = (arr, idx) => [arr.slice(0, idx), arr.slice(idx)]
 
@@ -53,8 +56,16 @@ Object.keys(dataDistribution)
     const numDb = Math.floor(Math.min(0.7 * MAX_TRAIN_SAMPLES_PER_CLASS, 0.7 * db))
     const numKaggle = Math.floor(Math.min(MAX_TRAIN_SAMPLES_PER_CLASS - numDb, 0.7 * kaggle))
 
-    const dbImages = shuffleArray(createImageNameArray('db', db, '.jpg'))
-    const kaggleImages = shuffleArray(createImageNameArray('kaggle', kaggle, '.png'))
+    const dbImages = shuffleArray(
+      dbEmotionMapping[label]
+        .map(img => ({ db: 'db', img }))
+    )
+    const kaggleImages = shuffleArray(
+      Array(kaggle).fill(0).map((_, i) => `${i}.png`)
+        .map(img => ({ db: 'kaggle', img }))
+    )
+
+
 
     const [dbTrain, dbTest] = splitArray(dbImages, numDb)
     const [kaggleTrain, kaggleTest] = splitArray(kaggleImages, numKaggle)

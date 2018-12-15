@@ -1,9 +1,9 @@
-export enum EmotionLabels {
-  NEUTRAL = 0,
-  HAPPY = 1,
-  SAD = 2,
-  ANGRY = 3,
-  FEARFUL = 4,
-  DISGUSTED = 5,
-  SURPRISED = 6
+export const emotionLabels = {
+  neutral: 0,
+  happy: 1,
+  sad: 2,
+  angry: 3,
+  fearful: 4,
+  disgusted: 5,
+  surprised:6
 }

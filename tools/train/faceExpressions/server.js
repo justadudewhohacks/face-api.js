@@ -16,5 +16,6 @@ app.use(express.static(path.resolve(process.env.DATA_PATH)))
 
 app.get('/', (req, res) => res.redirect('/train'))
 app.get('/train', (req, res) => res.sendFile(path.join(publicDir, 'trainClassifier.html')))
+app.get('/test', (req, res) => res.sendFile(path.join(publicDir, 'testClassifier.html')))
 
 app.listen(8000, () => console.log('Listening on port 8000!'))
