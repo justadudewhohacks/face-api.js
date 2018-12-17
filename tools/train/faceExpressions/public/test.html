@@ -5,6 +5,7 @@
   <script src="FileSaver.js"></script>
   <script src="commons.js"></script>
   <script src="js/faceExpressionsCommons.js"></script>
+  <script src="js/test.js"></script>
 </head>
 <body>
   <div id="container"></div>
@@ -12,23 +13,21 @@
   <script>
     tf = faceapi.tf
 
-    window.numDataPerClass = 10
+    window.numDataPerClass = Infinity
 
     // load the FaceLandmark68Net and use it's feature extractor since we only
     // train the output layer of the FaceExpressionNet
-    const dummyLandmarkNet = new faceapi.FaceLandmark68Net()
-    window.net = new faceapi.FaceExpressionNet(dummyLandmarkNet.faceFeatureExtractor)
+    window.net = new faceapi.FaceExpressionNet()
 
     // uri to weights file of last checkpoint
-    const modelCheckpoint = 'tmp/classifier/face_expression_model_118.weights'
+    const modelCheckpoint = 'tmp/full/face_expression_model_120.weights'
 
     async function load() {
       window.testData = await faceapi.fetchJson('testData.json')
-      await dummyLandmarkNet.load('/')
 
       // fetch the actual output layer weights
-      const classifierWeights = await faceapi.fetchNetWeights(modelCheckpoint)
-      await window.net.loadClassifierParams(classifierWeights)
+      const weights = await faceapi.fetchNetWeights(modelCheckpoint)
+      await window.net.load(weights)
 
       console.log('loaded')
     }
@@ -36,5 +35,7 @@
     load()
 
   </script>
+
 </body>
 </html>
+

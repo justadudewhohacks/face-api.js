@@ -22,24 +22,24 @@
     window.net = new faceapi.FaceExpressionNet(dummyLandmarkNet.faceFeatureExtractor)
 
     // uri to weights file of last checkpoint
-    const modelCheckpoint = 'tmp/classifier/initial_classifier.weights'
+    const modelCheckpoint = 'tmp/full/initial_glorot.weights'
     const startEpoch = 0
 
-    const learningRate = 0.1 // 0.001
+    const learningRate = 0.001
     window.optimizer = tf.train.adam(learningRate, 0.9, 0.999, 1e-8)
 
-    window.batchSize = 32
+    window.batchSize = 8
 
     window.iterDelay = 0
     window.withLogging = true
 
     async function load() {
       window.trainData = await faceapi.fetchJson('trainData.json')
-      await dummyLandmarkNet.load('/')
 
       // fetch the actual output layer weights
-      const classifierWeights = await faceapi.fetchNetWeights(modelCheckpoint)
-      await window.net.loadClassifierParams(classifierWeights)
+      const weights = await faceapi.fetchNetWeights(modelCheckpoint)
+      await window.net.load(weights)
+      window.net.faceFeatureExtractor.variable()
       window.net.variable()
     }
 
@@ -70,18 +70,18 @@
         const clone = template.cloneNode(true)
         clone.id = i
         const span = clone.firstElementChild
-        span.innerHTML = i + ':' + faceExpressions[0].faceExpression
+        span.innerHTML = i + ':' + faceExpressions[0].expression
         clone.insertBefore(squaredImg, span)
         container.appendChild(clone)
       })
 
       for (let epoch = startEpoch; epoch < Infinity; epoch++) {
 
-        const bottleneckFeatures = await window.net.faceFeatureExtractor.runNet(bImages)
+        const netInput = await faceapi.toNetInput(bImages)
 
         const loss = optimizer.minimize(() => {
           const labels = tf.tensor2d(bOneHotVectors)
-          const out = window.net.forwardInput(bottleneckFeatures)
+          const out = window.net.runNet(netInput)
 
           const loss = tf.losses.softmaxCrossEntropy(
             labels,
@@ -105,8 +105,6 @@
 
           return loss
         }, true)
-
-        bottleneckFeatures.dispose()
 
         // start next iteration without waiting for loss data
 

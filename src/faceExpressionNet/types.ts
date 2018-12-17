@@ -1,4 +1,4 @@
-export const emotionLabels = {
+export const faceExpressionLabels = {
   neutral: 0,
   happy: 1,
   sad: 2,

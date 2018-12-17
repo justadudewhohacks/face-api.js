@@ -4,41 +4,35 @@ import { NetInput, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceFeatureExtractorParams } from '../faceFeatureExtractor/types';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
-import { emotionLabels } from './types';
+import { faceExpressionLabels } from './types';
 
 export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams> {
 
-  public static getEmotionLabel(emotion: string) {
-    const label = emotionLabels[emotion]
+  public static getFaceExpressionLabel(faceExpression: string) {
+    const label = faceExpressionLabels[faceExpression]
 
     if (typeof label !== 'number') {
-      throw new Error(`getEmotionLabel - no label for emotion: ${emotion}`)
+      throw new Error(`getFaceExpressionLabel - no label for faceExpression: ${faceExpression}`)
     }
 
     return label
   }
 
-  public static decodeEmotions(probabilities: number[] | Float32Array) {
+  public static decodeProbabilites(probabilities: number[] | Float32Array) {
     if (probabilities.length !== 7) {
-      throw new Error(`decodeEmotions - expected probabilities.length to be 7, have: ${probabilities.length}`)
+      throw new Error(`decodeProbabilites - expected probabilities.length to be 7, have: ${probabilities.length}`)
     }
 
-    return Object.keys(emotionLabels).map(label => ({ label, probability: probabilities[emotionLabels[label]] }))
+    return Object.keys(faceExpressionLabels)
+      .map(expression => ({ expression, probability: probabilities[faceExpressionLabels[expression]] }))
   }
 
   constructor(faceFeatureExtractor: FaceFeatureExtractor = new FaceFeatureExtractor()) {
     super('FaceExpressionNet', faceFeatureExtractor)
   }
 
-  public runNet(input: NetInput | tf.Tensor4D): tf.Tensor2D {
-    return tf.tidy(() => {
-      const out = super.runNet(input)
-      return tf.softmax(out)
-    })
-  }
-
   public forwardInput(input: NetInput | tf.Tensor4D): tf.Tensor2D {
-    return tf.tidy(() => this.runNet(input))
+    return tf.tidy(() => tf.softmax(this.runNet(input)))
   }
 
   public async forward(input: TNetInput): Promise<tf.Tensor2D> {
@@ -52,14 +46,7 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
     out.dispose()
 
     const predictionsByBatch = probabilitesByBatch
-      .map(propablities => {
-        const predictions = {}
-        FaceExpressionNet.decodeEmotions(propablities as Float32Array)
-          .forEach(({ label, probability }) => {
-            predictions[label] = probability
-          })
-        return predictions
-      })
+      .map(propablities => FaceExpressionNet.decodeProbabilites(propablities as Float32Array))
 
     return netInput.isBatchInput
       ? predictionsByBatch
