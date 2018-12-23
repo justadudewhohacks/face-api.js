@@ -77,7 +77,6 @@ export class DetectSingleFaceLandmarksTask<
       ? await extractFaceTensors(this.input, [detection])
       : await extractFaces(this.input, [detection])
 
-
     const landmarks = await this.landmarkNet.detectLandmarks(faces[0]) as FaceLandmarks68
 
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())

@@ -4,7 +4,7 @@ import { NetInput, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceFeatureExtractorParams } from '../faceFeatureExtractor/types';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
-import { faceExpressionLabels } from './types';
+import { FaceExpression, faceExpressionLabels, FaceExpressionPrediction } from './types';
 
 export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams> {
 
@@ -18,12 +18,12 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
     return label
   }
 
-  public static decodeProbabilites(probabilities: number[] | Float32Array) {
+  public static decodeProbabilites(probabilities: number[] | Float32Array): FaceExpressionPrediction[] {
     if (probabilities.length !== 7) {
       throw new Error(`decodeProbabilites - expected probabilities.length to be 7, have: ${probabilities.length}`)
     }
 
-    return Object.keys(faceExpressionLabels)
+    return (Object.keys(faceExpressionLabels) as FaceExpression[])
       .map(expression => ({ expression, probability: probabilities[faceExpressionLabels[expression]] }))
   }
 

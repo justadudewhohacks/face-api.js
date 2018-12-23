@@ -1,15 +1,14 @@
-// TODO
-export type FaceExpressions = number[]
+import { FaceExpressionPrediction } from '../faceExpressionNet/types';
 
 export type WithFaceExpressions<TSource> = TSource & {
-  expressions: FaceExpressions
+  expressions: FaceExpressionPrediction[]
 }
 
 export function extendWithFaceExpressions<
   TSource
 > (
   sourceObj: TSource,
-  expressions: FaceExpressions
+  expressions: FaceExpressionPrediction[]
 ): WithFaceExpressions<TSource> {
 
   const extension = { expressions }

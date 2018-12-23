@@ -1,9 +1,13 @@
 import { TNetInput } from 'tfjs-image-recognition-base';
+import { tf } from 'tfjs-tiny-yolov2';
 
+import { extractFaces, extractFaceTensors } from '../dom';
+import { FaceExpressionPrediction } from '../faceExpressionNet/types';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { extendWithFaceExpressions, WithFaceExpressions } from '../factories/WithFaceExpressions';
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
+import { nets } from './nets';
 
 export class PredictFaceExpressionsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
@@ -22,9 +26,20 @@ export class PredictAllFaceExpressionsTask<
 
     const parentResults = await this.parentTask
 
-    // TODO: implement me
+    const detections = parentResults.map(parentResult => parentResult.detection)
+    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
+      ? await extractFaceTensors(this.input, detections)
+      : await extractFaces(this.input, detections)
 
-    return parentResults.map(parentResult => extendWithFaceExpressions<TSource>(parentResult, []))
+    const faceExpressionsByFace = await Promise.all(faces.map(
+      face => nets.faceExpressionNet.predictExpressions(face)
+    )) as FaceExpressionPrediction[][]
+
+    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
+
+    return parentResults.map(
+      (parentResult, i) => extendWithFaceExpressions<TSource>(parentResult, faceExpressionsByFace[i])
+    )
   }
 
   withFaceLandmarks(): DetectAllFaceLandmarksTask<WithFaceExpressions<TSource>> {
@@ -43,9 +58,16 @@ export class PredictSingleFaceExpressionTask<
       return
     }
 
-    // TODO: implement me
+    const { detection } = parentResult
+    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
+      ? await extractFaceTensors(this.input, [detection])
+      : await extractFaces(this.input, [detection])
 
-    return extendWithFaceExpressions(parentResult, [])
+    const faceExpressions = await nets.faceExpressionNet.predictExpressions(faces[0]) as FaceExpressionPrediction[]
+
+    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
+
+    return extendWithFaceExpressions(parentResult, faceExpressions)
   }
 
   withFaceLandmarks(): DetectSingleFaceLandmarksTask<WithFaceExpressions<TSource>> {

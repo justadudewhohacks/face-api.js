@@ -7,3 +7,10 @@ export const faceExpressionLabels = {
   disgusted: 5,
   surprised:6
 }
+
+export type FaceExpression = 'neutral' | 'happy' | 'sad' | 'angry' | 'fearful' | 'disgusted' | 'surprised'
+
+export type FaceExpressionPrediction = {
+  expression: FaceExpression,
+  probability: number
+}
