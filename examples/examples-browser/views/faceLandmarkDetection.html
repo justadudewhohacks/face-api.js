@@ -54,8 +54,6 @@
 
       <!-- check boxes -->
       <div class="row" style="width: 220px;">
-        <input type="checkbox" id="withFaceLandmarksCheckbox" onchange="onChangeWithFaceLandmarks(event)" />
-        <label for="withFaceLandmarksCheckbox">Detect Face Landmarks</label>
         <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)" />
         <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
       </div>
@@ -147,13 +145,7 @@
   </body>
 
   <script>
-    let withFaceLandmarks = false
     let withBoxes = true
-
-    function onChangeWithFaceLandmarks(e) {
-      withFaceLandmarks = $(e.target).prop('checked')
-      updateResults()
-    }
 
     function onChangeHideBoundingBoxes(e) {
       withBoxes = !$(e.target).prop('checked')
@@ -168,17 +160,9 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const faceDetectionTask = faceapi.detectAllFaces(inputImgEl, options)
-      const results = withFaceLandmarks
-        ? await faceDetectionTask.withFaceLandmarks()
-        : await faceDetectionTask
+      const results = await faceapi.detectAllFaces(inputImgEl, options).withFaceLandmarks()
 
-
-      const drawFunction = withFaceLandmarks
-        ? drawLandmarks
-        : drawDetections
-
-      drawFunction(inputImgEl, $('#overlay').get(0), results, withBoxes)
+      drawLandmarks(inputImgEl, $('#overlay').get(0), results, withBoxes)
     }
 
     async function run() {
@@ -191,7 +175,7 @@
     }
 
     $(document).ready(function() {
-      renderNavBar('#navbar', 'face_and_landmark_detection')
+      renderNavBar('#navbar', 'face_landmark_detection')
       initImageSelectionControls()
       initFaceDetectionControls()
       run()
