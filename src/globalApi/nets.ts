@@ -5,6 +5,7 @@ import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { FaceExpressionNet } from '../faceExpressionNet/FaceExpressionNet';
+import { FaceExpressionPrediction } from '../faceExpressionNet/types';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
@@ -105,6 +106,18 @@ export const detectFaceLandmarksTiny = (input: TNetInput): Promise<FaceLandmarks
 export const computeFaceDescriptor = (input: TNetInput): Promise<Float32Array | Float32Array[]>  =>
   nets.faceRecognitionNet.computeFaceDescriptor(input)
 
+
+/**
+ * Recognizes the facial expressions of a face and returns the likelyhood of
+ * each facial expression.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ */
+export const recognizeFaceExpressions = (input: TNetInput): Promise<FaceExpressionPrediction[] | FaceExpressionPrediction[][]> =>
+  nets.faceExpressionNet.predictExpressions(input)
+
 export const loadSsdMobilenetv1Model = (url: string) => nets.ssdMobilenetv1.load(url)
 export const loadTinyFaceDetectorModel = (url: string) => nets.tinyFaceDetector.load(url)
 export const loadMtcnnModel = (url: string) => nets.mtcnn.load(url)
@@ -112,6 +125,7 @@ export const loadTinyYolov2Model = (url: string) => nets.tinyYolov2.load(url)
 export const loadFaceLandmarkModel = (url: string) => nets.faceLandmark68Net.load(url)
 export const loadFaceLandmarkTinyModel = (url: string) => nets.faceLandmark68TinyNet.load(url)
 export const loadFaceRecognitionModel = (url: string) => nets.faceRecognitionNet.load(url)
+export const loadFaceExpressionModel = (url: string) => nets.faceExpressionNet.load(url)
 
 // backward compatibility
 export const loadFaceDetectionModel = loadSsdMobilenetv1Model
