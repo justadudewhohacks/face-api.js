@@ -42,7 +42,11 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
   public async predictExpressions(input: TNetInput) {
     const netInput = await toNetInput(input)
     const out = await this.forwardInput(netInput)
-    const probabilitesByBatch = await Promise.all(tf.unstack(out).map(t => t.data()))
+    const probabilitesByBatch = await Promise.all(tf.unstack(out).map(async t => {
+      const data = await t.data()
+      t.dispose()
+      return data
+    }))
     out.dispose()
 
     const predictionsByBatch = probabilitesByBatch
@@ -51,11 +55,6 @@ export class FaceExpressionNet extends FaceProcessor<FaceFeatureExtractorParams>
     return netInput.isBatchInput
       ? predictionsByBatch
       : predictionsByBatch[0]
-  }
-
-  public dispose(throwOnRedispose: boolean = true) {
-    this.faceFeatureExtractor.dispose(throwOnRedispose)
-    super.dispose(throwOnRedispose)
   }
 
   protected getDefaultModelName(): string {

@@ -102,7 +102,7 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     )
   }
 
-  withFaceExpression(): PredictSingleFaceExpressionTask<WithFaceDetection<{}>> {
+  withFaceExpressions(): PredictSingleFaceExpressionTask<WithFaceDetection<{}>> {
     return new PredictSingleFaceExpressionTask<WithFaceDetection<{}>>(
       this.runAndExtendWithFaceDetection(),
       this.input

@@ -52,10 +52,6 @@ export class DetectAllFaceLandmarksTask<
     )
   }
 
-  withFaceExpressions(): PredictAllFaceExpressionsTask<WithFaceLandmarks<TSource>> {
-    return new PredictAllFaceExpressionsTask<WithFaceLandmarks<TSource>>(this, this.input)
-  }
-
   withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
     return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
@@ -82,10 +78,6 @@ export class DetectSingleFaceLandmarksTask<
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
     return extendWithFaceLandmarks<TSource>(parentResult, landmarks)
-  }
-
-  withFaceExpression(): PredictSingleFaceExpressionTask<WithFaceLandmarks<TSource>> {
-    return new PredictSingleFaceExpressionTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 
   withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {
