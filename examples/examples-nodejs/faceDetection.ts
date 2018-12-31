@@ -11,6 +11,7 @@ async function run() {
   faceapi.drawDetection(out, detections)
 
   saveFile('faceDetection.jpg', out.toBuffer('image/jpeg'))
+  console.log('done, saved results to out/faceDetection.jpg')
 }
 
 run()

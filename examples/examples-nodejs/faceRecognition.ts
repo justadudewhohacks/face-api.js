@@ -38,6 +38,7 @@ async function run() {
   const outQuery = faceapi.createCanvasFromMedia(queryImage) as any
   faceapi.drawDetection(outQuery, queryBoxesWithText)
   saveFile('queryImage.jpg', outQuery.toBuffer('image/jpeg'))
+  console.log('done, saved results to out/queryImage.jpg')
 }
 
 run()

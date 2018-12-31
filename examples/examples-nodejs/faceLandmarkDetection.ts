@@ -14,6 +14,7 @@ async function run() {
   faceapi.drawLandmarks(out, results.map(res => res.landmarks), { drawLines: true, color: 'red' })
 
   saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
+  console.log('done, saved results to out/faceLandmarkDetection.jpg')
 }
 
 run()
