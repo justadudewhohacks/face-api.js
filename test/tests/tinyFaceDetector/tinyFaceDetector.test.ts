@@ -41,7 +41,7 @@ describe('tinyFaceDetector', () => {
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 
-  describeWithNets('globalApi', { withAllFacesTinyFaceDetector: true, withFaceExpressionNet: { quantized: false } }, () => {
+  describeWithNets('globalApi', { withAllFacesTinyFaceDetector: true, withFaceExpressionNet: { quantized: true } }, () => {
 
     describe('detectAllFaces', () => {
 
