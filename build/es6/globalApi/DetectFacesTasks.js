@@ -1,11 +1,13 @@
 import * as tslib_1 from "tslib";
 import { TinyYolov2Options } from 'tfjs-tiny-yolov2';
+import { extendWithFaceDetection } from '../factories/WithFaceDetection';
 import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1/SsdMobilenetv1Options';
 import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOptions';
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
+import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
 var DetectFacesTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFacesTaskBase, _super);
     function DetectFacesTaskBase(input, options) {
@@ -33,7 +35,7 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
                         if (!(options instanceof MtcnnOptions)) return [3 /*break*/, 2];
                         return [4 /*yield*/, nets.mtcnn.forward(input, options)];
                     case 1: return [2 /*return*/, (_b.sent())
-                            .map(function (result) { return result.faceDetection; })];
+                            .map(function (result) { return result.detection; })];
                     case 2:
                         faceDetectionFunction = options instanceof TinyFaceDetectorOptions
                             ? function (input) { return nets.tinyFaceDetector.locateFaces(input, options); }
@@ -50,9 +52,26 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
             });
         });
     };
+    DetectAllFacesTask.prototype.runAndExtendWithFaceDetections = function () {
+        var _this = this;
+        return new Promise(function (res) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+            var detections;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.run()];
+                    case 1:
+                        detections = _a.sent();
+                        return [2 /*return*/, res(detections.map(function (detection) { return extendWithFaceDetection({}, detection); }))];
+                }
+            });
+        }); });
+    };
     DetectAllFacesTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
         if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
-        return new DetectAllFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+        return new DetectAllFaceLandmarksTask(this.runAndExtendWithFaceDetections(), this.input, useTinyLandmarkNet);
+    };
+    DetectAllFacesTask.prototype.withFaceExpressions = function () {
+        return new PredictAllFaceExpressionsTask(this.runAndExtendWithFaceDetections(), this.input);
     };
     return DetectAllFacesTask;
 }(DetectFacesTaskBase));
@@ -81,9 +100,26 @@ var DetectSingleFaceTask = /** @class */ (function (_super) {
             });
         });
     };
+    DetectSingleFaceTask.prototype.runAndExtendWithFaceDetection = function () {
+        var _this = this;
+        return new Promise(function (res) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+            var detection;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.run()];
+                    case 1:
+                        detection = _a.sent();
+                        return [2 /*return*/, res(detection ? extendWithFaceDetection({}, detection) : undefined)];
+                }
+            });
+        }); });
+    };
     DetectSingleFaceTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
         if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
-        return new DetectSingleFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+        return new DetectSingleFaceLandmarksTask(this.runAndExtendWithFaceDetection(), this.input, useTinyLandmarkNet);
+    };
+    DetectSingleFaceTask.prototype.withFaceExpressions = function () {
+        return new PredictSingleFaceExpressionTask(this.runAndExtendWithFaceDetection(), this.input);
     };
     return DetectSingleFaceTask;
 }(DetectFacesTaskBase));

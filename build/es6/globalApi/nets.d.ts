@@ -1,12 +1,14 @@
 import { TNetInput } from 'tfjs-image-recognition-base';
 import { ITinyYolov2Options } from 'tfjs-tiny-yolov2';
 import { FaceDetection } from '../classes/FaceDetection';
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { FaceExpressionNet } from '../faceExpressionNet/FaceExpressionNet';
+import { FaceExpressionPrediction } from '../faceExpressionNet/types';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { Mtcnn } from '../mtcnn/Mtcnn';
 import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1 } from '../ssdMobilenetv1/SsdMobilenetv1';
@@ -22,6 +24,7 @@ export declare const nets: {
     faceLandmark68Net: FaceLandmark68Net;
     faceLandmark68TinyNet: FaceLandmark68TinyNet;
     faceRecognitionNet: FaceRecognitionNet;
+    faceExpressionNet: FaceExpressionNet;
 };
 /**
  * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
@@ -55,7 +58,9 @@ export declare const tinyYolov2: (input: TNetInput, options: ITinyYolov2Options)
  * @param options (optional, default: see MtcnnOptions constructor for default parameters).
  * @returns Bounding box of each face with score and 5 point face landmarks.
  */
-export declare const mtcnn: (input: TNetInput, options: MtcnnOptions) => Promise<FaceDetectionWithLandmarks<FaceLandmarks5>[]>;
+export declare const mtcnn: (input: TNetInput, options: MtcnnOptions) => Promise<WithFaceLandmarks<{
+    detection: FaceDetection;
+}, FaceLandmarks5>[]>;
 /**
  * Detects the 68 point face landmark positions of the face shown in an image.
  *
@@ -85,6 +90,15 @@ export declare const detectFaceLandmarksTiny: (input: TNetInput) => Promise<Face
  * @returns Face descriptor with 128 entries or array thereof in case of batch input.
  */
 export declare const computeFaceDescriptor: (input: TNetInput) => Promise<Float32Array | Float32Array[]>;
+/**
+ * Recognizes the facial expressions of a face and returns the likelyhood of
+ * each facial expression.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ */
+export declare const recognizeFaceExpressions: (input: TNetInput) => Promise<FaceExpressionPrediction[] | FaceExpressionPrediction[][]>;
 export declare const loadSsdMobilenetv1Model: (url: string) => Promise<void>;
 export declare const loadTinyFaceDetectorModel: (url: string) => Promise<void>;
 export declare const loadMtcnnModel: (url: string) => Promise<void>;
@@ -92,6 +106,7 @@ export declare const loadTinyYolov2Model: (url: string) => Promise<void>;
 export declare const loadFaceLandmarkModel: (url: string) => Promise<void>;
 export declare const loadFaceLandmarkTinyModel: (url: string) => Promise<void>;
 export declare const loadFaceRecognitionModel: (url: string) => Promise<void>;
+export declare const loadFaceExpressionModel: (url: string) => Promise<void>;
 export declare const loadFaceDetectionModel: (url: string) => Promise<void>;
 export declare const locateFaces: (input: TNetInput, options: SsdMobilenetv1Options) => Promise<FaceDetection[]>;
 export declare const detectLandmarks: (input: TNetInput) => Promise<FaceLandmarks68 | FaceLandmarks68[]>;

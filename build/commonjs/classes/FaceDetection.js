@@ -7,6 +7,9 @@ var FaceDetection = /** @class */ (function (_super) {
     function FaceDetection(score, relativeBox, imageDims) {
         return _super.call(this, score, score, '', relativeBox, imageDims) || this;
     }
+    FaceDetection.prototype.forSize = function (width, height) {
+        return _super.prototype.forSize.call(this, width, height);
+    };
     return FaceDetection;
 }(tfjs_image_recognition_base_1.ObjectDetection));
 exports.FaceDetection = FaceDetection;

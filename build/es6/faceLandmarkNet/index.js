@@ -10,9 +10,4 @@ var FaceLandmarkNet = /** @class */ (function (_super) {
     return FaceLandmarkNet;
 }(FaceLandmark68Net));
 export { FaceLandmarkNet };
-export function createFaceLandmarkNet(weights) {
-    var net = new FaceLandmarkNet();
-    net.extractWeights(weights);
-    return net;
-}
 //# sourceMappingURL=index.js.map

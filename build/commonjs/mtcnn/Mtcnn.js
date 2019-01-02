@@ -4,8 +4,8 @@ var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var FaceDetection_1 = require("../classes/FaceDetection");
-var FaceDetectionWithLandmarks_1 = require("../classes/FaceDetectionWithLandmarks");
 var FaceLandmarks5_1 = require("../classes/FaceLandmarks5");
+var factories_1 = require("../factories");
 var bgrToRgbTensor_1 = require("./bgrToRgbTensor");
 var config_1 = require("./config");
 var extractParams_1 = require("./extractParams");
@@ -82,10 +82,10 @@ var Mtcnn = /** @class */ (function (_super) {
                     case 3:
                         out3 = _c.sent();
                         stats.total_stage3 = Date.now() - ts;
-                        results = out3.boxes.map(function (box, idx) { return new FaceDetectionWithLandmarks_1.FaceDetectionWithLandmarks(new FaceDetection_1.FaceDetection(out3.scores[idx], new tfjs_image_recognition_base_1.Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                        results = out3.boxes.map(function (box, idx) { return factories_1.extendWithFaceLandmarks(factories_1.extendWithFaceDetection({}, new FaceDetection_1.FaceDetection(out3.scores[idx], new tfjs_image_recognition_base_1.Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
                             height: height,
                             width: width
-                        }), new FaceLandmarks5_1.FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new tfjs_image_recognition_base_1.Point(box.left, box.top)).div(new tfjs_image_recognition_base_1.Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
+                        })), new FaceLandmarks5_1.FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new tfjs_image_recognition_base_1.Point(box.left, box.top)).div(new tfjs_image_recognition_base_1.Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
                         return [2 /*return*/, onReturn({ results: results, stats: stats })];
                 }
             });

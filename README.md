@@ -368,7 +368,7 @@ const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFac
 
 ### Recognizing Face Expressions
 
-**Face expressions recognition can be performed for detected faces as follows:**
+**Face expression recognition can be performed for detected faces as follows:**
 
 Detect all faces in an image + recognize face expressions. Returns **Array<[WithFaceExpressions<WithFaceDetection<{}>>](#usage-utility-classes)>**:
 

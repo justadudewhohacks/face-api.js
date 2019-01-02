@@ -5,4 +5,5 @@ export interface IFaceDetecion {
 }
 export declare class FaceDetection extends ObjectDetection implements IFaceDetecion {
     constructor(score: number, relativeBox: Rect, imageDims: IDimensions);
+    forSize(width: number, height: number): FaceDetection;
 }

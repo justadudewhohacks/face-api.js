@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { fullyConnectedLayer } from '../faceLandmarkNet/fullyConnectedLayer';
+import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { prelu } from './prelu';
 import { sharedLayer } from './sharedLayers';
 export function RNet(x, params) {

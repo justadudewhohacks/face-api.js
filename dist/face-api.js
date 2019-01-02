@@ -1723,59 +1723,11 @@
         function FaceDetection(score, relativeBox, imageDims) {
             return _super.call(this, score, score, '', relativeBox, imageDims) || this;
         }
+        FaceDetection.prototype.forSize = function (width, height) {
+            return _super.prototype.forSize.call(this, width, height);
+        };
         return FaceDetection;
     }(ObjectDetection));
-
-    var FaceDetectionWithLandmarks = /** @class */ (function () {
-        function FaceDetectionWithLandmarks(detection, unshiftedLandmarks) {
-            this._detection = detection;
-            this._unshiftedLandmarks = unshiftedLandmarks;
-        }
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "detection", {
-            get: function () { return this._detection; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "unshiftedLandmarks", {
-            get: function () { return this._unshiftedLandmarks; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "alignedRect", {
-            get: function () {
-                var rect = this.landmarks.align();
-                var imageDims = this.detection.imageDims;
-                return new FaceDetection(this._detection.score, rect.rescale(imageDims.reverse()), imageDims);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "landmarks", {
-            get: function () {
-                var _a = this.detection.box, x = _a.x, y = _a.y;
-                return this._unshiftedLandmarks.shiftBy(x, y);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "faceDetection", {
-            // aliases for backward compatibily
-            get: function () { return this.detection; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(FaceDetectionWithLandmarks.prototype, "faceLandmarks", {
-            get: function () { return this.landmarks; },
-            enumerable: true,
-            configurable: true
-        });
-        FaceDetectionWithLandmarks.prototype.forSize = function (width, height) {
-            var resizedDetection = this._detection.forSize(width, height);
-            var resizedLandmarks = this._unshiftedLandmarks.forSize(resizedDetection.box.width, resizedDetection.box.height);
-            return new FaceDetectionWithLandmarks(resizedDetection, resizedLandmarks);
-        };
-        return FaceDetectionWithLandmarks;
-    }());
 
     // face alignment constants
     var relX = 0.5;
@@ -1935,27 +1887,6 @@
         return FaceMatch;
     }());
 
-    var FullFaceDescription = /** @class */ (function (_super) {
-        __extends$1(FullFaceDescription, _super);
-        function FullFaceDescription(detection, unshiftedLandmarks, descriptor) {
-            var _this = _super.call(this, detection, unshiftedLandmarks) || this;
-            _this._descriptor = descriptor;
-            return _this;
-        }
-        Object.defineProperty(FullFaceDescription.prototype, "descriptor", {
-            get: function () {
-                return this._descriptor;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        FullFaceDescription.prototype.forSize = function (width, height) {
-            var _a = _super.prototype.forSize.call(this, width, height), detection = _a.detection, landmarks = _a.landmarks;
-            return new FullFaceDescription(detection, landmarks, this.descriptor);
-        };
-        return FullFaceDescription;
-    }(FaceDetectionWithLandmarks));
-
     var LabeledFaceDescriptors = /** @class */ (function () {
         function LabeledFaceDescriptors(label, descriptors) {
             if (!(typeof label === 'string')) {
@@ -2028,6 +1959,36 @@
             var ptOffset = lineWidth / 2;
             ctx.fillStyle = color;
             landmarks.positions.forEach(function (pt) { return ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, lineWidth, lineWidth); });
+        });
+    }
+
+    function drawFaceExpressions(canvasArg, faceExpressions, options) {
+        var canvas = resolveInput(canvasArg);
+        if (!(canvas instanceof env.getEnv().Canvas)) {
+            throw new Error('drawFaceExpressions - expected canvas to be of type: HTMLCanvasElement');
+        }
+        var drawOptions = Object.assign(getDefaultDrawOptions(options), (options || {}));
+        var ctx = getContext2dOrThrow(canvas);
+        var _a = drawOptions.primaryColor, primaryColor = _a === void 0 ? 'red' : _a, _b = drawOptions.secondaryColor, secondaryColor = _b === void 0 ? 'blue' : _b, _c = drawOptions.primaryFontSize, primaryFontSize = _c === void 0 ? 22 : _c, _d = drawOptions.secondaryFontSize, secondaryFontSize = _d === void 0 ? 16 : _d, _e = drawOptions.minConfidence, minConfidence = _e === void 0 ? 0.2 : _e;
+        var faceExpressionsArray = Array.isArray(faceExpressions)
+            ? faceExpressions
+            : [faceExpressions];
+        faceExpressionsArray.forEach(function (_a) {
+            var position = _a.position, expressions = _a.expressions;
+            var x = position.x, y = position.y;
+            var height = position.height || 0;
+            var sorted = expressions.sort(function (a, b) { return b.probability - a.probability; });
+            var resultsToDisplay = sorted.filter(function (expr) { return expr.probability > minConfidence; });
+            var offset = (y + height + resultsToDisplay.length * primaryFontSize) > canvas.height
+                ? -(resultsToDisplay.length * primaryFontSize)
+                : 0;
+            resultsToDisplay.forEach(function (expr, i) {
+                var text = expr.expression + " (" + round$1(expr.probability) + ")";
+                drawText(ctx, x, y + height + (i * primaryFontSize) + offset, text, {
+                    textColor: i === 0 ? primaryColor : secondaryColor,
+                    fontSize: i === 0 ? primaryFontSize : secondaryFontSize
+                });
+            });
         });
     }
 
@@ -2122,6 +2083,34 @@
             var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
             out = add(out, params.bias);
             return out;
+        });
+    }
+
+    function denseBlock3(x, denseBlockParams, isFirstLayer) {
+        if (isFirstLayer === void 0) { isFirstLayer = false; }
+        return tidy(function () {
+            var out1 = relu(isFirstLayer
+                ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
+                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
+            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+            var in3 = relu(add(out1, out2));
+            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            return relu(add(out1, add(out2, out3)));
+        });
+    }
+    function denseBlock4(x, denseBlockParams, isFirstLayer, isScaleDown) {
+        if (isFirstLayer === void 0) { isFirstLayer = false; }
+        if (isScaleDown === void 0) { isScaleDown = true; }
+        return tidy(function () {
+            var out1 = relu(isFirstLayer
+                ? add(conv2d(x, denseBlockParams.conv0.filters, isScaleDown ? [2, 2] : [1, 1], 'same'), denseBlockParams.conv0.bias)
+                : depthwiseSeparableConv(x, denseBlockParams.conv0, isScaleDown ? [2, 2] : [1, 1]));
+            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+            var in3 = relu(add(out1, out2));
+            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            var in4 = relu(add(out1, add(out2, out3)));
+            var out4 = depthwiseSeparableConv(in4, denseBlockParams.conv3, [1, 1]);
+            return relu(add(out1, add(out2, add(out3, out4))));
         });
     }
 
@@ -3037,15 +3026,6 @@
             paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
             return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
         }
-        function extractFCParams(channelsIn, channelsOut, mappedPrefix) {
-            var weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
-            var bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/bias" });
-            return {
-                weights: weights,
-                bias: bias
-            };
-        }
         var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
         function extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer) {
             if (isFirstLayer === void 0) { isFirstLayer = false; }
@@ -3064,26 +3044,24 @@
         }
         return {
             extractDenseBlock3Params: extractDenseBlock3Params,
-            extractDenseBlock4Params: extractDenseBlock4Params,
-            extractFCParams: extractFCParams
+            extractDenseBlock4Params: extractDenseBlock4Params
         };
     }
 
     function extractParams$1(weights) {
         var paramMappings = [];
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory$2(extractWeights, paramMappings), extractDenseBlock4Params = _b.extractDenseBlock4Params, extractFCParams = _b.extractFCParams;
+        var extractDenseBlock4Params = extractorsFactory$2(extractWeights, paramMappings).extractDenseBlock4Params;
         var dense0 = extractDenseBlock4Params(3, 32, 'dense0', true);
         var dense1 = extractDenseBlock4Params(32, 64, 'dense1');
         var dense2 = extractDenseBlock4Params(64, 128, 'dense2');
         var dense3 = extractDenseBlock4Params(128, 256, 'dense3');
-        var fc = extractFCParams(256, 136, 'fc');
         if (getRemainingWeights().length !== 0) {
             throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
         return {
             paramMappings: paramMappings,
-            params: { dense0: dense0, dense1: dense1, dense2: dense2, dense3: dense3, fc: fc }
+            params: { dense0: dense0, dense1: dense1, dense2: dense2, dense3: dense3 }
         };
     }
 
@@ -3119,38 +3097,273 @@
             var conv3 = extractSeparableConvParams(prefix + "/conv3");
             return { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3 };
         }
-        function extractFcParams(prefix) {
-            var weights = extractWeightEntry(prefix + "/weights", 2);
-            var bias = extractWeightEntry(prefix + "/bias", 1);
-            return { weights: weights, bias: bias };
-        }
         return {
             extractDenseBlock3Params: extractDenseBlock3Params,
-            extractDenseBlock4Params: extractDenseBlock4Params,
-            extractFcParams: extractFcParams
+            extractDenseBlock4Params: extractDenseBlock4Params
         };
     }
 
     function extractParamsFromWeigthMap$1(weightMap) {
         var paramMappings = [];
-        var _a = loadParamsFactory(weightMap, paramMappings), extractDenseBlock4Params = _a.extractDenseBlock4Params, extractFcParams = _a.extractFcParams;
+        var extractDenseBlock4Params = loadParamsFactory(weightMap, paramMappings).extractDenseBlock4Params;
         var params = {
             dense0: extractDenseBlock4Params('dense0', true),
             dense1: extractDenseBlock4Params('dense1'),
             dense2: extractDenseBlock4Params('dense2'),
-            dense3: extractDenseBlock4Params('dense3'),
+            dense3: extractDenseBlock4Params('dense3')
+        };
+        disposeUnusedWeightTensors(weightMap, paramMappings);
+        return { params: params, paramMappings: paramMappings };
+    }
+
+    var FaceFeatureExtractor = /** @class */ (function (_super) {
+        __extends$1(FaceFeatureExtractor, _super);
+        function FaceFeatureExtractor() {
+            return _super.call(this, 'FaceFeatureExtractor') || this;
+        }
+        FaceFeatureExtractor.prototype.forwardInput = function (input) {
+            var params = this.params;
+            if (!params) {
+                throw new Error('FaceFeatureExtractor - load model before inference');
+            }
+            return tidy(function () {
+                var batchTensor = input.toBatchTensor(112, true);
+                var meanRgb = [122.782, 117.001, 104.298];
+                var normalized = normalize(batchTensor, meanRgb).div(scalar(255));
+                var out = denseBlock4(normalized, params.dense0, true);
+                out = denseBlock4(out, params.dense1);
+                out = denseBlock4(out, params.dense2);
+                out = denseBlock4(out, params.dense3);
+                out = avgPool(out, [7, 7], [2, 2], 'valid');
+                return out;
+            });
+        };
+        FaceFeatureExtractor.prototype.forward = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
+                    }
+                });
+            });
+        };
+        FaceFeatureExtractor.prototype.getDefaultModelName = function () {
+            return 'face_feature_extractor_model';
+        };
+        FaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+            return extractParamsFromWeigthMap$1(weightMap);
+        };
+        FaceFeatureExtractor.prototype.extractParams = function (weights) {
+            return extractParams$1(weights);
+        };
+        return FaceFeatureExtractor;
+    }(NeuralNetwork));
+
+    function fullyConnectedLayer(x, params) {
+        return tidy(function () {
+            return add(matMul(x, params.weights), params.bias);
+        });
+    }
+
+    function extractParams$2(weights, channelsIn, channelsOut) {
+        var paramMappings = [];
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var extractFCParams = extractFCParamsFactory(extractWeights, paramMappings);
+        var fc = extractFCParams(channelsIn, channelsOut, 'fc');
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+        }
+        return {
+            paramMappings: paramMappings,
+            params: { fc: fc }
+        };
+    }
+
+    function extractParamsFromWeigthMap$2(weightMap) {
+        var paramMappings = [];
+        var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+        function extractFcParams(prefix) {
+            var weights = extractWeightEntry(prefix + "/weights", 2);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
+            return { weights: weights, bias: bias };
+        }
+        var params = {
             fc: extractFcParams('fc')
         };
         disposeUnusedWeightTensors(weightMap, paramMappings);
         return { params: params, paramMappings: paramMappings };
     }
 
+    function seperateWeightMaps(weightMap) {
+        var featureExtractorMap = {};
+        var classifierMap = {};
+        Object.keys(weightMap).forEach(function (key) {
+            var map = key.startsWith('fc') ? classifierMap : featureExtractorMap;
+            map[key] = weightMap[key];
+        });
+        return { featureExtractorMap: featureExtractorMap, classifierMap: classifierMap };
+    }
+
+    var FaceProcessor = /** @class */ (function (_super) {
+        __extends$1(FaceProcessor, _super);
+        function FaceProcessor(_name, faceFeatureExtractor) {
+            var _this = _super.call(this, _name) || this;
+            _this._faceFeatureExtractor = faceFeatureExtractor;
+            return _this;
+        }
+        Object.defineProperty(FaceProcessor.prototype, "faceFeatureExtractor", {
+            get: function () {
+                return this._faceFeatureExtractor;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        FaceProcessor.prototype.runNet = function (input) {
+            var _this = this;
+            var params = this.params;
+            if (!params) {
+                throw new Error(this._name + " - load model before inference");
+            }
+            return tidy(function () {
+                var bottleneckFeatures = input instanceof NetInput
+                    ? _this.faceFeatureExtractor.forwardInput(input)
+                    : input;
+                return fullyConnectedLayer(bottleneckFeatures.as2D(bottleneckFeatures.shape[0], -1), params.fc);
+            });
+        };
+        FaceProcessor.prototype.dispose = function (throwOnRedispose) {
+            if (throwOnRedispose === void 0) { throwOnRedispose = true; }
+            this.faceFeatureExtractor.dispose(throwOnRedispose);
+            _super.prototype.dispose.call(this, throwOnRedispose);
+        };
+        FaceProcessor.prototype.loadClassifierParams = function (weights) {
+            var _a = this.extractClassifierParams(weights), params = _a.params, paramMappings = _a.paramMappings;
+            this._params = params;
+            this._paramMappings = paramMappings;
+        };
+        FaceProcessor.prototype.extractClassifierParams = function (weights) {
+            return extractParams$2(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut());
+        };
+        FaceProcessor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+            var _a = seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
+            this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
+            return extractParamsFromWeigthMap$2(classifierMap);
+        };
+        FaceProcessor.prototype.extractParams = function (weights) {
+            var cIn = this.getClassifierChannelsIn();
+            var cOut = this.getClassifierChannelsOut();
+            var classifierWeightSize = (cOut * cIn) + cOut;
+            var featureExtractorWeights = weights.slice(0, weights.length - classifierWeightSize);
+            var classifierWeights = weights.slice(weights.length - classifierWeightSize);
+            this.faceFeatureExtractor.extractWeights(featureExtractorWeights);
+            return this.extractClassifierParams(classifierWeights);
+        };
+        return FaceProcessor;
+    }(NeuralNetwork));
+
+    var faceExpressionLabels = {
+        neutral: 0,
+        happy: 1,
+        sad: 2,
+        angry: 3,
+        fearful: 4,
+        disgusted: 5,
+        surprised: 6
+    };
+
+    var FaceExpressionNet = /** @class */ (function (_super) {
+        __extends$1(FaceExpressionNet, _super);
+        function FaceExpressionNet(faceFeatureExtractor) {
+            if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new FaceFeatureExtractor(); }
+            return _super.call(this, 'FaceExpressionNet', faceFeatureExtractor) || this;
+        }
+        FaceExpressionNet.getFaceExpressionLabel = function (faceExpression) {
+            var label = faceExpressionLabels[faceExpression];
+            if (typeof label !== 'number') {
+                throw new Error("getFaceExpressionLabel - no label for faceExpression: " + faceExpression);
+            }
+            return label;
+        };
+        FaceExpressionNet.decodeProbabilites = function (probabilities) {
+            if (probabilities.length !== 7) {
+                throw new Error("decodeProbabilites - expected probabilities.length to be 7, have: " + probabilities.length);
+            }
+            return Object.keys(faceExpressionLabels)
+                .map(function (expression) { return ({ expression: expression, probability: probabilities[faceExpressionLabels[expression]] }); });
+        };
+        FaceExpressionNet.prototype.forwardInput = function (input) {
+            var _this = this;
+            return tidy(function () { return softmax(_this.runNet(input)); });
+        };
+        FaceExpressionNet.prototype.forward = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
+                    }
+                });
+            });
+        };
+        FaceExpressionNet.prototype.predictExpressions = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _this = this;
+                var netInput, out, probabilitesByBatch, predictionsByBatch;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, toNetInput(input)];
+                        case 1:
+                            netInput = _a.sent();
+                            return [4 /*yield*/, this.forwardInput(netInput)];
+                        case 2:
+                            out = _a.sent();
+                            return [4 /*yield*/, Promise.all(unstack(out).map(function (t) { return __awaiter$1(_this, void 0, void 0, function () {
+                                    var data;
+                                    return __generator$1(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0: return [4 /*yield*/, t.data()];
+                                            case 1:
+                                                data = _a.sent();
+                                                t.dispose();
+                                                return [2 /*return*/, data];
+                                        }
+                                    });
+                                }); }))];
+                        case 3:
+                            probabilitesByBatch = _a.sent();
+                            out.dispose();
+                            predictionsByBatch = probabilitesByBatch
+                                .map(function (propablities) { return FaceExpressionNet.decodeProbabilites(propablities); });
+                            return [2 /*return*/, netInput.isBatchInput
+                                    ? predictionsByBatch
+                                    : predictionsByBatch[0]];
+                    }
+                });
+            });
+        };
+        FaceExpressionNet.prototype.getDefaultModelName = function () {
+            return 'face_expression_model';
+        };
+        FaceExpressionNet.prototype.getClassifierChannelsIn = function () {
+            return 256;
+        };
+        FaceExpressionNet.prototype.getClassifierChannelsOut = function () {
+            return 7;
+        };
+        return FaceExpressionNet;
+    }(FaceProcessor));
+
     var FaceLandmark68NetBase = /** @class */ (function (_super) {
         __extends$1(FaceLandmark68NetBase, _super);
-        function FaceLandmark68NetBase(_name) {
-            var _this = _super.call(this, _name) || this;
-            _this.__name = _name;
-            return _this;
+        function FaceLandmark68NetBase() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         FaceLandmark68NetBase.prototype.postProcess = function (output, inputSize, originalDimensions) {
             var inputDimensions = originalDimensions.map(function (_a) {
@@ -3247,134 +3460,112 @@
                 });
             });
         };
+        FaceLandmark68NetBase.prototype.getClassifierChannelsOut = function () {
+            return 136;
+        };
         return FaceLandmark68NetBase;
-    }(NeuralNetwork));
+    }(FaceProcessor));
 
-    function fullyConnectedLayer(x, params) {
-        return tidy(function () {
-            return add(matMul(x, params.weights), params.bias);
-        });
-    }
-
-    function denseBlock(x, denseBlockParams, isFirstLayer) {
-        if (isFirstLayer === void 0) { isFirstLayer = false; }
-        return tidy(function () {
-            var out1 = relu(isFirstLayer
-                ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
-                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
-            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
-            var in3 = relu(add(out1, out2));
-            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
-            var in4 = relu(add(out1, add(out2, out3)));
-            var out4 = depthwiseSeparableConv(in4, denseBlockParams.conv3, [1, 1]);
-            return relu(add(out1, add(out2, add(out3, out4))));
-        });
-    }
     var FaceLandmark68Net = /** @class */ (function (_super) {
         __extends$1(FaceLandmark68Net, _super);
-        function FaceLandmark68Net() {
-            return _super.call(this, 'FaceLandmark68Net') || this;
+        function FaceLandmark68Net(faceFeatureExtractor) {
+            if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new FaceFeatureExtractor(); }
+            return _super.call(this, 'FaceLandmark68Net', faceFeatureExtractor) || this;
         }
-        FaceLandmark68Net.prototype.runNet = function (input) {
-            var params = this.params;
-            if (!params) {
-                throw new Error('FaceLandmark68Net - load model before inference');
-            }
-            return tidy(function () {
-                var batchTensor = input.toBatchTensor(112, true);
-                var meanRgb = [122.782, 117.001, 104.298];
-                var normalized = normalize(batchTensor, meanRgb).div(scalar(255));
-                var out = denseBlock(normalized, params.dense0, true);
-                out = denseBlock(out, params.dense1);
-                out = denseBlock(out, params.dense2);
-                out = denseBlock(out, params.dense3);
-                out = avgPool(out, [7, 7], [2, 2], 'valid');
-                return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
-            });
-        };
         FaceLandmark68Net.prototype.getDefaultModelName = function () {
             return 'face_landmark_68_model';
         };
-        FaceLandmark68Net.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$1(weightMap);
-        };
-        FaceLandmark68Net.prototype.extractParams = function (weights) {
-            return extractParams$1(weights);
+        FaceLandmark68Net.prototype.getClassifierChannelsIn = function () {
+            return 256;
         };
         return FaceLandmark68Net;
     }(FaceLandmark68NetBase));
 
-    function extractParamsTiny(weights) {
-        var paramMappings = [];
-        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var _b = extractorsFactory$2(extractWeights, paramMappings), extractDenseBlock3Params = _b.extractDenseBlock3Params, extractFCParams = _b.extractFCParams;
-        var dense0 = extractDenseBlock3Params(3, 32, 'dense0', true);
-        var dense1 = extractDenseBlock3Params(32, 64, 'dense1');
-        var dense2 = extractDenseBlock3Params(64, 128, 'dense2');
-        var fc = extractFCParams(128, 136, 'fc');
-        if (getRemainingWeights().length !== 0) {
-            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
-        }
-        return {
-            paramMappings: paramMappings,
-            params: { dense0: dense0, dense1: dense1, dense2: dense2, fc: fc }
-        };
-    }
-
     function extractParamsFromWeigthMapTiny(weightMap) {
         var paramMappings = [];
-        var _a = loadParamsFactory(weightMap, paramMappings), extractDenseBlock3Params = _a.extractDenseBlock3Params, extractFcParams = _a.extractFcParams;
+        var extractDenseBlock3Params = loadParamsFactory(weightMap, paramMappings).extractDenseBlock3Params;
         var params = {
             dense0: extractDenseBlock3Params('dense0', true),
             dense1: extractDenseBlock3Params('dense1'),
-            dense2: extractDenseBlock3Params('dense2'),
-            fc: extractFcParams('fc')
+            dense2: extractDenseBlock3Params('dense2')
         };
         disposeUnusedWeightTensors(weightMap, paramMappings);
         return { params: params, paramMappings: paramMappings };
     }
 
-    function denseBlock$1(x, denseBlockParams, isFirstLayer) {
-        if (isFirstLayer === void 0) { isFirstLayer = false; }
-        return tidy(function () {
-            var out1 = relu(isFirstLayer
-                ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
-                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
-            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
-            var in3 = relu(add(out1, out2));
-            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
-            return relu(add(out1, add(out2, out3)));
-        });
-    }
-    var FaceLandmark68TinyNet = /** @class */ (function (_super) {
-        __extends$1(FaceLandmark68TinyNet, _super);
-        function FaceLandmark68TinyNet() {
-            return _super.call(this, 'FaceLandmark68TinyNet') || this;
+    function extractParamsTiny(weights) {
+        var paramMappings = [];
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var extractDenseBlock3Params = extractorsFactory$2(extractWeights, paramMappings).extractDenseBlock3Params;
+        var dense0 = extractDenseBlock3Params(3, 32, 'dense0', true);
+        var dense1 = extractDenseBlock3Params(32, 64, 'dense1');
+        var dense2 = extractDenseBlock3Params(64, 128, 'dense2');
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
         }
-        FaceLandmark68TinyNet.prototype.runNet = function (input) {
+        return {
+            paramMappings: paramMappings,
+            params: { dense0: dense0, dense1: dense1, dense2: dense2 }
+        };
+    }
+
+    var TinyFaceFeatureExtractor = /** @class */ (function (_super) {
+        __extends$1(TinyFaceFeatureExtractor, _super);
+        function TinyFaceFeatureExtractor() {
+            return _super.call(this, 'TinyFaceFeatureExtractor') || this;
+        }
+        TinyFaceFeatureExtractor.prototype.forwardInput = function (input) {
             var params = this.params;
             if (!params) {
-                throw new Error('FaceLandmark68TinyNet - load model before inference');
+                throw new Error('TinyFaceFeatureExtractor - load model before inference');
             }
             return tidy(function () {
                 var batchTensor = input.toBatchTensor(112, true);
                 var meanRgb = [122.782, 117.001, 104.298];
                 var normalized = normalize(batchTensor, meanRgb).div(scalar(255));
-                var out = denseBlock$1(normalized, params.dense0, true);
-                out = denseBlock$1(out, params.dense1);
-                out = denseBlock$1(out, params.dense2);
+                var out = denseBlock3(normalized, params.dense0, true);
+                out = denseBlock3(out, params.dense1);
+                out = denseBlock3(out, params.dense2);
                 out = avgPool(out, [14, 14], [2, 2], 'valid');
-                return fullyConnectedLayer(out.as2D(out.shape[0], -1), params.fc);
+                return out;
             });
         };
+        TinyFaceFeatureExtractor.prototype.forward = function (input) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [2 /*return*/, _a.apply(this, [_b.sent()])];
+                    }
+                });
+            });
+        };
+        TinyFaceFeatureExtractor.prototype.getDefaultModelName = function () {
+            return 'face_feature_extractor_tiny_model';
+        };
+        TinyFaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+            return extractParamsFromWeigthMapTiny(weightMap);
+        };
+        TinyFaceFeatureExtractor.prototype.extractParams = function (weights) {
+            return extractParamsTiny(weights);
+        };
+        return TinyFaceFeatureExtractor;
+    }(NeuralNetwork));
+
+    var FaceLandmark68TinyNet = /** @class */ (function (_super) {
+        __extends$1(FaceLandmark68TinyNet, _super);
+        function FaceLandmark68TinyNet(faceFeatureExtractor) {
+            if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new TinyFaceFeatureExtractor(); }
+            return _super.call(this, 'FaceLandmark68TinyNet', faceFeatureExtractor) || this;
+        }
         FaceLandmark68TinyNet.prototype.getDefaultModelName = function () {
             return 'face_landmark_68_tiny_model';
         };
-        FaceLandmark68TinyNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMapTiny(weightMap);
-        };
-        FaceLandmark68TinyNet.prototype.extractParams = function (weights) {
-            return extractParamsTiny(weights);
+        FaceLandmark68TinyNet.prototype.getClassifierChannelsIn = function () {
+            return 128;
         };
         return FaceLandmark68TinyNet;
     }(FaceLandmark68NetBase));
@@ -3386,11 +3577,6 @@
         }
         return FaceLandmarkNet;
     }(FaceLandmark68Net));
-    function createFaceLandmarkNet(weights) {
-        var net = new FaceLandmarkNet();
-        net.extractWeights(weights);
-        return net;
-    }
 
     function scale(x, params) {
         return add(mul(x, params.weights), params.biases);
@@ -3454,7 +3640,7 @@
             extractResidualLayerParams: extractResidualLayerParams
         };
     }
-    function extractParams$2(weights) {
+    function extractParams$3(weights) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var paramMappings = [];
         var _b = extractorsFactory$3(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
@@ -3523,7 +3709,7 @@
             extractResidualLayerParams: extractResidualLayerParams
         };
     }
-    function extractParamsFromWeigthMap$2(weightMap) {
+    function extractParamsFromWeigthMap$3(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$4(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
         var conv32_down = extractConvLayerParams('conv32_down');
@@ -3671,10 +3857,10 @@
             return 'face_recognition_model';
         };
         FaceRecognitionNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$2(weightMap);
+            return extractParamsFromWeigthMap$3(weightMap);
         };
         FaceRecognitionNet.prototype.extractParams = function (weights) {
-            return extractParams$2(weights);
+            return extractParams$3(weights);
         };
         return FaceRecognitionNet;
     }(NeuralNetwork));
@@ -3683,6 +3869,35 @@
         var net = new FaceRecognitionNet();
         net.extractWeights(weights);
         return net;
+    }
+
+    function extendWithFaceDescriptor(sourceObj, descriptor) {
+        var extension = { descriptor: descriptor };
+        return Object.assign({}, sourceObj, extension);
+    }
+
+    function extendWithFaceDetection(sourceObj, detection) {
+        var extension = { detection: detection };
+        return Object.assign({}, sourceObj, extension);
+    }
+
+    function extendWithFaceExpressions(sourceObj, expressions) {
+        var extension = { expressions: expressions };
+        return Object.assign({}, sourceObj, extension);
+    }
+
+    function extendWithFaceLandmarks(sourceObj, unshiftedLandmarks) {
+        var shift = sourceObj.detection.box;
+        var landmarks = unshiftedLandmarks.shiftBy(shift.x, shift.y);
+        var rect = landmarks.align();
+        var imageDims = sourceObj.detection.imageDims;
+        var alignedRect = new FaceDetection(sourceObj.detection.score, rect.rescale(imageDims.reverse()), imageDims);
+        var extension = {
+            landmarks: landmarks,
+            unshiftedLandmarks: unshiftedLandmarks,
+            alignedRect: alignedRect
+        };
+        return Object.assign({}, sourceObj, extension);
     }
 
     var MtcnnOptions = /** @class */ (function () {
@@ -3874,7 +4089,7 @@
             extractPredictionLayerParams: extractPredictionLayerParams
         };
     }
-    function extractParams$3(weights) {
+    function extractParams$4(weights) {
         var paramMappings = [];
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var _b = extractorsFactory$5(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
@@ -3977,7 +4192,7 @@
             extractPredictionLayerParams: extractPredictionLayerParams
         };
     }
-    function extractParamsFromWeigthMap$3(weightMap) {
+    function extractParamsFromWeigthMap$4(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$6(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
         var extra_dim = weightMap['Output/extra_dim'];
@@ -4314,10 +4529,10 @@
             return 'ssd_mobilenetv1_model';
         };
         SsdMobilenetv1.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$3(weightMap);
+            return extractParamsFromWeigthMap$4(weightMap);
         };
         SsdMobilenetv1.prototype.extractParams = function (weights) {
-            return extractParams$3(weights);
+            return extractParams$4(weights);
         };
         return SsdMobilenetv1;
     }(NeuralNetwork));
@@ -4431,7 +4646,7 @@
             extractONetParams: extractONetParams
         };
     }
-    function extractParams$4(weights) {
+    function extractParams$5(weights) {
         var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
         var paramMappings = [];
         var _b = extractorsFactory$7(extractWeights, paramMappings), extractPNetParams = _b.extractPNetParams, extractRNetParams = _b.extractRNetParams, extractONetParams = _b.extractONetParams;
@@ -4499,7 +4714,7 @@
             extractONetParams: extractONetParams
         };
     }
-    function extractParamsFromWeigthMap$4(weightMap) {
+    function extractParamsFromWeigthMap$5(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$8(weightMap, paramMappings), extractPNetParams = _a.extractPNetParams, extractRNetParams = _a.extractRNetParams, extractONetParams = _a.extractONetParams;
         var pnet = extractPNetParams();
@@ -4934,10 +5149,10 @@
                         case 3:
                             out3 = _c.sent();
                             stats.total_stage3 = Date.now() - ts;
-                            results = out3.boxes.map(function (box, idx) { return new FaceDetectionWithLandmarks(new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                            results = out3.boxes.map(function (box, idx) { return extendWithFaceLandmarks(extendWithFaceDetection({}, new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
                                 height: height,
                                 width: width
-                            }), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
+                            })), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
                             return [2 /*return*/, onReturn({ results: results, stats: stats })];
                     }
                 });
@@ -4978,10 +5193,10 @@
             return 'mtcnn_model';
         };
         Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$4(weightMap);
+            return extractParamsFromWeigthMap$5(weightMap);
         };
         Mtcnn.prototype.extractParams = function (weights) {
-            return extractParams$4(weights);
+            return extractParams$5(weights);
         };
         return Mtcnn;
     }(NeuralNetwork));
@@ -5124,7 +5339,8 @@
         mtcnn: new Mtcnn(),
         faceLandmark68Net: new FaceLandmark68Net(),
         faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
-        faceRecognitionNet: new FaceRecognitionNet()
+        faceRecognitionNet: new FaceRecognitionNet(),
+        faceExpressionNet: new FaceExpressionNet()
     };
     /**
      * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
@@ -5202,6 +5418,17 @@
     var computeFaceDescriptor = function (input) {
         return nets.faceRecognitionNet.computeFaceDescriptor(input);
     };
+    /**
+     * Recognizes the facial expressions of a face and returns the likelyhood of
+     * each facial expression.
+     *
+     * @param inputs The face image extracted from the bounding box of a face. Can
+     * also be an array of input images, which will be batch processed.
+     * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+     */
+    var recognizeFaceExpressions = function (input) {
+        return nets.faceExpressionNet.predictExpressions(input);
+    };
     var loadSsdMobilenetv1Model = function (url) { return nets.ssdMobilenetv1.load(url); };
     var loadTinyFaceDetectorModel = function (url) { return nets.tinyFaceDetector.load(url); };
     var loadMtcnnModel = function (url) { return nets.mtcnn.load(url); };
@@ -5209,6 +5436,7 @@
     var loadFaceLandmarkModel = function (url) { return nets.faceLandmark68Net.load(url); };
     var loadFaceLandmarkTinyModel = function (url) { return nets.faceLandmark68TinyNet.load(url); };
     var loadFaceRecognitionModel = function (url) { return nets.faceRecognitionNet.load(url); };
+    var loadFaceExpressionModel = function (url) { return nets.faceExpressionNet.load(url); };
     // backward compatibility
     var loadFaceDetectionModel = loadSsdMobilenetv1Model;
     var locateFaces = ssdMobilenetv1;
@@ -5216,9 +5444,9 @@
 
     var ComputeFaceDescriptorsTaskBase = /** @class */ (function (_super) {
         __extends$1(ComputeFaceDescriptorsTaskBase, _super);
-        function ComputeFaceDescriptorsTaskBase(detectFaceLandmarksTask, input) {
+        function ComputeFaceDescriptorsTaskBase(parentTask, input) {
             var _this = _super.call(this) || this;
-            _this.detectFaceLandmarksTask = detectFaceLandmarksTask;
+            _this.parentTask = parentTask;
             _this.input = input;
             return _this;
         }
@@ -5232,13 +5460,13 @@
         ComputeAllFaceDescriptorsTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
                 var _this = this;
-                var facesWithLandmarks, alignedRects, alignedFaces, _a, fullFaceDescriptions;
+                var parentResults, alignedRects, alignedFaces, _a, results;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, this.detectFaceLandmarksTask];
+                        case 0: return [4 /*yield*/, this.parentTask];
                         case 1:
-                            facesWithLandmarks = _b.sent();
-                            alignedRects = facesWithLandmarks.map(function (_a) {
+                            parentResults = _b.sent();
+                            alignedRects = parentResults.map(function (_a) {
                                 var alignedRect = _a.alignedRect;
                                 return alignedRect;
                             });
@@ -5253,24 +5481,21 @@
                             _b.label = 5;
                         case 5:
                             alignedFaces = _a;
-                            return [4 /*yield*/, Promise.all(facesWithLandmarks.map(function (_a, i) {
-                                    var detection = _a.detection, landmarks = _a.landmarks;
-                                    return __awaiter$1(_this, void 0, void 0, function () {
-                                        var descriptor;
-                                        return __generator$1(this, function (_b) {
-                                            switch (_b.label) {
-                                                case 0: return [4 /*yield*/, nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[i])];
-                                                case 1:
-                                                    descriptor = _b.sent();
-                                                    return [2 /*return*/, new FullFaceDescription(detection, landmarks, descriptor)];
-                                            }
-                                        });
+                            return [4 /*yield*/, Promise.all(parentResults.map(function (parentResult, i) { return __awaiter$1(_this, void 0, void 0, function () {
+                                    var descriptor;
+                                    return __generator$1(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0: return [4 /*yield*/, nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[i])];
+                                            case 1:
+                                                descriptor = _a.sent();
+                                                return [2 /*return*/, extendWithFaceDescriptor(parentResult, descriptor)];
+                                        }
                                     });
-                                }))];
+                                }); }))];
                         case 6:
-                            fullFaceDescriptions = _b.sent();
+                            results = _b.sent();
                             alignedFaces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
-                            return [2 /*return*/, fullFaceDescriptions];
+                            return [2 /*return*/, results];
                     }
                 });
             });
@@ -5284,16 +5509,16 @@
         }
         ComputeSingleFaceDescriptorTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
-                var detectionWithLandmarks, detection, landmarks, alignedRect, alignedFaces, _a, descriptor;
+                var parentResult, alignedRect, alignedFaces, _a, descriptor;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, this.detectFaceLandmarksTask];
+                        case 0: return [4 /*yield*/, this.parentTask];
                         case 1:
-                            detectionWithLandmarks = _b.sent();
-                            if (!detectionWithLandmarks) {
+                            parentResult = _b.sent();
+                            if (!parentResult) {
                                 return [2 /*return*/];
                             }
-                            detection = detectionWithLandmarks.detection, landmarks = detectionWithLandmarks.landmarks, alignedRect = detectionWithLandmarks.alignedRect;
+                            alignedRect = parentResult.alignedRect;
                             if (!(this.input instanceof Tensor)) return [3 /*break*/, 3];
                             return [4 /*yield*/, extractFaceTensors(this.input, [alignedRect])];
                         case 2:
@@ -5309,7 +5534,7 @@
                         case 6:
                             descriptor = _b.sent();
                             alignedFaces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
-                            return [2 /*return*/, new FullFaceDescription(detection, landmarks, descriptor)];
+                            return [2 /*return*/, extendWithFaceDescriptor(parentResult, descriptor)];
                     }
                 });
             });
@@ -5319,9 +5544,9 @@
 
     var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
         __extends$1(DetectFaceLandmarksTaskBase, _super);
-        function DetectFaceLandmarksTaskBase(detectFacesTask, input, useTinyLandmarkNet) {
+        function DetectFaceLandmarksTaskBase(parentTask, input, useTinyLandmarkNet) {
             var _this = _super.call(this) || this;
-            _this.detectFacesTask = detectFacesTask;
+            _this.parentTask = parentTask;
             _this.input = input;
             _this.useTinyLandmarkNet = useTinyLandmarkNet;
             return _this;
@@ -5345,12 +5570,13 @@
         DetectAllFaceLandmarksTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
                 var _this = this;
-                var detections, faces, _a, faceLandmarksByFace;
+                var parentResults, detections, faces, _a, faceLandmarksByFace;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, this.detectFacesTask];
+                        case 0: return [4 /*yield*/, this.parentTask];
                         case 1:
-                            detections = _b.sent();
+                            parentResults = _b.sent();
+                            detections = parentResults.map(function (res) { return res.detection; });
                             if (!(this.input instanceof Tensor)) return [3 /*break*/, 3];
                             return [4 /*yield*/, extractFaceTensors(this.input, detections)];
                         case 2:
@@ -5366,8 +5592,8 @@
                         case 6:
                             faceLandmarksByFace = _b.sent();
                             faces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
-                            return [2 /*return*/, detections.map(function (detection, i) {
-                                    return new FaceDetectionWithLandmarks(detection, faceLandmarksByFace[i]);
+                            return [2 /*return*/, parentResults.map(function (parentResult, i) {
+                                    return extendWithFaceLandmarks(parentResult, faceLandmarksByFace[i]);
                                 })];
                     }
                 });
@@ -5385,15 +5611,16 @@
         }
         DetectSingleFaceLandmarksTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
-                var detection, faces, _a, landmarks;
+                var parentResult, detection, faces, _a, landmarks;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
-                        case 0: return [4 /*yield*/, this.detectFacesTask];
+                        case 0: return [4 /*yield*/, this.parentTask];
                         case 1:
-                            detection = _b.sent();
-                            if (!detection) {
+                            parentResult = _b.sent();
+                            if (!parentResult) {
                                 return [2 /*return*/];
                             }
+                            detection = parentResult.detection;
                             if (!(this.input instanceof Tensor)) return [3 /*break*/, 3];
                             return [4 /*yield*/, extractFaceTensors(this.input, [detection])];
                         case 2:
@@ -5409,7 +5636,7 @@
                         case 6:
                             landmarks = _b.sent();
                             faces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
-                            return [2 /*return*/, new FaceDetectionWithLandmarks(detection, landmarks)];
+                            return [2 /*return*/, extendWithFaceLandmarks(parentResult, landmarks)];
                     }
                 });
             });
@@ -5419,6 +5646,98 @@
         };
         return DetectSingleFaceLandmarksTask;
     }(DetectFaceLandmarksTaskBase));
+
+    var PredictFaceExpressionsTaskBase = /** @class */ (function (_super) {
+        __extends$1(PredictFaceExpressionsTaskBase, _super);
+        function PredictFaceExpressionsTaskBase(parentTask, input) {
+            var _this = _super.call(this) || this;
+            _this.parentTask = parentTask;
+            _this.input = input;
+            return _this;
+        }
+        return PredictFaceExpressionsTaskBase;
+    }(ComposableTask));
+    var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
+        __extends$1(PredictAllFaceExpressionsTask, _super);
+        function PredictAllFaceExpressionsTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PredictAllFaceExpressionsTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var parentResults, detections, faces, _a, faceExpressionsByFace;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, this.parentTask];
+                        case 1:
+                            parentResults = _b.sent();
+                            detections = parentResults.map(function (parentResult) { return parentResult.detection; });
+                            if (!(this.input instanceof Tensor)) return [3 /*break*/, 3];
+                            return [4 /*yield*/, extractFaceTensors(this.input, detections)];
+                        case 2:
+                            _a = _b.sent();
+                            return [3 /*break*/, 5];
+                        case 3: return [4 /*yield*/, extractFaces(this.input, detections)];
+                        case 4:
+                            _a = _b.sent();
+                            _b.label = 5;
+                        case 5:
+                            faces = _a;
+                            return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets.faceExpressionNet.predictExpressions(face); }))];
+                        case 6:
+                            faceExpressionsByFace = _b.sent();
+                            faces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
+                            return [2 /*return*/, parentResults.map(function (parentResult, i) { return extendWithFaceExpressions(parentResult, faceExpressionsByFace[i]); })];
+                    }
+                });
+            });
+        };
+        PredictAllFaceExpressionsTask.prototype.withFaceLandmarks = function () {
+            return new DetectAllFaceLandmarksTask(this, this.input, false);
+        };
+        return PredictAllFaceExpressionsTask;
+    }(PredictFaceExpressionsTaskBase));
+    var PredictSingleFaceExpressionTask = /** @class */ (function (_super) {
+        __extends$1(PredictSingleFaceExpressionTask, _super);
+        function PredictSingleFaceExpressionTask() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PredictSingleFaceExpressionTask.prototype.run = function () {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var parentResult, detection, faces, _a, faceExpressions;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, this.parentTask];
+                        case 1:
+                            parentResult = _b.sent();
+                            if (!parentResult) {
+                                return [2 /*return*/];
+                            }
+                            detection = parentResult.detection;
+                            if (!(this.input instanceof Tensor)) return [3 /*break*/, 3];
+                            return [4 /*yield*/, extractFaceTensors(this.input, [detection])];
+                        case 2:
+                            _a = _b.sent();
+                            return [3 /*break*/, 5];
+                        case 3: return [4 /*yield*/, extractFaces(this.input, [detection])];
+                        case 4:
+                            _a = _b.sent();
+                            _b.label = 5;
+                        case 5:
+                            faces = _a;
+                            return [4 /*yield*/, nets.faceExpressionNet.predictExpressions(faces[0])];
+                        case 6:
+                            faceExpressions = _b.sent();
+                            faces.forEach(function (f) { return f instanceof Tensor && f.dispose(); });
+                            return [2 /*return*/, extendWithFaceExpressions(parentResult, faceExpressions)];
+                    }
+                });
+            });
+        };
+        PredictSingleFaceExpressionTask.prototype.withFaceLandmarks = function () {
+            return new DetectSingleFaceLandmarksTask(this, this.input, false);
+        };
+        return PredictSingleFaceExpressionTask;
+    }(PredictFaceExpressionsTaskBase));
 
     var DetectFacesTaskBase = /** @class */ (function (_super) {
         __extends$1(DetectFacesTaskBase, _super);
@@ -5446,7 +5765,7 @@
                             if (!(options instanceof MtcnnOptions)) return [3 /*break*/, 2];
                             return [4 /*yield*/, nets.mtcnn.forward(input, options)];
                         case 1: return [2 /*return*/, (_b.sent())
-                                .map(function (result) { return result.faceDetection; })];
+                                .map(function (result) { return result.detection; })];
                         case 2:
                             faceDetectionFunction = options instanceof TinyFaceDetectorOptions
                                 ? function (input) { return nets.tinyFaceDetector.locateFaces(input, options); }
@@ -5463,9 +5782,26 @@
                 });
             });
         };
+        DetectAllFacesTask.prototype.runAndExtendWithFaceDetections = function () {
+            var _this = this;
+            return new Promise(function (res) { return __awaiter$1(_this, void 0, void 0, function () {
+                var detections;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.run()];
+                        case 1:
+                            detections = _a.sent();
+                            return [2 /*return*/, res(detections.map(function (detection) { return extendWithFaceDetection({}, detection); }))];
+                    }
+                });
+            }); });
+        };
         DetectAllFacesTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
             if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
-            return new DetectAllFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+            return new DetectAllFaceLandmarksTask(this.runAndExtendWithFaceDetections(), this.input, useTinyLandmarkNet);
+        };
+        DetectAllFacesTask.prototype.withFaceExpressions = function () {
+            return new PredictAllFaceExpressionsTask(this.runAndExtendWithFaceDetections(), this.input);
         };
         return DetectAllFacesTask;
     }(DetectFacesTaskBase));
@@ -5493,9 +5829,26 @@
                 });
             });
         };
+        DetectSingleFaceTask.prototype.runAndExtendWithFaceDetection = function () {
+            var _this = this;
+            return new Promise(function (res) { return __awaiter$1(_this, void 0, void 0, function () {
+                var detection;
+                return __generator$1(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.run()];
+                        case 1:
+                            detection = _a.sent();
+                            return [2 /*return*/, res(detection ? extendWithFaceDetection({}, detection) : undefined)];
+                    }
+                });
+            }); });
+        };
         DetectSingleFaceTask.prototype.withFaceLandmarks = function (useTinyLandmarkNet) {
             if (useTinyLandmarkNet === void 0) { useTinyLandmarkNet = false; }
-            return new DetectSingleFaceLandmarksTask(this, this.input, useTinyLandmarkNet);
+            return new DetectSingleFaceLandmarksTask(this.runAndExtendWithFaceDetection(), this.input, useTinyLandmarkNet);
+        };
+        DetectSingleFaceTask.prototype.withFaceExpressions = function () {
+            return new PredictSingleFaceExpressionTask(this.runAndExtendWithFaceDetection(), this.input);
         };
         return DetectSingleFaceTask;
     }(DetectFacesTaskBase));
@@ -5574,13 +5927,13 @@
                 if (desc instanceof LabeledFaceDescriptors) {
                     return desc;
                 }
-                if (desc instanceof FullFaceDescription) {
-                    return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor]);
-                }
                 if (desc instanceof Float32Array) {
                     return new LabeledFaceDescriptors(createUniqueLabel(), [desc]);
                 }
-                throw new Error("FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>");
+                if (desc.descriptor && desc.descriptor instanceof Float32Array) {
+                    return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor]);
+                }
+                throw new Error("FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array | Array<LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array>");
             });
         }
         Object.defineProperty(FaceMatcher.prototype, "labeledDescriptors", {
@@ -5634,6 +5987,27 @@
         var net = new TinyYolov2$1(withSeparableConvs);
         net.extractWeights(weights);
         return net;
+    }
+
+    function resizeResults(results, _a) {
+        var width = _a.width, height = _a.height;
+        if (Array.isArray(results)) {
+            return results.map(function (obj) { return resizeResults(obj, { width: width, height: height }); });
+        }
+        var hasLandmarks = results['unshiftedLandmarks'] && results['unshiftedLandmarks'] instanceof FaceLandmarks;
+        var hasDetection = results['detection'] && results['detection'] instanceof FaceDetection;
+        if (hasLandmarks) {
+            var resizedDetection = results['detection'].forSize(width, height);
+            var resizedLandmarks = results['unshiftedLandmarks'].forSize(resizedDetection.box.width, resizedDetection.box.height);
+            return extendWithFaceLandmarks(extendWithFaceDetection(results, resizedDetection), resizedLandmarks);
+        }
+        if (hasDetection) {
+            return extendWithFaceDetection(results, results['detection'].forSize(width, height));
+        }
+        if (results instanceof FaceLandmarks || results instanceof FaceDetection) {
+            return results.forSize(width, height);
+        }
+        return results;
     }
 
     exports.tf = tfCore_esm;
@@ -5696,23 +6070,27 @@
     exports.isValidProbablitiy = isValidProbablitiy;
     exports.NeuralNetwork = NeuralNetwork;
     exports.FaceDetection = FaceDetection;
-    exports.FaceDetectionWithLandmarks = FaceDetectionWithLandmarks;
     exports.FaceLandmarks = FaceLandmarks;
     exports.FaceLandmarks5 = FaceLandmarks5;
     exports.FaceLandmarks68 = FaceLandmarks68;
     exports.FaceMatch = FaceMatch;
-    exports.FullFaceDescription = FullFaceDescription;
     exports.LabeledFaceDescriptors = LabeledFaceDescriptors;
     exports.drawContour = drawContour;
     exports.drawLandmarks = drawLandmarks;
+    exports.drawFaceExpressions = drawFaceExpressions;
     exports.extractFaces = extractFaces;
     exports.extractFaceTensors = extractFaceTensors;
+    exports.FaceExpressionNet = FaceExpressionNet;
+    exports.faceExpressionLabels = faceExpressionLabels;
     exports.FaceLandmarkNet = FaceLandmarkNet;
-    exports.createFaceLandmarkNet = createFaceLandmarkNet;
     exports.FaceLandmark68Net = FaceLandmark68Net;
     exports.FaceLandmark68TinyNet = FaceLandmark68TinyNet;
     exports.createFaceRecognitionNet = createFaceRecognitionNet;
     exports.FaceRecognitionNet = FaceRecognitionNet;
+    exports.extendWithFaceDescriptor = extendWithFaceDescriptor;
+    exports.extendWithFaceDetection = extendWithFaceDetection;
+    exports.extendWithFaceExpressions = extendWithFaceExpressions;
+    exports.extendWithFaceLandmarks = extendWithFaceLandmarks;
     exports.allFacesSsdMobilenetv1 = allFacesSsdMobilenetv1;
     exports.allFacesTinyYolov2 = allFacesTinyYolov2;
     exports.allFacesMtcnn = allFacesMtcnn;
@@ -5738,6 +6116,7 @@
     exports.detectFaceLandmarks = detectFaceLandmarks;
     exports.detectFaceLandmarksTiny = detectFaceLandmarksTiny;
     exports.computeFaceDescriptor = computeFaceDescriptor;
+    exports.recognizeFaceExpressions = recognizeFaceExpressions;
     exports.loadSsdMobilenetv1Model = loadSsdMobilenetv1Model;
     exports.loadTinyFaceDetectorModel = loadTinyFaceDetectorModel;
     exports.loadMtcnnModel = loadMtcnnModel;
@@ -5745,6 +6124,7 @@
     exports.loadFaceLandmarkModel = loadFaceLandmarkModel;
     exports.loadFaceLandmarkTinyModel = loadFaceLandmarkTinyModel;
     exports.loadFaceRecognitionModel = loadFaceRecognitionModel;
+    exports.loadFaceExpressionModel = loadFaceExpressionModel;
     exports.loadFaceDetectionModel = loadFaceDetectionModel;
     exports.locateFaces = locateFaces;
     exports.detectLandmarks = detectLandmarks;
@@ -5762,6 +6142,7 @@
     exports.createTinyYolov2 = createTinyYolov2;
     exports.TinyYolov2 = TinyYolov2$1;
     exports.euclideanDistance = euclideanDistance;
+    exports.resizeResults = resizeResults;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

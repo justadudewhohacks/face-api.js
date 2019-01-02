@@ -1,23 +1,8 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { NetInput } from 'tfjs-image-recognition-base';
+import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
+import { FaceFeatureExtractorParams } from '../faceFeatureExtractor/types';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
-import { NetParams } from './types';
-export declare class FaceLandmark68Net extends FaceLandmark68NetBase<NetParams> {
-    constructor();
-    runNet(input: NetInput): tf.Tensor2D;
+export declare class FaceLandmark68Net extends FaceLandmark68NetBase<FaceFeatureExtractorParams> {
+    constructor(faceFeatureExtractor?: FaceFeatureExtractor);
     protected getDefaultModelName(): string;
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
-        params: NetParams;
-        paramMappings: {
-            originalPath?: string | undefined;
-            paramPath: string;
-        }[];
-    };
-    protected extractParams(weights: Float32Array): {
-        params: NetParams;
-        paramMappings: {
-            originalPath?: string | undefined;
-            paramPath: string;
-        }[];
-    };
+    protected getClassifierChannelsIn(): number;
 }

@@ -1,13 +1,12 @@
 import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { isEven, NeuralNetwork, Point, toNetInput } from 'tfjs-image-recognition-base';
+import { isEven, Point, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { FaceProcessor } from '../faceProcessor/FaceProcessor';
 var FaceLandmark68NetBase = /** @class */ (function (_super) {
     tslib_1.__extends(FaceLandmark68NetBase, _super);
-    function FaceLandmark68NetBase(_name) {
-        var _this = _super.call(this, _name) || this;
-        _this.__name = _name;
-        return _this;
+    function FaceLandmark68NetBase() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     FaceLandmark68NetBase.prototype.postProcess = function (output, inputSize, originalDimensions) {
         var inputDimensions = originalDimensions.map(function (_a) {
@@ -104,7 +103,10 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
             });
         });
     };
+    FaceLandmark68NetBase.prototype.getClassifierChannelsOut = function () {
+        return 136;
+    };
     return FaceLandmark68NetBase;
-}(NeuralNetwork));
+}(FaceProcessor));
 export { FaceLandmark68NetBase };
 //# sourceMappingURL=FaceLandmark68NetBase.js.map

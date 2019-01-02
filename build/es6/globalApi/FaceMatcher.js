@@ -1,5 +1,4 @@
 import { FaceMatch } from '../classes/FaceMatch';
-import { FullFaceDescription } from '../classes/FullFaceDescription';
 import { LabeledFaceDescriptors } from '../classes/LabeledFaceDescriptors';
 import { euclideanDistance } from '../euclideanDistance';
 var FaceMatcher = /** @class */ (function () {
@@ -16,13 +15,13 @@ var FaceMatcher = /** @class */ (function () {
             if (desc instanceof LabeledFaceDescriptors) {
                 return desc;
             }
-            if (desc instanceof FullFaceDescription) {
-                return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor]);
-            }
             if (desc instanceof Float32Array) {
                 return new LabeledFaceDescriptors(createUniqueLabel(), [desc]);
             }
-            throw new Error("FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>");
+            if (desc.descriptor && desc.descriptor instanceof Float32Array) {
+                return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor]);
+            }
+            throw new Error("FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array | Array<LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array>");
         });
     }
     Object.defineProperty(FaceMatcher.prototype, "labeledDescriptors", {

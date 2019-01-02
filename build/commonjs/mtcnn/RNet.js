@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
-var fullyConnectedLayer_1 = require("../faceLandmarkNet/fullyConnectedLayer");
+var fullyConnectedLayer_1 = require("../common/fullyConnectedLayer");
 var prelu_1 = require("./prelu");
 var sharedLayers_1 = require("./sharedLayers");
 function RNet(x, params) {

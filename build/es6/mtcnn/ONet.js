@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { convLayer } from 'tfjs-tiny-yolov2';
-import { fullyConnectedLayer } from '../faceLandmarkNet/fullyConnectedLayer';
+import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { prelu } from './prelu';
 import { sharedLayer } from './sharedLayers';
 export function ONet(x, params) {

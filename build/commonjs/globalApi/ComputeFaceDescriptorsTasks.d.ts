@@ -1,15 +1,16 @@
 import { TNetInput } from 'tfjs-image-recognition-base';
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
-import { FullFaceDescription } from '../classes/FullFaceDescription';
+import { WithFaceDescriptor } from '../factories/WithFaceDescriptor';
+import { WithFaceDetection } from '../factories/WithFaceDetection';
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
-export declare class ComputeFaceDescriptorsTaskBase<TReturn, DetectFaceLandmarksReturnType> extends ComposableTask<TReturn> {
-    protected detectFaceLandmarksTask: ComposableTask<DetectFaceLandmarksReturnType> | Promise<DetectFaceLandmarksReturnType>;
+export declare class ComputeFaceDescriptorsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
+    protected parentTask: ComposableTask<TParentReturn> | Promise<TParentReturn>;
     protected input: TNetInput;
-    constructor(detectFaceLandmarksTask: ComposableTask<DetectFaceLandmarksReturnType> | Promise<DetectFaceLandmarksReturnType>, input: TNetInput);
+    constructor(parentTask: ComposableTask<TParentReturn> | Promise<TParentReturn>, input: TNetInput);
 }
-export declare class ComputeAllFaceDescriptorsTask extends ComputeFaceDescriptorsTaskBase<FullFaceDescription[], FaceDetectionWithLandmarks[]> {
-    run(): Promise<FullFaceDescription[]>;
+export declare class ComputeAllFaceDescriptorsTask<TSource extends WithFaceLandmarks<WithFaceDetection<{}>>> extends ComputeFaceDescriptorsTaskBase<WithFaceDescriptor<TSource>[], TSource[]> {
+    run(): Promise<WithFaceDescriptor<TSource>[]>;
 }
-export declare class ComputeSingleFaceDescriptorTask extends ComputeFaceDescriptorsTaskBase<FullFaceDescription | undefined, FaceDetectionWithLandmarks | undefined> {
-    run(): Promise<FullFaceDescription | undefined>;
+export declare class ComputeSingleFaceDescriptorTask<TSource extends WithFaceLandmarks<WithFaceDetection<{}>>> extends ComputeFaceDescriptorsTaskBase<WithFaceDescriptor<TSource> | undefined, TSource | undefined> {
+    run(): Promise<WithFaceDescriptor<TSource> | undefined>;
 }

@@ -1,5 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
+import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
+import { WithFaceDetection, WithFaceLandmarks } from '../factories';
 export declare type SharedParams = {
     conv1: ConvParams;
     prelu1_alpha: tf.Tensor1D;
@@ -32,3 +34,4 @@ export declare type NetParams = {
     rnet: RNetParams;
     onet: ONetParams;
 };
+export declare type MtcnnResult = WithFaceLandmarks<WithFaceDetection<{}>, FaceLandmarks5>;

@@ -4,12 +4,11 @@ var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var FaceLandmarks68_1 = require("../classes/FaceLandmarks68");
+var FaceProcessor_1 = require("../faceProcessor/FaceProcessor");
 var FaceLandmark68NetBase = /** @class */ (function (_super) {
     tslib_1.__extends(FaceLandmark68NetBase, _super);
-    function FaceLandmark68NetBase(_name) {
-        var _this = _super.call(this, _name) || this;
-        _this.__name = _name;
-        return _this;
+    function FaceLandmark68NetBase() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     FaceLandmark68NetBase.prototype.postProcess = function (output, inputSize, originalDimensions) {
         var inputDimensions = originalDimensions.map(function (_a) {
@@ -106,7 +105,10 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
             });
         });
     };
+    FaceLandmark68NetBase.prototype.getClassifierChannelsOut = function () {
+        return 136;
+    };
     return FaceLandmark68NetBase;
-}(tfjs_image_recognition_base_1.NeuralNetwork));
+}(FaceProcessor_1.FaceProcessor));
 exports.FaceLandmark68NetBase = FaceLandmark68NetBase;
 //# sourceMappingURL=FaceLandmark68NetBase.js.map

@@ -2,8 +2,8 @@ import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, Point, Rect, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
-import { FaceDetectionWithLandmarks } from '../classes/FaceDetectionWithLandmarks';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
+import { extendWithFaceDetection, extendWithFaceLandmarks } from '../factories';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
@@ -80,10 +80,10 @@ var Mtcnn = /** @class */ (function (_super) {
                     case 3:
                         out3 = _c.sent();
                         stats.total_stage3 = Date.now() - ts;
-                        results = out3.boxes.map(function (box, idx) { return new FaceDetectionWithLandmarks(new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
+                        results = out3.boxes.map(function (box, idx) { return extendWithFaceLandmarks(extendWithFaceDetection({}, new FaceDetection(out3.scores[idx], new Rect(box.left / width, box.top / height, box.width / width, box.height / height), {
                             height: height,
                             width: width
-                        }), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
+                        })), new FaceLandmarks5(out3.points[idx].map(function (pt) { return pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height)); }), { width: box.width, height: box.height })); });
                         return [2 /*return*/, onReturn({ results: results, stats: stats })];
                 }
             });

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var FaceExpressionNet_1 = require("../faceExpressionNet/FaceExpressionNet");
 var FaceLandmark68Net_1 = require("../faceLandmarkNet/FaceLandmark68Net");
 var FaceLandmark68TinyNet_1 = require("../faceLandmarkNet/FaceLandmark68TinyNet");
 var FaceRecognitionNet_1 = require("../faceRecognitionNet/FaceRecognitionNet");
@@ -14,7 +15,8 @@ exports.nets = {
     mtcnn: new Mtcnn_1.Mtcnn(),
     faceLandmark68Net: new FaceLandmark68Net_1.FaceLandmark68Net(),
     faceLandmark68TinyNet: new FaceLandmark68TinyNet_1.FaceLandmark68TinyNet(),
-    faceRecognitionNet: new FaceRecognitionNet_1.FaceRecognitionNet()
+    faceRecognitionNet: new FaceRecognitionNet_1.FaceRecognitionNet(),
+    faceExpressionNet: new FaceExpressionNet_1.FaceExpressionNet()
 };
 /**
  * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
@@ -92,6 +94,17 @@ exports.detectFaceLandmarksTiny = function (input) {
 exports.computeFaceDescriptor = function (input) {
     return exports.nets.faceRecognitionNet.computeFaceDescriptor(input);
 };
+/**
+ * Recognizes the facial expressions of a face and returns the likelyhood of
+ * each facial expression.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ */
+exports.recognizeFaceExpressions = function (input) {
+    return exports.nets.faceExpressionNet.predictExpressions(input);
+};
 exports.loadSsdMobilenetv1Model = function (url) { return exports.nets.ssdMobilenetv1.load(url); };
 exports.loadTinyFaceDetectorModel = function (url) { return exports.nets.tinyFaceDetector.load(url); };
 exports.loadMtcnnModel = function (url) { return exports.nets.mtcnn.load(url); };
@@ -99,6 +112,7 @@ exports.loadTinyYolov2Model = function (url) { return exports.nets.tinyYolov2.lo
 exports.loadFaceLandmarkModel = function (url) { return exports.nets.faceLandmark68Net.load(url); };
 exports.loadFaceLandmarkTinyModel = function (url) { return exports.nets.faceLandmark68TinyNet.load(url); };
 exports.loadFaceRecognitionModel = function (url) { return exports.nets.faceRecognitionNet.load(url); };
+exports.loadFaceExpressionModel = function (url) { return exports.nets.faceExpressionNet.load(url); };
 // backward compatibility
 exports.loadFaceDetectionModel = exports.loadSsdMobilenetv1Model;
 exports.locateFaces = exports.ssdMobilenetv1;
