@@ -16,6 +16,7 @@ Table of Contents:
   * **[Face Detection Models](#models-face-detection)**
   * **[68 Point Face Landmark Detection Models](#models-face-landmark-detection)**
   * **[Face Recognition Model](#models-face-recognition)**
+  * **[Face Expression Recognition Model](#models-face-expression-recognition)**
 * **[Getting Started](#getting-started)**
   * **[face-api.js for the Browser](#getting-started-browser)**
   * **[face-api.js for Nodejs](#getting-started-nodejs)**
@@ -60,6 +61,10 @@ Check out my face-api.js tutorials:
 ## Face Similarity
 
 ![preview_face-similarity](https://user-images.githubusercontent.com/31125521/40316573-0a1190c0-5d1f-11e8-8797-f6deaa344523.gif)
+
+## Face Expression Recognition
+
+![preview_face-expression-recognition](https://user-images.githubusercontent.com/31125521/50575270-f501d080-0dfb-11e9-9676-8f419efdade4.png)
 
 ## Face Landmark Detection
 
@@ -161,6 +166,12 @@ The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognit
 
 The size of the quantized model is roughly 6.2 MB (**face_recognition_model**).
 
+<a name="models-face-expression-recognition"></a>
+
+## Face Expression Recognition Model
+
+The face expression recognition model is lightweight, fast and provides reasonable accuracy. The model has a size of roughly 310kb and it employs depthwise separable convolutions and densely connected blocks. It has been trained on a variety of images from publicly available datasets as well as images scraped from the web. Note, that wearing glasses might decrease the accuracy of the prediction results.
+
 <a name="getting-started"></a>
 
 # Getting Started
@@ -228,6 +239,7 @@ await faceapi.loadSsdMobilenetv1Model('/models')
 // await faceapi.loadFaceLandmarkModel('/models')
 // await faceapi.loadFaceLandmarkTinyModel('/models')
 // await faceapi.loadFaceRecognitionModel('/models')
+// await faceapi.loadFaceExpressionModel('/models')
 ```
 
 All global neural network instances are exported via faceapi.nets:
@@ -352,6 +364,42 @@ Detect the face with the highest confidence score in an image + computes 68 Poin
 
 ``` javascript
 const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
+```
+
+### Recognizing Face Expressions
+
+**Face expressions recognition can be performed for detected faces as follows:**
+
+Detect all faces in an image + recognize face expressions. Returns **Array<[WithFaceExpressions<WithFaceDetection<{}>>](#usage-utility-classes)>**:
+
+``` javascript
+const detectionsWithExpressions = await faceapi.detectAllFaces(input).withFaceExpressions()
+```
+
+Detect the face with the highest confidence score in an image + recognize the face expression for that face. Returns **[WithFaceExpressions<WithFaceDetection<{}>>](#usage-utility-classes) | undefined**:
+
+``` javascript
+const detectionWithExpressions = await faceapi.detectSingleFace(input).withFaceExpressions()
+```
+
+### Composition of Tasks
+
+**Tasks can be composed as follows:**
+
+``` javascript
+// all faces
+await faceapi.detectAllFaces(input)
+await faceapi.detectAllFaces(input).withFaceExpressions()
+await faceapi.detectAllFaces(input).withFaceLandmarks()
+await faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks()
+await faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptors()
+
+// single face
+await faceapi.detectSingleFace(input)
+await faceapi.detectSingleFace(input).withFaceExpressions()
+await faceapi.detectSingleFace(input).withFaceLandmarks()
+await faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks()
+await faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptor()
 ```
 
 ### Face Recognition by Matching Descriptors
@@ -608,6 +656,23 @@ export type WithFaceLandmarks<TSource> TSource & {
 ``` javascript
 export type WithFaceDescriptor<TSource> TSource & {
   descriptor: Float32Array
+}
+```
+
+<a name="with-face-expressions"></a>
+
+### WithFaceExpressions
+
+``` javascript
+export type FaceExpression = 'neutral' | 'happy' | 'sad' | 'angry' | 'fearful' | 'disgusted' | 'surprised'
+
+export type FaceExpressionPrediction = {
+  expression: FaceExpression,
+  probability: number
+}
+
+export type WithFaceExpressions<TSource> TSource & {
+  expressions: FaceExpressionPrediction[]
 }
 ```
 
