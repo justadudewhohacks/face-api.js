@@ -13,4 +13,8 @@ export class FaceDetection extends ObjectDetection implements IFaceDetecion {
   ) {
     super(score, score, '', relativeBox, imageDims)
   }
+
+  public forSize(width: number, height: number): FaceDetection {
+    return super.forSize(width, height)
+  }
 }

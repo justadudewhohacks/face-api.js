@@ -10,8 +10,21 @@ async function loadImageFromUrl(url) {
   updateResults()
 }
 
-function renderImageSelectList(selectListId, onChange, initialValue) {
-  const images = [1, 2, 3, 4, 5].map(idx => `bbt${idx}.jpg`)
+function renderImageSelectList(selectListId, onChange, initialValue, withFaceExpressionImages) {
+  let images = [1, 2, 3, 4, 5].map(idx => `bbt${idx}.jpg`)
+
+  if (withFaceExpressionImages) {
+    images = [
+      'happy.jpg',
+      'sad.jpg',
+      'angry.jpg',
+      'disgusted.jpg',
+      'surprised.jpg',
+      'fearful.jpg',
+      'neutral.jpg'
+    ].concat(images)
+  }
+
   function renderChildren(select) {
     images.forEach(imageName =>
       renderOption(
@@ -30,13 +43,14 @@ function renderImageSelectList(selectListId, onChange, initialValue) {
   )
 }
 
-function initImageSelectionControls() {
+function initImageSelectionControls(initialValue = 'bbt1.jpg', withFaceExpressionImages = false) {
   renderImageSelectList(
     '#selectList',
     async (uri) => {
       await onSelectedImageChanged(uri)
     },
-    'bbt1.jpg'
+    initialValue,
+    withFaceExpressionImages
   )
   onSelectedImageChanged($('#selectList select').val())
 }

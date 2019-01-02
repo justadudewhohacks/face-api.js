@@ -1,7 +1,7 @@
 import { FaceMatch } from '../classes/FaceMatch';
-import { FullFaceDescription } from '../classes/FullFaceDescription';
 import { LabeledFaceDescriptors } from '../classes/LabeledFaceDescriptors';
 import { euclideanDistance } from '../euclideanDistance';
+import { WithFaceDescriptor } from '../factories';
 
 export class FaceMatcher {
 
@@ -9,7 +9,7 @@ export class FaceMatcher {
   private _distanceThreshold: number
 
   constructor(
-    inputs: LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>,
+    inputs: LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array | Array<LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array>,
     distanceThreshold: number = 0.6
   ) {
 
@@ -29,15 +29,15 @@ export class FaceMatcher {
         return desc
       }
 
-      if (desc instanceof FullFaceDescription) {
-        return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor])
-      }
-
       if (desc instanceof Float32Array) {
         return new LabeledFaceDescriptors(createUniqueLabel(), [desc])
       }
 
-      throw new Error(`FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | FullFaceDescription | Float32Array | Array<LabeledFaceDescriptors | FullFaceDescription | Float32Array>`)
+      if (desc.descriptor && desc.descriptor instanceof Float32Array) {
+        return new LabeledFaceDescriptors(createUniqueLabel(), [desc.descriptor])
+      }
+
+      throw new Error(`FaceRecognizer.constructor - expected inputs to be of type LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array | Array<LabeledFaceDescriptors | WithFaceDescriptor<any> | Float32Array>`)
     })
   }
 

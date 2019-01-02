@@ -11,9 +11,10 @@ async function run() {
 
   const out = faceapi.createCanvasFromMedia(img) as any
   faceapi.drawDetection(out, results.map(res => res.detection))
-  faceapi.drawLandmarks(out, results.map(res => res.faceLandmarks), { drawLines: true, color: 'red' })
+  faceapi.drawLandmarks(out, results.map(res => res.landmarks), { drawLines: true, color: 'red' })
 
   saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
+  console.log('done, saved results to out/faceLandmarkDetection.jpg')
 }
 
 run()

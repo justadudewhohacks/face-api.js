@@ -7,7 +7,6 @@ import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWit
 import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
 import { loadImage } from '../../env';
 import * as tf from '@tensorflow/tfjs-core';
-import { FullFaceDescription } from '../../../src/classes/FullFaceDescription';
 
 describe('tinyFaceDetector - node', () => {
 
@@ -89,9 +88,10 @@ describe('tinyFaceDetector - node', () => {
         maxLandmarksDelta: 10,
         maxDescriptorDelta: 0.2
       }
-      expect(result instanceof FullFaceDescription).toBe(true)
+      
+      expect(!!result).toBeTruthy()
       expectFullFaceDescriptions(
-        [result as FullFaceDescription],
+        result ? [result] : [],
         [expectedFullFaceDescriptions[2]],
         [expectedScores[2]],
         deltas

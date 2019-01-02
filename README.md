@@ -16,6 +16,7 @@ Table of Contents:
   * **[Face Detection Models](#models-face-detection)**
   * **[68 Point Face Landmark Detection Models](#models-face-landmark-detection)**
   * **[Face Recognition Model](#models-face-recognition)**
+  * **[Face Expression Recognition Model](#models-face-expression-recognition)**
 * **[Getting Started](#getting-started)**
   * **[face-api.js for the Browser](#getting-started-browser)**
   * **[face-api.js for Nodejs](#getting-started-nodejs)**
@@ -60,6 +61,10 @@ Check out my face-api.js tutorials:
 ## Face Similarity
 
 ![preview_face-similarity](https://user-images.githubusercontent.com/31125521/40316573-0a1190c0-5d1f-11e8-8797-f6deaa344523.gif)
+
+## Face Expression Recognition
+
+![preview_face-expression-recognition](https://user-images.githubusercontent.com/31125521/50575270-f501d080-0dfb-11e9-9676-8f419efdade4.png)
 
 ## Face Landmark Detection
 
@@ -161,6 +166,12 @@ The neural net is equivalent to the **FaceRecognizerNet** used in [face-recognit
 
 The size of the quantized model is roughly 6.2 MB (**face_recognition_model**).
 
+<a name="models-face-expression-recognition"></a>
+
+## Face Expression Recognition Model
+
+The face expression recognition model is lightweight, fast and provides reasonable accuracy. The model has a size of roughly 310kb and it employs depthwise separable convolutions and densely connected blocks. It has been trained on a variety of images from publicly available datasets as well as images scraped from the web. Note, that wearing glasses might decrease the accuracy of the prediction results.
+
 <a name="getting-started"></a>
 
 # Getting Started
@@ -228,6 +239,7 @@ await faceapi.loadSsdMobilenetv1Model('/models')
 // await faceapi.loadFaceLandmarkModel('/models')
 // await faceapi.loadFaceLandmarkTinyModel('/models')
 // await faceapi.loadFaceRecognitionModel('/models')
+// await faceapi.loadFaceExpressionModel('/models')
 ```
 
 All global neural network instances are exported via faceapi.nets:
@@ -319,13 +331,13 @@ You can tune the options of each face detector as shown [here](#usage-face-detec
 
 **After face detection, we can furthermore predict the facial landmarks for each detected face as follows:**
 
-Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[FaceDetectionWithLandmarks](#interface-face-detection-with-landmarks)>**:
+Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceLandmarks<WithFaceDetection<{}>>](#usage-utility-classes)>**:
 
 ``` javascript
 const detectionsWithLandmarks = await faceapi.detectAllFaces(input).withFaceLandmarks()
 ```
 
-Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks for that face. Returns **[FaceDetectionWithLandmarks](#interface-face-detection-with-landmarks) | undefined**:
+Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks for that face. Returns **[WithFaceLandmarks<WithFaceDetection<{}>>](#usage-utility-classes) | undefined**:
 
 ``` javascript
 const detectionWithLandmarks = await faceapi.detectSingleFace(input).withFaceLandmarks()
@@ -342,16 +354,52 @@ const detectionsWithLandmarks = await faceapi.detectAllFaces(input).withFaceLand
 
 **After face detection and facial landmark prediction the face descriptors for each face can be computed as follows:**
 
-Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[FullFaceDescription](#interface-full-face-description)>**:
+Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#usage-utility-classes)>**:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()
+const results = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()
 ```
 
-Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns **[FullFaceDescription](#interface-full-face-description) | undefined**:
+Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns **[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#usage-utility-classes) | undefined**:
 
 ``` javascript
-const fullFaceDescription = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
+const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
+```
+
+### Recognizing Face Expressions
+
+**Face expressions recognition can be performed for detected faces as follows:**
+
+Detect all faces in an image + recognize face expressions. Returns **Array<[WithFaceExpressions<WithFaceDetection<{}>>](#usage-utility-classes)>**:
+
+``` javascript
+const detectionsWithExpressions = await faceapi.detectAllFaces(input).withFaceExpressions()
+```
+
+Detect the face with the highest confidence score in an image + recognize the face expression for that face. Returns **[WithFaceExpressions<WithFaceDetection<{}>>](#usage-utility-classes) | undefined**:
+
+``` javascript
+const detectionWithExpressions = await faceapi.detectSingleFace(input).withFaceExpressions()
+```
+
+### Composition of Tasks
+
+**Tasks can be composed as follows:**
+
+``` javascript
+// all faces
+await faceapi.detectAllFaces(input)
+await faceapi.detectAllFaces(input).withFaceExpressions()
+await faceapi.detectAllFaces(input).withFaceLandmarks()
+await faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks()
+await faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptors()
+
+// single face
+await faceapi.detectSingleFace(input)
+await faceapi.detectSingleFace(input).withFaceExpressions()
+await faceapi.detectSingleFace(input).withFaceLandmarks()
+await faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks()
+await faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptor()
 ```
 
 ### Face Recognition by Matching Descriptors
@@ -361,30 +409,30 @@ To perform face recognition, one can use faceapi.FaceMatcher to compare referenc
 First, we initialize the FaceMatcher with the reference data, for example we can simply detect faces in a **referenceImage** and match the descriptors of the detected faces to faces of subsquent images:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi
+const results = await faceapi
   .detectAllFaces(referenceImage)
   .withFaceLandmarks()
   .withFaceDescriptors()
 
-if (!fullFaceDescriptions.length) {
+if (!results.length) {
   return
 }
 
 // create FaceMatcher with automatically assigned labels
 // from the detection results for the reference image
-const faceMatcher = new faceapi.FaceMatcher(fullFaceDescriptions)
+const faceMatcher = new faceapi.FaceMatcher(results)
 ```
 
 Now we can recognize a persons face shown in **queryImage1**:
 
 ``` javascript
-const singleFullFaceDescription = await faceapi
+const singleResult = await faceapi
   .detectSingleFace(queryImage1)
   .withFaceLandmarks()
   .withFaceDescriptor()
 
-if (singleFullFaceDescription) {
-  const bestMatch = faceMatcher.findBestMatch(singleFullFaceDescription.descriptor)
+if (singleResult) {
+  const bestMatch = faceMatcher.findBestMatch(singleResult.descriptor)
   console.log(bestMatch.toString())
 }
 ```
@@ -392,12 +440,12 @@ if (singleFullFaceDescription) {
 Or we can recognize all faces shown in **queryImage2**:
 
 ``` javascript
-const fullFaceDescriptions = await faceapi
+const results = await faceapi
   .detectAllFaces(queryImage2)
   .withFaceLandmarks()
   .withFaceDescriptors()
 
-fullFaceDescriptions.forEach(fd => {
+results.forEach(fd => {
   const bestMatch = faceMatcher.findBestMatch(fd.descriptor)
   console.log(bestMatch.toString())
 })
@@ -430,7 +478,7 @@ Drawing the detected faces into a canvas:
 const detections = await faceapi.detectAllFaces(input)
 
 // resize the detected boxes in case your displayed image has a different size then the original
-const detectionsForSize = detections.map(det => det.forSize(input.width, input.height))
+const detectionsForSize = faceapi.resizeResults(detections, { width: input.width, height: input.height })
 // draw them into a canvas
 const canvas = document.getElementById('overlay')
 canvas.width = input.width
@@ -446,7 +494,7 @@ const detectionsWithLandmarks = await faceapi
   .withFaceLandmarks()
 
 // resize the detected boxes and landmarks in case your displayed image has a different size then the original
-const detectionsWithLandmarksForSize = detectionsWithLandmarks.map(det => det.forSize(input.width, input.height))
+const detectionsWithLandmarksForSize = faceapi.resizeResults(detectionsWithLandmarks, { width: input.width, height: input.height })
 // draw them into a canvas
 const canvas = document.getElementById('overlay')
 canvas.width = input.width
@@ -579,24 +627,52 @@ export interface IFaceLandmarks {
 }
 ```
 
-<a name="interface-face-detection-with-landmarks"></a>
+<a name="with-face-detection"></a>
 
-### IFaceDetectionWithLandmarks
+### WithFaceDetection
 
 ``` javascript
-export interface IFaceDetectionWithLandmarks {
+export type WithFaceDetection<TSource> TSource & {
   detection: FaceDetection
-  landmarks: FaceLandmarks
 }
 ```
 
-<a name="interface-full-face-description"></a>
+<a name="with-face-landmarks"></a>
 
-### IFullFaceDescription
+### WithFaceLandmarks
 
 ``` javascript
-export interface IFullFaceDescription extends IFaceDetectionWithLandmarks {
+export type WithFaceLandmarks<TSource> TSource & {
+  unshiftedLandmarks: FaceLandmarks
+  landmarks: FaceLandmarks
+  alignedRect: FaceDetection
+}
+```
+
+<a name="with-face-descriptor"></a>
+
+### WithFaceDescriptor
+
+``` javascript
+export type WithFaceDescriptor<TSource> TSource & {
   descriptor: Float32Array
+}
+```
+
+<a name="with-face-expressions"></a>
+
+### WithFaceExpressions
+
+``` javascript
+export type FaceExpression = 'neutral' | 'happy' | 'sad' | 'angry' | 'fearful' | 'disgusted' | 'surprised'
+
+export type FaceExpressionPrediction = {
+  expression: FaceExpression,
+  probability: number
+}
+
+export type WithFaceExpressions<TSource> TSource & {
+  expressions: FaceExpressionPrediction[]
 }
 ```
 

@@ -1,10 +1,10 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { getContext2dOrThrow } from 'tfjs-image-recognition-base';
 
 import * as faceapi from '../src';
-import { createCanvasFromMedia, FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
+import { FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
+import { FaceExpressionNet } from '../src/faceExpressionNet/FaceExpressionNet';
 import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
 import { SsdMobilenetv1 } from '../src/ssdMobilenetv1/SsdMobilenetv1';
@@ -12,7 +12,7 @@ import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
 import { initNet, loadJson } from './env';
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
-  expect(Math.abs(val1 - val2)).toBeLessThan(maxDelta)
+  expect(Math.abs(val1 - val2)).toBeLessThanOrEqual(maxDelta)
 }
 
 export async function expectAllTensorsReleased(fn: () => any) {
@@ -30,7 +30,16 @@ export function expectPointClose(
   expectedPoint: IPoint,
   maxDelta: number
 ) {
-  expect(pointDistance(result, expectedPoint)).toBeLessThan(maxDelta)
+  expect(pointDistance(result, expectedPoint)).toBeLessThanOrEqual(maxDelta)
+}
+
+export function expectPointsClose(
+  results: IPoint[],
+  expectedPoints: IPoint[],
+  maxDelta: number
+) {
+  expect(results.length).toEqual(expectedPoints.length)
+  results.forEach((pt, j) => expectPointClose(pt, expectedPoints[j], maxDelta))
 }
 
 export function expectRectClose(
@@ -104,6 +113,7 @@ export type InjectNetArgs = {
   faceLandmark68TinyNet: FaceLandmark68TinyNet
   faceRecognitionNet: FaceRecognitionNet
   mtcnn: Mtcnn
+  faceExpressionNet: FaceExpressionNet
   tinyYolov2: TinyYolov2
 }
 
@@ -118,6 +128,7 @@ export type DescribeWithNetsOptions = {
   withFaceLandmark68TinyNet?: WithNetOptions
   withFaceRecognitionNet?: WithNetOptions
   withMtcnn?: WithNetOptions
+  withFaceExpressionNet?: WithNetOptions
   withTinyYolov2?: WithTinyYolov2Options
 }
 
@@ -135,6 +146,7 @@ export function describeWithNets(
       faceLandmark68TinyNet,
       faceRecognitionNet,
       mtcnn,
+      faceExpressionNet,
       tinyYolov2
     } = faceapi.nets
 
@@ -150,6 +162,7 @@ export function describeWithNets(
         withFaceLandmark68TinyNet,
         withFaceRecognitionNet,
         withMtcnn,
+        withFaceExpressionNet,
         withTinyYolov2
       } = options
 
@@ -195,6 +208,13 @@ export function describeWithNets(
         )
       }
 
+      if (withFaceExpressionNet) {
+        await initNet<FaceExpressionNet>(
+          faceExpressionNet,
+          !!withFaceExpressionNet && !withFaceExpressionNet.quantized && 'face_expression_model.weights'
+        )
+      }
+
       if (withTinyYolov2 || withAllFacesTinyYolov2) {
         await initNet<TinyYolov2>(
           tinyYolov2,
@@ -202,6 +222,8 @@ export function describeWithNets(
           true
         )
       }
+
+
     })
 
     afterAll(() => {
@@ -211,6 +233,7 @@ export function describeWithNets(
       mtcnn.isLoaded && mtcnn.dispose()
       tinyFaceDetector.isLoaded && tinyFaceDetector.dispose()
       tinyYolov2.isLoaded && tinyYolov2.dispose()
+      faceExpressionNet.isLoaded && faceExpressionNet.dispose()
     })
 
     specDefinitions({
@@ -220,6 +243,7 @@ export function describeWithNets(
       faceLandmark68TinyNet,
       faceRecognitionNet,
       mtcnn,
+      faceExpressionNet,
       tinyYolov2
     })
   })

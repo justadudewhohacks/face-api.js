@@ -3,7 +3,7 @@
   right: 0;
   margin: auto;
   margin-top: 20px;
-  padding-left: 260px;
+  padding-left: 280px;
   display: inline-flex !important;
 }
 
@@ -51,6 +51,10 @@
 
 .button-sm {
   padding: 0 10px !important;
+}
+
+.pad-sides-sm {
+  padding: 0 8px !important;
 }
 
 #github-link {
