@@ -171,7 +171,7 @@
       updateTimeStats(Date.now() - ts)
 
       if (result) {
-        drawFaceExpressions(videoEl, $('#overlay').get(0), [result], withBoxes)
+        drawExpressions(videoEl, $('#overlay').get(0), [result], withBoxes)
       }
 
       setTimeout(() => onPlay())
