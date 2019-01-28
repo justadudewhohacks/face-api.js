@@ -5,8 +5,8 @@ import { normalize } from './normalize';
 export function extractImagePatches(img, boxes, _a) {
     var width = _a.width, height = _a.height;
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var _this = this;
         var imgCtx, bitmaps, imagePatchesDatas;
+        var _this = this;
         return tslib_1.__generator(this, function (_b) {
             switch (_b.label) {
                 case 0:

@@ -67,8 +67,8 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
     };
     FaceLandmark68NetBase.prototype.detectLandmarks = function (input) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _this = this;
             var netInput, landmarkTensors, landmarksForBatch;
+            var _this = this;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];

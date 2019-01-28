@@ -4,7 +4,7 @@ var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var extractorsFactory_1 = require("./extractorsFactory");
 function extractParamsTiny(weights) {
     var paramMappings = [];
-    var _a = tfjs_image_recognition_base_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var extractDenseBlock3Params = extractorsFactory_1.extractorsFactory(extractWeights, paramMappings).extractDenseBlock3Params;
     var dense0 = extractDenseBlock3Params(3, 32, 'dense0', true);
     var dense1 = extractDenseBlock3Params(32, 64, 'dense1');

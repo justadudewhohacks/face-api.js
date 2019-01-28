@@ -7,11 +7,11 @@ var FaceRecognitionNet_1 = require("../faceRecognitionNet/FaceRecognitionNet");
 var Mtcnn_1 = require("../mtcnn/Mtcnn");
 var SsdMobilenetv1_1 = require("../ssdMobilenetv1/SsdMobilenetv1");
 var TinyFaceDetector_1 = require("../tinyFaceDetector/TinyFaceDetector");
-var TinyYolov2_1 = require("../tinyYolov2/TinyYolov2");
+var tinyYolov2_1 = require("../tinyYolov2");
 exports.nets = {
     ssdMobilenetv1: new SsdMobilenetv1_1.SsdMobilenetv1(),
     tinyFaceDetector: new TinyFaceDetector_1.TinyFaceDetector(),
-    tinyYolov2: new TinyYolov2_1.TinyYolov2(),
+    tinyYolov2: new tinyYolov2_1.TinyYolov2(),
     mtcnn: new Mtcnn_1.Mtcnn(),
     faceLandmark68Net: new FaceLandmark68Net_1.FaceLandmark68Net(),
     faceLandmark68TinyNet: new FaceLandmark68TinyNet_1.FaceLandmark68TinyNet(),

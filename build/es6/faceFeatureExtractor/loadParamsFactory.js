@@ -1,7 +1,6 @@
-import { extractWeightEntryFactory } from 'tfjs-image-recognition-base';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 export function loadParamsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
     function extractConvParams(prefix) {
         var filters = extractWeightEntry(prefix + "/filters", 4);
         var bias = extractWeightEntry(prefix + "/bias", 1);
@@ -11,7 +10,7 @@ export function loadParamsFactory(weightMap, paramMappings) {
         var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
         var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
         var bias = extractWeightEntry(prefix + "/bias", 1);
-        return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        return new TfjsImageRecognitionBase.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
     }
     function extractDenseBlock3Params(prefix, isFirstLayer) {
         if (isFirstLayer === void 0) { isFirstLayer = false; }

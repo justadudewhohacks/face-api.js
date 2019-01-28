@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var WithFaceDetection_1 = require("../factories/WithFaceDetection");
 var MtcnnOptions_1 = require("../mtcnn/MtcnnOptions");
 var SsdMobilenetv1Options_1 = require("../ssdMobilenetv1/SsdMobilenetv1Options");
@@ -43,7 +43,7 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
                             ? function (input) { return nets_1.nets.tinyFaceDetector.locateFaces(input, options); }
                             : (options instanceof SsdMobilenetv1Options_1.SsdMobilenetv1Options
                                 ? function (input) { return nets_1.nets.ssdMobilenetv1.locateFaces(input, options); }
-                                : (options instanceof tfjs_tiny_yolov2_1.TinyYolov2Options
+                                : (options instanceof tfjs_image_recognition_base_1.TfjsImageRecognitionBase.TinyYolov2Options
                                     ? function (input) { return nets_1.nets.tinyYolov2.locateFaces(input, options); }
                                     : null));
                         if (!faceDetectionFunction) {

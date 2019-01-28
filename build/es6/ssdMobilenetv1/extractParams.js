@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory } from 'tfjs-image-recognition-base';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(extractWeights, paramMappings) {
     function extractDepthwiseConvParams(numChannels, mappedPrefix) {
         var filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1]);
@@ -135,7 +135,7 @@ function extractorsFactory(extractWeights, paramMappings) {
 }
 export function extractParams(weights) {
     var paramMappings = [];
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var _b = extractorsFactory(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
     var mobilenetv1 = extractMobilenetV1Params();
     var prediction_layer = extractPredictionLayerParams();

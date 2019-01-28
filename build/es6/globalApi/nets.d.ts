@@ -1,5 +1,4 @@
-import { TNetInput } from 'tfjs-image-recognition-base';
-import { ITinyYolov2Options } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase, TNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
@@ -15,7 +14,7 @@ import { SsdMobilenetv1 } from '../ssdMobilenetv1/SsdMobilenetv1';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1/SsdMobilenetv1Options';
 import { TinyFaceDetector } from '../tinyFaceDetector/TinyFaceDetector';
 import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOptions';
-import { TinyYolov2 } from '../tinyYolov2/TinyYolov2';
+import { TinyYolov2 } from '../tinyYolov2';
 export declare const nets: {
     ssdMobilenetv1: SsdMobilenetv1;
     tinyFaceDetector: TinyFaceDetector;
@@ -49,7 +48,7 @@ export declare const tinyFaceDetector: (input: TNetInput, options: TinyFaceDetec
  * @param options (optional, default: see TinyYolov2Options constructor for default parameters).
  * @returns Bounding box of each face with score.
  */
-export declare const tinyYolov2: (input: TNetInput, options: ITinyYolov2Options) => Promise<FaceDetection[]>;
+export declare const tinyYolov2: (input: TNetInput, options: TfjsImageRecognitionBase.ITinyYolov2Options) => Promise<FaceDetection[]>;
 /**
  * Attempts to detect all faces in an image and the 5 point face landmarks
  * of each detected face using the MTCNN Network.

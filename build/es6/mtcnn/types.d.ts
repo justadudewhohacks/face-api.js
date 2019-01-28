@@ -1,33 +1,33 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams, FCParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { WithFaceDetection, WithFaceLandmarks } from '../factories';
 export declare type SharedParams = {
-    conv1: ConvParams;
+    conv1: TfjsImageRecognitionBase.ConvParams;
     prelu1_alpha: tf.Tensor1D;
-    conv2: ConvParams;
+    conv2: TfjsImageRecognitionBase.ConvParams;
     prelu2_alpha: tf.Tensor1D;
-    conv3: ConvParams;
+    conv3: TfjsImageRecognitionBase.ConvParams;
     prelu3_alpha: tf.Tensor1D;
 };
 export declare type PNetParams = SharedParams & {
-    conv4_1: ConvParams;
-    conv4_2: ConvParams;
+    conv4_1: TfjsImageRecognitionBase.ConvParams;
+    conv4_2: TfjsImageRecognitionBase.ConvParams;
 };
 export declare type RNetParams = SharedParams & {
-    fc1: FCParams;
+    fc1: TfjsImageRecognitionBase.FCParams;
     prelu4_alpha: tf.Tensor1D;
-    fc2_1: FCParams;
-    fc2_2: FCParams;
+    fc2_1: TfjsImageRecognitionBase.FCParams;
+    fc2_2: TfjsImageRecognitionBase.FCParams;
 };
 export declare type ONetParams = SharedParams & {
-    conv4: ConvParams;
+    conv4: TfjsImageRecognitionBase.ConvParams;
     prelu4_alpha: tf.Tensor1D;
-    fc1: FCParams;
+    fc1: TfjsImageRecognitionBase.FCParams;
     prelu5_alpha: tf.Tensor1D;
-    fc2_1: FCParams;
-    fc2_2: FCParams;
-    fc2_3: FCParams;
+    fc2_1: TfjsImageRecognitionBase.FCParams;
+    fc2_2: TfjsImageRecognitionBase.FCParams;
+    fc2_3: TfjsImageRecognitionBase.FCParams;
 };
 export declare type NetParams = {
     pnet: PNetParams;

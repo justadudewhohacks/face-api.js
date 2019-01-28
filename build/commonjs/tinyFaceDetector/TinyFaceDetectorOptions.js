@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var TinyFaceDetectorOptions = /** @class */ (function (_super) {
     tslib_1.__extends(TinyFaceDetectorOptions, _super);
     function TinyFaceDetectorOptions() {
@@ -10,6 +10,6 @@ var TinyFaceDetectorOptions = /** @class */ (function (_super) {
         return _this;
     }
     return TinyFaceDetectorOptions;
-}(tfjs_tiny_yolov2_1.TinyYolov2Options));
+}(tfjs_image_recognition_base_1.TfjsImageRecognitionBase.TinyYolov2Options));
 exports.TinyFaceDetectorOptions = TinyFaceDetectorOptions;
 //# sourceMappingURL=TinyFaceDetectorOptions.js.map

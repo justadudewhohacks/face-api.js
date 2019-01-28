@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 export declare type ScaleLayerParams = {
     weights: tf.Tensor1D;
     biases: tf.Tensor1D;
@@ -9,7 +9,7 @@ export declare type ResidualLayerParams = {
     conv2: ConvLayerParams;
 };
 export declare type ConvLayerParams = {
-    conv: ConvParams;
+    conv: TfjsImageRecognitionBase.ConvParams;
     scale: ScaleLayerParams;
 };
 export declare type NetParams = {

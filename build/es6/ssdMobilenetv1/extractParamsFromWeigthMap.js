@@ -1,6 +1,6 @@
-import { disposeUnusedWeightTensors, extractWeightEntryFactory, isTensor3D, } from 'tfjs-image-recognition-base';
+import { isTensor3D, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
     function extractPointwiseConvParams(prefix, idx, mappedPrefix) {
         var filters = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/weights", 4, mappedPrefix + "/filters");
         var batch_norm_offset = extractWeightEntry(prefix + "/Conv2d_" + idx + "_pointwise/convolution_bn_offset", 1, mappedPrefix + "/batch_norm_offset");
@@ -93,7 +93,7 @@ export function extractParamsFromWeigthMap(weightMap) {
             extra_dim: extra_dim
         }
     };
-    disposeUnusedWeightTensors(weightMap, paramMappings);
+    TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
 //# sourceMappingURL=extractParamsFromWeigthMap.js.map

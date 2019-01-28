@@ -1,5 +1,5 @@
 import * as tslib_1 from "tslib";
-import { TinyYolov2Options } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { extendWithFaceDetection } from '../factories/WithFaceDetection';
 import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1/SsdMobilenetv1Options';
@@ -41,7 +41,7 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
                             ? function (input) { return nets.tinyFaceDetector.locateFaces(input, options); }
                             : (options instanceof SsdMobilenetv1Options
                                 ? function (input) { return nets.ssdMobilenetv1.locateFaces(input, options); }
-                                : (options instanceof TinyYolov2Options
+                                : (options instanceof TfjsImageRecognitionBase.TinyYolov2Options
                                     ? function (input) { return nets.tinyYolov2.locateFaces(input, options); }
                                     : null));
                         if (!faceDetectionFunction) {

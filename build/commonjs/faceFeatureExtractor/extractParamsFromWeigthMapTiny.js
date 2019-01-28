@@ -10,7 +10,7 @@ function extractParamsFromWeigthMapTiny(weightMap) {
         dense1: extractDenseBlock3Params('dense1'),
         dense2: extractDenseBlock3Params('dense2')
     };
-    tfjs_image_recognition_base_1.disposeUnusedWeightTensors(weightMap, paramMappings);
+    tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
 exports.extractParamsFromWeigthMapTiny = extractParamsFromWeigthMapTiny;

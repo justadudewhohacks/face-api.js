@@ -1,14 +1,14 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractConvParamsFactory, SeparableConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 export function extractorsFactory(extractWeights, paramMappings) {
     function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
         var depthwise_filter = tf.tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
         var pointwise_filter = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
         var bias = tf.tensor1d(extractWeights(channelsOut));
         paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
-        return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        return new TfjsImageRecognitionBase.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
     }
-    var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+    var extractConvParams = TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings);
     function extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer) {
         if (isFirstLayer === void 0) { isFirstLayer = false; }
         var conv0 = isFirstLayer

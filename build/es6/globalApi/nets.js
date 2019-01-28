@@ -5,7 +5,7 @@ import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
 import { Mtcnn } from '../mtcnn/Mtcnn';
 import { SsdMobilenetv1 } from '../ssdMobilenetv1/SsdMobilenetv1';
 import { TinyFaceDetector } from '../tinyFaceDetector/TinyFaceDetector';
-import { TinyYolov2 } from '../tinyYolov2/TinyYolov2';
+import { TinyYolov2 } from '../tinyYolov2';
 export var nets = {
     ssdMobilenetv1: new SsdMobilenetv1(),
     tinyFaceDetector: new TinyFaceDetector(),

@@ -12,7 +12,7 @@ export declare class MtcnnOptions {
     private _maxNumScales;
     private _scoreThresholds;
     private _scaleSteps;
-    constructor({minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps}?: IMtcnnOptions);
+    constructor({ minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps }?: IMtcnnOptions);
     readonly minFaceSize: number;
     readonly scaleFactor: number;
     readonly maxNumScales: number;

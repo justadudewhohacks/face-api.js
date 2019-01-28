@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 function extractorsFactory(weightMap, paramMappings) {
-    var extractWeightEntry = tfjs_image_recognition_base_1.extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
     function extractScaleLayerParams(prefix) {
         var weights = extractWeightEntry(prefix + "/scale/weights", 1);
         var biases = extractWeightEntry(prefix + "/scale/biases", 1);
@@ -66,7 +66,7 @@ function extractParamsFromWeigthMap(weightMap) {
         conv256_down_out: conv256_down_out,
         fc: fc
     };
-    tfjs_image_recognition_base_1.disposeUnusedWeightTensors(weightMap, paramMappings);
+    tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
 exports.extractParamsFromWeigthMap = extractParamsFromWeigthMap;

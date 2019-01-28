@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory, isFloat } from 'tfjs-image-recognition-base';
+import { isFloat, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(extractWeights, paramMappings) {
     function extractFilterValues(numFilterValues, numFilters, filterSize) {
         var weights = extractWeights(numFilterValues);
@@ -41,7 +41,7 @@ function extractorsFactory(extractWeights, paramMappings) {
     };
 }
 export function extractParams(weights) {
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
     var _b = extractorsFactory(extractWeights, paramMappings), extractConvLayerParams = _b.extractConvLayerParams, extractResidualLayerParams = _b.extractResidualLayerParams;
     var conv32_down = extractConvLayerParams(4704, 32, 7, 'conv32_down');

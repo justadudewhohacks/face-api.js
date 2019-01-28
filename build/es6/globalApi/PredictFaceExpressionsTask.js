@@ -1,5 +1,5 @@
 import * as tslib_1 from "tslib";
-import { tf } from 'tfjs-tiny-yolov2';
+import * as tf from '@tensorflow/tfjs-core';
 import { extractFaces, extractFaceTensors } from '../dom';
 import { extendWithFaceExpressions } from '../factories/WithFaceExpressions';
 import { ComposableTask } from './ComposableTask';

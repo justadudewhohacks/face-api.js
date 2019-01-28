@@ -3,10 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
-var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
 function extractorsFactory(extractWeights, paramMappings) {
-    var extractConvParams = tfjs_tiny_yolov2_1.extractConvParamsFactory(extractWeights, paramMappings);
-    var extractFCParams = tfjs_tiny_yolov2_1.extractFCParamsFactory(extractWeights, paramMappings);
+    var extractConvParams = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings);
+    var extractFCParams = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractFCParamsFactory(extractWeights, paramMappings);
     function extractPReluParams(size, paramPath) {
         var alpha = tf.tensor1d(extractWeights(size));
         paramMappings.push({ paramPath: paramPath });
@@ -54,7 +53,7 @@ function extractorsFactory(extractWeights, paramMappings) {
     };
 }
 function extractParams(weights) {
-    var _a = tfjs_image_recognition_base_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
     var _b = extractorsFactory(extractWeights, paramMappings), extractPNetParams = _b.extractPNetParams, extractRNetParams = _b.extractRNetParams, extractONetParams = _b.extractONetParams;
     var pnet = extractPNetParams();

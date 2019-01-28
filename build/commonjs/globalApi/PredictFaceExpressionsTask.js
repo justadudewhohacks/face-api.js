@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var tf = require("@tensorflow/tfjs-core");
 var dom_1 = require("../dom");
 var WithFaceExpressions_1 = require("../factories/WithFaceExpressions");
 var ComposableTask_1 = require("./ComposableTask");
@@ -32,7 +32,7 @@ var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
                     case 1:
                         parentResults = _b.sent();
                         detections = parentResults.map(function (parentResult) { return parentResult.detection; });
-                        if (!(this.input instanceof tfjs_tiny_yolov2_1.tf.Tensor)) return [3 /*break*/, 3];
+                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
                         return [4 /*yield*/, dom_1.extractFaceTensors(this.input, detections)];
                     case 2:
                         _a = _b.sent();
@@ -46,7 +46,7 @@ var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
                         return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets_1.nets.faceExpressionNet.predictExpressions(face); }))];
                     case 6:
                         faceExpressionsByFace = _b.sent();
-                        faces.forEach(function (f) { return f instanceof tfjs_tiny_yolov2_1.tf.Tensor && f.dispose(); });
+                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
                         return [2 /*return*/, parentResults.map(function (parentResult, i) { return WithFaceExpressions_1.extendWithFaceExpressions(parentResult, faceExpressionsByFace[i]); })];
                 }
             });
@@ -75,7 +75,7 @@ var PredictSingleFaceExpressionTask = /** @class */ (function (_super) {
                             return [2 /*return*/];
                         }
                         detection = parentResult.detection;
-                        if (!(this.input instanceof tfjs_tiny_yolov2_1.tf.Tensor)) return [3 /*break*/, 3];
+                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
                         return [4 /*yield*/, dom_1.extractFaceTensors(this.input, [detection])];
                     case 2:
                         _a = _b.sent();
@@ -89,7 +89,7 @@ var PredictSingleFaceExpressionTask = /** @class */ (function (_super) {
                         return [4 /*yield*/, nets_1.nets.faceExpressionNet.predictExpressions(faces[0])];
                     case 6:
                         faceExpressions = _b.sent();
-                        faces.forEach(function (f) { return f instanceof tfjs_tiny_yolov2_1.tf.Tensor && f.dispose(); });
+                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
                         return [2 /*return*/, WithFaceExpressions_1.extendWithFaceExpressions(parentResult, faceExpressions)];
                 }
             });

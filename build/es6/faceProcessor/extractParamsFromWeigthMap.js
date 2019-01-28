@@ -1,7 +1,7 @@
-import { disposeUnusedWeightTensors, extractWeightEntryFactory } from 'tfjs-image-recognition-base';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 export function extractParamsFromWeigthMap(weightMap) {
     var paramMappings = [];
-    var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+    var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
     function extractFcParams(prefix) {
         var weights = extractWeightEntry(prefix + "/weights", 2);
         var bias = extractWeightEntry(prefix + "/bias", 1);
@@ -10,7 +10,7 @@ export function extractParamsFromWeigthMap(weightMap) {
     var params = {
         fc: extractFcParams('fc')
     };
-    disposeUnusedWeightTensors(weightMap, paramMappings);
+    TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
 //# sourceMappingURL=extractParamsFromWeigthMap.js.map

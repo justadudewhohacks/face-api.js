@@ -137,7 +137,7 @@ function extractorsFactory(extractWeights, paramMappings) {
 }
 function extractParams(weights) {
     var paramMappings = [];
-    var _a = tfjs_image_recognition_base_1.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var _b = extractorsFactory(extractWeights, paramMappings), extractMobilenetV1Params = _b.extractMobilenetV1Params, extractPredictionLayerParams = _b.extractPredictionLayerParams;
     var mobilenetv1 = extractMobilenetV1Params();
     var prediction_layer = extractPredictionLayerParams();

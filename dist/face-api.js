@@ -1,8 +1,8 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (factory((global.faceapi = global.faceapi || {})));
-}(this, (function (exports) { 'use strict';
+    (global = global || self, factory(global.faceapi = global.faceapi || {}));
+}(this, function (exports) { 'use strict';
 
     /**
      * @license
@@ -259,81 +259,69 @@
         variableGrads: variableGrads
     });
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-    /* global Reflect, Promise */
-
-    var extendStatics$1 = function(d, b) {
-        extendStatics$1 = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics$1(d, b);
-    };
-
-    function __extends$1(d, b) {
-        extendStatics$1(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    }
-
-    var __assign$1 = function() {
-        __assign$1 = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign$1.apply(this, arguments);
-    };
-
-    function __awaiter$1(thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
+    function convLayer(x, params, padding, withRelu) {
+        if (padding === void 0) { padding = 'same'; }
+        if (withRelu === void 0) { withRelu = false; }
+        return tidy(function () {
+            var out = add(conv2d(x, params.filters, [1, 1], padding), params.bias);
+            return withRelu ? relu(out) : out;
         });
     }
 
-    function __generator$1(thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    function disposeUnusedWeightTensors(weightMap, paramMappings) {
+        Object.keys(weightMap).forEach(function (path) {
+            if (!paramMappings.some(function (pm) { return pm.originalPath === path; })) {
+                weightMap[path].dispose();
+            }
+        });
+    }
+
+    function extractConvParamsFactory(extractWeights, paramMappings) {
+        return function (channelsIn, channelsOut, filterSize, mappedPrefix) {
+            var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
+            return { filters: filters, bias: bias };
+        };
+    }
+
+    function extractFCParamsFactory(extractWeights, paramMappings) {
+        return function (channelsIn, channelsOut, mappedPrefix) {
+            var fc_weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
+            var fc_bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/bias" });
+            return {
+                weights: fc_weights,
+                bias: fc_bias
+            };
+        };
+    }
+
+    var SeparableConvParams = /** @class */ (function () {
+        function SeparableConvParams(depthwise_filter, pointwise_filter, bias) {
+            this.depthwise_filter = depthwise_filter;
+            this.pointwise_filter = pointwise_filter;
+            this.bias = bias;
         }
+        return SeparableConvParams;
+    }());
+
+    function extractSeparableConvParamsFactory(extractWeights, paramMappings) {
+        return function (channelsIn, channelsOut, mappedPrefix) {
+            var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
+            var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
+            var bias = tensor1d(extractWeights(channelsOut));
+            paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        };
+    }
+    function loadSeparableConvParamsFactory(extractWeightEntry) {
+        return function (prefix) {
+            var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
+            var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
+            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        };
     }
 
     var Dimensions = /** @class */ (function () {
@@ -445,6 +433,138 @@
     }
     function isValidProbablitiy(num) {
         return isValidNumber(num) && 0 <= num && num <= 1.0;
+    }
+
+    function extractWeightEntryFactory(weightMap, paramMappings) {
+        return function (originalPath, paramRank, mappedPath) {
+            var tensor = weightMap[originalPath];
+            if (!isTensor(tensor, paramRank)) {
+                throw new Error("expected weightMap[" + originalPath + "] to be a Tensor" + paramRank + "D, instead have " + tensor);
+            }
+            paramMappings.push({ originalPath: originalPath, paramPath: mappedPath || originalPath });
+            return tensor;
+        };
+    }
+
+    function extractWeightsFactory(weights) {
+        var remainingWeights = weights;
+        function extractWeights(numWeights) {
+            var ret = remainingWeights.slice(0, numWeights);
+            remainingWeights = remainingWeights.slice(numWeights);
+            return ret;
+        }
+        function getRemainingWeights() {
+            return remainingWeights;
+        }
+        return {
+            extractWeights: extractWeights,
+            getRemainingWeights: getRemainingWeights
+        };
+    }
+
+    function getModelUris(uri, defaultModelName) {
+        var defaultManifestFilename = defaultModelName + "-weights_manifest.json";
+        if (!uri) {
+            return {
+                modelBaseUri: '',
+                manifestUri: defaultManifestFilename
+            };
+        }
+        if (uri === '/') {
+            return {
+                modelBaseUri: '/',
+                manifestUri: "/" + defaultManifestFilename
+            };
+        }
+        var protocol = uri.startsWith('http://') ? 'http://' : uri.startsWith('https://') ? 'https://' : '';
+        uri = uri.replace(protocol, '');
+        var parts = uri.split('/').filter(function (s) { return s; });
+        var manifestFile = uri.endsWith('.json')
+            ? parts[parts.length - 1]
+            : defaultManifestFilename;
+        var modelBaseUri = protocol + (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/');
+        modelBaseUri = uri.startsWith('/') ? "/" + modelBaseUri : modelBaseUri;
+        return {
+            modelBaseUri: modelBaseUri,
+            manifestUri: modelBaseUri === '/' ? "/" + manifestFile : modelBaseUri + "/" + manifestFile
+        };
+    }
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+    /* global Reflect, Promise */
+
+    var extendStatics$1 = function(d, b) {
+        extendStatics$1 = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics$1(d, b);
+    };
+
+    function __extends$1(d, b) {
+        extendStatics$1(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    var __assign$1 = function() {
+        __assign$1 = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign$1.apply(this, arguments);
+    };
+
+    function __awaiter$1(thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator$1(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
     }
 
     var Box = /** @class */ (function () {
@@ -630,42 +750,6 @@
         return BoundingBox;
     }(Box));
 
-    var BoxWithText = /** @class */ (function (_super) {
-        __extends$1(BoxWithText, _super);
-        function BoxWithText(box, text) {
-            var _this = _super.call(this, box) || this;
-            _this._text = text;
-            return _this;
-        }
-        Object.defineProperty(BoxWithText.prototype, "text", {
-            get: function () { return this._text; },
-            enumerable: true,
-            configurable: true
-        });
-        return BoxWithText;
-    }(Box));
-
-    var LabeledBox = /** @class */ (function (_super) {
-        __extends$1(LabeledBox, _super);
-        function LabeledBox(box, label) {
-            var _this = _super.call(this, box) || this;
-            _this._label = label;
-            return _this;
-        }
-        LabeledBox.assertIsValidLabeledBox = function (box, callee) {
-            Box.assertIsValidBox(box, callee);
-            if (!isValidNumber(box.label)) {
-                throw new Error(callee + " - expected property label (" + box.label + ") to be a number");
-            }
-        };
-        Object.defineProperty(LabeledBox.prototype, "label", {
-            get: function () { return this._label; },
-            enumerable: true,
-            configurable: true
-        });
-        return LabeledBox;
-    }(Box));
-
     var ObjectDetection = /** @class */ (function () {
         function ObjectDetection(score, classScore, className, relativeBox, imageDims) {
             this._imageDims = new Dimensions(imageDims.width, imageDims.height);
@@ -719,105 +803,6 @@
         };
         return ObjectDetection;
     }());
-
-    var PredictedBox = /** @class */ (function (_super) {
-        __extends$1(PredictedBox, _super);
-        function PredictedBox(box, label, score, classScore) {
-            var _this = _super.call(this, box, label) || this;
-            _this._score = score;
-            _this._classScore = classScore;
-            return _this;
-        }
-        PredictedBox.assertIsValidPredictedBox = function (box, callee) {
-            LabeledBox.assertIsValidLabeledBox(box, callee);
-            if (!isValidProbablitiy(box.score)
-                || !isValidProbablitiy(box.classScore)) {
-                throw new Error(callee + " - expected properties score (" + box.score + ") and (" + box.classScore + ") to be a number between [0, 1]");
-            }
-        };
-        Object.defineProperty(PredictedBox.prototype, "score", {
-            get: function () { return this._score; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(PredictedBox.prototype, "classScore", {
-            get: function () { return this._classScore; },
-            enumerable: true,
-            configurable: true
-        });
-        return PredictedBox;
-    }(LabeledBox));
-
-    var Rect = /** @class */ (function (_super) {
-        __extends$1(Rect, _super);
-        function Rect(x, y, width, height) {
-            return _super.call(this, { x: x, y: y, width: width, height: height }) || this;
-        }
-        return Rect;
-    }(Box));
-
-    function disposeUnusedWeightTensors(weightMap, paramMappings) {
-        Object.keys(weightMap).forEach(function (path) {
-            if (!paramMappings.some(function (pm) { return pm.originalPath === path; })) {
-                weightMap[path].dispose();
-            }
-        });
-    }
-
-    function extractWeightEntryFactory(weightMap, paramMappings) {
-        return function (originalPath, paramRank, mappedPath) {
-            var tensor = weightMap[originalPath];
-            if (!isTensor(tensor, paramRank)) {
-                throw new Error("expected weightMap[" + originalPath + "] to be a Tensor" + paramRank + "D, instead have " + tensor);
-            }
-            paramMappings.push({ originalPath: originalPath, paramPath: mappedPath || originalPath });
-            return tensor;
-        };
-    }
-
-    function extractWeightsFactory(weights) {
-        var remainingWeights = weights;
-        function extractWeights(numWeights) {
-            var ret = remainingWeights.slice(0, numWeights);
-            remainingWeights = remainingWeights.slice(numWeights);
-            return ret;
-        }
-        function getRemainingWeights() {
-            return remainingWeights;
-        }
-        return {
-            extractWeights: extractWeights,
-            getRemainingWeights: getRemainingWeights
-        };
-    }
-
-    function getModelUris(uri, defaultModelName) {
-        var defaultManifestFilename = defaultModelName + "-weights_manifest.json";
-        if (!uri) {
-            return {
-                modelBaseUri: '',
-                manifestUri: defaultManifestFilename
-            };
-        }
-        if (uri === '/') {
-            return {
-                modelBaseUri: '/',
-                manifestUri: "/" + defaultManifestFilename
-            };
-        }
-        var protocol = uri.startsWith('http://') ? 'http://' : uri.startsWith('https://') ? 'https://' : '';
-        uri = uri.replace(protocol, '');
-        var parts = uri.split('/').filter(function (s) { return s; });
-        var manifestFile = uri.endsWith('.json')
-            ? parts[parts.length - 1]
-            : defaultManifestFilename;
-        var modelBaseUri = protocol + (uri.endsWith('.json') ? parts.slice(0, parts.length - 1) : parts).join('/');
-        modelBaseUri = uri.startsWith('/') ? "/" + modelBaseUri : modelBaseUri;
-        return {
-            modelBaseUri: modelBaseUri,
-            manifestUri: modelBaseUri === '/' ? "/" + manifestFile : modelBaseUri + "/" + manifestFile
-        };
-    }
 
     function createBrowserEnv() {
         var fetch = window['fetch'] || function () {
@@ -884,21 +869,21 @@
         };
         var fileSystem = createFileSystem();
         return __assign$1({ Canvas: Canvas || /** @class */ (function () {
+                function Canvas() {
+                }
+                return Canvas;
+            }()), Image: Image || /** @class */ (function () {
+                function Image() {
+                }
+                return Image;
+            }()), ImageData: global['ImageData'] || /** @class */ (function () {
                 function class_1() {
                 }
                 return class_1;
-            }()), Image: Image || /** @class */ (function () {
+            }()), Video: global['HTMLVideoElement'] || /** @class */ (function () {
                 function class_2() {
                 }
                 return class_2;
-            }()), ImageData: global['ImageData'] || /** @class */ (function () {
-                function class_3() {
-                }
-                return class_3;
-            }()), Video: global['HTMLVideoElement'] || /** @class */ (function () {
-                function class_4() {
-                }
-                return class_4;
             }()), createCanvasElement: createCanvasElement,
             createImageElement: createImageElement,
             fetch: fetch }, fileSystem);
@@ -1084,6 +1069,70 @@
         ctx.lineWidth = drawOptions.lineWidth;
         ctx.strokeRect(x, y, w, h);
     }
+
+    var BoxWithText = /** @class */ (function (_super) {
+        __extends$1(BoxWithText, _super);
+        function BoxWithText(box, text) {
+            var _this = _super.call(this, box) || this;
+            _this._text = text;
+            return _this;
+        }
+        Object.defineProperty(BoxWithText.prototype, "text", {
+            get: function () { return this._text; },
+            enumerable: true,
+            configurable: true
+        });
+        return BoxWithText;
+    }(Box));
+
+    var LabeledBox = /** @class */ (function (_super) {
+        __extends$1(LabeledBox, _super);
+        function LabeledBox(box, label) {
+            var _this = _super.call(this, box) || this;
+            _this._label = label;
+            return _this;
+        }
+        LabeledBox.assertIsValidLabeledBox = function (box, callee) {
+            Box.assertIsValidBox(box, callee);
+            if (!isValidNumber(box.label)) {
+                throw new Error(callee + " - expected property label (" + box.label + ") to be a number");
+            }
+        };
+        Object.defineProperty(LabeledBox.prototype, "label", {
+            get: function () { return this._label; },
+            enumerable: true,
+            configurable: true
+        });
+        return LabeledBox;
+    }(Box));
+
+    var PredictedBox = /** @class */ (function (_super) {
+        __extends$1(PredictedBox, _super);
+        function PredictedBox(box, label, score, classScore) {
+            var _this = _super.call(this, box, label) || this;
+            _this._score = score;
+            _this._classScore = classScore;
+            return _this;
+        }
+        PredictedBox.assertIsValidPredictedBox = function (box, callee) {
+            LabeledBox.assertIsValidLabeledBox(box, callee);
+            if (!isValidProbablitiy(box.score)
+                || !isValidProbablitiy(box.classScore)) {
+                throw new Error(callee + " - expected properties score (" + box.score + ") and (" + box.classScore + ") to be a number between [0, 1]");
+            }
+        };
+        Object.defineProperty(PredictedBox.prototype, "score", {
+            get: function () { return this._score; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(PredictedBox.prototype, "classScore", {
+            get: function () { return this._classScore; },
+            enumerable: true,
+            configurable: true
+        });
+        return PredictedBox;
+    }(LabeledBox));
 
     function drawText(ctx, x, y, text, options) {
         if (options === void 0) { options = {}; }
@@ -1483,71 +1532,6 @@
         });
     }
 
-    function iou(box1, box2, isIOU) {
-        if (isIOU === void 0) { isIOU = true; }
-        var width = Math.max(0.0, Math.min(box1.right, box2.right) - Math.max(box1.left, box2.left));
-        var height = Math.max(0.0, Math.min(box1.bottom, box2.bottom) - Math.max(box1.top, box2.top));
-        var interSection = width * height;
-        return isIOU
-            ? interSection / (box1.area + box2.area - interSection)
-            : interSection / Math.min(box1.area, box2.area);
-    }
-
-    function nonMaxSuppression$1(boxes, scores, iouThreshold, isIOU) {
-        if (isIOU === void 0) { isIOU = true; }
-        var indicesSortedByScore = scores
-            .map(function (score, boxIndex) { return ({ score: score, boxIndex: boxIndex }); })
-            .sort(function (c1, c2) { return c1.score - c2.score; })
-            .map(function (c) { return c.boxIndex; });
-        var pick = [];
-        var _loop_1 = function () {
-            var curr = indicesSortedByScore.pop();
-            pick.push(curr);
-            var indices = indicesSortedByScore;
-            var outputs = [];
-            for (var i = 0; i < indices.length; i++) {
-                var idx = indices[i];
-                var currBox = boxes[curr];
-                var idxBox = boxes[idx];
-                outputs.push(iou(currBox, idxBox, isIOU));
-            }
-            indicesSortedByScore = indicesSortedByScore.filter(function (_, j) { return outputs[j] <= iouThreshold; });
-        };
-        while (indicesSortedByScore.length > 0) {
-            _loop_1();
-        }
-        return pick;
-    }
-
-    function normalize(x, meanRgb) {
-        return tidy(function () {
-            var r = meanRgb[0], g = meanRgb[1], b = meanRgb[2];
-            var avg_r = fill(x.shape.slice(0, 3).concat([1]), r);
-            var avg_g = fill(x.shape.slice(0, 3).concat([1]), g);
-            var avg_b = fill(x.shape.slice(0, 3).concat([1]), b);
-            var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
-            return sub(x, avg_rgb);
-        });
-    }
-
-    function shuffleArray(inputArray) {
-        var array = inputArray.slice();
-        for (var i = array.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var x = array[i];
-            array[i] = array[j];
-            array[j] = x;
-        }
-        return array;
-    }
-
-    function sigmoid$1(x) {
-        return 1 / (1 + Math.exp(-x));
-    }
-    function inverseSigmoid(x) {
-        return Math.log(x / (1 - x));
-    }
-
     var NeuralNetwork = /** @class */ (function () {
         function NeuralNetwork(_name) {
             this._name = _name;
@@ -1717,6 +1701,510 @@
         };
         return NeuralNetwork;
     }());
+
+    function iou(box1, box2, isIOU) {
+        if (isIOU === void 0) { isIOU = true; }
+        var width = Math.max(0.0, Math.min(box1.right, box2.right) - Math.max(box1.left, box2.left));
+        var height = Math.max(0.0, Math.min(box1.bottom, box2.bottom) - Math.max(box1.top, box2.top));
+        var interSection = width * height;
+        return isIOU
+            ? interSection / (box1.area + box2.area - interSection)
+            : interSection / Math.min(box1.area, box2.area);
+    }
+
+    function nonMaxSuppression$1(boxes, scores, iouThreshold, isIOU) {
+        if (isIOU === void 0) { isIOU = true; }
+        var indicesSortedByScore = scores
+            .map(function (score, boxIndex) { return ({ score: score, boxIndex: boxIndex }); })
+            .sort(function (c1, c2) { return c1.score - c2.score; })
+            .map(function (c) { return c.boxIndex; });
+        var pick = [];
+        var _loop_1 = function () {
+            var curr = indicesSortedByScore.pop();
+            pick.push(curr);
+            var indices = indicesSortedByScore;
+            var outputs = [];
+            for (var i = 0; i < indices.length; i++) {
+                var idx = indices[i];
+                var currBox = boxes[curr];
+                var idxBox = boxes[idx];
+                outputs.push(iou(currBox, idxBox, isIOU));
+            }
+            indicesSortedByScore = indicesSortedByScore.filter(function (_, j) { return outputs[j] <= iouThreshold; });
+        };
+        while (indicesSortedByScore.length > 0) {
+            _loop_1();
+        }
+        return pick;
+    }
+
+    function normalize(x, meanRgb) {
+        return tidy(function () {
+            var r = meanRgb[0], g = meanRgb[1], b = meanRgb[2];
+            var avg_r = fill(x.shape.slice(0, 3).concat([1]), r);
+            var avg_g = fill(x.shape.slice(0, 3).concat([1]), g);
+            var avg_b = fill(x.shape.slice(0, 3).concat([1]), b);
+            var avg_rgb = concat([avg_r, avg_g, avg_b], 3);
+            return sub(x, avg_rgb);
+        });
+    }
+
+    function shuffleArray(inputArray) {
+        var array = inputArray.slice();
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var x = array[i];
+            array[i] = array[j];
+            array[j] = x;
+        }
+        return array;
+    }
+
+    function sigmoid$1(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+    function inverseSigmoid(x) {
+        return Math.log(x / (1 - x));
+    }
+
+    var isNumber$1 = function (arg) { return typeof arg === 'number'; };
+    function validateConfig(config) {
+        if (!config) {
+            throw new Error("invalid config: " + config);
+        }
+        if (typeof config.withSeparableConvs !== 'boolean') {
+            throw new Error("config.withSeparableConvs has to be a boolean, have: " + config.withSeparableConvs);
+        }
+        if (!isNumber$1(config.iouThreshold) || config.iouThreshold < 0 || config.iouThreshold > 1.0) {
+            throw new Error("config.iouThreshold has to be a number between [0, 1], have: " + config.iouThreshold);
+        }
+        if (!Array.isArray(config.classes)
+            || !config.classes.length
+            || !config.classes.every(function (c) { return typeof c === 'string'; })) {
+            throw new Error("config.classes has to be an array class names: string[], have: " + JSON.stringify(config.classes));
+        }
+        if (!Array.isArray(config.anchors)
+            || !config.anchors.length
+            || !config.anchors.map(function (a) { return a || {}; }).every(function (a) { return isNumber$1(a.x) && isNumber$1(a.y); })) {
+            throw new Error("config.anchors has to be an array of { x: number, y: number }, have: " + JSON.stringify(config.anchors));
+        }
+        if (config.meanRgb && (!Array.isArray(config.meanRgb)
+            || config.meanRgb.length !== 3
+            || !config.meanRgb.every(isNumber$1))) {
+            throw new Error("config.meanRgb has to be an array of shape [number, number, number], have: " + JSON.stringify(config.meanRgb));
+        }
+    }
+
+    function leaky(x) {
+        return tidy(function () {
+            var min$$1 = mul(x, scalar(0.10000000149011612));
+            return add(relu(sub(x, min$$1)), min$$1);
+            //return tf.maximum(x, min)
+        });
+    }
+
+    function convWithBatchNorm(x, params) {
+        return tidy(function () {
+            var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
+            out = conv2d(out, params.conv.filters, [1, 1], 'valid');
+            out = sub(out, params.bn.sub);
+            out = mul(out, params.bn.truediv);
+            out = add(out, params.conv.bias);
+            return leaky(out);
+        });
+    }
+
+    function depthwiseSeparableConv(x, params) {
+        return tidy(function () {
+            var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
+            out = separableConv2d(out, params.depthwise_filter, params.pointwise_filter, [1, 1], 'valid');
+            out = add(out, params.bias);
+            return leaky(out);
+        });
+    }
+
+    function extractorsFactory(extractWeights, paramMappings) {
+        var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
+        function extractBatchNormParams(size, mappedPrefix) {
+            var sub$$1 = tensor1d(extractWeights(size));
+            var truediv = tensor1d(extractWeights(size));
+            paramMappings.push({ paramPath: mappedPrefix + "/sub" }, { paramPath: mappedPrefix + "/truediv" });
+            return { sub: sub$$1, truediv: truediv };
+        }
+        function extractConvWithBatchNormParams(channelsIn, channelsOut, mappedPrefix) {
+            var conv = extractConvParams(channelsIn, channelsOut, 3, mappedPrefix + "/conv");
+            var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
+            return { conv: conv, bn: bn };
+        }
+        var extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings);
+        return {
+            extractConvParams: extractConvParams,
+            extractConvWithBatchNormParams: extractConvWithBatchNormParams,
+            extractSeparableConvParams: extractSeparableConvParams
+        };
+    }
+    function extractParams(weights, config, boxEncodingSize, filterSizes) {
+        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+        var paramMappings = [];
+        var _b = extractorsFactory(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
+        var params;
+        if (config.withSeparableConvs) {
+            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
+            var conv0 = config.isFirstLayerConv2d
+                ? extractConvParams(s0, s1, 3, 'conv0')
+                : extractSeparableConvParams(s0, s1, 'conv0');
+            var conv1 = extractSeparableConvParams(s1, s2, 'conv1');
+            var conv2 = extractSeparableConvParams(s2, s3, 'conv2');
+            var conv3 = extractSeparableConvParams(s3, s4, 'conv3');
+            var conv4 = extractSeparableConvParams(s4, s5, 'conv4');
+            var conv5 = extractSeparableConvParams(s5, s6, 'conv5');
+            var conv6 = s7 ? extractSeparableConvParams(s6, s7, 'conv6') : undefined;
+            var conv7 = s8 ? extractSeparableConvParams(s7, s8, 'conv7') : undefined;
+            var conv8 = extractConvParams(s8 || s7 || s6, 5 * boxEncodingSize, 1, 'conv8');
+            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
+        }
+        else {
+            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
+            var conv0 = extractConvWithBatchNormParams(s0, s1, 'conv0');
+            var conv1 = extractConvWithBatchNormParams(s1, s2, 'conv1');
+            var conv2 = extractConvWithBatchNormParams(s2, s3, 'conv2');
+            var conv3 = extractConvWithBatchNormParams(s3, s4, 'conv3');
+            var conv4 = extractConvWithBatchNormParams(s4, s5, 'conv4');
+            var conv5 = extractConvWithBatchNormParams(s5, s6, 'conv5');
+            var conv6 = extractConvWithBatchNormParams(s6, s7, 'conv6');
+            var conv7 = extractConvWithBatchNormParams(s7, s8, 'conv7');
+            var conv8 = extractConvParams(s8, 5 * boxEncodingSize, 1, 'conv8');
+            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
+        }
+        if (getRemainingWeights().length !== 0) {
+            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
+        }
+        return { params: params, paramMappings: paramMappings };
+    }
+
+    function extractorsFactory$1(weightMap, paramMappings) {
+        var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
+        function extractBatchNormParams(prefix) {
+            var sub = extractWeightEntry(prefix + "/sub", 1);
+            var truediv = extractWeightEntry(prefix + "/truediv", 1);
+            return { sub: sub, truediv: truediv };
+        }
+        function extractConvParams(prefix) {
+            var filters = extractWeightEntry(prefix + "/filters", 4);
+            var bias = extractWeightEntry(prefix + "/bias", 1);
+            return { filters: filters, bias: bias };
+        }
+        function extractConvWithBatchNormParams(prefix) {
+            var conv = extractConvParams(prefix + "/conv");
+            var bn = extractBatchNormParams(prefix + "/bn");
+            return { conv: conv, bn: bn };
+        }
+        var extractSeparableConvParams = loadSeparableConvParamsFactory(extractWeightEntry);
+        return {
+            extractConvParams: extractConvParams,
+            extractConvWithBatchNormParams: extractConvWithBatchNormParams,
+            extractSeparableConvParams: extractSeparableConvParams
+        };
+    }
+    function extractParamsFromWeigthMap(weightMap, config) {
+        var paramMappings = [];
+        var _a = extractorsFactory$1(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
+        var params;
+        if (config.withSeparableConvs) {
+            var numFilters = (config.filterSizes && config.filterSizes.length || 9);
+            params = {
+                conv0: config.isFirstLayerConv2d ? extractConvParams('conv0') : extractSeparableConvParams('conv0'),
+                conv1: extractSeparableConvParams('conv1'),
+                conv2: extractSeparableConvParams('conv2'),
+                conv3: extractSeparableConvParams('conv3'),
+                conv4: extractSeparableConvParams('conv4'),
+                conv5: extractSeparableConvParams('conv5'),
+                conv6: numFilters > 7 ? extractSeparableConvParams('conv6') : undefined,
+                conv7: numFilters > 8 ? extractSeparableConvParams('conv7') : undefined,
+                conv8: extractConvParams('conv8')
+            };
+        }
+        else {
+            params = {
+                conv0: extractConvWithBatchNormParams('conv0'),
+                conv1: extractConvWithBatchNormParams('conv1'),
+                conv2: extractConvWithBatchNormParams('conv2'),
+                conv3: extractConvWithBatchNormParams('conv3'),
+                conv4: extractConvWithBatchNormParams('conv4'),
+                conv5: extractConvWithBatchNormParams('conv5'),
+                conv6: extractConvWithBatchNormParams('conv6'),
+                conv7: extractConvWithBatchNormParams('conv7'),
+                conv8: extractConvParams('conv8')
+            };
+        }
+        disposeUnusedWeightTensors(weightMap, paramMappings);
+        return { params: params, paramMappings: paramMappings };
+    }
+
+    var TinyYolov2SizeType;
+    (function (TinyYolov2SizeType) {
+        TinyYolov2SizeType[TinyYolov2SizeType["XS"] = 224] = "XS";
+        TinyYolov2SizeType[TinyYolov2SizeType["SM"] = 320] = "SM";
+        TinyYolov2SizeType[TinyYolov2SizeType["MD"] = 416] = "MD";
+        TinyYolov2SizeType[TinyYolov2SizeType["LG"] = 608] = "LG";
+    })(TinyYolov2SizeType || (TinyYolov2SizeType = {}));
+    var TinyYolov2Options = /** @class */ (function () {
+        function TinyYolov2Options(_a) {
+            var _b = _a === void 0 ? {} : _a, inputSize = _b.inputSize, scoreThreshold = _b.scoreThreshold;
+            this._name = 'TinyYolov2Options';
+            this._inputSize = inputSize || 416;
+            this._scoreThreshold = scoreThreshold || 0.5;
+            if (typeof this._inputSize !== 'number' || this._inputSize % 32 !== 0) {
+                throw new Error(this._name + " - expected inputSize to be a number divisible by 32");
+            }
+            if (typeof this._scoreThreshold !== 'number' || this._scoreThreshold <= 0 || this._scoreThreshold >= 1) {
+                throw new Error(this._name + " - expected scoreThreshold to be a number between 0 and 1");
+            }
+        }
+        Object.defineProperty(TinyYolov2Options.prototype, "inputSize", {
+            get: function () { return this._inputSize; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TinyYolov2Options.prototype, "scoreThreshold", {
+            get: function () { return this._scoreThreshold; },
+            enumerable: true,
+            configurable: true
+        });
+        return TinyYolov2Options;
+    }());
+
+    var TinyYolov2 = /** @class */ (function (_super) {
+        __extends$1(TinyYolov2, _super);
+        function TinyYolov2(config) {
+            var _this = _super.call(this, 'TinyYolov2') || this;
+            validateConfig(config);
+            _this._config = config;
+            return _this;
+        }
+        Object.defineProperty(TinyYolov2.prototype, "config", {
+            get: function () {
+                return this._config;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TinyYolov2.prototype, "withClassScores", {
+            get: function () {
+                return this.config.withClassScores || this.config.classes.length > 1;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TinyYolov2.prototype, "boxEncodingSize", {
+            get: function () {
+                return 5 + (this.withClassScores ? this.config.classes.length : 0);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TinyYolov2.prototype.runTinyYolov2 = function (x, params) {
+            var out = convWithBatchNorm(x, params.conv0);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv1);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv2);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv3);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv4);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = convWithBatchNorm(out, params.conv5);
+            out = maxPool(out, [2, 2], [1, 1], 'same');
+            out = convWithBatchNorm(out, params.conv6);
+            out = convWithBatchNorm(out, params.conv7);
+            return convLayer(out, params.conv8, 'valid', false);
+        };
+        TinyYolov2.prototype.runMobilenet = function (x, params) {
+            var out = this.config.isFirstLayerConv2d
+                ? leaky(convLayer(x, params.conv0, 'valid', false))
+                : depthwiseSeparableConv(x, params.conv0);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv(out, params.conv1);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv(out, params.conv2);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv(out, params.conv3);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv(out, params.conv4);
+            out = maxPool(out, [2, 2], [2, 2], 'same');
+            out = depthwiseSeparableConv(out, params.conv5);
+            out = maxPool(out, [2, 2], [1, 1], 'same');
+            out = params.conv6 ? depthwiseSeparableConv(out, params.conv6) : out;
+            out = params.conv7 ? depthwiseSeparableConv(out, params.conv7) : out;
+            return convLayer(out, params.conv8, 'valid', false);
+        };
+        TinyYolov2.prototype.forwardInput = function (input, inputSize) {
+            var _this = this;
+            var params = this.params;
+            if (!params) {
+                throw new Error('TinyYolov2 - load model before inference');
+            }
+            return tidy(function () {
+                var batchTensor = input.toBatchTensor(inputSize, false).toFloat();
+                batchTensor = _this.config.meanRgb
+                    ? normalize(batchTensor, _this.config.meanRgb)
+                    : batchTensor;
+                batchTensor = batchTensor.div(scalar(256));
+                return _this.config.withSeparableConvs
+                    ? _this.runMobilenet(batchTensor, params)
+                    : _this.runTinyYolov2(batchTensor, params);
+            });
+        };
+        TinyYolov2.prototype.forward = function (input, inputSize) {
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = this.forwardInput;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(), inputSize])];
+                        case 2: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        };
+        TinyYolov2.prototype.detect = function (input, forwardParams) {
+            if (forwardParams === void 0) { forwardParams = {}; }
+            return __awaiter$1(this, void 0, void 0, function () {
+                var _a, inputSize, scoreThreshold, netInput, out, out0, inputDimensions, results, boxes, scores, classScores, classNames, indices, detections;
+                var _this = this;
+                return __generator$1(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            _a = new TinyYolov2Options(forwardParams), inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
+                            return [4 /*yield*/, toNetInput(input)];
+                        case 1:
+                            netInput = _b.sent();
+                            return [4 /*yield*/, this.forwardInput(netInput, inputSize)];
+                        case 2:
+                            out = _b.sent();
+                            out0 = tidy(function () { return unstack(out)[0].expandDims(); });
+                            inputDimensions = {
+                                width: netInput.getInputWidth(0),
+                                height: netInput.getInputHeight(0)
+                            };
+                            results = this.extractBoxes(out0, netInput.getReshapedInputDimensions(0), scoreThreshold);
+                            out.dispose();
+                            out0.dispose();
+                            boxes = results.map(function (res) { return res.box; });
+                            scores = results.map(function (res) { return res.score; });
+                            classScores = results.map(function (res) { return res.classScore; });
+                            classNames = results.map(function (res) { return _this.config.classes[res.label]; });
+                            indices = nonMaxSuppression$1(boxes.map(function (box) { return box.rescale(inputSize); }), scores, this.config.iouThreshold, true);
+                            detections = indices.map(function (idx) {
+                                return new ObjectDetection(scores[idx], classScores[idx], classNames[idx], boxes[idx], inputDimensions);
+                            });
+                            return [2 /*return*/, detections];
+                    }
+                });
+            });
+        };
+        TinyYolov2.prototype.getDefaultModelName = function () {
+            return '';
+        };
+        TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
+            return extractParamsFromWeigthMap(weightMap, this.config);
+        };
+        TinyYolov2.prototype.extractParams = function (weights) {
+            var filterSizes = this.config.filterSizes || TinyYolov2.DEFAULT_FILTER_SIZES;
+            var numFilters = filterSizes ? filterSizes.length : undefined;
+            if (numFilters !== 7 && numFilters !== 8 && numFilters !== 9) {
+                throw new Error("TinyYolov2 - expected 7 | 8 | 9 convolutional filters, but found " + numFilters + " filterSizes in config");
+            }
+            return extractParams(weights, this.config, this.boxEncodingSize, filterSizes);
+        };
+        TinyYolov2.prototype.extractBoxes = function (outputTensor, inputBlobDimensions, scoreThreshold) {
+            var _this = this;
+            var width = inputBlobDimensions.width, height = inputBlobDimensions.height;
+            var inputSize = Math.max(width, height);
+            var correctionFactorX = inputSize / width;
+            var correctionFactorY = inputSize / height;
+            var numCells = outputTensor.shape[1];
+            var numBoxes = this.config.anchors.length;
+            var _a = tidy(function () {
+                var reshaped = outputTensor.reshape([numCells, numCells, numBoxes, _this.boxEncodingSize]);
+                var boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, numBoxes, 4]);
+                var scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, numBoxes, 1]);
+                var classScores = _this.withClassScores
+                    ? softmax(reshaped.slice([0, 0, 0, 5], [numCells, numCells, numBoxes, _this.config.classes.length]), 3)
+                    : scalar(0);
+                return [boxes, scores, classScores];
+            }), boxesTensor = _a[0], scoresTensor = _a[1], classScoresTensor = _a[2];
+            var results = [];
+            for (var row = 0; row < numCells; row++) {
+                for (var col = 0; col < numCells; col++) {
+                    for (var anchor = 0; anchor < numBoxes; anchor++) {
+                        var score = sigmoid$1(scoresTensor.get(row, col, anchor, 0));
+                        if (!scoreThreshold || score > scoreThreshold) {
+                            var ctX = ((col + sigmoid$1(boxesTensor.get(row, col, anchor, 0))) / numCells) * correctionFactorX;
+                            var ctY = ((row + sigmoid$1(boxesTensor.get(row, col, anchor, 1))) / numCells) * correctionFactorY;
+                            var width_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 2)) * this.config.anchors[anchor].x) / numCells) * correctionFactorX;
+                            var height_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 3)) * this.config.anchors[anchor].y) / numCells) * correctionFactorY;
+                            var x = (ctX - (width_1 / 2));
+                            var y = (ctY - (height_1 / 2));
+                            var pos = { row: row, col: col, anchor: anchor };
+                            var _b = this.withClassScores
+                                ? this.extractPredictedClass(classScoresTensor, pos)
+                                : { classScore: 1, label: 0 }, classScore = _b.classScore, label = _b.label;
+                            results.push(__assign$1({ box: new BoundingBox(x, y, x + width_1, y + height_1), score: score, classScore: score * classScore, label: label }, pos));
+                        }
+                    }
+                }
+            }
+            boxesTensor.dispose();
+            scoresTensor.dispose();
+            classScoresTensor.dispose();
+            return results;
+        };
+        TinyYolov2.prototype.extractPredictedClass = function (classesTensor, pos) {
+            var row = pos.row, col = pos.col, anchor = pos.anchor;
+            return Array(this.config.classes.length).fill(0)
+                .map(function (_, i) { return classesTensor.get(row, col, anchor, i); })
+                .map(function (classScore, label) { return ({
+                classScore: classScore,
+                label: label
+            }); })
+                .reduce(function (max$$1, curr) { return max$$1.classScore > curr.classScore ? max$$1 : curr; });
+        };
+        TinyYolov2.DEFAULT_FILTER_SIZES = [
+            3, 16, 32, 64, 128, 256, 512, 1024, 1024
+        ];
+        return TinyYolov2;
+    }(NeuralNetwork));
+
+
+
+    var tfjsImageRecognitionBase = /*#__PURE__*/Object.freeze({
+        convLayer: convLayer,
+        disposeUnusedWeightTensors: disposeUnusedWeightTensors,
+        extractConvParamsFactory: extractConvParamsFactory,
+        extractFCParamsFactory: extractFCParamsFactory,
+        extractSeparableConvParamsFactory: extractSeparableConvParamsFactory,
+        loadSeparableConvParamsFactory: loadSeparableConvParamsFactory,
+        extractWeightEntryFactory: extractWeightEntryFactory,
+        extractWeightsFactory: extractWeightsFactory,
+        getModelUris: getModelUris,
+        SeparableConvParams: SeparableConvParams,
+        TinyYolov2: TinyYolov2,
+        get TinyYolov2SizeType () { return TinyYolov2SizeType; },
+        TinyYolov2Options: TinyYolov2Options,
+        validateConfig: validateConfig
+    });
+
+    var Rect = /** @class */ (function (_super) {
+        __extends$1(Rect, _super);
+        function Rect(x, y, width, height) {
+            return _super.call(this, { x: x, y: y, width: width, height: height }) || this;
+        }
+        return Rect;
+    }(Box));
 
     var FaceDetection = /** @class */ (function (_super) {
         __extends$1(FaceDetection, _super);
@@ -2078,7 +2566,7 @@
         });
     }
 
-    function depthwiseSeparableConv(x, params, stride) {
+    function depthwiseSeparableConv$1(x, params, stride) {
         return tidy(function () {
             var out = separableConv2d(x, params.depthwise_filter, params.pointwise_filter, stride, 'same');
             out = add(out, params.bias);
@@ -2091,10 +2579,10 @@
         return tidy(function () {
             var out1 = relu(isFirstLayer
                 ? add(conv2d(x, denseBlockParams.conv0.filters, [2, 2], 'same'), denseBlockParams.conv0.bias)
-                : depthwiseSeparableConv(x, denseBlockParams.conv0, [2, 2]));
-            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+                : depthwiseSeparableConv$1(x, denseBlockParams.conv0, [2, 2]));
+            var out2 = depthwiseSeparableConv$1(out1, denseBlockParams.conv1, [1, 1]);
             var in3 = relu(add(out1, out2));
-            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            var out3 = depthwiseSeparableConv$1(in3, denseBlockParams.conv2, [1, 1]);
             return relu(add(out1, add(out2, out3)));
         });
     }
@@ -2104,919 +2592,15 @@
         return tidy(function () {
             var out1 = relu(isFirstLayer
                 ? add(conv2d(x, denseBlockParams.conv0.filters, isScaleDown ? [2, 2] : [1, 1], 'same'), denseBlockParams.conv0.bias)
-                : depthwiseSeparableConv(x, denseBlockParams.conv0, isScaleDown ? [2, 2] : [1, 1]));
-            var out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1]);
+                : depthwiseSeparableConv$1(x, denseBlockParams.conv0, isScaleDown ? [2, 2] : [1, 1]));
+            var out2 = depthwiseSeparableConv$1(out1, denseBlockParams.conv1, [1, 1]);
             var in3 = relu(add(out1, out2));
-            var out3 = depthwiseSeparableConv(in3, denseBlockParams.conv2, [1, 1]);
+            var out3 = depthwiseSeparableConv$1(in3, denseBlockParams.conv2, [1, 1]);
             var in4 = relu(add(out1, add(out2, out3)));
-            var out4 = depthwiseSeparableConv(in4, denseBlockParams.conv3, [1, 1]);
+            var out4 = depthwiseSeparableConv$1(in4, denseBlockParams.conv3, [1, 1]);
             return relu(add(out1, add(out2, add(out3, out4))));
         });
     }
-
-    function convLayer(x, params, padding, withRelu) {
-        if (padding === void 0) { padding = 'same'; }
-        if (withRelu === void 0) { withRelu = false; }
-        return tidy(function () {
-            var out = add(conv2d(x, params.filters, [1, 1], padding), params.bias);
-            return withRelu ? relu(out) : out;
-        });
-    }
-
-    function extractConvParamsFactory(extractWeights, paramMappings) {
-        return function (channelsIn, channelsOut, filterSize, mappedPrefix) {
-            var filters = tensor4d(extractWeights(channelsIn * channelsOut * filterSize * filterSize), [filterSize, filterSize, channelsIn, channelsOut]);
-            var bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/filters" }, { paramPath: mappedPrefix + "/bias" });
-            return { filters: filters, bias: bias };
-        };
-    }
-
-    function extractFCParamsFactory(extractWeights, paramMappings) {
-        return function (channelsIn, channelsOut, mappedPrefix) {
-            var fc_weights = tensor2d(extractWeights(channelsIn * channelsOut), [channelsIn, channelsOut]);
-            var fc_bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/weights" }, { paramPath: mappedPrefix + "/bias" });
-            return {
-                weights: fc_weights,
-                bias: fc_bias
-            };
-        };
-    }
-
-    var SeparableConvParams = /** @class */ (function () {
-        function SeparableConvParams(depthwise_filter, pointwise_filter, bias) {
-            this.depthwise_filter = depthwise_filter;
-            this.pointwise_filter = pointwise_filter;
-            this.bias = bias;
-        }
-        return SeparableConvParams;
-    }());
-
-    function extractSeparableConvParamsFactory(extractWeights, paramMappings) {
-        return function (channelsIn, channelsOut, mappedPrefix) {
-            var depthwise_filter = tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
-            var pointwise_filter = tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
-            var bias = tensor1d(extractWeights(channelsOut));
-            paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
-            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-        };
-    }
-    function loadSeparableConvParamsFactory(extractWeightEntry) {
-        return function (prefix) {
-            var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
-            var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
-            var bias = extractWeightEntry(prefix + "/bias", 1);
-            return new SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-        };
-    }
-
-    var isNumber$1 = function (arg) { return typeof arg === 'number'; };
-    function validateConfig(config) {
-        if (!config) {
-            throw new Error("invalid config: " + config);
-        }
-        if (typeof config.withSeparableConvs !== 'boolean') {
-            throw new Error("config.withSeparableConvs has to be a boolean, have: " + config.withSeparableConvs);
-        }
-        if (!isNumber$1(config.iouThreshold) || config.iouThreshold < 0 || config.iouThreshold > 1.0) {
-            throw new Error("config.iouThreshold has to be a number between [0, 1], have: " + config.iouThreshold);
-        }
-        if (!Array.isArray(config.classes)
-            || !config.classes.length
-            || !config.classes.every(function (c) { return typeof c === 'string'; })) {
-            throw new Error("config.classes has to be an array class names: string[], have: " + JSON.stringify(config.classes));
-        }
-        if (!Array.isArray(config.anchors)
-            || !config.anchors.length
-            || !config.anchors.map(function (a) { return a || {}; }).every(function (a) { return isNumber$1(a.x) && isNumber$1(a.y); })) {
-            throw new Error("config.anchors has to be an array of { x: number, y: number }, have: " + JSON.stringify(config.anchors));
-        }
-        if (config.meanRgb && (!Array.isArray(config.meanRgb)
-            || config.meanRgb.length !== 3
-            || !config.meanRgb.every(isNumber$1))) {
-            throw new Error("config.meanRgb has to be an array of shape [number, number, number], have: " + JSON.stringify(config.meanRgb));
-        }
-    }
-    function validateTrainConfig(config) {
-        if (![config.noObjectScale, config.objectScale, config.coordScale, config.classScale].every(isNumber$1)) {
-            throw new Error("for training you have to specify noObjectScale, objectScale, coordScale, classScale parameters in your config.json file");
-        }
-        return config;
-    }
-
-    var CELL_SIZE = 32;
-    var DEFAULT_FILTER_SIZES = [
-        3, 16, 32, 64, 128, 256, 512, 1024, 1024
-    ];
-
-    function leaky(x) {
-        return tidy(function () {
-            var min$$1 = mul(x, scalar(0.10000000149011612));
-            return add(relu(sub(x, min$$1)), min$$1);
-            //return tf.maximum(x, min)
-        });
-    }
-
-    function convWithBatchNorm(x, params) {
-        return tidy(function () {
-            var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
-            out = conv2d(out, params.conv.filters, [1, 1], 'valid');
-            out = sub(out, params.bn.sub);
-            out = mul(out, params.bn.truediv);
-            out = add(out, params.conv.bias);
-            return leaky(out);
-        });
-    }
-
-    function depthwiseSeparableConv$1(x, params) {
-        return tidy(function () {
-            var out = pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]]);
-            out = separableConv2d(out, params.depthwise_filter, params.pointwise_filter, [1, 1], 'valid');
-            out = add(out, params.bias);
-            return leaky(out);
-        });
-    }
-
-    function extractorsFactory(extractWeights, paramMappings) {
-        var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
-        function extractBatchNormParams(size, mappedPrefix) {
-            var sub$$1 = tensor1d(extractWeights(size));
-            var truediv = tensor1d(extractWeights(size));
-            paramMappings.push({ paramPath: mappedPrefix + "/sub" }, { paramPath: mappedPrefix + "/truediv" });
-            return { sub: sub$$1, truediv: truediv };
-        }
-        function extractConvWithBatchNormParams(channelsIn, channelsOut, mappedPrefix) {
-            var conv = extractConvParams(channelsIn, channelsOut, 3, mappedPrefix + "/conv");
-            var bn = extractBatchNormParams(channelsOut, mappedPrefix + "/bn");
-            return { conv: conv, bn: bn };
-        }
-        var extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings);
-        return {
-            extractConvParams: extractConvParams,
-            extractConvWithBatchNormParams: extractConvWithBatchNormParams,
-            extractSeparableConvParams: extractSeparableConvParams
-        };
-    }
-    function extractParams(weights, config, boxEncodingSize, filterSizes) {
-        var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
-        var paramMappings = [];
-        var _b = extractorsFactory(extractWeights, paramMappings), extractConvParams = _b.extractConvParams, extractConvWithBatchNormParams = _b.extractConvWithBatchNormParams, extractSeparableConvParams = _b.extractSeparableConvParams;
-        var params;
-        if (config.withSeparableConvs) {
-            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
-            var conv0 = config.isFirstLayerConv2d
-                ? extractConvParams(s0, s1, 3, 'conv0')
-                : extractSeparableConvParams(s0, s1, 'conv0');
-            var conv1 = extractSeparableConvParams(s1, s2, 'conv1');
-            var conv2 = extractSeparableConvParams(s2, s3, 'conv2');
-            var conv3 = extractSeparableConvParams(s3, s4, 'conv3');
-            var conv4 = extractSeparableConvParams(s4, s5, 'conv4');
-            var conv5 = extractSeparableConvParams(s5, s6, 'conv5');
-            var conv6 = s7 ? extractSeparableConvParams(s6, s7, 'conv6') : undefined;
-            var conv7 = s8 ? extractSeparableConvParams(s7, s8, 'conv7') : undefined;
-            var conv8 = extractConvParams(s8 || s7 || s6, 5 * boxEncodingSize, 1, 'conv8');
-            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
-        }
-        else {
-            var s0 = filterSizes[0], s1 = filterSizes[1], s2 = filterSizes[2], s3 = filterSizes[3], s4 = filterSizes[4], s5 = filterSizes[5], s6 = filterSizes[6], s7 = filterSizes[7], s8 = filterSizes[8];
-            var conv0 = extractConvWithBatchNormParams(s0, s1, 'conv0');
-            var conv1 = extractConvWithBatchNormParams(s1, s2, 'conv1');
-            var conv2 = extractConvWithBatchNormParams(s2, s3, 'conv2');
-            var conv3 = extractConvWithBatchNormParams(s3, s4, 'conv3');
-            var conv4 = extractConvWithBatchNormParams(s4, s5, 'conv4');
-            var conv5 = extractConvWithBatchNormParams(s5, s6, 'conv5');
-            var conv6 = extractConvWithBatchNormParams(s6, s7, 'conv6');
-            var conv7 = extractConvWithBatchNormParams(s7, s8, 'conv7');
-            var conv8 = extractConvParams(s8, 5 * boxEncodingSize, 1, 'conv8');
-            params = { conv0: conv0, conv1: conv1, conv2: conv2, conv3: conv3, conv4: conv4, conv5: conv5, conv6: conv6, conv7: conv7, conv8: conv8 };
-        }
-        if (getRemainingWeights().length !== 0) {
-            throw new Error("weights remaing after extract: " + getRemainingWeights().length);
-        }
-        return { params: params, paramMappings: paramMappings };
-    }
-
-    function extractorsFactory$1(weightMap, paramMappings) {
-        var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
-        function extractBatchNormParams(prefix) {
-            var sub = extractWeightEntry(prefix + "/sub", 1);
-            var truediv = extractWeightEntry(prefix + "/truediv", 1);
-            return { sub: sub, truediv: truediv };
-        }
-        function extractConvParams(prefix) {
-            var filters = extractWeightEntry(prefix + "/filters", 4);
-            var bias = extractWeightEntry(prefix + "/bias", 1);
-            return { filters: filters, bias: bias };
-        }
-        function extractConvWithBatchNormParams(prefix) {
-            var conv = extractConvParams(prefix + "/conv");
-            var bn = extractBatchNormParams(prefix + "/bn");
-            return { conv: conv, bn: bn };
-        }
-        var extractSeparableConvParams = loadSeparableConvParamsFactory(extractWeightEntry);
-        return {
-            extractConvParams: extractConvParams,
-            extractConvWithBatchNormParams: extractConvWithBatchNormParams,
-            extractSeparableConvParams: extractSeparableConvParams
-        };
-    }
-    function extractParamsFromWeigthMap(weightMap, config) {
-        var paramMappings = [];
-        var _a = extractorsFactory$1(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
-        var params;
-        if (config.withSeparableConvs) {
-            var numFilters = (config.filterSizes && config.filterSizes.length || 9);
-            params = {
-                conv0: config.isFirstLayerConv2d ? extractConvParams('conv0') : extractSeparableConvParams('conv0'),
-                conv1: extractSeparableConvParams('conv1'),
-                conv2: extractSeparableConvParams('conv2'),
-                conv3: extractSeparableConvParams('conv3'),
-                conv4: extractSeparableConvParams('conv4'),
-                conv5: extractSeparableConvParams('conv5'),
-                conv6: numFilters > 7 ? extractSeparableConvParams('conv6') : undefined,
-                conv7: numFilters > 8 ? extractSeparableConvParams('conv7') : undefined,
-                conv8: extractConvParams('conv8')
-            };
-        }
-        else {
-            params = {
-                conv0: extractConvWithBatchNormParams('conv0'),
-                conv1: extractConvWithBatchNormParams('conv1'),
-                conv2: extractConvWithBatchNormParams('conv2'),
-                conv3: extractConvWithBatchNormParams('conv3'),
-                conv4: extractConvWithBatchNormParams('conv4'),
-                conv5: extractConvWithBatchNormParams('conv5'),
-                conv6: extractConvWithBatchNormParams('conv6'),
-                conv7: extractConvWithBatchNormParams('conv7'),
-                conv8: extractConvParams('conv8')
-            };
-        }
-        disposeUnusedWeightTensors(weightMap, paramMappings);
-        return { params: params, paramMappings: paramMappings };
-    }
-
-    var TinyYolov2SizeType;
-    (function (TinyYolov2SizeType) {
-        TinyYolov2SizeType[TinyYolov2SizeType["XS"] = 224] = "XS";
-        TinyYolov2SizeType[TinyYolov2SizeType["SM"] = 320] = "SM";
-        TinyYolov2SizeType[TinyYolov2SizeType["MD"] = 416] = "MD";
-        TinyYolov2SizeType[TinyYolov2SizeType["LG"] = 608] = "LG";
-    })(TinyYolov2SizeType || (TinyYolov2SizeType = {}));
-    var TinyYolov2Options = /** @class */ (function () {
-        function TinyYolov2Options(_a) {
-            var _b = _a === void 0 ? {} : _a, inputSize = _b.inputSize, scoreThreshold = _b.scoreThreshold;
-            this._name = 'TinyYolov2Options';
-            this._inputSize = inputSize || 416;
-            this._scoreThreshold = scoreThreshold || 0.5;
-            if (typeof this._inputSize !== 'number' || this._inputSize % 32 !== 0) {
-                throw new Error(this._name + " - expected inputSize to be a number divisible by 32");
-            }
-            if (typeof this._scoreThreshold !== 'number' || this._scoreThreshold <= 0 || this._scoreThreshold >= 1) {
-                throw new Error(this._name + " - expected scoreThreshold to be a number between 0 and 1");
-            }
-        }
-        Object.defineProperty(TinyYolov2Options.prototype, "inputSize", {
-            get: function () { return this._inputSize; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2Options.prototype, "scoreThreshold", {
-            get: function () { return this._scoreThreshold; },
-            enumerable: true,
-            configurable: true
-        });
-        return TinyYolov2Options;
-    }());
-
-    var TinyYolov2 = /** @class */ (function (_super) {
-        __extends$1(TinyYolov2, _super);
-        function TinyYolov2(config) {
-            var _this = _super.call(this, 'TinyYolov2') || this;
-            validateConfig(config);
-            _this._config = config;
-            return _this;
-        }
-        Object.defineProperty(TinyYolov2.prototype, "config", {
-            get: function () {
-                return this._config;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2.prototype, "withClassScores", {
-            get: function () {
-                return this.config.withClassScores || this.config.classes.length > 1;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2.prototype, "boxEncodingSize", {
-            get: function () {
-                return 5 + (this.withClassScores ? this.config.classes.length : 0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TinyYolov2.prototype.runTinyYolov2 = function (x, params) {
-            var out = convWithBatchNorm(x, params.conv0);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = convWithBatchNorm(out, params.conv1);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = convWithBatchNorm(out, params.conv2);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = convWithBatchNorm(out, params.conv3);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = convWithBatchNorm(out, params.conv4);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = convWithBatchNorm(out, params.conv5);
-            out = maxPool(out, [2, 2], [1, 1], 'same');
-            out = convWithBatchNorm(out, params.conv6);
-            out = convWithBatchNorm(out, params.conv7);
-            return convLayer(out, params.conv8, 'valid', false);
-        };
-        TinyYolov2.prototype.runMobilenet = function (x, params) {
-            var out = this.config.isFirstLayerConv2d
-                ? leaky(convLayer(x, params.conv0, 'valid', false))
-                : depthwiseSeparableConv$1(x, params.conv0);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = depthwiseSeparableConv$1(out, params.conv1);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = depthwiseSeparableConv$1(out, params.conv2);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = depthwiseSeparableConv$1(out, params.conv3);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = depthwiseSeparableConv$1(out, params.conv4);
-            out = maxPool(out, [2, 2], [2, 2], 'same');
-            out = depthwiseSeparableConv$1(out, params.conv5);
-            out = maxPool(out, [2, 2], [1, 1], 'same');
-            out = params.conv6 ? depthwiseSeparableConv$1(out, params.conv6) : out;
-            out = params.conv7 ? depthwiseSeparableConv$1(out, params.conv7) : out;
-            return convLayer(out, params.conv8, 'valid', false);
-        };
-        TinyYolov2.prototype.forwardInput = function (input, inputSize) {
-            var _this = this;
-            var params = this.params;
-            if (!params) {
-                throw new Error('TinyYolov2 - load model before inference');
-            }
-            return tidy(function () {
-                var batchTensor = input.toBatchTensor(inputSize, false).toFloat();
-                batchTensor = _this.config.meanRgb
-                    ? normalize(batchTensor, _this.config.meanRgb)
-                    : batchTensor;
-                batchTensor = batchTensor.div(scalar(256));
-                return _this.config.withSeparableConvs
-                    ? _this.runMobilenet(batchTensor, params)
-                    : _this.runTinyYolov2(batchTensor, params);
-            });
-        };
-        TinyYolov2.prototype.forward = function (input, inputSize) {
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _a;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = this.forwardInput;
-                            return [4 /*yield*/, toNetInput(input)];
-                        case 1: return [4 /*yield*/, _a.apply(this, [_b.sent(), inputSize])];
-                        case 2: return [2 /*return*/, _b.sent()];
-                    }
-                });
-            });
-        };
-        TinyYolov2.prototype.detect = function (input, forwardParams) {
-            if (forwardParams === void 0) { forwardParams = {}; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
-                var _a, inputSize, scoreThreshold, netInput, out, out0, inputDimensions, results, boxes, scores, classScores, classNames, indices, detections;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = new TinyYolov2Options(forwardParams), inputSize = _a.inputSize, scoreThreshold = _a.scoreThreshold;
-                            return [4 /*yield*/, toNetInput(input)];
-                        case 1:
-                            netInput = _b.sent();
-                            return [4 /*yield*/, this.forwardInput(netInput, inputSize)];
-                        case 2:
-                            out = _b.sent();
-                            out0 = tidy(function () { return unstack(out)[0].expandDims(); });
-                            inputDimensions = {
-                                width: netInput.getInputWidth(0),
-                                height: netInput.getInputHeight(0)
-                            };
-                            results = this.extractBoxes(out0, netInput.getReshapedInputDimensions(0), scoreThreshold);
-                            out.dispose();
-                            out0.dispose();
-                            boxes = results.map(function (res) { return res.box; });
-                            scores = results.map(function (res) { return res.score; });
-                            classScores = results.map(function (res) { return res.classScore; });
-                            classNames = results.map(function (res) { return _this.config.classes[res.label]; });
-                            indices = nonMaxSuppression$1(boxes.map(function (box) { return box.rescale(inputSize); }), scores, this.config.iouThreshold, true);
-                            detections = indices.map(function (idx) {
-                                return new ObjectDetection(scores[idx], classScores[idx], classNames[idx], boxes[idx], inputDimensions);
-                            });
-                            return [2 /*return*/, detections];
-                    }
-                });
-            });
-        };
-        TinyYolov2.prototype.getDefaultModelName = function () {
-            return '';
-        };
-        TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap(weightMap, this.config);
-        };
-        TinyYolov2.prototype.extractParams = function (weights) {
-            var filterSizes = this.config.filterSizes || DEFAULT_FILTER_SIZES;
-            var numFilters = filterSizes ? filterSizes.length : undefined;
-            if (numFilters !== 7 && numFilters !== 8 && numFilters !== 9) {
-                throw new Error("TinyYolov2 - expected 7 | 8 | 9 convolutional filters, but found " + numFilters + " filterSizes in config");
-            }
-            return extractParams(weights, this.config, this.boxEncodingSize, filterSizes);
-        };
-        TinyYolov2.prototype.extractBoxes = function (outputTensor, inputBlobDimensions, scoreThreshold) {
-            var _this = this;
-            var width = inputBlobDimensions.width, height = inputBlobDimensions.height;
-            var inputSize = Math.max(width, height);
-            var correctionFactorX = inputSize / width;
-            var correctionFactorY = inputSize / height;
-            var numCells = outputTensor.shape[1];
-            var numBoxes = this.config.anchors.length;
-            var _a = tidy(function () {
-                var reshaped = outputTensor.reshape([numCells, numCells, numBoxes, _this.boxEncodingSize]);
-                var boxes = reshaped.slice([0, 0, 0, 0], [numCells, numCells, numBoxes, 4]);
-                var scores = reshaped.slice([0, 0, 0, 4], [numCells, numCells, numBoxes, 1]);
-                var classScores = _this.withClassScores
-                    ? softmax(reshaped.slice([0, 0, 0, 5], [numCells, numCells, numBoxes, _this.config.classes.length]), 3)
-                    : scalar(0);
-                return [boxes, scores, classScores];
-            }), boxesTensor = _a[0], scoresTensor = _a[1], classScoresTensor = _a[2];
-            var results = [];
-            for (var row = 0; row < numCells; row++) {
-                for (var col = 0; col < numCells; col++) {
-                    for (var anchor = 0; anchor < numBoxes; anchor++) {
-                        var score = sigmoid$1(scoresTensor.get(row, col, anchor, 0));
-                        if (!scoreThreshold || score > scoreThreshold) {
-                            var ctX = ((col + sigmoid$1(boxesTensor.get(row, col, anchor, 0))) / numCells) * correctionFactorX;
-                            var ctY = ((row + sigmoid$1(boxesTensor.get(row, col, anchor, 1))) / numCells) * correctionFactorY;
-                            var width_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 2)) * this.config.anchors[anchor].x) / numCells) * correctionFactorX;
-                            var height_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 3)) * this.config.anchors[anchor].y) / numCells) * correctionFactorY;
-                            var x = (ctX - (width_1 / 2));
-                            var y = (ctY - (height_1 / 2));
-                            var pos = { row: row, col: col, anchor: anchor };
-                            var _b = this.withClassScores
-                                ? this.extractPredictedClass(classScoresTensor, pos)
-                                : { classScore: 1, label: 0 }, classScore = _b.classScore, label = _b.label;
-                            results.push(__assign$1({ box: new BoundingBox(x, y, x + width_1, y + height_1), score: score, classScore: score * classScore, label: label }, pos));
-                        }
-                    }
-                }
-            }
-            boxesTensor.dispose();
-            scoresTensor.dispose();
-            classScoresTensor.dispose();
-            return results;
-        };
-        TinyYolov2.prototype.extractPredictedClass = function (classesTensor, pos) {
-            var row = pos.row, col = pos.col, anchor = pos.anchor;
-            return Array(this.config.classes.length).fill(0)
-                .map(function (_, i) { return classesTensor.get(row, col, anchor, i); })
-                .map(function (classScore, label) { return ({
-                classScore: classScore,
-                label: label
-            }); })
-                .reduce(function (max$$1, curr) { return max$$1.classScore > curr.classScore ? max$$1 : curr; });
-        };
-        return TinyYolov2;
-    }(NeuralNetwork));
-
-    var TinyYolov2LossFunction = /** @class */ (function () {
-        function TinyYolov2LossFunction(outputTensor, groundTruth, predictedBoxes, reshapedImgDims, config) {
-            this._config = config;
-            this._reshapedImgDims = new Dimensions(reshapedImgDims.width, reshapedImgDims.height);
-            this._outputTensor = outputTensor;
-            this._predictedBoxes = predictedBoxes;
-            this.validateGroundTruthBoxes(groundTruth);
-            this._groundTruth = this.assignGroundTruthToAnchors(groundTruth);
-            var groundTruthMask = this.createGroundTruthMask();
-            var _a = this.createCoordAndScoreMasks(), coordBoxOffsetMask = _a.coordBoxOffsetMask, coordBoxSizeMask = _a.coordBoxSizeMask, scoreMask = _a.scoreMask;
-            this.noObjectLossMask = tidy(function () { return mul(scoreMask, sub(scalar(1), groundTruthMask)); });
-            this.objectLossMask = tidy(function () { return mul(scoreMask, groundTruthMask); });
-            this.coordBoxOffsetMask = tidy(function () { return mul(coordBoxOffsetMask, groundTruthMask); });
-            this.coordBoxSizeMask = tidy(function () { return mul(coordBoxSizeMask, groundTruthMask); });
-            var classScoresMask = tidy(function () { return sub(scalar(1), coordBoxOffsetMask.add(coordBoxSizeMask).add(scoreMask)); });
-            this.groundTruthClassScoresMask = tidy(function () { return mul(classScoresMask, groundTruthMask); });
-        }
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "config", {
-            get: function () {
-                return this._config;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "reshapedImgDims", {
-            get: function () {
-                return this._reshapedImgDims;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "outputTensor", {
-            get: function () {
-                return this._outputTensor;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "groundTruth", {
-            get: function () {
-                return this._groundTruth;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "predictedBoxes", {
-            get: function () {
-                return this._predictedBoxes;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "inputSize", {
-            get: function () {
-                return Math.max(this.reshapedImgDims.width, this.reshapedImgDims.height);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "withClassScores", {
-            get: function () {
-                return this._config.withClassScores || this._config.classes.length > 1;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "boxEncodingSize", {
-            get: function () {
-                return 5 + (this.withClassScores ? this._config.classes.length : 0);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "anchors", {
-            get: function () {
-                return this._config.anchors;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "numBoxes", {
-            get: function () {
-                return this.anchors.length;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "numCells", {
-            get: function () {
-                return this.inputSize / CELL_SIZE;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2LossFunction.prototype, "gridCellEncodingSize", {
-            get: function () {
-                return this.boxEncodingSize * this.numBoxes;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TinyYolov2LossFunction.prototype.toOutputTensorShape = function (tensor$$1) {
-            var _this = this;
-            return tidy(function () { return tensor$$1.reshape([1, _this.numCells, _this.numCells, _this.gridCellEncodingSize]); });
-        };
-        TinyYolov2LossFunction.prototype.computeLoss = function () {
-            var _this = this;
-            return tidy(function () {
-                var noObjectLoss = _this.computeNoObjectLoss();
-                var objectLoss = _this.computeObjectLoss();
-                var coordLoss = _this.computeCoordLoss();
-                var classLoss = _this.withClassScores
-                    ? _this.computeClassLoss()
-                    : scalar(0);
-                var totalLoss = tidy(function () { return noObjectLoss.add(objectLoss).add(coordLoss).add(classLoss); });
-                return {
-                    noObjectLoss: noObjectLoss,
-                    objectLoss: objectLoss,
-                    coordLoss: coordLoss,
-                    classLoss: classLoss,
-                    totalLoss: totalLoss
-                };
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeNoObjectLoss = function () {
-            var _this = this;
-            return tidy(function () {
-                return _this.computeLossTerm(_this.config.noObjectScale, _this.toOutputTensorShape(_this.noObjectLossMask), sigmoid(_this.outputTensor));
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeObjectLoss = function () {
-            var _this = this;
-            return tidy(function () {
-                return _this.computeLossTerm(_this.config.objectScale, _this.toOutputTensorShape(_this.objectLossMask), sub(_this.toOutputTensorShape(_this.computeIous()), sigmoid(_this.outputTensor)));
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeClassLoss = function () {
-            var _this = this;
-            return tidy(function () {
-                var classLossTensor = tidy(function () {
-                    var predClassScores = mul(softmax(_this.outputTensor.reshape([_this.numCells, _this.numCells, _this.numBoxes, _this.boxEncodingSize]), 3), _this.groundTruthClassScoresMask);
-                    var gtClassScores = _this.createOneHotClassScoreMask();
-                    return sub(gtClassScores, predClassScores);
-                });
-                return _this.computeLossTerm(_this.config.classScale, scalar(1), classLossTensor);
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeCoordLoss = function () {
-            var _this = this;
-            return tidy(function () {
-                return _this.computeLossTerm(_this.config.coordScale, scalar(1), add(_this.computeCoordBoxOffsetError(), _this.computeCoordBoxSizeError()));
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeCoordBoxOffsetError = function () {
-            var _this = this;
-            return tidy(function () {
-                var mask = _this.toOutputTensorShape(_this.coordBoxOffsetMask);
-                var gtBoxOffsets = mul(mask, _this.toOutputTensorShape(_this.computeCoordBoxOffsets()));
-                var predBoxOffsets = mul(mask, sigmoid(_this.outputTensor));
-                return sub(gtBoxOffsets, predBoxOffsets);
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeCoordBoxSizeError = function () {
-            var _this = this;
-            return tidy(function () {
-                var mask = _this.toOutputTensorShape(_this.coordBoxSizeMask);
-                var gtBoxSizes = mul(mask, _this.toOutputTensorShape(_this.computeCoordBoxSizes()));
-                var predBoxSizes = mul(mask, _this.outputTensor);
-                return sub(gtBoxSizes, predBoxSizes);
-            });
-        };
-        TinyYolov2LossFunction.prototype.computeLossTerm = function (scale, mask, lossTensor) {
-            var _this = this;
-            return tidy(function () { return mul(scalar(scale), _this.squaredSumOverMask(mask, lossTensor)); });
-        };
-        TinyYolov2LossFunction.prototype.squaredSumOverMask = function (mask, lossTensor) {
-            return tidy(function () { return sum$1(square(mul(mask, lossTensor))); });
-        };
-        TinyYolov2LossFunction.prototype.validateGroundTruthBoxes = function (groundTruth) {
-            var _this = this;
-            groundTruth.forEach(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, label = _a.label;
-                if (typeof label !== 'number' || label < 0 || label > (_this.config.classes.length - 1)) {
-                    throw new Error("invalid ground truth data, expected label to be a number in [0, " + (_this.config.classes.length - 1) + "]");
-                }
-                if (x < 0 || x > 1 || y < 0 || y > 1 || width < 0 || (x + width) > 1 || height < 0 || (y + height) > 1) {
-                    throw new Error("invalid ground truth data, box is out of image boundaries " + JSON.stringify({ x: x, y: y, width: width, height: height }));
-                }
-            });
-        };
-        TinyYolov2LossFunction.prototype.assignGroundTruthToAnchors = function (groundTruth) {
-            var _this = this;
-            var groundTruthBoxes = groundTruth
-                .map(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height, label = _a.label;
-                return ({
-                    box: new Rect(x, y, width, height),
-                    label: label
-                });
-            });
-            return groundTruthBoxes.map(function (_a) {
-                var box = _a.box, label = _a.label;
-                var _b = box.rescale(_this.reshapedImgDims), left = _b.left, top = _b.top, bottom = _b.bottom, right = _b.right, x = _b.x, y = _b.y, width = _b.width, height = _b.height;
-                var ctX = left + (width / 2);
-                var ctY = top + (height / 2);
-                var col = Math.floor((ctX / _this.inputSize) * _this.numCells);
-                var row = Math.floor((ctY / _this.inputSize) * _this.numCells);
-                var anchorsByIou = _this.anchors.map(function (anchor, idx) { return ({
-                    idx: idx,
-                    iou: iou(new BoundingBox(0, 0, anchor.x * CELL_SIZE, anchor.y * CELL_SIZE), new BoundingBox(0, 0, width, height))
-                }); }).sort(function (a1, a2) { return a2.iou - a1.iou; });
-                var anchor = anchorsByIou[0].idx;
-                return { row: row, col: col, anchor: anchor, box: box, label: label };
-            });
-        };
-        TinyYolov2LossFunction.prototype.createGroundTruthMask = function () {
-            var _this = this;
-            var mask = zeros([this.numCells, this.numCells, this.numBoxes, this.boxEncodingSize]);
-            var buf = mask.buffer();
-            this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor;
-                for (var i = 0; i < _this.boxEncodingSize; i++) {
-                    buf.set(1, row, col, anchor, i);
-                }
-            });
-            return mask;
-        };
-        TinyYolov2LossFunction.prototype.createCoordAndScoreMasks = function () {
-            var _this = this;
-            return tidy(function () {
-                var coordBoxOffsetMask = zeros([_this.numCells, _this.numCells, _this.numBoxes, _this.boxEncodingSize]);
-                var coordBoxSizeMask = zeros([_this.numCells, _this.numCells, _this.numBoxes, _this.boxEncodingSize]);
-                var scoreMask = zeros([_this.numCells, _this.numCells, _this.numBoxes, _this.boxEncodingSize]);
-                var coordBoxOffsetBuf = coordBoxOffsetMask.buffer();
-                var coordBoxSizeBuf = coordBoxSizeMask.buffer();
-                var scoreBuf = scoreMask.buffer();
-                for (var row = 0; row < _this.numCells; row++) {
-                    for (var col = 0; col < _this.numCells; col++) {
-                        for (var anchor = 0; anchor < _this.numBoxes; anchor++) {
-                            coordBoxOffsetBuf.set(1, row, col, anchor, 0);
-                            coordBoxOffsetBuf.set(1, row, col, anchor, 1);
-                            coordBoxSizeBuf.set(1, row, col, anchor, 2);
-                            coordBoxSizeBuf.set(1, row, col, anchor, 3);
-                            scoreBuf.set(1, row, col, anchor, 4);
-                        }
-                    }
-                }
-                return { coordBoxOffsetMask: coordBoxOffsetMask, coordBoxSizeMask: coordBoxSizeMask, scoreMask: scoreMask };
-            });
-        };
-        TinyYolov2LossFunction.prototype.createOneHotClassScoreMask = function () {
-            var mask = zeros([this.numCells, this.numCells, this.numBoxes, this.boxEncodingSize]);
-            var buf = mask.buffer();
-            var classValuesOffset = 5;
-            this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor, label = _a.label;
-                buf.set(1, row, col, anchor, classValuesOffset + label);
-            });
-            return mask;
-        };
-        TinyYolov2LossFunction.prototype.computeIous = function () {
-            var _this = this;
-            var isSameAnchor = function (p1) { return function (p2) {
-                return p1.row === p2.row
-                    && p1.col === p2.col
-                    && p1.anchor === p2.anchor;
-            }; };
-            var ious = zeros([this.numCells, this.numCells, this.gridCellEncodingSize]);
-            var buf = ious.buffer();
-            this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor, box = _a.box;
-                var predBox = _this.predictedBoxes.find(isSameAnchor({ row: row, col: col, anchor: anchor }));
-                if (!predBox) {
-                    throw new Error("no output box found for: row " + row + ", col " + col + ", anchor " + anchor);
-                }
-                var boxIou = iou(box.rescale(_this.reshapedImgDims), predBox.box.rescale(_this.reshapedImgDims));
-                var anchorOffset = _this.boxEncodingSize * anchor;
-                var scoreValueOffset = 4;
-                buf.set(boxIou, row, col, anchorOffset + scoreValueOffset);
-            });
-            return ious;
-        };
-        TinyYolov2LossFunction.prototype.computeCoordBoxOffsets = function () {
-            var _this = this;
-            var offsets = zeros([this.numCells, this.numCells, this.numBoxes, this.boxEncodingSize]);
-            var buf = offsets.buffer();
-            this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor, box = _a.box;
-                var _b = box.rescale(_this.reshapedImgDims), left = _b.left, top = _b.top, right = _b.right, bottom = _b.bottom;
-                var centerX = (left + right) / 2;
-                var centerY = (top + bottom) / 2;
-                var dCenterX = centerX - (col * CELL_SIZE);
-                var dCenterY = centerY - (row * CELL_SIZE);
-                // inverseSigmoid(0) === -Infinity, inverseSigmoid(1) === Infinity
-                //const dx = inverseSigmoid(Math.min(0.999, Math.max(0.001, dCenterX / CELL_SIZE)))
-                //const dy = inverseSigmoid(Math.min(0.999, Math.max(0.001, dCenterY / CELL_SIZE)))
-                var dx = dCenterX / CELL_SIZE;
-                var dy = dCenterY / CELL_SIZE;
-                buf.set(dx, row, col, anchor, 0);
-                buf.set(dy, row, col, anchor, 1);
-            });
-            return offsets;
-        };
-        TinyYolov2LossFunction.prototype.computeCoordBoxSizes = function () {
-            var _this = this;
-            var sizes = zeros([this.numCells, this.numCells, this.numBoxes, this.boxEncodingSize]);
-            var buf = sizes.buffer();
-            this.groundTruth.forEach(function (_a) {
-                var row = _a.row, col = _a.col, anchor = _a.anchor, box = _a.box;
-                var _b = box.rescale(_this.reshapedImgDims), width = _b.width, height = _b.height;
-                var dw = Math.log(width / (_this.anchors[anchor].x * CELL_SIZE));
-                var dh = Math.log(height / (_this.anchors[anchor].y * CELL_SIZE));
-                buf.set(dw, row, col, anchor, 2);
-                buf.set(dh, row, col, anchor, 3);
-            });
-            return sizes;
-        };
-        return TinyYolov2LossFunction;
-    }());
-
-    function getDefaultBackwardOptions(options) {
-        return Object.assign({}, {
-            minBoxSize: CELL_SIZE
-        }, options);
-    }
-
-    var TinyYolov2Trainable = /** @class */ (function (_super) {
-        __extends$1(TinyYolov2Trainable, _super);
-        function TinyYolov2Trainable(trainableConfig, optimizer) {
-            var _this = _super.call(this, trainableConfig) || this;
-            _this._trainableConfig = validateTrainConfig(trainableConfig);
-            _this._optimizer = optimizer;
-            return _this;
-        }
-        Object.defineProperty(TinyYolov2Trainable.prototype, "trainableConfig", {
-            get: function () {
-                return this._trainableConfig;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TinyYolov2Trainable.prototype, "optimizer", {
-            get: function () {
-                return this._optimizer;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TinyYolov2Trainable.prototype.backward = function (img, groundTruth, inputSize, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
-                var _a, minBoxSize, reportLosses, reshapedImgDims, filteredGroundTruthBoxes, netInput, loss;
-                return __generator$1(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            _a = getDefaultBackwardOptions(options), minBoxSize = _a.minBoxSize, reportLosses = _a.reportLosses;
-                            reshapedImgDims = computeReshapedDimensions(getMediaDimensions(img), inputSize);
-                            filteredGroundTruthBoxes = this.filterGroundTruthBoxes(groundTruth, reshapedImgDims, minBoxSize);
-                            if (!filteredGroundTruthBoxes.length) {
-                                return [2 /*return*/, null];
-                            }
-                            return [4 /*yield*/, toNetInput(imageToSquare(img, inputSize))];
-                        case 1:
-                            netInput = _b.sent();
-                            loss = this.optimizer.minimize(function () {
-                                var _a = _this.computeLoss(_this.forwardInput(netInput, inputSize), filteredGroundTruthBoxes, reshapedImgDims), noObjectLoss = _a.noObjectLoss, objectLoss = _a.objectLoss, coordLoss = _a.coordLoss, classLoss = _a.classLoss, totalLoss = _a.totalLoss;
-                                if (reportLosses) {
-                                    var losses = {
-                                        totalLoss: totalLoss.dataSync()[0],
-                                        noObjectLoss: noObjectLoss.dataSync()[0],
-                                        objectLoss: objectLoss.dataSync()[0],
-                                        coordLoss: coordLoss.dataSync()[0],
-                                        classLoss: classLoss.dataSync()[0]
-                                    };
-                                    var report = {
-                                        losses: losses,
-                                        numBoxes: filteredGroundTruthBoxes.length,
-                                        inputSize: inputSize
-                                    };
-                                    reportLosses(report);
-                                }
-                                return totalLoss;
-                            }, true);
-                            return [2 /*return*/, loss];
-                    }
-                });
-            });
-        };
-        TinyYolov2Trainable.prototype.computeLoss = function (outputTensor, groundTruth, reshapedImgDims) {
-            var config = validateTrainConfig(this.config);
-            var inputSize = Math.max(reshapedImgDims.width, reshapedImgDims.height);
-            if (!inputSize) {
-                throw new Error("computeLoss - invalid inputSize: " + inputSize);
-            }
-            var predictedBoxes = this.extractBoxes(outputTensor, reshapedImgDims);
-            return tidy(function () {
-                var lossFunction = new TinyYolov2LossFunction(outputTensor, groundTruth, predictedBoxes, reshapedImgDims, config);
-                return lossFunction.computeLoss();
-            });
-        };
-        TinyYolov2Trainable.prototype.filterGroundTruthBoxes = function (groundTruth, imgDims, minBoxSize) {
-            var imgHeight = imgDims.height, imgWidth = imgDims.width;
-            return groundTruth.filter(function (_a) {
-                var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
-                var box = (new Rect(x, y, width, height))
-                    .rescale({ height: imgHeight, width: imgWidth });
-                var isTooTiny = box.width < minBoxSize || box.height < minBoxSize;
-                return !isTooTiny;
-            });
-        };
-        TinyYolov2Trainable.prototype.load = function (weightsOrUrl) {
-            return __awaiter$1(this, void 0, void 0, function () {
-                return __generator$1(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, _super.prototype.load.call(this, weightsOrUrl)];
-                        case 1:
-                            _a.sent();
-                            this.variable();
-                            return [2 /*return*/];
-                    }
-                });
-            });
-        };
-        return TinyYolov2Trainable;
-    }(TinyYolov2));
 
     function extractorsFactory$2(extractWeights, paramMappings) {
         function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
@@ -3314,8 +2898,8 @@
         };
         FaceExpressionNet.prototype.predictExpressions = function (input) {
             return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
                 var netInput, out, probabilitesByBatch, predictionsByBatch;
+                var _this = this;
                 return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, toNetInput(input)];
@@ -3424,8 +3008,8 @@
         };
         FaceLandmark68NetBase.prototype.detectLandmarks = function (input) {
             return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
                 var netInput, landmarkTensors, landmarksForBatch;
+                var _this = this;
                 return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, toNetInput(input)];
@@ -3834,8 +3418,8 @@
         };
         FaceRecognitionNet.prototype.computeFaceDescriptor = function (input) {
             return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
                 var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
+                var _this = this;
                 return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, toNetInput(input)];
@@ -4595,7 +4179,7 @@
     }
 
     var CELL_STRIDE = 2;
-    var CELL_SIZE$1 = 12;
+    var CELL_SIZE = 12;
 
     function extractorsFactory$7(extractWeights, paramMappings) {
         var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
@@ -4734,7 +4318,7 @@
 
     function pyramidDown(minFaceSize, scaleFactor, dims) {
         var height = dims[0], width = dims[1];
-        var m = CELL_SIZE$1 / minFaceSize;
+        var m = CELL_SIZE / minFaceSize;
         var scales = [];
         var minLayer = Math.min(height, width) * m;
         var exp = 0;
@@ -4809,7 +4393,7 @@
             }
         }
         var boundingBoxes = indices.map(function (idx) {
-            var cell = new BoundingBox(Math.round((idx.y * CELL_STRIDE + 1) / scale), Math.round((idx.x * CELL_STRIDE + 1) / scale), Math.round((idx.y * CELL_STRIDE + CELL_SIZE$1) / scale), Math.round((idx.x * CELL_STRIDE + CELL_SIZE$1) / scale));
+            var cell = new BoundingBox(Math.round((idx.y * CELL_STRIDE + 1) / scale), Math.round((idx.x * CELL_STRIDE + 1) / scale), Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale), Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale));
             var score = scoresTensor.get(idx.y, idx.x);
             var region = new MtcnnBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
             return {
@@ -4877,8 +4461,8 @@
     function extractImagePatches(img, boxes, _a) {
         var width = _a.width, height = _a.height;
         return __awaiter$1(this, void 0, void 0, function () {
-            var _this = this;
             var imgCtx, bitmaps, imagePatchesDatas;
+            var _this = this;
             return __generator$1(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -5119,7 +4703,7 @@
                             scales = (scaleSteps || pyramidDown(minFaceSize, scaleFactor, [height, width]))
                                 .filter(function (scale) {
                                 var sizes = getSizesForScale(scale, [height, width]);
-                                return Math.min(sizes.width, sizes.height) > CELL_SIZE$1;
+                                return Math.min(sizes.width, sizes.height) > CELL_SIZE;
                             })
                                 .slice(0, maxNumScales);
                             stats.scales = scales;
@@ -5276,8 +4860,8 @@
     var DEFAULT_MODEL_NAME_SEPARABLE_CONV = 'tiny_yolov2_separable_conv_model';
 
     var TinyYolov2$1 = /** @class */ (function (_super) {
-        __extends$1(TinyYolov2$$1, _super);
-        function TinyYolov2$$1(withSeparableConvs) {
+        __extends$1(TinyYolov2, _super);
+        function TinyYolov2(withSeparableConvs) {
             if (withSeparableConvs === void 0) { withSeparableConvs = true; }
             var _this = this;
             var config = Object.assign({}, {
@@ -5296,21 +4880,21 @@
             _this = _super.call(this, config) || this;
             return _this;
         }
-        Object.defineProperty(TinyYolov2$$1.prototype, "withSeparableConvs", {
+        Object.defineProperty(TinyYolov2.prototype, "withSeparableConvs", {
             get: function () {
                 return this.config.withSeparableConvs;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TinyYolov2$$1.prototype, "anchors", {
+        Object.defineProperty(TinyYolov2.prototype, "anchors", {
             get: function () {
                 return this.config.anchors;
             },
             enumerable: true,
             configurable: true
         });
-        TinyYolov2$$1.prototype.locateFaces = function (input, forwardParams) {
+        TinyYolov2.prototype.locateFaces = function (input, forwardParams) {
             return __awaiter$1(this, void 0, void 0, function () {
                 var objectDetections;
                 return __generator$1(this, function (_a) {
@@ -5323,14 +4907,21 @@
                 });
             });
         };
-        TinyYolov2$$1.prototype.getDefaultModelName = function () {
+        TinyYolov2.prototype.getDefaultModelName = function () {
             return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME;
         };
-        TinyYolov2$$1.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
             return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
         };
-        return TinyYolov2$$1;
+        return TinyYolov2;
     }(TinyYolov2));
+
+    function createTinyYolov2(weights, withSeparableConvs) {
+        if (withSeparableConvs === void 0) { withSeparableConvs = true; }
+        var net = new TinyYolov2$1(withSeparableConvs);
+        net.extractWeights(weights);
+        return net;
+    }
 
     var nets = {
         ssdMobilenetv1: new SsdMobilenetv1(),
@@ -5459,8 +5050,8 @@
         }
         ComputeAllFaceDescriptorsTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
                 var parentResults, alignedRects, alignedFaces, _a, results;
+                var _this = this;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
                         case 0: return [4 /*yield*/, this.parentTask];
@@ -5569,8 +5160,8 @@
         }
         DetectAllFaceLandmarksTask.prototype.run = function () {
             return __awaiter$1(this, void 0, void 0, function () {
-                var _this = this;
                 var parentResults, detections, faces, _a, faceLandmarksByFace;
+                var _this = this;
                 return __generator$1(this, function (_b) {
                     switch (_b.label) {
                         case 0: return [4 /*yield*/, this.parentTask];
@@ -5982,13 +5573,6 @@
         return net;
     }
 
-    function createTinyYolov2(weights, withSeparableConvs) {
-        if (withSeparableConvs === void 0) { withSeparableConvs = true; }
-        var net = new TinyYolov2$1(withSeparableConvs);
-        net.extractWeights(weights);
-        return net;
-    }
-
     function resizeResults(results, _a) {
         var width = _a.width, height = _a.height;
         if (Array.isArray(results)) {
@@ -6011,6 +5595,7 @@
     }
 
     exports.tf = tfCore_esm;
+    exports.TfjsImageRecognitionBase = tfjsImageRecognitionBase;
     exports.BoundingBox = BoundingBox;
     exports.Box = Box;
     exports.BoxWithText = BoxWithText;
@@ -6020,10 +5605,6 @@
     exports.Point = Point;
     exports.PredictedBox = PredictedBox;
     exports.Rect = Rect;
-    exports.disposeUnusedWeightTensors = disposeUnusedWeightTensors;
-    exports.extractWeightEntryFactory = extractWeightEntryFactory;
-    exports.extractWeightsFactory = extractWeightsFactory;
-    exports.getModelUris = getModelUris;
     exports.awaitMediaLoaded = awaitMediaLoaded;
     exports.bufferToImage = bufferToImage;
     exports.createCanvas = createCanvas;
@@ -6139,12 +5720,12 @@
     exports.createTinyFaceDetector = createTinyFaceDetector;
     exports.TinyFaceDetector = TinyFaceDetector;
     exports.TinyFaceDetectorOptions = TinyFaceDetectorOptions;
-    exports.createTinyYolov2 = createTinyYolov2;
     exports.TinyYolov2 = TinyYolov2$1;
+    exports.createTinyYolov2 = createTinyYolov2;
     exports.euclideanDistance = euclideanDistance;
     exports.resizeResults = resizeResults;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 //# sourceMappingURL=face-api.js.map

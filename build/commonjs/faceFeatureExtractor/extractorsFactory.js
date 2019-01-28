@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
-var tfjs_tiny_yolov2_1 = require("tfjs-tiny-yolov2");
+var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 function extractorsFactory(extractWeights, paramMappings) {
     function extractSeparableConvParams(channelsIn, channelsOut, mappedPrefix) {
         var depthwise_filter = tf.tensor4d(extractWeights(3 * 3 * channelsIn), [3, 3, channelsIn, 1]);
         var pointwise_filter = tf.tensor4d(extractWeights(channelsIn * channelsOut), [1, 1, channelsIn, channelsOut]);
         var bias = tf.tensor1d(extractWeights(channelsOut));
         paramMappings.push({ paramPath: mappedPrefix + "/depthwise_filter" }, { paramPath: mappedPrefix + "/pointwise_filter" }, { paramPath: mappedPrefix + "/bias" });
-        return new tfjs_tiny_yolov2_1.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
+        return new tfjs_image_recognition_base_1.TfjsImageRecognitionBase.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
     }
-    var extractConvParams = tfjs_tiny_yolov2_1.extractConvParamsFactory(extractWeights, paramMappings);
+    var extractConvParams = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings);
     function extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer) {
         if (isFirstLayer === void 0) { isFirstLayer = false; }
         var conv0 = isFirstLayer

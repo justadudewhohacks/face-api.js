@@ -55,8 +55,8 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
     };
     FaceRecognitionNet.prototype.computeFaceDescriptor = function (input) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _this = this;
             var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
+            var _this = this;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];

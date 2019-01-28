@@ -1,10 +1,9 @@
 import * as tslib_1 from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory } from 'tfjs-image-recognition-base';
-import { extractConvParamsFactory, extractFCParamsFactory } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(extractWeights, paramMappings) {
-    var extractConvParams = extractConvParamsFactory(extractWeights, paramMappings);
-    var extractFCParams = extractFCParamsFactory(extractWeights, paramMappings);
+    var extractConvParams = TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings);
+    var extractFCParams = TfjsImageRecognitionBase.extractFCParamsFactory(extractWeights, paramMappings);
     function extractPReluParams(size, paramPath) {
         var alpha = tf.tensor1d(extractWeights(size));
         paramMappings.push({ paramPath: paramPath });
@@ -52,7 +51,7 @@ function extractorsFactory(extractWeights, paramMappings) {
     };
 }
 export function extractParams(weights) {
-    var _a = extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
+    var _a = TfjsImageRecognitionBase.extractWeightsFactory(weights), extractWeights = _a.extractWeights, getRemainingWeights = _a.getRemainingWeights;
     var paramMappings = [];
     var _b = extractorsFactory(extractWeights, paramMappings), extractPNetParams = _b.extractPNetParams, extractRNetParams = _b.extractRNetParams, extractONetParams = _b.extractONetParams;
     var pnet = extractPNetParams();
