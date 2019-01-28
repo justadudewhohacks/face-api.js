@@ -1,10 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory, ExtractWeightsFunction, isFloat, ParamMapping } from 'tfjs-image-recognition-base';
-import { ConvParams } from 'tfjs-tiny-yolov2';
+import { isFloat, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
-function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
+function extractorsFactory(extractWeights: TfjsImageRecognitionBase.ExtractWeightsFunction, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
   function extractFilterValues(numFilterValues: number, numFilters: number, filterSize: number): tf.Tensor4D {
     const weights = extractWeights(numFilterValues)
@@ -27,7 +26,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     numFilters: number,
     filterSize: number,
     mappedPrefix: string
-  ): ConvParams {
+  ): TfjsImageRecognitionBase.ConvParams {
 
     const filters = extractFilterValues(numFilterValues, numFilters, filterSize)
     const bias = tf.tensor1d(extractWeights(numFilters))
@@ -90,14 +89,14 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
 
 }
 
-export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
+export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 
   const {
     extractWeights,
     getRemainingWeights
-  } = extractWeightsFactory(weights)
+  } = TfjsImageRecognitionBase.extractWeightsFactory(weights)
 
-  const paramMappings: ParamMapping[] = []
+  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
 
   const {
     extractConvLayerParams,

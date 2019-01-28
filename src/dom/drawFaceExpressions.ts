@@ -1,5 +1,5 @@
 import { drawText, env, getContext2dOrThrow, getDefaultDrawOptions, resolveInput, round } from 'tfjs-image-recognition-base';
-import { IRect } from 'tfjs-tiny-yolov2';
+import { IRect } from 'tfjs-image-recognition-base';
 
 import { DrawFaceExpressionsInput, DrawFaceExpressionsOptions } from './types';
 

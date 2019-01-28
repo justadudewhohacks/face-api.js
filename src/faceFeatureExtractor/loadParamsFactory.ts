@@ -1,26 +1,25 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightEntryFactory, ParamMapping } from 'tfjs-image-recognition-base';
-import { ConvParams, SeparableConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { DenseBlock3Params, DenseBlock4Params } from './types';
 
-export function loadParamsFactory(weightMap: any, paramMappings: ParamMapping[]) {
+export function loadParamsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
-  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
 
-  function extractConvParams(prefix: string): ConvParams {
+  function extractConvParams(prefix: string): TfjsImageRecognitionBase.ConvParams {
     const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/filters`, 4)
     const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/bias`, 1)
 
     return { filters, bias }
   }
 
-  function extractSeparableConvParams(prefix: string): SeparableConvParams {
+  function extractSeparableConvParams(prefix: string): TfjsImageRecognitionBase.SeparableConvParams {
     const depthwise_filter = extractWeightEntry<tf.Tensor4D>(`${prefix}/depthwise_filter`, 4)
     const pointwise_filter = extractWeightEntry<tf.Tensor4D>(`${prefix}/pointwise_filter`, 4)
     const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/bias`, 1)
 
-    return new SeparableConvParams(
+    return new TfjsImageRecognitionBase.SeparableConvParams(
       depthwise_filter,
       pointwise_filter,
       bias

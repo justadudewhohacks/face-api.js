@@ -1,9 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { SeparableConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 export function depthwiseSeparableConv(
   x: tf.Tensor4D,
-  params: SeparableConvParams,
+  params: TfjsImageRecognitionBase.SeparableConvParams,
   stride: [number, number]
 ): tf.Tensor4D {
   return tf.tidy(() => {

@@ -1,6 +1,6 @@
-import { FCParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 export type NetParams = {
-  fc: FCParams
+  fc: TfjsImageRecognitionBase.FCParams
 }
 

@@ -1,17 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
-import {
-  disposeUnusedWeightTensors,
-  extractWeightEntryFactory,
-  isTensor3D,
-  ParamMapping,
-} from 'tfjs-image-recognition-base';
-import { ConvParams } from 'tfjs-tiny-yolov2';
+import { isTensor3D, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
-function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
+function extractorsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
-  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractPointwiseConvParams(prefix: string, idx: number, mappedPrefix: string): PointwiseConvParams {
 
@@ -65,7 +59,7 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     }
   }
 
-  function extractConvParams(prefix: string, mappedPrefix: string): ConvParams {
+  function extractConvParams(prefix: string, mappedPrefix: string): TfjsImageRecognitionBase.ConvParams {
     const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/weights`, 4, `${mappedPrefix}/filters`)
     const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/biases`, 1, `${mappedPrefix}/bias`)
 
@@ -113,9 +107,9 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
+): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 
-  const paramMappings: ParamMapping[] = []
+  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
 
   const {
     extractMobilenetV1Params,
@@ -137,7 +131,7 @@ export function extractParamsFromWeigthMap(
     }
   }
 
-  disposeUnusedWeightTensors(weightMap, paramMappings)
+  TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings)
 
   return { params, paramMappings }
 }

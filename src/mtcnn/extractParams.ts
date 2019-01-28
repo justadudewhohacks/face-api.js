@@ -1,13 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory, ExtractWeightsFunction, ParamMapping } from 'tfjs-image-recognition-base';
-import { extractConvParamsFactory, extractFCParamsFactory } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { NetParams, ONetParams, PNetParams, RNetParams, SharedParams } from './types';
 
-function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
+function extractorsFactory(extractWeights: TfjsImageRecognitionBase.ExtractWeightsFunction, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
-  const extractConvParams = extractConvParamsFactory(extractWeights, paramMappings)
-  const extractFCParams = extractFCParamsFactory(extractWeights, paramMappings)
+  const extractConvParams = TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings)
+  const extractFCParams = TfjsImageRecognitionBase.extractFCParamsFactory(extractWeights, paramMappings)
 
   function extractPReluParams(size: number, paramPath: string): tf.Tensor1D {
     const alpha = tf.tensor1d(extractWeights(size))
@@ -69,14 +68,14 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
 
 }
 
-export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
+export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 
   const {
     extractWeights,
     getRemainingWeights
-  } = extractWeightsFactory(weights)
+  } = TfjsImageRecognitionBase.extractWeightsFactory(weights)
 
-  const paramMappings: ParamMapping[] = []
+  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
 
   const {
     extractPNetParams,

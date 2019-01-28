@@ -1,10 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { extractWeightsFactory, ExtractWeightsFunction, ParamMapping } from 'tfjs-image-recognition-base';
-import { ConvParams } from 'tfjs-tiny-yolov2';
+import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
-function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
+function extractorsFactory(extractWeights: TfjsImageRecognitionBase.ExtractWeightsFunction, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
   function extractDepthwiseConvParams(numChannels: number, mappedPrefix: string): MobileNetV1.DepthwiseConvParams {
 
@@ -37,7 +36,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     filterSize: number,
     mappedPrefix: string,
     isPointwiseConv?: boolean
-  ): ConvParams {
+  ): TfjsImageRecognitionBase.ConvParams {
 
     const filters = tf.tensor4d(
       extractWeights(channelsIn * channelsOut * filterSize * filterSize),
@@ -192,14 +191,14 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
 
 }
 
-export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
+export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 
-  const paramMappings: ParamMapping[] = []
+  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
 
   const {
     extractWeights,
     getRemainingWeights
-  } = extractWeightsFactory(weights)
+  } = TfjsImageRecognitionBase.extractWeightsFactory(weights)
 
   const {
     extractMobilenetV1Params,

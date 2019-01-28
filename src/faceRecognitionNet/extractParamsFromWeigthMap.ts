@@ -1,17 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
-import {
-  disposeUnusedWeightTensors,
-  extractWeightEntryFactory,
-  isTensor2D,
-  loadWeightMap,
-  ParamMapping,
-} from 'tfjs-image-recognition-base';
+import { isTensor2D, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
 
-function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
+function extractorsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
 
-  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractScaleLayerParams(prefix: string): ScaleLayerParams {
 
@@ -46,9 +40,9 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
+): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 
-  const paramMappings: ParamMapping[] = []
+  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
 
   const {
     extractConvLayerParams,
@@ -100,7 +94,7 @@ export function extractParamsFromWeigthMap(
     fc
   }
 
-  disposeUnusedWeightTensors(weightMap, paramMappings)
+  TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings)
 
   return { params, paramMappings }
 }

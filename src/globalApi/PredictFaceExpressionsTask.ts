@@ -1,5 +1,5 @@
+import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
-import { tf } from 'tfjs-tiny-yolov2';
 
 import { extractFaces, extractFaceTensors } from '../dom';
 import { FaceExpressionPrediction } from '../faceExpressionNet/types';
