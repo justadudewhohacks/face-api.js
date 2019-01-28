@@ -1,6 +1,4 @@
-import { NeuralNetwork } from 'tfjs-image-recognition-base';
-
-import { faceapi } from './env';
+import * as faceapi from 'face-api.js';
 
 export const faceDetectionNet = faceapi.nets.ssdMobilenetv1
 // export const faceDetectionNet = tinyFaceDetector
@@ -17,7 +15,7 @@ const scoreThreshold = 0.5
 const minFaceSize = 50
 const scaleFactor = 0.8
 
-function getFaceDetectorOptions(net: NeuralNetwork<any>) {
+function getFaceDetectorOptions(net: faceapi.NeuralNetwork<any>) {
   return net === faceapi.nets.ssdMobilenetv1
     ? new faceapi.SsdMobilenetv1Options({ minConfidence })
     : (net === faceapi.nets.tinyFaceDetector

@@ -1,4 +1,6 @@
-import { canvas, faceapi, faceDetectionNet, faceDetectionOptions, saveFile } from './commons';
+import * as faceapi from 'face-api.js';
+
+import { canvas, faceDetectionNet, faceDetectionOptions, saveFile } from './commons';
 
 async function run() {
 
