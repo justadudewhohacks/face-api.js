@@ -40,10 +40,10 @@ export async function stage3(
     .map(({ idx }) => idx)
 
   const filteredRegions = indices.map(idx => new MtcnnBox(
-    onetOuts[idx].regions.get(0, 0),
-    onetOuts[idx].regions.get(0, 1),
-    onetOuts[idx].regions.get(0, 2),
-    onetOuts[idx].regions.get(0, 3)
+    onetOuts[idx].regions.arraySync()[0][0],
+    onetOuts[idx].regions.arraySync()[0][1],
+    onetOuts[idx].regions.arraySync()[0][2],
+    onetOuts[idx].regions.arraySync()[0][3]
   ))
   const filteredBoxes = indices
     .map((idx, i) => inputBoxes[idx].calibrate(filteredRegions[i]))
@@ -69,8 +69,8 @@ export async function stage3(
     points = indicesNms.map((idx, i) =>
       Array(5).fill(0).map((_, ptIdx) =>
         new Point(
-          ((onetOuts[idx].points.get(0, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
-          ((onetOuts[idx].points.get(0, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
+          ((onetOuts[idx].points.arraySync()[0][ptIdx] * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
+          ((onetOuts[idx].points.arraySync()[0][ptIdx+5] * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
         )
       )
     )

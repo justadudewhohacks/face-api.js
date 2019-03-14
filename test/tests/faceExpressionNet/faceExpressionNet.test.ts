@@ -57,7 +57,7 @@ describe('faceExpressionNet', () => {
     })
 
     it('computes face landmarks for batch of tf.Tensor3D', async () => {
-      const inputs = [imgElAngry, imgElSurprised].map(el => tf.fromPixels(createCanvasFromMedia(el)))
+      const inputs = [imgElAngry, imgElSurprised].map(el => tf.browser.fromPixels(createCanvasFromMedia(el)))
 
       const results = await faceExpressionNet.predictExpressions(inputs) as FaceExpressionPrediction[][]
       expect(Array.isArray(results)).toBe(true)
@@ -80,7 +80,7 @@ describe('faceExpressionNet', () => {
     })
 
     it('computes face landmarks for batch of mixed inputs', async () => {
-      const inputs = [imgElAngry, tf.fromPixels(createCanvasFromMedia(imgElSurprised))]
+      const inputs = [imgElAngry, tf.browser.fromPixels(createCanvasFromMedia(imgElSurprised))]
 
       const results = await faceExpressionNet.predictExpressions(inputs) as FaceExpressionPrediction[][]
       expect(Array.isArray(results)).toBe(true)
@@ -125,7 +125,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('single tf.Tensor3D', async () => {
-        const tensor = tf.fromPixels(createCanvasFromMedia(imgElAngry))
+        const tensor = tf.browser.fromPixels(createCanvasFromMedia(imgElAngry))
 
         await expectAllTensorsReleased(async () => {
           const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensor))
@@ -136,7 +136,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('multiple tf.Tensor3Ds', async () => {
-        const tensors = [imgElAngry, imgElAngry, imgElAngry].map(el => tf.fromPixels(createCanvasFromMedia(el)))
+        const tensors = [imgElAngry, imgElAngry, imgElAngry].map(el => tf.browser.fromPixels(createCanvasFromMedia(el)))
 
         await expectAllTensorsReleased(async () => {
           const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensors))
@@ -147,7 +147,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('single batch size 1 tf.Tensor4Ds', async () => {
-        const tensor = tf.tidy(() => tf.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
+        const tensor = tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
           const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensor))
@@ -159,7 +159,7 @@ describe('faceExpressionNet', () => {
 
       it('multiple batch size 1 tf.Tensor4Ds', async () => {
         const tensors = [imgElAngry, imgElAngry, imgElAngry]
-          .map(el => tf.tidy(() => tf.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
+          .map(el => tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
           const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensors))
@@ -186,7 +186,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('single tf.Tensor3D', async () => {
-        const tensor = tf.fromPixels(createCanvasFromMedia(imgElAngry))
+        const tensor = tf.browser.fromPixels(createCanvasFromMedia(imgElAngry))
 
         await expectAllTensorsReleased(async () => {
           await faceExpressionNet.predictExpressions(tensor)
@@ -196,7 +196,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('multiple tf.Tensor3Ds', async () => {
-        const tensors = [imgElAngry, imgElAngry, imgElAngry].map(el => tf.fromPixels(createCanvasFromMedia(el)))
+        const tensors = [imgElAngry, imgElAngry, imgElAngry].map(el => tf.browser.fromPixels(createCanvasFromMedia(el)))
 
 
         await expectAllTensorsReleased(async () => {
@@ -207,7 +207,7 @@ describe('faceExpressionNet', () => {
       })
 
       it('single batch size 1 tf.Tensor4Ds', async () => {
-        const tensor = tf.tidy(() => tf.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
+        const tensor = tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
           await faceExpressionNet.predictExpressions(tensor)
@@ -218,7 +218,7 @@ describe('faceExpressionNet', () => {
 
       it('multiple batch size 1 tf.Tensor4Ds', async () => {
         const tensors = [imgElAngry, imgElAngry, imgElAngry]
-          .map(el => tf.tidy(() => tf.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
+          .map(el => tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
           await faceExpressionNet.predictExpressions(tensors)

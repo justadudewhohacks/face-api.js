@@ -46,7 +46,7 @@ export function stage2(img, inputBoxes, scoreThreshold, params, stats) {
                         indicesNms = nonMaxSuppression(filteredBoxes, filteredScores, 0.7);
                         stats.stage2_nms = Date.now() - ts;
                         regions_1 = indicesNms.map(function (idx) {
-                            return new MtcnnBox(rnetOuts[indices[idx]].regions.get(0, 0), rnetOuts[indices[idx]].regions.get(0, 1), rnetOuts[indices[idx]].regions.get(0, 2), rnetOuts[indices[idx]].regions.get(0, 3));
+                            return new MtcnnBox(rnetOuts[indices[idx]].regions.arraySync()[0][0], rnetOuts[indices[idx]].regions.arraySync()[0][1], rnetOuts[indices[idx]].regions.arraySync()[0][2], rnetOuts[indices[idx]].regions.arraySync()[0][3]);
                         });
                         finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                         finalBoxes = indicesNms.map(function (idx, i) { return filteredBoxes[idx].calibrate(regions_1[i]); });

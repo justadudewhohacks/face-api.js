@@ -56,10 +56,10 @@ export async function stage2(
 
     const regions = indicesNms.map(idx =>
       new MtcnnBox(
-        rnetOuts[indices[idx]].regions.get(0, 0),
-        rnetOuts[indices[idx]].regions.get(0, 1),
-        rnetOuts[indices[idx]].regions.get(0, 2),
-        rnetOuts[indices[idx]].regions.get(0, 3)
+        rnetOuts[indices[idx]].regions.arraySync()[0][0],
+        rnetOuts[indices[idx]].regions.arraySync()[0][1],
+        rnetOuts[indices[idx]].regions.arraySync()[0][2],
+        rnetOuts[indices[idx]].regions.arraySync()[0][3]
       )
     )
 

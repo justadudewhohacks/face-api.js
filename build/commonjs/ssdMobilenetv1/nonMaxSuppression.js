@@ -32,14 +32,14 @@ function nonMaxSuppression(boxes, scores, maxOutputSize, iouThreshold, scoreThre
 }
 exports.nonMaxSuppression = nonMaxSuppression;
 function IOU(boxes, i, j) {
-    var yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2));
-    var xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3));
-    var ymaxI = Math.max(boxes.get(i, 0), boxes.get(i, 2));
-    var xmaxI = Math.max(boxes.get(i, 1), boxes.get(i, 3));
-    var yminJ = Math.min(boxes.get(j, 0), boxes.get(j, 2));
-    var xminJ = Math.min(boxes.get(j, 1), boxes.get(j, 3));
-    var ymaxJ = Math.max(boxes.get(j, 0), boxes.get(j, 2));
-    var xmaxJ = Math.max(boxes.get(j, 1), boxes.get(j, 3));
+    var yminI = Math.min(boxes.arraySync()[i][0], boxes.arraySync()[i][2]);
+    var xminI = Math.min(boxes.arraySync()[i][1], boxes.arraySync()[i][3]);
+    var ymaxI = Math.max(boxes.arraySync()[i][0], boxes.arraySync()[i][2]);
+    var xmaxI = Math.max(boxes.arraySync()[i][1], boxes.arraySync()[i][3]);
+    var yminJ = Math.min(boxes.arraySync()[j][0], boxes.arraySync()[j][2]);
+    var xminJ = Math.min(boxes.arraySync()[j][1], boxes.arraySync()[j][3]);
+    var ymaxJ = Math.max(boxes.arraySync()[j][0], boxes.arraySync()[j][2]);
+    var xmaxJ = Math.max(boxes.arraySync()[j][1], boxes.arraySync()[j][3]);
     var areaI = (ymaxI - yminI) * (xmaxI - xminI);
     var areaJ = (ymaxJ - yminJ) * (xmaxJ - xminJ);
     if (areaI <= 0 || areaJ <= 0) {

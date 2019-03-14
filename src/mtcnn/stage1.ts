@@ -30,7 +30,7 @@ function extractBoundingBoxes(
   const indices: Point[] = []
   for (let y = 0; y < scoresTensor.shape[0]; y++) {
     for (let x = 0; x < scoresTensor.shape[1]; x++) {
-      if (scoresTensor.get(y, x) >= scoreThreshold) {
+      if (scoresTensor.arraySync()[y][x] >= scoreThreshold) {
         indices.push(new Point(x, y))
       }
     }
@@ -44,13 +44,13 @@ function extractBoundingBoxes(
       Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale)
     )
 
-    const score = scoresTensor.get(idx.y, idx.x)
+    const score = scoresTensor.arraySync()[idx.y][idx.x]
 
     const region = new MtcnnBox(
-      regionsTensor.get(idx.y, idx.x, 0),
-      regionsTensor.get(idx.y, idx.x, 1),
-      regionsTensor.get(idx.y, idx.x, 2),
-      regionsTensor.get(idx.y, idx.x, 3)
+      regionsTensor.arraySync()[idx.y][idx.x][0],
+      regionsTensor.arraySync()[idx.y][idx.x][1],
+      regionsTensor.arraySync()[idx.y][idx.x][2],
+      regionsTensor.arraySync()[idx.y][idx.x][3]
     )
 
     return {
