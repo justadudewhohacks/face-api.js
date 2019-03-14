@@ -1278,7 +1278,7 @@
                         targetCanvas = canvas || env.getEnv().createCanvasElement();
                         _a = imgTensor.shape.slice(isTensor4D(imgTensor) ? 1 : 0), height = _a[0], width = _a[1], numChannels = _a[2];
                         imgTensor3D = tidy$1(function () { return imgTensor.as3D(height, width, numChannels).toInt(); });
-                        return [4 /*yield*/, undefined(imgTensor3D, targetCanvas)];
+                        return [4 /*yield*/, browser$1.toPixels(imgTensor3D, targetCanvas)];
                     case 1:
                         _b.sent();
                         imgTensor3D.dispose();
@@ -1497,7 +1497,7 @@
                         return imgTensor.as3D(inputSize, inputSize, 3);
                     }
                     if (input instanceof env.getEnv().Canvas) {
-                        return undefined(imageToSquare(input, inputSize, isCenterInputs));
+                        return browser$1.fromPixels(imageToSquare(input, inputSize, isCenterInputs));
                     }
                     throw new Error("toBatchTensor - at batchIdx " + batchIdx + ", expected input to be instanceof tf.Tensor or instanceof HTMLCanvasElement, instead have " + input);
                 });
@@ -2167,12 +2167,12 @@
             for (var row = 0; row < numCells; row++) {
                 for (var col = 0; col < numCells; col++) {
                     for (var anchor = 0; anchor < numBoxes; anchor++) {
-                        var score = sigmoid$2(scoresTensor.get(row, col, anchor, 0));
+                        var score = sigmoid$2(scoresTensor.arraySync()[row][col][anchor][0]);
                         if (!scoreThreshold || score > scoreThreshold) {
-                            var ctX = ((col + sigmoid$2(boxesTensor.get(row, col, anchor, 0))) / numCells) * correctionFactorX;
-                            var ctY = ((row + sigmoid$2(boxesTensor.get(row, col, anchor, 1))) / numCells) * correctionFactorY;
-                            var width_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 2)) * this.config.anchors[anchor].x) / numCells) * correctionFactorX;
-                            var height_1 = ((Math.exp(boxesTensor.get(row, col, anchor, 3)) * this.config.anchors[anchor].y) / numCells) * correctionFactorY;
+                            var ctX = ((col + sigmoid$2(boxesTensor.arraySync()[row][col][anchor][0])) / numCells) * correctionFactorX;
+                            var ctY = ((row + sigmoid$2(boxesTensor.arraySync()[row][col][anchor][1])) / numCells) * correctionFactorY;
+                            var width_1 = ((Math.exp(boxesTensor.arraySync()[row][col][anchor][2]) * this.config.anchors[anchor].x) / numCells) * correctionFactorX;
+                            var height_1 = ((Math.exp(boxesTensor.arraySync()[row][col][anchor][3]) * this.config.anchors[anchor].y) / numCells) * correctionFactorY;
                             var x = (ctX - (width_1 / 2));
                             var y = (ctY - (height_1 / 2));
                             var pos = { row: row, col: col, anchor: anchor };
@@ -2192,7 +2192,7 @@
         TinyYolov2.prototype.extractPredictedClass = function (classesTensor, pos) {
             var row = pos.row, col = pos.col, anchor = pos.anchor;
             return Array(this.config.classes.length).fill(0)
-                .map(function (_, i) { return classesTensor.get(row, col, anchor, i); })
+                .map(function (_, i) { return classesTensor.arraySync()[row][col][anchor][i]; })
                 .map(function (classScore, label) { return ({
                 classScore: classScore,
                 label: label
