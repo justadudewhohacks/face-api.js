@@ -37,7 +37,7 @@ export function stage3(img, inputBoxes, scoreThreshold, params, stats) {
                         var idx = _a.idx;
                         return idx;
                     });
-                    filteredRegions = indices.map(function (idx) { return new MtcnnBox(onetOuts[idx].regions.arraySync()[0][0], onetOuts[idx].regions.arraySync()[0][1], onetOuts[idx].regions.arraySync()[0][2], onetOuts[idx].regions.arraySync()[0][3]); });
+                    filteredRegions = indices.map(function (idx) { return new MtcnnBox(onetOuts[idx].regions.get(0, 0), onetOuts[idx].regions.get(0, 1), onetOuts[idx].regions.get(0, 2), onetOuts[idx].regions.get(0, 3)); });
                     filteredBoxes = indices
                         .map(function (idx, i) { return inputBoxes[idx].calibrate(filteredRegions[i]); });
                     filteredScores = indices.map(function (idx) { return scores[idx]; });
@@ -52,7 +52,7 @@ export function stage3(img, inputBoxes, scoreThreshold, params, stats) {
                         finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                         points = indicesNms.map(function (idx, i) {
                             return Array(5).fill(0).map(function (_, ptIdx) {
-                                return new Point(((onetOuts[idx].points.arraySync()[0][ptIdx] * (finalBoxes[i].width + 1)) + finalBoxes[i].left), ((onetOuts[idx].points.arraySync()[0][ptIdx + 5] * (finalBoxes[i].height + 1)) + finalBoxes[i].top));
+                                return new Point(((onetOuts[idx].points.get(0, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left), ((onetOuts[idx].points.get(0, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top));
                             });
                         });
                     }

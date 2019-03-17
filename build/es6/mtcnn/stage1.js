@@ -18,15 +18,15 @@ function extractBoundingBoxes(scoresTensor, regionsTensor, scale, scoreThreshold
     var indices = [];
     for (var y = 0; y < scoresTensor.shape[0]; y++) {
         for (var x = 0; x < scoresTensor.shape[1]; x++) {
-            if (scoresTensor.arraySync()[y][x] >= scoreThreshold) {
+            if (scoresTensor.get(y, x) >= scoreThreshold) {
                 indices.push(new Point(x, y));
             }
         }
     }
     var boundingBoxes = indices.map(function (idx) {
         var cell = new BoundingBox(Math.round((idx.y * CELL_STRIDE + 1) / scale), Math.round((idx.x * CELL_STRIDE + 1) / scale), Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale), Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale));
-        var score = scoresTensor.arraySync()[idx.y][idx.x];
-        var region = new MtcnnBox(regionsTensor.arraySync()[idx.y][idx.x][0], regionsTensor.arraySync()[idx.y][idx.x][1], regionsTensor.arraySync()[idx.y][idx.x][2], regionsTensor.arraySync()[idx.y][idx.x][3]);
+        var score = scoresTensor.get(idx.y, idx.x);
+        var region = new MtcnnBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
         return {
             cell: cell,
             score: score,

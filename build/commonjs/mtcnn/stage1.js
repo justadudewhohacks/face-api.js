@@ -20,15 +20,15 @@ function extractBoundingBoxes(scoresTensor, regionsTensor, scale, scoreThreshold
     var indices = [];
     for (var y = 0; y < scoresTensor.shape[0]; y++) {
         for (var x = 0; x < scoresTensor.shape[1]; x++) {
-            if (scoresTensor.arraySync()[y][x] >= scoreThreshold) {
+            if (scoresTensor.get(y, x) >= scoreThreshold) {
                 indices.push(new tfjs_image_recognition_base_1.Point(x, y));
             }
         }
     }
     var boundingBoxes = indices.map(function (idx) {
         var cell = new tfjs_image_recognition_base_1.BoundingBox(Math.round((idx.y * config_1.CELL_STRIDE + 1) / scale), Math.round((idx.x * config_1.CELL_STRIDE + 1) / scale), Math.round((idx.y * config_1.CELL_STRIDE + config_1.CELL_SIZE) / scale), Math.round((idx.x * config_1.CELL_STRIDE + config_1.CELL_SIZE) / scale));
-        var score = scoresTensor.arraySync()[idx.y][idx.x];
-        var region = new MtcnnBox_1.MtcnnBox(regionsTensor.arraySync()[idx.y][idx.x][0], regionsTensor.arraySync()[idx.y][idx.x][1], regionsTensor.arraySync()[idx.y][idx.x][2], regionsTensor.arraySync()[idx.y][idx.x][3]);
+        var score = scoresTensor.get(idx.y, idx.x);
+        var region = new MtcnnBox_1.MtcnnBox(regionsTensor.get(idx.y, idx.x, 0), regionsTensor.get(idx.y, idx.x, 1), regionsTensor.get(idx.y, idx.x, 2), regionsTensor.get(idx.y, idx.x, 3));
         return {
             cell: cell,
             score: score,

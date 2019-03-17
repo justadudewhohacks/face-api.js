@@ -73,12 +73,12 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
                         results = indices
                             .map(function (idx) {
                             var _a = [
-                                Math.max(0, boxes.arraySync()[idx][0]),
-                                Math.min(1.0, boxes.arraySync()[idx][2])
+                                Math.max(0, boxes.get(idx, 0)),
+                                Math.min(1.0, boxes.get(idx, 2))
                             ].map(function (val) { return val * padY; }), top = _a[0], bottom = _a[1];
                             var _b = [
-                                Math.max(0, boxes.arraySync()[idx][1]),
-                                Math.min(1.0, boxes.arraySync()[idx][3])
+                                Math.max(0, boxes.get(idx, 1)),
+                                Math.min(1.0, boxes.get(idx, 3))
                             ].map(function (val) { return val * padX; }), left = _b[0], right = _b[1];
                             return new FaceDetection_1.FaceDetection(scoresData[idx], new tfjs_image_recognition_base_1.Rect(left, top, right - left, bottom - top), {
                                 height: netInput.getInputHeight(0),
