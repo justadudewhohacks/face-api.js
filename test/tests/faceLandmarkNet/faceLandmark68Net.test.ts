@@ -2,9 +2,14 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { createCanvasFromMedia, IDimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { FaceLandmark68Net } from '../../../src/faceLandmarkNet/FaceLandmark68Net';
 import { loadImage, loadJson } from '../../env';
-import { describeWithNets, expectAllTensorsReleased, expectMaxDelta, expectPointClose } from '../../utils';
+import {
+  describeWithBackend,
+  describeWithNets,
+  expectAllTensorsReleased,
+  expectMaxDelta,
+  expectPointClose,
+} from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   if (input instanceof tf.Tensor) {
@@ -14,7 +19,7 @@ function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   return input
 }
 
-describe('faceLandmark68Net', () => {
+describeWithBackend('faceLandmark68Net', () => {
 
   let imgEl1: HTMLImageElement
   let imgEl2: HTMLImageElement
@@ -44,7 +49,7 @@ describe('faceLandmark68Net', () => {
       expect(result.shift.y).toEqual(0)
       result.positions.forEach((pt, i) => {
         const { x, y } = faceLandmarkPositions1[i]
-        expectPointClose(pt, { x, y }, 2)
+        expectPointClose(pt, { x, y }, 3)
       })
     })
 

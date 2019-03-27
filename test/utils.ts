@@ -132,6 +132,35 @@ export type DescribeWithNetsOptions = {
   withTinyYolov2?: WithTinyYolov2Options
 }
 
+const gpgpu = tf.ENV.backend['gpgpu']
+
+export function describeWithBackend(description: string, specDefinitions: () => void) {
+
+  if (!(gpgpu instanceof tf.webgl.GPGPUContext)) {
+    describe(description, specDefinitions)
+    return
+  }
+
+  const defaultBackendName = tf.getBackend()
+  const newBackendName = 'testBackend'
+  const backend = new tf.webgl.MathBackendWebGL(gpgpu)
+
+  describe(description, () => {
+    beforeAll(() => {
+      tf.ENV.registerBackend(newBackendName, () => backend)
+      tf.setBackend(newBackendName)
+    })
+
+    afterAll(() => {
+      tf.setBackend(defaultBackendName)
+      tf.ENV.removeBackend(newBackendName)
+      backend.dispose()
+    })
+
+    specDefinitions()
+  })
+}
+
 export function describeWithNets(
   description: string,
   options: DescribeWithNetsOptions,

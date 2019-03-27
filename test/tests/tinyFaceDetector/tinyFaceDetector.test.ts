@@ -1,5 +1,5 @@
 import * as faceapi from '../../../src';
-import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription } from '../../utils';
+import { describeWithNets, expectAllTensorsReleased, assembleExpectedFullFaceDescriptions, ExpectedFullFaceDescription, describeWithBackend } from '../../utils';
 import { TinyFaceDetectorOptions } from '../../../src';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
@@ -24,7 +24,7 @@ function expectFaceExpressions(results: WithFaceExpressions<{}>[]) {
   })
 }
 
-describe('tinyFaceDetector', () => {
+describeWithBackend('tinyFaceDetector', () => {
 
   let imgEl: HTMLImageElement
   let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]

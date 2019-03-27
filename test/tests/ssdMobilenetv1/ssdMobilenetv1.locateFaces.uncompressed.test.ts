@@ -1,10 +1,10 @@
 import * as faceapi from '../../../src';
 import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { describeWithBackend, describeWithNets } from '../../utils';
 import { expectedSsdBoxes } from './expectedBoxes';
 
-describe('ssdMobilenetv1.locateFaces, uncompressed', () => {
+describeWithBackend('ssdMobilenetv1.locateFaces, uncompressed', () => {
 
   let imgEl: HTMLImageElement
 
