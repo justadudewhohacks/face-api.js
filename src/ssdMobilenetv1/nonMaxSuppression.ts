@@ -49,14 +49,15 @@ export function nonMaxSuppression(
 }
 
 function IOU(boxes: tf.Tensor2D, i: number, j: number) {
-  const yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2))
-  const xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3))
-  const ymaxI = Math.max(boxes.get(i, 0), boxes.get(i, 2))
-  const xmaxI = Math.max(boxes.get(i, 1), boxes.get(i, 3))
-  const yminJ = Math.min(boxes.get(j, 0), boxes.get(j, 2))
-  const xminJ = Math.min(boxes.get(j, 1), boxes.get(j, 3))
-  const ymaxJ = Math.max(boxes.get(j, 0), boxes.get(j, 2))
-  const xmaxJ = Math.max(boxes.get(j, 1), boxes.get(j, 3))
+  const boxesData = boxes.arraySync()
+  const yminI = Math.min(boxesData[i][0], boxesData[i][2])
+  const xminI = Math.min(boxesData[i][1], boxesData[i][3])
+  const ymaxI = Math.max(boxesData[i][0], boxesData[i][2])
+  const xmaxI = Math.max(boxesData[i][1], boxesData[i][3])
+  const yminJ = Math.min(boxesData[j][0], boxesData[j][2])
+  const xminJ = Math.min(boxesData[j][1], boxesData[j][3])
+  const ymaxJ = Math.max(boxesData[j][0], boxesData[j][2])
+  const xmaxJ = Math.max(boxesData[j][1], boxesData[j][3])
   const areaI = (ymaxI - yminI) * (xmaxI - xminI)
   const areaJ = (ymaxJ - yminJ) * (xmaxJ - xminJ)
   if (areaI <= 0 || areaJ <= 0) {

@@ -15,7 +15,7 @@ describe('tinyFaceDetector - node', () => {
   const expectedScores = [0.7, 0.82, 0.93, 0.86, 0.79, 0.84]
 
   beforeAll(async () => {
-    imgTensor = tf.fromPixels(createCanvasFromMedia(await loadImage('test/images/faces.jpg')))
+    imgTensor = tf.browser.fromPixels(createCanvasFromMedia(await loadImage('test/images/faces.jpg')))
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 

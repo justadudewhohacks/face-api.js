@@ -39,12 +39,14 @@ export async function stage3(
     .filter(c => c.score > scoreThreshold)
     .map(({ idx }) => idx)
 
-  const filteredRegions = indices.map(idx => new MtcnnBox(
-    onetOuts[idx].regions.get(0, 0),
-    onetOuts[idx].regions.get(0, 1),
-    onetOuts[idx].regions.get(0, 2),
-    onetOuts[idx].regions.get(0, 3)
-  ))
+  const filteredRegions = indices.map(idx => {
+    const regionsData = onetOuts[idx].regions.arraySync();
+    return new MtcnnBox(
+      regionsData[0][0],
+      regionsData[0][1],
+      regionsData[0][2],
+      regionsData[0][3]
+  )})
   const filteredBoxes = indices
     .map((idx, i) => inputBoxes[idx].calibrate(filteredRegions[i]))
   const filteredScores = indices.map(idx => scores[idx])
@@ -67,11 +69,13 @@ export async function stage3(
     finalBoxes = indicesNms.map(idx => filteredBoxes[idx])
     finalScores = indicesNms.map(idx => filteredScores[idx])
     points = indicesNms.map((idx, i) =>
-      Array(5).fill(0).map((_, ptIdx) =>
-        new Point(
-          ((onetOuts[idx].points.get(0, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
-          ((onetOuts[idx].points.get(0, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
-        )
+      Array(5).fill(0).map((_, ptIdx) =>{
+          const pointsData = onetOuts[idx].points.arraySync()
+          return new Point(
+            ((pointsData[0][ptIdx] * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
+            ((pointsData[0][ptIdx+5] * (finalBoxes[i].height + 1)) + finalBoxes[i].top)
+          )
+        }
       )
     )
   }

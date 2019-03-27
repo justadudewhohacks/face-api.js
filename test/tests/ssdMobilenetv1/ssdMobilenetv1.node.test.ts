@@ -15,7 +15,7 @@ describe('ssdMobilenetv1 - node', () => {
   const expectedScores = [0.54, 0.81, 0.97, 0.88, 0.84, 0.61]
 
   beforeAll(async () => {
-    imgTensor = tf.fromPixels(createCanvasFromMedia(await loadImage('test/images/faces.jpg')))
+    imgTensor = tf.browser.fromPixels(createCanvasFromMedia(await loadImage('test/images/faces.jpg')))
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedSsdBoxes)
   })
 
