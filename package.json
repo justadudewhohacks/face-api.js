@@ -35,27 +35,27 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "1.0.1",
-    "tfjs-image-recognition-base": "^0.5.0",
+    "@tensorflow/tfjs-core": "1.0.3",
+    "tfjs-image-recognition-base": "^0.5.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
-    "@tensorflow/tfjs-node": "^1.0.1",
-    "@types/jasmine": "^3.3.8",
-    "@types/node": "^10.12.18",
+    "@tensorflow/tfjs-node": "^1.0.2",
+    "@types/jasmine": "^3.3.12",
+    "@types/node": "^11.12.0",
     "canvas": "2.0.1",
     "jasmine": "^3.3.1",
     "jasmine-core": "^3.3.0",
-    "karma": "^4.0.0",
+    "karma": "^4.0.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^2.0.1",
-    "karma-typescript": "^3.0.13",
-    "rollup": "^1.1.2",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-typescript2": "^0.19.2",
+    "karma-typescript": "^4.0.0",
+    "rollup": "^1.7.3",
+    "rollup-plugin-commonjs": "^9.2.2",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-typescript2": "^0.20.1",
     "rollup-plugin-uglify": "^6.0.2",
-    "ts-node": "^8.0.2",
-    "typescript": "^3.2.4"
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.4000"
   }
 }
