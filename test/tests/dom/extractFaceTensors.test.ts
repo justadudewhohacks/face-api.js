@@ -1,7 +1,8 @@
 import { createCanvasFromMedia, extractFaceTensors, Rect, tf } from '../../../src';
 import { loadImage } from '../../env';
+import { describeWithBackend } from '../../utils';
 
-describe('extractFaceTensors', () => {
+describeWithBackend('extractFaceTensors', () => {
 
   let imgTensor: tf.Tensor3D
 

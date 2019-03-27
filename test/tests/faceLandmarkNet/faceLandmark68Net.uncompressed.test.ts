@@ -1,9 +1,9 @@
 import { Point } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
 import { loadImage, loadJson } from '../../env';
-import { describeWithNets, expectPointClose } from '../../utils';
+import { describeWithBackend, describeWithNets, expectPointClose } from '../../utils';
 
-describe('faceLandmark68Net, uncompressed', () => {
+describeWithBackend('faceLandmark68Net, uncompressed', () => {
 
   let imgEl1: HTMLImageElement
   let imgElRect: HTMLImageElement

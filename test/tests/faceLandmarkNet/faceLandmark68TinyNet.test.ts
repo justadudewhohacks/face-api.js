@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { createCanvasFromMedia, IDimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
 import { loadImage, loadJson } from '../../env';
-import { describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
+import { describeWithBackend, describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   if (input instanceof tf.Tensor) {
@@ -13,7 +13,7 @@ function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   return input
 }
 
-describe('faceLandmark68TinyNet', () => {
+describeWithBackend('faceLandmark68TinyNet', () => {
 
   let imgEl1: HTMLImageElement
   let imgEl2: HTMLImageElement

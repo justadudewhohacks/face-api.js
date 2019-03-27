@@ -6,13 +6,14 @@ import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWit
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import {
   assembleExpectedFullFaceDescriptions,
+  describeWithBackend,
   describeWithNets,
   expectAllTensorsReleased,
   ExpectedFullFaceDescription,
 } from '../../utils';
 import { expectedMtcnnBoxes } from './expectMtcnnResults';
 
-describe('mtcnn', () => {
+describeWithBackend('mtcnn', () => {
 
   let imgEl: HTMLImageElement
   let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]
@@ -91,7 +92,7 @@ describe('mtcnn', () => {
         maxLandmarksDelta: 6,
         maxDescriptorDelta: 0.2
       }
-      
+
       expect(!!result).toBeTruthy()
       expectFullFaceDescriptions(
         result ? [result] : [],

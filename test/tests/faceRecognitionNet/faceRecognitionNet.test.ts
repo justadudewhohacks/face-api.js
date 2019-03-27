@@ -3,9 +3,9 @@ import * as tf from '@tensorflow/tfjs-core';
 import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
 import { loadImage, loadJson } from '../../env';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
-describe('faceRecognitionNet', () => {
+describeWithBackend('faceRecognitionNet', () => {
 
   let imgEl1: HTMLCanvasElement
   let imgEl2: HTMLCanvasElement

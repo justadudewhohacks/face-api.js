@@ -3,9 +3,9 @@ import * as tf from '@tensorflow/tfjs-core';
 import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
 import { FaceExpressionPrediction } from '../../../src/faceExpressionNet/types';
 import { loadImage } from '../../env';
-import { describeWithNets, expectAllTensorsReleased } from '../../utils';
+import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
-describe('faceExpressionNet', () => {
+describeWithBackend('faceExpressionNet', () => {
 
   let imgElAngry: HTMLImageElement
   let imgElSurprised: HTMLImageElement
