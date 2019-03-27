@@ -39,7 +39,7 @@ var Mtcnn = /** @class */ (function (_super) {
                         stats = {};
                         tsTotal = Date.now();
                         imgTensor = tf.tidy(function () {
-                            return bgrToRgbTensor_1.bgrToRgbTensor(tf.expandDims(tf.fromPixels(inputCanvas)).toFloat());
+                            return bgrToRgbTensor_1.bgrToRgbTensor(tf.expandDims(tf.browser.fromPixels(inputCanvas)).toFloat());
                         });
                         onReturn = function (results) {
                             // dispose tensors on return

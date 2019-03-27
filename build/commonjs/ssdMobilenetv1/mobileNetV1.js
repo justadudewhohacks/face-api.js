@@ -6,7 +6,7 @@ var epsilon = 0.0010000000474974513;
 function depthwiseConvLayer(x, params, strides) {
     return tf.tidy(function () {
         var out = tf.depthwiseConv2d(x, params.filters, strides, 'same');
-        out = tf.batchNormalization(out, params.batch_norm_mean, params.batch_norm_variance, epsilon, params.batch_norm_scale, params.batch_norm_offset);
+        out = tf.batchNorm(out, params.batch_norm_mean, params.batch_norm_variance, params.batch_norm_offset, params.batch_norm_scale, epsilon);
         return tf.clipByValue(out, 0, 6);
     });
 }

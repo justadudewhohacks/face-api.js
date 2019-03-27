@@ -39,7 +39,10 @@ function stage3(img, inputBoxes, scoreThreshold, params, stats) {
                         var idx = _a.idx;
                         return idx;
                     });
-                    filteredRegions = indices.map(function (idx) { return new MtcnnBox_1.MtcnnBox(onetOuts[idx].regions.get(0, 0), onetOuts[idx].regions.get(0, 1), onetOuts[idx].regions.get(0, 2), onetOuts[idx].regions.get(0, 3)); });
+                    filteredRegions = indices.map(function (idx) {
+                        var regionsData = onetOuts[idx].regions.arraySync();
+                        return new MtcnnBox_1.MtcnnBox(regionsData[0][0], regionsData[0][1], regionsData[0][2], regionsData[0][3]);
+                    });
                     filteredBoxes = indices
                         .map(function (idx, i) { return inputBoxes[idx].calibrate(filteredRegions[i]); });
                     filteredScores = indices.map(function (idx) { return scores[idx]; });
@@ -54,7 +57,8 @@ function stage3(img, inputBoxes, scoreThreshold, params, stats) {
                         finalScores = indicesNms.map(function (idx) { return filteredScores[idx]; });
                         points = indicesNms.map(function (idx, i) {
                             return Array(5).fill(0).map(function (_, ptIdx) {
-                                return new tfjs_image_recognition_base_1.Point(((onetOuts[idx].points.get(0, ptIdx) * (finalBoxes[i].width + 1)) + finalBoxes[i].left), ((onetOuts[idx].points.get(0, ptIdx + 5) * (finalBoxes[i].height + 1)) + finalBoxes[i].top));
+                                var pointsData = onetOuts[idx].points.arraySync();
+                                return new tfjs_image_recognition_base_1.Point(((pointsData[0][ptIdx] * (finalBoxes[i].width + 1)) + finalBoxes[i].left), ((pointsData[0][ptIdx + 5] * (finalBoxes[i].height + 1)) + finalBoxes[i].top));
                             });
                         });
                     }

@@ -45,7 +45,7 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
     SsdMobilenetv1.prototype.locateFaces = function (input, options) {
         if (options === void 0) { options = {}; }
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _a, maxResults, minConfidence, netInput, _b, _boxes, _scores, boxes, scores, i, scoresData, _c, _d, iouThreshold, indices, reshapedDims, inputSize, padX, padY, results;
+            var _a, maxResults, minConfidence, netInput, _b, _boxes, _scores, boxes, scores, i, scoresData, _c, _d, iouThreshold, indices, reshapedDims, inputSize, padX, padY, boxesData, results;
             return tslib_1.__generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -70,15 +70,16 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
                         inputSize = netInput.inputSize;
                         padX = inputSize / reshapedDims.width;
                         padY = inputSize / reshapedDims.height;
+                        boxesData = boxes.arraySync();
                         results = indices
                             .map(function (idx) {
                             var _a = [
-                                Math.max(0, boxes.get(idx, 0)),
-                                Math.min(1.0, boxes.get(idx, 2))
+                                Math.max(0, boxesData[idx][0]),
+                                Math.min(1.0, boxesData[idx][2])
                             ].map(function (val) { return val * padY; }), top = _a[0], bottom = _a[1];
                             var _b = [
-                                Math.max(0, boxes.get(idx, 1)),
-                                Math.min(1.0, boxes.get(idx, 3))
+                                Math.max(0, boxesData[idx][1]),
+                                Math.min(1.0, boxesData[idx][3])
                             ].map(function (val) { return val * padX; }), left = _b[0], right = _b[1];
                             return new FaceDetection_1.FaceDetection(scoresData[idx], new tfjs_image_recognition_base_1.Rect(left, top, right - left, bottom - top), {
                                 height: netInput.getInputHeight(0),

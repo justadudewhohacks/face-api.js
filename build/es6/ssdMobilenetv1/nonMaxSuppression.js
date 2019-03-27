@@ -29,14 +29,15 @@ export function nonMaxSuppression(boxes, scores, maxOutputSize, iouThreshold, sc
     return selected;
 }
 function IOU(boxes, i, j) {
-    var yminI = Math.min(boxes.get(i, 0), boxes.get(i, 2));
-    var xminI = Math.min(boxes.get(i, 1), boxes.get(i, 3));
-    var ymaxI = Math.max(boxes.get(i, 0), boxes.get(i, 2));
-    var xmaxI = Math.max(boxes.get(i, 1), boxes.get(i, 3));
-    var yminJ = Math.min(boxes.get(j, 0), boxes.get(j, 2));
-    var xminJ = Math.min(boxes.get(j, 1), boxes.get(j, 3));
-    var ymaxJ = Math.max(boxes.get(j, 0), boxes.get(j, 2));
-    var xmaxJ = Math.max(boxes.get(j, 1), boxes.get(j, 3));
+    var boxesData = boxes.arraySync();
+    var yminI = Math.min(boxesData[i][0], boxesData[i][2]);
+    var xminI = Math.min(boxesData[i][1], boxesData[i][3]);
+    var ymaxI = Math.max(boxesData[i][0], boxesData[i][2]);
+    var xmaxI = Math.max(boxesData[i][1], boxesData[i][3]);
+    var yminJ = Math.min(boxesData[j][0], boxesData[j][2]);
+    var xminJ = Math.min(boxesData[j][1], boxesData[j][3]);
+    var ymaxJ = Math.max(boxesData[j][0], boxesData[j][2]);
+    var xmaxJ = Math.max(boxesData[j][1], boxesData[j][3]);
     var areaI = (ymaxI - yminI) * (xmaxI - xminI);
     var areaJ = (ymaxJ - yminJ) * (xmaxJ - xminJ);
     if (areaI <= 0 || areaJ <= 0) {
