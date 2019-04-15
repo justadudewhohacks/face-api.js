@@ -1,0 +1,1146 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>face-api.js</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">face-api.js</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> face-api.js</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="face-api-js">face-api.js</h1>
+				<p><a href="https://travis-ci.org/justadudewhohacks/face-api.js"><img src="https://travis-ci.org/justadudewhohacks/face-api.js.svg?branch=master" alt="Build Status"></a>
+				<a href="https://slack.bri.im"><img src="https://slack.bri.im/badge.svg" alt="Slack"></a></p>
+				<p><strong>JavaScript API for face detection and face recognition in the browser implemented on top of the tensorflow.js core API (<a href="https://github.com/tensorflow/tfjs-core">tensorflow/tfjs-core</a>)</strong></p>
+				<p>Table of Contents:</p>
+				<ul>
+					<li><strong><a href="#resources">Resources</a></strong><ul>
+							<li><strong><a href="#live-demos">Live Demos</a></strong></li>
+							<li><strong><a href="#tutorials">Tutorials</a></strong></li>
+						</ul>
+					</li>
+					<li><strong><a href="#examples">Examples</a></strong><ul>
+							<li><strong><a href="#running-the-examples">Running the Examples</a></strong></li>
+						</ul>
+					</li>
+					<li><strong><a href="#models">Available Models</a></strong><ul>
+							<li><strong><a href="#models-face-detection">Face Detection Models</a></strong></li>
+							<li><strong><a href="#models-face-landmark-detection">68 Point Face Landmark Detection Models</a></strong></li>
+							<li><strong><a href="#models-face-recognition">Face Recognition Model</a></strong></li>
+							<li><strong><a href="#models-face-expression-recognition">Face Expression Recognition Model</a></strong></li>
+						</ul>
+					</li>
+					<li><strong><a href="#getting-started">Getting Started</a></strong><ul>
+							<li><strong><a href="#getting-started-browser">face-api.js for the Browser</a></strong></li>
+							<li><strong><a href="#getting-started-nodejs">face-api.js for Nodejs</a></strong></li>
+						</ul>
+					</li>
+					<li><strong><a href="#usage">Usage</a></strong><ul>
+							<li><strong><a href="#usage-loading-models">Loading the Models</a></strong></li>
+							<li><strong><a href="#usage-high-level-api">High Level API</a></strong></li>
+							<li><strong><a href="#usage-displaying-detection-results">Displaying Detection Results</a></strong></li>
+							<li><strong><a href="#usage-face-detection-options">Face Detection Options</a></strong></li>
+							<li><strong><a href="#usage-utility-classes">Utility Classes</a></strong></li>
+							<li><strong><a href="#other-useful-utility">Other Useful Utility</a></strong></li>
+						</ul>
+					</li>
+					<li><strong><a href="https://justadudewhohacks.github.io/face-api.js/docs/globals.html">API Documentation</a></strong></li>
+				</ul>
+				<p><a name="resources"></a></p>
+				<h1 id="resources">Resources</h1>
+				<p><a name="live-demos"></a></p>
+				<h2 id="live-demos">Live Demos</h2>
+				<p><strong><a href="https://justadudewhohacks.github.io/face-api.js/">Check out the live demos!</a></strong></p>
+				<p><a name="tutorials"></a></p>
+				<h2 id="tutorials">Tutorials</h2>
+				<p>Check out my face-api.js tutorials:</p>
+				<ul>
+					<li><strong><a href="https://itnext.io/face-api-js-javascript-api-for-face-recognition-in-the-browser-with-tensorflow-js-bcc2a6c4cf07">face-api.js — JavaScript API for Face Recognition in the Browser with tensorflow.js</a></strong></li>
+					<li><strong><a href="https://itnext.io/realtime-javascript-face-tracking-and-face-recognition-using-face-api-js-mtcnn-face-detector-d924dd8b5740">Realtime JavaScript Face Tracking and Face Recognition using face-api.js’ MTCNN Face Detector</a></strong></li>
+				</ul>
+				<p><a name="examples"></a></p>
+				<h1 id="examples">Examples</h1>
+				<h2 id="face-recognition">Face Recognition</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/41526995-1a90e4e6-72e6-11e8-96d4-8b2ccdee5f79.gif" alt="preview_face-detection-and-recognition"></p>
+				<p><img src="https://user-images.githubusercontent.com/31125521/47384002-41e36f80-d706-11e8-8cd9-b3102c1bee67.png" alt="face-recognition-preview"></p>
+				<h2 id="face-similarity">Face Similarity</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/40316573-0a1190c0-5d1f-11e8-8797-f6deaa344523.gif" alt="preview_face-similarity"></p>
+				<h2 id="face-expression-recognition">Face Expression Recognition</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/50575270-f501d080-0dfb-11e9-9676-8f419efdade4.png" alt="preview_face-expression-recognition"></p>
+				<h2 id="face-landmark-detection">Face Landmark Detection</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/46063404-00928b00-c16d-11e8-8f29-e9c50afd2bc8.jpg" alt="face_landmarks_boxes_2"></p>
+				<p><img src="https://user-images.githubusercontent.com/31125521/41507950-e121b05e-723c-11e8-89f2-d8f9348a8e86.png" alt="preview_face_landmarks"></p>
+				<h2 id="realtime-face-tracking">Realtime Face Tracking</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/47383860-ea450400-d705-11e8-9880-d5d15d952661.gif" alt="output"></p>
+				<h2 id="mtcnn">MTCNN</h2>
+				<p><img src="https://user-images.githubusercontent.com/31125521/42756818-0a41edaa-88fe-11e8-9033-8cd141b0fa09.gif" alt="mtcnn-preview"></p>
+				<p><a name="running-the-examples"></a></p>
+				<h2 id="running-the-examples">Running the Examples</h2>
+				<p>Clone the repository:</p>
+				<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/justadudewhohacks/face-api.js.git</code></pre>
+				<h3 id="running-the-browser-examples">Running the Browser Examples</h3>
+				<pre><code class="language-bash"><span class="hljs-built_in">cd</span> face-api.js/examples/examples-browser
+npm i
+npm start</code></pre>
+				<p>Browse to <a href="http://localhost:3000/">http://localhost:3000/</a>.</p>
+				<h3 id="running-the-nodejs-examples">Running the Nodejs Examples</h3>
+				<pre><code class="language-bash"><span class="hljs-built_in">cd</span> face-api.js/examples/examples-nodejs
+npm i</code></pre>
+				<p>Now run one of the examples using ts-node:</p>
+				<pre><code class="language-bash">ts-node faceDetection.ts</code></pre>
+				<p>Or simply compile and run them with node:</p>
+				<pre><code class="language-bash">tsc faceDetection.ts
+node faceDetection.js</code></pre>
+				<p><a name="models"></a></p>
+				<h1 id="available-models">Available Models</h1>
+				<p><a name="models-face-detection"></a></p>
+				<h2 id="face-detection-models">Face Detection Models</h2>
+				<h3 id="ssd-mobilenet-v1">SSD Mobilenet V1</h3>
+				<p>For face detection, this project implements a SSD (Single Shot Multibox Detector) based on MobileNetV1. The neural net will compute the locations of each face in an image and will return the bounding boxes together with it&#39;s probability for each face. This face detector is aiming towards obtaining high accuracy in detecting face bounding boxes instead of low inference time. The size of the quantized model is about 5.4 MB (<strong>ssd_mobilenetv1_model</strong>).</p>
+				<p>The face detection model has been trained on the <a href="http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/">WIDERFACE dataset</a> and the weights are provided by <a href="https://github.com/yeephycho">yeephycho</a> in <a href="https://github.com/yeephycho/tensorflow-face-detection">this</a> repo.</p>
+				<h3 id="tiny-face-detector">Tiny Face Detector</h3>
+				<p>The Tiny Face Detector is a very performant, realtime face detector, which is much faster, smaller and less resource consuming compared to the SSD Mobilenet V1 face detector, in return it performs slightly less well on detecting small faces. This model is extremely mobile and web friendly, thus it should be your GO-TO face detector on mobile devices and resource limited clients. The size of the quantized model is only 190 KB (<strong>tiny_face_detector_model</strong>).</p>
+				<p>The face detector has been trained on a custom dataset of ~14K images labeled with bounding boxes. Furthermore the model has been trained to predict bounding boxes, which entirely cover facial feature points, thus it in general produces better results in combination with subsequent face landmark detection than SSD Mobilenet V1.</p>
+				<p>This model is basically an even tinier version of Tiny Yolo V2, replacing the regular convolutions of Yolo with depthwise separable convolutions. Yolo is fully convolutional, thus can easily adapt to different input image sizes to trade off accuracy for performance (inference time).</p>
+				<h3 id="mtcnn">MTCNN</h3>
+				<p><strong>Note, this model is mostly kept in this repo for experimental reasons. In general the other face detectors should perform better, but of course you are free to play around with MTCNN.</strong></p>
+				<p>MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration. By tuning the input parameters, MTCNN should be able to detect a wide range of face bounding box sizes. MTCNN is a 3 stage cascaded CNN, which simultaneously returns 5 face landmark points along with the bounding boxes and scores for each face. Additionally the model size is only 2MB.</p>
+				<p>MTCNN has been presented in the paper <a href="https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</a> by Zhang et al. and the model weights are provided in the official <a href="https://github.com/kpzhang93/MTCNN_face_detection_alignment">repo</a> of the MTCNN implementation.</p>
+				<p><a name="models-face-landmark-detection"></a></p>
+				<h2 id="68-point-face-landmark-detection-models">68 Point Face Landmark Detection Models</h2>
+				<p>This package implements a very lightweight and fast, yet accurate 68 point face landmark detector. The default model has a size of only 350kb (<strong>face_landmark_68_model</strong>) and the tiny model is only 80kb (<strong>face_landmark_68_tiny_model</strong>). Both models employ the ideas of depthwise separable convolutions as well as densely connected blocks. The models have been trained on a dataset of ~35k face images labeled with 68 face landmark points.</p>
+				<p><a name="models-face-recognition"></a></p>
+				<h2 id="face-recognition-model">Face Recognition Model</h2>
+				<p>For face recognition, a ResNet-34 like architecture is implemented to compute a face descriptor (a feature vector with 128 values) from any given face image, which is used to describe the characteristics of a persons face. The model is <strong>not</strong> limited to the set of faces used for training, meaning you can use it for face recognition of any person, for example yourself. You can determine the similarity of two arbitrary faces by comparing their face descriptors, for example by computing the euclidean distance or using any other classifier of your choice.</p>
+				<p>The neural net is equivalent to the <strong>FaceRecognizerNet</strong> used in <a href="https://github.com/justadudewhohacks/face-recognition.js">face-recognition.js</a> and the net used in the <a href="https://github.com/davisking/dlib/blob/master/examples/dnn_face_recognition_ex.cpp">dlib</a> face recognition example. The weights have been trained by <a href="https://github.com/davisking">davisking</a> and the model achieves a prediction accuracy of 99.38% on the LFW (Labeled Faces in the Wild) benchmark for face recognition.</p>
+				<p>The size of the quantized model is roughly 6.2 MB (<strong>face_recognition_model</strong>).</p>
+				<p><a name="models-face-expression-recognition"></a></p>
+				<h2 id="face-expression-recognition-model">Face Expression Recognition Model</h2>
+				<p>The face expression recognition model is lightweight, fast and provides reasonable accuracy. The model has a size of roughly 310kb and it employs depthwise separable convolutions and densely connected blocks. It has been trained on a variety of images from publicly available datasets as well as images scraped from the web. Note, that wearing glasses might decrease the accuracy of the prediction results.</p>
+				<p><a name="getting-started"></a></p>
+				<h1 id="getting-started">Getting Started</h1>
+				<p><a name="getting-started-browser"></a></p>
+				<h2 id="face-api-js-for-the-browser">face-api.js for the Browser</h2>
+				<p>Simply include the latest script from <a href="https://github.com/justadudewhohacks/face-api.js/tree/master/dist">dist/face-api.js</a>.</p>
+				<p>Or install it via npm:</p>
+				<pre><code class="language-bash">npm i face-api.js</code></pre>
+				<p><a name="getting-started-nodejs"></a></p>
+				<h2 id="face-api-js-for-nodejs">face-api.js for Nodejs</h2>
+				<p>We can use the equivalent API in a nodejs environment by polyfilling some browser specifics, such as HTMLImageElement, HTMLCanvasElement and ImageData. The easiest way to do so is by installing the node-canvas package.</p>
+				<p>Alternatively you can simply construct your own tensors from image data and pass tensors as inputs to the API.</p>
+				<p>Furthermore you want to install @tensorflow/tfjs-node (not required, but highly recommended), which speeds things up drastically by compiling and binding to the native Tensorflow C++ library:</p>
+				<pre><code class="language-bash">npm i face-api.js canvas @tensorflow/tfjs-node</code></pre>
+				<p>Now we simply monkey patch the environment to use the polyfills:</p>
+				<pre><code class="language-javascript"><span class="hljs-comment">// import nodejs bindings to native tensorflow,</span>
+<span class="hljs-comment">// not required, but will speed up things drastically (python required)</span>
+<span class="hljs-keyword">import</span> <span class="hljs-string">'@tensorflow/tfjs-node'</span>;
+
+<span class="hljs-comment">// implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData</span>
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> canvas <span class="hljs-keyword">from</span> <span class="hljs-string">'canvas'</span>;
+
+<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> faceapi <span class="hljs-keyword">from</span> <span class="hljs-string">'face-api.js'</span>;
+
+<span class="hljs-comment">// patch nodejs environment, we need to provide an implementation of</span>
+<span class="hljs-comment">// HTMLCanvasElement and HTMLImageElement, additionally an implementation</span>
+<span class="hljs-comment">// of ImageData is required, in case you want to use the MTCNN</span>
+<span class="hljs-keyword">const</span> { Canvas, Image, ImageData } = canvas
+faceapi.env.monkeyPatch({ Canvas, Image, ImageData })</code></pre>
+				<h1 id="usage">Usage</h1>
+				<p><a name="usage-loading-models"></a></p>
+				<h2 id="loading-the-models">Loading the Models</h2>
+				<p>To load a model, you have provide the corresponding manifest.json file as well as the model weight files (shards) as assets. Simply copy them to your public or assets folder. The manifest.json and shard files of a model have to be located in the same directory / accessible under the same route.</p>
+				<p>Assuming the models reside in <strong>public/models</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> faceapi.loadSsdMobilenetv1Model(<span class="hljs-string">'/models'</span>)
+<span class="hljs-comment">// accordingly for the other models:</span>
+<span class="hljs-comment">// await faceapi.loadTinyFaceDetectorModel('/models')</span>
+<span class="hljs-comment">// await faceapi.loadMtcnnModel('/models')</span>
+<span class="hljs-comment">// await faceapi.loadFaceLandmarkModel('/models')</span>
+<span class="hljs-comment">// await faceapi.loadFaceLandmarkTinyModel('/models')</span>
+<span class="hljs-comment">// await faceapi.loadFaceRecognitionModel('/models')</span>
+<span class="hljs-comment">// await faceapi.loadFaceExpressionModel('/models')</span></code></pre>
+				<p>All global neural network instances are exported via faceapi.nets:</p>
+				<pre><code class="language-javascript"><span class="hljs-built_in">console</span>.log(faceapi.nets)</code></pre>
+				<p>The following is equivalent to <code>await faceapi.loadSsdMobilenetv1Model(&#39;/models&#39;)</code>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> faceapi.nets.ssdMobilenetv1.loadFromUri(<span class="hljs-string">'/models'</span>)</code></pre>
+				<p>In a nodejs environment you can furthermore load the models directly from disk:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> faceapi.nets.ssdMobilenetv1.loadFromDisk(<span class="hljs-string">'./models'</span>)</code></pre>
+				<p>You can also load the model from a tf.NamedTensorMap:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> faceapi.nets.ssdMobilenetv1.loadFromWeightMap(weightMap)</code></pre>
+				<p>Alternatively, you can also create own instances of the neural nets:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> net = <span class="hljs-keyword">new</span> faceapi.SsdMobilenetv1()
+<span class="hljs-keyword">await</span> net.load(<span class="hljs-string">'/models'</span>)</code></pre>
+				<p>You can also load the weights as a Float32Array (in case you want to use the uncompressed models):</p>
+				<pre><code class="language-javascript"><span class="hljs-comment">// using fetch</span>
+net.load(<span class="hljs-keyword">await</span> faceapi.fetchNetWeights(<span class="hljs-string">'/models/face_detection_model.weights'</span>))
+
+<span class="hljs-comment">// using axios</span>
+<span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> axios.get(<span class="hljs-string">'/models/face_detection_model.weights'</span>, { <span class="hljs-attr">responseType</span>: <span class="hljs-string">'arraybuffer'</span> })
+<span class="hljs-keyword">const</span> weights = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Float32Array</span>(res.data)
+net.load(weights)</code></pre>
+				<h2 id="high-level-api">High Level API</h2>
+				<p>In the following <strong>input</strong> can be an HTML img, video or canvas element or the id of that element.</p>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myImg"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"images/example.png"</span> /&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">video</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myVideo"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"media/example.mp4"</span> /&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myCanvas"</span> /&gt;</span></code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> input = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myImg'</span>)
+<span class="hljs-comment">// const input = document.getElementById('myVideo')</span>
+<span class="hljs-comment">// const input = document.getElementById('myCanvas')</span>
+<span class="hljs-comment">// or simply:</span>
+<span class="hljs-comment">// const input = 'myImg'</span></code></pre>
+				<h3 id="detecting-faces">Detecting Faces</h3>
+				<p>Detect all faces in an image. Returns <strong>Array&lt;<a href="#interface-face-detection">FaceDetection</a>&gt;</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detections = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input)</code></pre>
+				<p>Detect the face with the highest confidence score in an image. Returns <strong><a href="#interface-face-detection">FaceDetection</a> | undefined</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detection = <span class="hljs-keyword">await</span> faceapi.detectSingleFace(input)</code></pre>
+				<p>By default <strong>detectAllFaces</strong> and <strong>detectSingleFace</strong> utilize the SSD Mobilenet V1 Face Detector. You can specify the face detector by passing the corresponding options object:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detections1 = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input, <span class="hljs-keyword">new</span> faceapi.SsdMobilenetv1Options())
+<span class="hljs-keyword">const</span> detections2 = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input, <span class="hljs-keyword">new</span> faceapi.TinyFaceDetectorOptions())
+<span class="hljs-keyword">const</span> detections3 = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input, <span class="hljs-keyword">new</span> faceapi.MtcnnOptions())</code></pre>
+				<p>You can tune the options of each face detector as shown <a href="#usage-face-detection-options">here</a>.</p>
+				<h3 id="detecting-68-face-landmark-points">Detecting 68 Face Landmark Points</h3>
+				<p><strong>After face detection, we can furthermore predict the facial landmarks for each detected face as follows:</strong></p>
+				<p>Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns <strong>Array&lt;<a href="#usage-utility-classes">WithFaceLandmarks&lt;WithFaceDetection&lt;{}&gt;&gt;</a>&gt;</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detectionsWithLandmarks = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceLandmarks()</code></pre>
+				<p>Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks for that face. Returns <strong><a href="#usage-utility-classes">WithFaceLandmarks&lt;WithFaceDetection&lt;{}&gt;&gt;</a> | undefined</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detectionWithLandmarks = <span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceLandmarks()</code></pre>
+				<p>You can also specify to use the tiny model instead of the default model:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> useTinyModel = <span class="hljs-literal">true</span>
+<span class="hljs-keyword">const</span> detectionsWithLandmarks = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceLandmarks(useTinyModel)</code></pre>
+				<h3 id="computing-face-descriptors">Computing Face Descriptors</h3>
+				<p><strong>After face detection and facial landmark prediction the face descriptors for each face can be computed as follows:</strong></p>
+				<p>Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns <strong>Array&lt;<a href="#usage-utility-classes">WithFaceDescriptor&lt;WithFaceLandmarks&lt;WithFaceDetection&lt;{}&gt;&gt;&gt;</a>&gt;</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> results = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()</code></pre>
+				<p>Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns <strong><a href="#usage-utility-classes">WithFaceDescriptor&lt;WithFaceLandmarks&lt;WithFaceDetection&lt;{}&gt;&gt;&gt;</a> | undefined</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()</code></pre>
+				<h3 id="recognizing-face-expressions">Recognizing Face Expressions</h3>
+				<p><strong>Face expression recognition can be performed for detected faces as follows:</strong></p>
+				<p>Detect all faces in an image + recognize face expressions. Returns <strong>Array&lt;<a href="#usage-utility-classes">WithFaceExpressions&lt;WithFaceDetection&lt;{}&gt;&gt;</a>&gt;</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detectionsWithExpressions = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceExpressions()</code></pre>
+				<p>Detect the face with the highest confidence score in an image + recognize the face expression for that face. Returns <strong><a href="#usage-utility-classes">WithFaceExpressions&lt;WithFaceDetection&lt;{}&gt;&gt;</a> | undefined</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detectionWithExpressions = <span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceExpressions()</code></pre>
+				<h3 id="composition-of-tasks">Composition of Tasks</h3>
+				<p><strong>Tasks can be composed as follows:</strong></p>
+				<pre><code class="language-javascript"><span class="hljs-comment">// all faces</span>
+<span class="hljs-keyword">await</span> faceapi.detectAllFaces(input)
+<span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceExpressions()
+<span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceLandmarks()
+<span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks()
+<span class="hljs-keyword">await</span> faceapi.detectAllFaces(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptors()
+
+<span class="hljs-comment">// single face</span>
+<span class="hljs-keyword">await</span> faceapi.detectSingleFace(input)
+<span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceExpressions()
+<span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceLandmarks()
+<span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks()
+<span class="hljs-keyword">await</span> faceapi.detectSingleFace(input).withFaceExpressions().withFaceLandmarks().withFaceDescriptor()</code></pre>
+				<h3 id="face-recognition-by-matching-descriptors">Face Recognition by Matching Descriptors</h3>
+				<p>To perform face recognition, one can use faceapi.FaceMatcher to compare reference face descriptors to query face descriptors.</p>
+				<p>First, we initialize the FaceMatcher with the reference data, for example we can simply detect faces in a <strong>referenceImage</strong> and match the descriptors of the detected faces to faces of subsquent images:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> results = <span class="hljs-keyword">await</span> faceapi
+  .detectAllFaces(referenceImage)
+  .withFaceLandmarks()
+  .withFaceDescriptors()
+
+<span class="hljs-keyword">if</span> (!results.length) {
+  <span class="hljs-keyword">return</span>
+}
+
+<span class="hljs-comment">// create FaceMatcher with automatically assigned labels</span>
+<span class="hljs-comment">// from the detection results for the reference image</span>
+<span class="hljs-keyword">const</span> faceMatcher = <span class="hljs-keyword">new</span> faceapi.FaceMatcher(results)</code></pre>
+				<p>Now we can recognize a persons face shown in <strong>queryImage1</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> singleResult = <span class="hljs-keyword">await</span> faceapi
+  .detectSingleFace(queryImage1)
+  .withFaceLandmarks()
+  .withFaceDescriptor()
+
+<span class="hljs-keyword">if</span> (singleResult) {
+  <span class="hljs-keyword">const</span> bestMatch = faceMatcher.findBestMatch(singleResult.descriptor)
+  <span class="hljs-built_in">console</span>.log(bestMatch.toString())
+}</code></pre>
+				<p>Or we can recognize all faces shown in <strong>queryImage2</strong>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> results = <span class="hljs-keyword">await</span> faceapi
+  .detectAllFaces(queryImage2)
+  .withFaceLandmarks()
+  .withFaceDescriptors()
+
+results.forEach(<span class="hljs-function"><span class="hljs-params">fd</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> bestMatch = faceMatcher.findBestMatch(fd.descriptor)
+  <span class="hljs-built_in">console</span>.log(bestMatch.toString())
+})</code></pre>
+				<p>You can also create labeled reference descriptors as follows:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> labeledDescriptors = [
+  <span class="hljs-keyword">new</span> faceapi.LabeledFaceDescriptors(
+    <span class="hljs-string">'obama'</span>,
+    [descriptorObama1, descriptorObama2]
+  ),
+  <span class="hljs-keyword">new</span> faceapi.LabeledFaceDescriptors(
+    <span class="hljs-string">'trump'</span>,
+    [descriptorTrump]
+  )
+]
+
+<span class="hljs-keyword">const</span> faceMatcher = <span class="hljs-keyword">new</span> faceapi.FaceMatcher(labeledDescriptors)</code></pre>
+				<p><a name="usage-displaying-detection-results"></a></p>
+				<h2 id="displaying-detection-results">Displaying Detection Results</h2>
+				<p>Drawing the detected faces into a canvas:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detections = <span class="hljs-keyword">await</span> faceapi.detectAllFaces(input)
+
+<span class="hljs-comment">// resize the detected boxes in case your displayed image has a different size then the original</span>
+<span class="hljs-keyword">const</span> detectionsForSize = faceapi.resizeResults(detections, { <span class="hljs-attr">width</span>: input.width, <span class="hljs-attr">height</span>: input.height })
+<span class="hljs-comment">// draw them into a canvas</span>
+<span class="hljs-keyword">const</span> canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'overlay'</span>)
+canvas.width = input.width
+canvas.height = input.height
+faceapi.drawDetection(canvas, detectionsForSize, { <span class="hljs-attr">withScore</span>: <span class="hljs-literal">true</span> })</code></pre>
+				<p>Drawing face landmarks into a canvas:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detectionsWithLandmarks = <span class="hljs-keyword">await</span> faceapi
+  .detectAllFaces(input)
+  .withFaceLandmarks()
+
+<span class="hljs-comment">// resize the detected boxes and landmarks in case your displayed image has a different size then the original</span>
+<span class="hljs-keyword">const</span> detectionsWithLandmarksForSize = faceapi.resizeResults(detectionsWithLandmarks, { <span class="hljs-attr">width</span>: input.width, <span class="hljs-attr">height</span>: input.height })
+<span class="hljs-comment">// draw them into a canvas</span>
+<span class="hljs-keyword">const</span> canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'overlay'</span>)
+canvas.width = input.width
+canvas.height = input.height
+faceapi.drawLandmarks(canvas, detectionsWithLandmarks, { <span class="hljs-attr">drawLines</span>: <span class="hljs-literal">true</span> })</code></pre>
+				<p>Finally you can also draw boxes with custom text:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> boxesWithText = [
+  <span class="hljs-keyword">new</span> faceapi.BoxWithText(<span class="hljs-keyword">new</span> faceapi.Rect(x, y, width, height), text))
+  <span class="hljs-keyword">new</span> faceapi.BoxWithText(<span class="hljs-keyword">new</span> faceapi.Rect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>), <span class="hljs-string">'some text'</span>))
+]
+
+<span class="hljs-keyword">const</span> canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'overlay'</span>)
+faceapi.drawDetection(canvas, boxesWithText)</code></pre>
+				<p><a name="usage-face-detection-options"></a></p>
+				<h2 id="face-detection-options">Face Detection Options</h2>
+				<h3 id="ssdmobilenetv1options">SsdMobilenetv1Options</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface ISsdMobilenetv1Options {
+  <span class="hljs-comment">// minimum confidence threshold</span>
+  <span class="hljs-comment">// default: 0.5</span>
+  minConfidence?: number
+
+  <span class="hljs-comment">// maximum number of faces to return</span>
+  <span class="hljs-comment">// default: 100</span>
+  maxResults?: number
+}
+
+<span class="hljs-comment">// example</span>
+<span class="hljs-keyword">const</span> options = <span class="hljs-keyword">new</span> faceapi.SsdMobilenetv1Options({ <span class="hljs-attr">minConfidence</span>: <span class="hljs-number">0.8</span> })</code></pre>
+				<h3 id="tinyfacedetectoroptions">TinyFaceDetectorOptions</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface ITinyFaceDetectorOptions {
+  <span class="hljs-comment">// size at which image is processed, the smaller the faster,</span>
+  <span class="hljs-comment">// but less precise in detecting smaller faces, must be divisible</span>
+  <span class="hljs-comment">// by 32, common sizes are 128, 160, 224, 320, 416, 512, 608,</span>
+  <span class="hljs-comment">// for face tracking via webcam I would recommend using smaller sizes,</span>
+  <span class="hljs-comment">// e.g. 128, 160, for detecting smaller faces use larger sizes, e.g. 512, 608</span>
+  <span class="hljs-comment">// default: 416</span>
+  inputSize?: number
+
+  <span class="hljs-comment">// minimum confidence threshold</span>
+  <span class="hljs-comment">// default: 0.5</span>
+  scoreThreshold?: number
+}
+
+<span class="hljs-comment">// example</span>
+<span class="hljs-keyword">const</span> options = <span class="hljs-keyword">new</span> faceapi.TinyFaceDetectorOptions({ <span class="hljs-attr">inputSize</span>: <span class="hljs-number">320</span> })</code></pre>
+				<h3 id="mtcnnoptions">MtcnnOptions</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface IMtcnnOptions {
+  <span class="hljs-comment">// minimum face size to expect, the higher the faster processing will be,</span>
+  <span class="hljs-comment">// but smaller faces won't be detected</span>
+  <span class="hljs-comment">// default: 20</span>
+  minFaceSize?: number
+
+  <span class="hljs-comment">// the score threshold values used to filter the bounding</span>
+  <span class="hljs-comment">// boxes of stage 1, 2 and 3</span>
+  <span class="hljs-comment">// default: [0.6, 0.7, 0.7]</span>
+  scoreThresholds?: number[]
+
+  <span class="hljs-comment">// scale factor used to calculate the scale steps of the image</span>
+  <span class="hljs-comment">// pyramid used in stage 1</span>
+  <span class="hljs-comment">// default: 0.709</span>
+  scaleFactor?: number
+
+  <span class="hljs-comment">// number of scaled versions of the input image passed through the CNN</span>
+  <span class="hljs-comment">// of the first stage, lower numbers will result in lower inference time,</span>
+  <span class="hljs-comment">// but will also be less accurate</span>
+  <span class="hljs-comment">// default: 10</span>
+  maxNumScales?: number
+
+  <span class="hljs-comment">// instead of specifying scaleFactor and maxNumScales you can also</span>
+  <span class="hljs-comment">// set the scaleSteps manually</span>
+  scaleSteps?: number[]
+}
+
+<span class="hljs-comment">// example</span>
+<span class="hljs-keyword">const</span> options = <span class="hljs-keyword">new</span> faceapi.MtcnnOptions({ <span class="hljs-attr">minFaceSize</span>: <span class="hljs-number">100</span>, <span class="hljs-attr">scaleFactor</span>: <span class="hljs-number">0.8</span> })</code></pre>
+				<p><a name="usage-utility-classes"></a></p>
+				<h2 id="utility-classes">Utility Classes</h2>
+				<h3 id="ibox">IBox</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface IBox {
+  <span class="hljs-attr">x</span>: number
+  y: number
+  width: number
+  height: number
+}</code></pre>
+				<p><a name="interface-face-detection"></a></p>
+				<h3 id="ifacedetection">IFaceDetection</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface IFaceDetection {
+  <span class="hljs-attr">score</span>: number
+  box: Box
+}</code></pre>
+				<p><a name="interface-face-landmarks"></a></p>
+				<h3 id="ifacelandmarks">IFaceLandmarks</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> interface IFaceLandmarks {
+  <span class="hljs-attr">positions</span>: Point[]
+  shift: Point
+}</code></pre>
+				<p><a name="with-face-detection"></a></p>
+				<h3 id="withfacedetection">WithFaceDetection</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> type WithFaceDetection&lt;TSource&gt; TSource &amp; {
+  <span class="hljs-attr">detection</span>: FaceDetection
+}</code></pre>
+				<p><a name="with-face-landmarks"></a></p>
+				<h3 id="withfacelandmarks">WithFaceLandmarks</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> type WithFaceLandmarks&lt;TSource&gt; TSource &amp; {
+  <span class="hljs-attr">unshiftedLandmarks</span>: FaceLandmarks
+  landmarks: FaceLandmarks
+  alignedRect: FaceDetection
+}</code></pre>
+				<p><a name="with-face-descriptor"></a></p>
+				<h3 id="withfacedescriptor">WithFaceDescriptor</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> type WithFaceDescriptor&lt;TSource&gt; TSource &amp; {
+  <span class="hljs-attr">descriptor</span>: <span class="hljs-built_in">Float32Array</span>
+}</code></pre>
+				<p><a name="with-face-expressions"></a></p>
+				<h3 id="withfaceexpressions">WithFaceExpressions</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">export</span> type FaceExpression = <span class="hljs-string">'neutral'</span> | <span class="hljs-string">'happy'</span> | <span class="hljs-string">'sad'</span> | <span class="hljs-string">'angry'</span> | <span class="hljs-string">'fearful'</span> | <span class="hljs-string">'disgusted'</span> | <span class="hljs-string">'surprised'</span>
+
+<span class="hljs-keyword">export</span> type FaceExpressionPrediction = {
+  <span class="hljs-attr">expression</span>: FaceExpression,
+  <span class="hljs-attr">probability</span>: number
+}
+
+<span class="hljs-keyword">export</span> type WithFaceExpressions&lt;TSource&gt; TSource &amp; {
+  <span class="hljs-attr">expressions</span>: FaceExpressionPrediction[]
+}</code></pre>
+				<p><a name="other-useful-utility"></a></p>
+				<h2 id="other-useful-utility">Other Useful Utility</h2>
+				<h3 id="using-the-low-level-api">Using the Low Level API</h3>
+				<p>Instead of using the high level API, you can directly use the forward methods of each neural network:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> detections1 = <span class="hljs-keyword">await</span> faceapi.ssdMobilenetv1(input, options)
+<span class="hljs-keyword">const</span> detections2 = <span class="hljs-keyword">await</span> faceapi.tinyFaceDetector(input, options)
+<span class="hljs-keyword">const</span> detections3 = <span class="hljs-keyword">await</span> faceapi.mtcnn(input, options)
+<span class="hljs-keyword">const</span> landmarks1 = <span class="hljs-keyword">await</span> faceapi.detectFaceLandmarks(faceImage)
+<span class="hljs-keyword">const</span> landmarks2 = <span class="hljs-keyword">await</span> faceapi.detectFaceLandmarksTiny(faceImage)
+<span class="hljs-keyword">const</span> descriptor = <span class="hljs-keyword">await</span> faceapi.computeFaceDescriptor(alignedFaceImage)</code></pre>
+				<h3 id="extracting-a-canvas-for-an-image-region">Extracting a Canvas for an Image Region</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> regionsToExtract = [
+  <span class="hljs-keyword">new</span> faceapi.Rect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>)
+]
+<span class="hljs-comment">// actually extractFaces is meant to extract face regions from bounding boxes</span>
+<span class="hljs-comment">// but you can also use it to extract any other region</span>
+<span class="hljs-keyword">const</span> canvases = <span class="hljs-keyword">await</span> faceapi.extractFaces(input, regionsToExtract)</code></pre>
+				<h3 id="euclidean-distance">Euclidean Distance</h3>
+				<pre><code class="language-javascript"><span class="hljs-comment">// ment to be used for computing the euclidean distance between two face descriptors</span>
+<span class="hljs-keyword">const</span> dist = faceapi.euclideanDistance([<span class="hljs-number">0</span>, <span class="hljs-number">0</span>], [<span class="hljs-number">0</span>, <span class="hljs-number">10</span>])
+<span class="hljs-built_in">console</span>.log(dist) <span class="hljs-comment">// 10</span></code></pre>
+				<h3 id="retrieve-the-face-landmark-points-and-contours">Retrieve the Face Landmark Points and Contours</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> landmarkPositions = landmarks.positions
+
+<span class="hljs-comment">// or get the positions of individual contours,</span>
+<span class="hljs-comment">// only available for 68 point face ladnamrks (FaceLandmarks68)</span>
+<span class="hljs-keyword">const</span> jawOutline = landmarks.getJawOutline()
+<span class="hljs-keyword">const</span> nose = landmarks.getNose()
+<span class="hljs-keyword">const</span> mouth = landmarks.getMouth()
+<span class="hljs-keyword">const</span> leftEye = landmarks.getLeftEye()
+<span class="hljs-keyword">const</span> rightEye = landmarks.getRightEye()
+<span class="hljs-keyword">const</span> leftEyeBbrow = landmarks.getLeftEyeBrow()
+<span class="hljs-keyword">const</span> rightEyeBrow = landmarks.getRightEyeBrow()</code></pre>
+				<h3 id="fetch-and-display-images-from-an-url">Fetch and Display Images from an URL</h3>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myImg"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">""</span>&gt;</span></code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> image = <span class="hljs-keyword">await</span> faceapi.fetchImage(<span class="hljs-string">'/images/example.png'</span>)
+
+<span class="hljs-built_in">console</span>.log(image <span class="hljs-keyword">instanceof</span> HTMLImageElement) <span class="hljs-comment">// true</span>
+
+<span class="hljs-comment">// displaying the fetched image content</span>
+<span class="hljs-keyword">const</span> myImg = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myImg'</span>)
+myImg.src = image.src</code></pre>
+				<h3 id="fetching-json">Fetching JSON</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> json = <span class="hljs-keyword">await</span> faceapi.fetchJson(<span class="hljs-string">'/files/example.json'</span>)</code></pre>
+				<h3 id="creating-an-image-picker">Creating an Image Picker</h3>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myImg"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">""</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myFileUpload"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"file"</span> <span class="hljs-attr">onchange</span>=<span class="hljs-string">"uploadImage()"</span> <span class="hljs-attr">accept</span>=<span class="hljs-string">".jpg, .jpeg, .png"</span>&gt;</span></code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">uploadImage</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> imgFile = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myFileUpload'</span>).files[<span class="hljs-number">0</span>]
+  <span class="hljs-comment">// create an HTMLImageElement from a Blob</span>
+  <span class="hljs-keyword">const</span> img = <span class="hljs-keyword">await</span> faceapi.bufferToImage(imgFile)
+  <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myImg'</span>).src = img.src
+}</code></pre>
+				<h3 id="creating-a-canvas-element-from-an-image-or-video-element">Creating a Canvas Element from an Image or Video Element</h3>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myImg"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"images/example.png"</span> /&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">video</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myVideo"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"media/example.mp4"</span> /&gt;</span></code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> canvas1 = faceapi.createCanvasFromMedia(<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myImg'</span>))
+<span class="hljs-keyword">const</span> canvas2 = faceapi.createCanvasFromMedia(<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'myVideo'</span>))</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/tinyyolov2sizetype.html" class="tsd-kind-icon">Tiny<wbr>Yolov2<wbr>Size<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/boundingbox.html" class="tsd-kind-icon">Bounding<wbr>Box</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/box.html" class="tsd-kind-icon">Box</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/boxwithtext.html" class="tsd-kind-icon">Box<wbr>With<wbr>Text</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/composabletask.html" class="tsd-kind-icon">Composable<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/computeallfacedescriptorstask.html" class="tsd-kind-icon">Compute<wbr>All<wbr>Face<wbr>Descriptors<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/computefacedescriptorstaskbase.html" class="tsd-kind-icon">Compute<wbr>Face<wbr>Descriptors<wbr>Task<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/computesinglefacedescriptortask.html" class="tsd-kind-icon">Compute<wbr>Single<wbr>Face<wbr>Descriptor<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/detectallfacelandmarkstask.html" class="tsd-kind-icon">Detect<wbr>All<wbr>Face<wbr>Landmarks<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/detectallfacestask.html" class="tsd-kind-icon">Detect<wbr>All<wbr>Faces<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/detectfacelandmarkstaskbase.html" class="tsd-kind-icon">Detect<wbr>Face<wbr>Landmarks<wbr>Task<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/detectfacestaskbase.html" class="tsd-kind-icon">Detect<wbr>Faces<wbr>Task<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/detectsinglefacelandmarkstask.html" class="tsd-kind-icon">Detect<wbr>Single<wbr>Face<wbr>Landmarks<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/detectsinglefacetask.html" class="tsd-kind-icon">Detect<wbr>Single<wbr>Face<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/dimensions.html" class="tsd-kind-icon">Dimensions</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facedetection.html" class="tsd-kind-icon">Face<wbr>Detection</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facedetectionnet.html" class="tsd-kind-icon">Face<wbr>Detection<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/faceexpressionnet.html" class="tsd-kind-icon">Face<wbr>Expression<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facefeatureextractor.html" class="tsd-kind-icon">Face<wbr>Feature<wbr>Extractor</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmark68net.html" class="tsd-kind-icon">Face<wbr>Landmark68<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmark68tinynet.html" class="tsd-kind-icon">Face<wbr>Landmark68<wbr>Tiny<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmarknet.html" class="tsd-kind-icon">Face<wbr>Landmark<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmarks.html" class="tsd-kind-icon">Face<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmarks5.html" class="tsd-kind-icon">Face<wbr>Landmarks5</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facelandmarks68.html" class="tsd-kind-icon">Face<wbr>Landmarks68</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facematch.html" class="tsd-kind-icon">Face<wbr>Match</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facematcher.html" class="tsd-kind-icon">Face<wbr>Matcher</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/faceprocessor.html" class="tsd-kind-icon">Face<wbr>Processor</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/facerecognitionnet.html" class="tsd-kind-icon">Face<wbr>Recognition<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/labeledbox.html" class="tsd-kind-icon">Labeled<wbr>Box</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/labeledfacedescriptors.html" class="tsd-kind-icon">Labeled<wbr>Face<wbr>Descriptors</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/mtcnn.html" class="tsd-kind-icon">Mtcnn</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/mtcnnoptions.html" class="tsd-kind-icon">Mtcnn<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/netinput.html" class="tsd-kind-icon">Net<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/neuralnetwork.html" class="tsd-kind-icon">Neural<wbr>Network</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/objectdetection.html" class="tsd-kind-icon">Object<wbr>Detection</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/point.html" class="tsd-kind-icon">Point</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/predictallfaceexpressionstask.html" class="tsd-kind-icon">Predict<wbr>All<wbr>Face<wbr>Expressions<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/predictfaceexpressionstaskbase.html" class="tsd-kind-icon">Predict<wbr>Face<wbr>Expressions<wbr>Task<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/predictsinglefaceexpressiontask.html" class="tsd-kind-icon">Predict<wbr>Single<wbr>Face<wbr>Expression<wbr>Task</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/predictedbox.html" class="tsd-kind-icon">Predicted<wbr>Box</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/rect.html" class="tsd-kind-icon">Rect</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/ssdmobilenetv1.html" class="tsd-kind-icon">Ssd<wbr>Mobilenetv1</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/ssdmobilenetv1options.html" class="tsd-kind-icon">Ssd<wbr>Mobilenetv1<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinyfacedetector.html" class="tsd-kind-icon">Tiny<wbr>Face<wbr>Detector</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinyfacedetectoroptions.html" class="tsd-kind-icon">Tiny<wbr>Face<wbr>Detector<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinyfacefeatureextractor.html" class="tsd-kind-icon">Tiny<wbr>Face<wbr>Feature<wbr>Extractor</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinyyolov2.html" class="tsd-kind-icon">Tiny<wbr>Yolov2</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tinyyolov2options.html" class="tsd-kind-icon">Tiny<wbr>Yolov2<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iboundingbox.html" class="tsd-kind-icon">IBounding<wbr>Box</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/idimensions.html" class="tsd-kind-icon">IDimensions</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifacedetecion.html" class="tsd-kind-icon">IFace<wbr>Detecion</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/ifacefeatureextractor.html" class="tsd-kind-icon">IFace<wbr>Feature<wbr>Extractor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifacelandmarks.html" class="tsd-kind-icon">IFace<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ifacematch.html" class="tsd-kind-icon">IFace<wbr>Match</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/imtcnnoptions.html" class="tsd-kind-icon">IMtcnn<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ipoint.html" class="tsd-kind-icon">IPoint</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/irect.html" class="tsd-kind-icon">IRect</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/issdmobilenetv1options.html" class="tsd-kind-icon">ISsd<wbr>Mobilenetv1<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/itinyfacedetectoroptions.html" class="tsd-kind-icon">ITiny<wbr>Face<wbr>Detector<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/itinyyolov2options.html" class="tsd-kind-icon">ITiny<wbr>Yolov2<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#batchnormparams" class="tsd-kind-icon">Batch<wbr>Norm<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#convwithbatchnormparams" class="tsd-kind-icon">Conv<wbr>With<wbr>Batch<wbr>Norm<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#denseblock3params" class="tsd-kind-icon">Dense<wbr>Block3<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#denseblock4params" class="tsd-kind-icon">Dense<wbr>Block4<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawboxoptions" class="tsd-kind-icon">Draw<wbr>Box<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawdetectionoptions" class="tsd-kind-icon">Draw<wbr>Detection<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawfaceexpressionsinput" class="tsd-kind-icon">Draw<wbr>Face<wbr>Expressions<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawfaceexpressionsoptions" class="tsd-kind-icon">Draw<wbr>Face<wbr>Expressions<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawlandmarksoptions" class="tsd-kind-icon">Draw<wbr>Landmarks<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawoptions" class="tsd-kind-icon">Draw<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#drawtextoptions" class="tsd-kind-icon">Draw<wbr>Text<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#environment" class="tsd-kind-icon">Environment</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#facedetectionfunction" class="tsd-kind-icon">Face<wbr>Detection<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#facedetectionoptions" class="tsd-kind-icon">Face<wbr>Detection<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#faceexpression" class="tsd-kind-icon">Face<wbr>Expression</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#faceexpressionprediction" class="tsd-kind-icon">Face<wbr>Expression<wbr>Prediction</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#facefeatureextractorparams" class="tsd-kind-icon">Face<wbr>Feature<wbr>Extractor<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filesystem" class="tsd-kind-icon">File<wbr>System</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#netparams" class="tsd-kind-icon">Net<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#separableconvwithbatchnormparams" class="tsd-kind-icon">Separable<wbr>Conv<wbr>With<wbr>Batch<wbr>Norm<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tmediaelement" class="tsd-kind-icon">TMedia<wbr>Element</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tnetinput" class="tsd-kind-icon">TNet<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tnetinputarg" class="tsd-kind-icon">TNet<wbr>Input<wbr>Arg</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tresolvednetinput" class="tsd-kind-icon">TResolved<wbr>Net<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#tinyfacefeatureextractorparams" class="tsd-kind-icon">Tiny<wbr>Face<wbr>Feature<wbr>Extractor<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#withfacedescriptor" class="tsd-kind-icon">With<wbr>Face<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#withfacedetection" class="tsd-kind-icon">With<wbr>Face<wbr>Detection</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#withfaceexpressions" class="tsd-kind-icon">With<wbr>Face<wbr>Expressions</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#withfacelandmarks" class="tsd-kind-icon">With<wbr>Face<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#detectlandmarks" class="tsd-kind-icon">detect<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#loadfacedetectionmodel" class="tsd-kind-icon">load<wbr>Face<wbr>Detection<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#locatefaces" class="tsd-kind-icon">locate<wbr>Faces</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#awaitmedialoaded" class="tsd-kind-icon">await<wbr>Media<wbr>Loaded</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#buffertoimage" class="tsd-kind-icon">buffer<wbr>ToImage</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#computefacedescriptor" class="tsd-kind-icon">compute<wbr>Face<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createbrowserenv" class="tsd-kind-icon">create<wbr>Browser<wbr>Env</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createcanvas" class="tsd-kind-icon">create<wbr>Canvas</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createcanvasfrommedia" class="tsd-kind-icon">create<wbr>Canvas<wbr>From<wbr>Media</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createfacedetectionnet" class="tsd-kind-icon">create<wbr>Face<wbr>Detection<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createfacerecognitionnet" class="tsd-kind-icon">create<wbr>Face<wbr>Recognition<wbr>Net</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createfilesystem" class="tsd-kind-icon">create<wbr>File<wbr>System</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createmtcnn" class="tsd-kind-icon">create<wbr>Mtcnn</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createnodejsenv" class="tsd-kind-icon">create<wbr>Nodejs<wbr>Env</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createssdmobilenetv1" class="tsd-kind-icon">create<wbr>Ssd<wbr>Mobilenetv1</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createtinyfacedetector" class="tsd-kind-icon">create<wbr>Tiny<wbr>Face<wbr>Detector</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createtinyyolov2" class="tsd-kind-icon">create<wbr>Tiny<wbr>Yolov2</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#denseblock3" class="tsd-kind-icon">dense<wbr>Block3</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#denseblock4" class="tsd-kind-icon">dense<wbr>Block4</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#depthwiseseparableconv" class="tsd-kind-icon">depthwise<wbr>Separable<wbr>Conv</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#detectallfaces" class="tsd-kind-icon">detect<wbr>All<wbr>Faces</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#detectfacelandmarks" class="tsd-kind-icon">detect<wbr>Face<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#detectfacelandmarkstiny" class="tsd-kind-icon">detect<wbr>Face<wbr>Landmarks<wbr>Tiny</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#detectsingleface" class="tsd-kind-icon">detect<wbr>Single<wbr>Face</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawbox" class="tsd-kind-icon">draw<wbr>Box</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawcontour" class="tsd-kind-icon">draw<wbr>Contour</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawdetection" class="tsd-kind-icon">draw<wbr>Detection</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawfaceexpressions" class="tsd-kind-icon">draw<wbr>Face<wbr>Expressions</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawlandmarks" class="tsd-kind-icon">draw<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#drawtext" class="tsd-kind-icon">draw<wbr>Text</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#euclideandistance" class="tsd-kind-icon">euclidean<wbr>Distance</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#extendwithfacedescriptor" class="tsd-kind-icon">extend<wbr>With<wbr>Face<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#extendwithfacedetection" class="tsd-kind-icon">extend<wbr>With<wbr>Face<wbr>Detection</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#extendwithfaceexpressions" class="tsd-kind-icon">extend<wbr>With<wbr>Face<wbr>Expressions</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#extendwithfacelandmarks" class="tsd-kind-icon">extend<wbr>With<wbr>Face<wbr>Landmarks</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractfacetensors" class="tsd-kind-icon">extract<wbr>Face<wbr>Tensors</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractfaces" class="tsd-kind-icon">extract<wbr>Faces</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractparamsfromweigthmaptiny" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map<wbr>Tiny</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractparamstiny" class="tsd-kind-icon">extract<wbr>Params<wbr>Tiny</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#extractorsfactory" class="tsd-kind-icon">extractors<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#fetchimage" class="tsd-kind-icon">fetch<wbr>Image</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#fetchjson" class="tsd-kind-icon">fetch<wbr>Json</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#fetchnetweights" class="tsd-kind-icon">fetch<wbr>Net<wbr>Weights</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#fetchorthrow" class="tsd-kind-icon">fetch<wbr>OrThrow</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#fullyconnectedlayer" class="tsd-kind-icon">fully<wbr>Connected<wbr>Layer</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getcontext2dorthrow" class="tsd-kind-icon">get<wbr>Context2d<wbr>OrThrow</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getdefaultdrawoptions" class="tsd-kind-icon">get<wbr>Default<wbr>Draw<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getmediadimensions" class="tsd-kind-icon">get<wbr>Media<wbr>Dimensions</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#imagetensortocanvas" class="tsd-kind-icon">image<wbr>Tensor<wbr>ToCanvas</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#imagetosquare" class="tsd-kind-icon">image<wbr>ToSquare</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#inversesigmoid" class="tsd-kind-icon">inverse<wbr>Sigmoid</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#iou" class="tsd-kind-icon">iou</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbrowser" class="tsd-kind-icon">is<wbr>Browser</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#ismediaelement" class="tsd-kind-icon">is<wbr>Media<wbr>Element</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#ismedialoaded" class="tsd-kind-icon">is<wbr>Media<wbr>Loaded</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isnodejs" class="tsd-kind-icon">is<wbr>Nodejs</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadfaceexpressionmodel" class="tsd-kind-icon">load<wbr>Face<wbr>Expression<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadfacelandmarkmodel" class="tsd-kind-icon">load<wbr>Face<wbr>Landmark<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadfacelandmarktinymodel" class="tsd-kind-icon">load<wbr>Face<wbr>Landmark<wbr>Tiny<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadfacerecognitionmodel" class="tsd-kind-icon">load<wbr>Face<wbr>Recognition<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadmtcnnmodel" class="tsd-kind-icon">load<wbr>Mtcnn<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadparamsfactory" class="tsd-kind-icon">load<wbr>Params<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadssdmobilenetv1model" class="tsd-kind-icon">load<wbr>Ssd<wbr>Mobilenetv1<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadtinyfacedetectormodel" class="tsd-kind-icon">load<wbr>Tiny<wbr>Face<wbr>Detector<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadtinyyolov2model" class="tsd-kind-icon">load<wbr>Tiny<wbr>Yolov2<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#loadweightmap" class="tsd-kind-icon">load<wbr>Weight<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#mtcnn" class="tsd-kind-icon">mtcnn</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#nonmaxsuppression" class="tsd-kind-icon">non<wbr>Max<wbr>Suppression</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#normalize" class="tsd-kind-icon">normalize</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#padtosquare" class="tsd-kind-icon">pad<wbr>ToSquare</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#recognizefaceexpressions" class="tsd-kind-icon">recognize<wbr>Face<wbr>Expressions</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#resizeresults" class="tsd-kind-icon">resize<wbr>Results</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#resolveinput" class="tsd-kind-icon">resolve<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#seperateweightmaps" class="tsd-kind-icon">seperate<wbr>Weight<wbr>Maps</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#shufflearray" class="tsd-kind-icon">shuffle<wbr>Array</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#sigmoid" class="tsd-kind-icon">sigmoid</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#ssdmobilenetv1" class="tsd-kind-icon">ssd<wbr>Mobilenetv1</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#tinyfacedetector" class="tsd-kind-icon">tiny<wbr>Face<wbr>Detector</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#tinyyolov2" class="tsd-kind-icon">tiny<wbr>Yolov2</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#tonetinput" class="tsd-kind-icon">to<wbr>Net<wbr>Input</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#env" class="tsd-kind-icon">env</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#faceexpressionlabels" class="tsd-kind-icon">face<wbr>Expression<wbr>Labels</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#nets" class="tsd-kind-icon">nets</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

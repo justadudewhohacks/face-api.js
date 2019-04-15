@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>FaceLandmark68TinyNet | face-api.js</title>
+	<title>FaceProcessor | face-api.js</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,24 +52,37 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="facelandmark68tinynet.html">FaceLandmark68TinyNet</a>
+					<a href="faceprocessor.html">FaceProcessor</a>
 				</li>
 			</ul>
-			<h1>Class FaceLandmark68TinyNet</h1>
+			<h1>Class FaceProcessor&lt;TExtractorParams&gt;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-type-parameters">
+				<h3>Type parameters</h3>
+				<ul class="tsd-type-parameters">
+					<li>
+						<h4>TExtractorParams<span class="tsd-signature-symbol">: </span><a href="../globals.html#facefeatureextractorparams" class="tsd-signature-type">FaceFeatureExtractorParams</a><span class="tsd-signature-symbol"> | </span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a></h4>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">FaceLandmark68NetBase</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">NeuralNetwork</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#netparams" class="tsd-signature-type">NetParams</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">FaceLandmark68TinyNet</span>
+								<span class="target">FaceProcessor</span>
+								<ul class="tsd-hierarchy">
+									<li>
+										<a href="faceexpressionnet.html" class="tsd-signature-type">FaceExpressionNet</a>
+									</li>
+								</ul>
 							</li>
 						</ul>
 					</li>
@@ -82,56 +95,52 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="facelandmark68tinynet.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="faceprocessor.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#_facefeatureextractor" class="tsd-kind-icon">_face<wbr>Feature<wbr>Extractor</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#_name" class="tsd-kind-icon">_name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#_params" class="tsd-kind-icon">_params</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#params" class="tsd-kind-icon">params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="faceprocessor.html#_facefeatureextractor" class="tsd-kind-icon">_face<wbr>Feature<wbr>Extractor</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="faceprocessor.html#_name" class="tsd-kind-icon">_name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="faceprocessor.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="faceprocessor.html#_params" class="tsd-kind-icon">_params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#params" class="tsd-kind-icon">params</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#facefeatureextractor" class="tsd-kind-icon">face<wbr>Feature<wbr>Extractor</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="faceprocessor.html#facefeatureextractor" class="tsd-kind-icon">face<wbr>Feature<wbr>Extractor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#detectlandmarks" class="tsd-kind-icon">detect<wbr>Landmarks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="facelandmark68tinynet.html#dispose" class="tsd-kind-icon">dispose</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#extractclassifierparams" class="tsd-kind-icon">extract<wbr>Classifier<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#forward" class="tsd-kind-icon">forward</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#freeze" class="tsd-kind-icon">freeze</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="facelandmark68tinynet.html#getclassifierchannelsin" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>In</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facelandmark68tinynet.html#getclassifierchannelsout" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>Out</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="facelandmark68tinynet.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#load" class="tsd-kind-icon">load</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#loadclassifierparams" class="tsd-kind-icon">load<wbr>Classifier<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#postprocess" class="tsd-kind-icon">post<wbr>Process</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#runnet" class="tsd-kind-icon">run<wbr>Net</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facelandmark68tinynet.html#variable" class="tsd-kind-icon">variable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="faceprocessor.html#dispose" class="tsd-kind-icon">dispose</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="faceprocessor.html#extractclassifierparams" class="tsd-kind-icon">extract<wbr>Classifier<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="faceprocessor.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="faceprocessor.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#freeze" class="tsd-kind-icon">freeze</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="faceprocessor.html#getclassifierchannelsin" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>In</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="faceprocessor.html#getclassifierchannelsout" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>Out</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="faceprocessor.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#load" class="tsd-kind-icon">load</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="faceprocessor.html#loadclassifierparams" class="tsd-kind-icon">load<wbr>Classifier<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="faceprocessor.html#runnet" class="tsd-kind-icon">run<wbr>Net</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="faceprocessor.html#variable" class="tsd-kind-icon">variable</a></li>
 							</ul>
 						</section>
 					</div>
@@ -143,35 +152,37 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Face<wbr>Landmark68<wbr>Tiny<wbr>Net<span class="tsd-signature-symbol">(</span>faceFeatureExtractor<span class="tsd-signature-symbol">?: </span><a href="tinyfacefeatureextractor.html" class="tsd-signature-type">TinyFaceFeatureExtractor</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="facelandmark68tinynet.html" class="tsd-signature-type">FaceLandmark68TinyNet</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Face<wbr>Processor<span class="tsd-signature-symbol">(</span>_name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, faceFeatureExtractor<span class="tsd-signature-symbol">: </span><a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TExtractorParams</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="faceprocessor.html" class="tsd-signature-type">FaceProcessor</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#constructor">constructor</a></p>
+								<p>Overrides NeuralNetwork.__constructor</p>
 								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68TinyNet.ts:5</li>
+									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:20</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> faceFeatureExtractor: <a href="tinyfacefeatureextractor.html" class="tsd-signature-type">TinyFaceFeatureExtractor</a><span class="tsd-signature-symbol"> =&nbsp;new TinyFaceFeatureExtractor()</span></h5>
+									<h5>_name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>faceFeatureExtractor: <a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TExtractorParams</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="facelandmark68tinynet.html" class="tsd-signature-type">FaceLandmark68TinyNet</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="faceprocessor.html" class="tsd-signature-type">FaceProcessor</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="_facefeatureextractor" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _face<wbr>Feature<wbr>Extractor</h3>
-					<div class="tsd-signature tsd-kind-icon">_face<wbr>Feature<wbr>Extractor<span class="tsd-signature-symbol">:</span> <a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">_face<wbr>Feature<wbr>Extractor<span class="tsd-signature-symbol">:</span> <a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TExtractorParams</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#_facefeatureextractor">_faceFeatureExtractor</a></p>
 						<ul>
 							<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:20</li>
 						</ul>
@@ -244,63 +255,37 @@
 					</aside>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Accessors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="facefeatureextractor" class="tsd-anchor"></a>
 					<h3>face<wbr>Feature<wbr>Extractor</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> faceFeatureExtractor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a><span class="tsd-signature-symbol">&gt;</span></li>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> faceFeatureExtractor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TExtractorParams</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#facefeatureextractor">faceFeatureExtractor</a></p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:27</li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TExtractorParams</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="detectlandmarks" class="tsd-anchor"></a>
-					<h3>detect<wbr>Landmarks</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">detect<wbr>Landmarks<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facelandmarks68.html" class="tsd-signature-type">FaceLandmarks68</a><span class="tsd-signature-symbol"> | </span><a href="facelandmarks68.html" class="tsd-signature-type">FaceLandmarks68</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from FaceLandmark68NetBase.detectLandmarks</p>
-								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68NetBase.ts:73</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facelandmarks68.html" class="tsd-signature-type">FaceLandmarks68</a><span class="tsd-signature-symbol"> | </span><a href="facelandmarks68.html" class="tsd-signature-type">FaceLandmarks68</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="dispose" class="tsd-anchor"></a>
 					<h3>dispose</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">dispose<span class="tsd-signature-symbol">(</span>throwOnRedispose<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#dispose">dispose</a></p>
 								<p>Overrides NeuralNetwork.dispose</p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:51</li>
@@ -316,16 +301,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="extractclassifierparams" class="tsd-anchor"></a>
 					<h3>extract<wbr>Classifier<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Classifier<wbr>Params<span class="tsd-signature-symbol">(</span>weights<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#extractclassifierparams">extractClassifierParams</a></p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:62</li>
 								</ul>
@@ -342,16 +326,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 					<a name="extractparams" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> extract<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Params<span class="tsd-signature-symbol">(</span>weights<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#extractparams">extractParams</a></p>
 								<p>Overrides NeuralNetwork.extractParams</p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:75</li>
@@ -369,16 +352,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 					<a name="extractparamsfromweigthmap" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map<span class="tsd-signature-symbol">(</span>weightMap<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.NamedTensorMap</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#extractparamsfromweigthmap">extractParamsFromWeigthMap</a></p>
 								<p>Overrides NeuralNetwork.extractParamsFromWeigthMap</p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:66</li>
@@ -421,54 +403,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="forward" class="tsd-anchor"></a>
-					<h3>forward</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">forward<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">tf.Tensor2D</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from FaceLandmark68NetBase.forward</p>
-								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68NetBase.ts:69</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">tf.Tensor2D</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="forwardinput" class="tsd-anchor"></a>
-					<h3>forward<wbr>Input</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">forward<wbr>Input<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NetInput</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor2D</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from FaceLandmark68NetBase.forwardInput</p>
-								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68NetBase.ts:58</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <span class="tsd-signature-type">NetInput</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">tf.Tensor2D</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="freeze" class="tsd-anchor"></a>
 					<h3>freeze</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -486,37 +420,34 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="getclassifierchannelsin" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Classifier<wbr>Channels<wbr>In</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> get<wbr>Classifier<wbr>Channels<wbr>In</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>In<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#getclassifierchannelsin">getClassifierChannelsIn</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68TinyNet.ts:15</li>
+									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:32</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="getclassifierchannelsout" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Classifier<wbr>Channels<wbr>Out</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> get<wbr>Classifier<wbr>Channels<wbr>Out</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>Out<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from FaceLandmark68NetBase.getClassifierChannelsOut</p>
-								<p>Overrides <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#getclassifierchannelsout">getClassifierChannelsOut</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68NetBase.ts:102</li>
+									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:33</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -525,16 +456,16 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 					<a name="getdefaultmodelname" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Default<wbr>Model<wbr>Name</h3>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> get<wbr>Default<wbr>Model<wbr>Name</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#getdefaultmodelname">getDefaultModelName</a></p>
+								<p>Overrides NeuralNetwork.getDefaultModelName</p>
 								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68TinyNet.ts:11</li>
+									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:31</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -643,16 +574,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="loadclassifierparams" class="tsd-anchor"></a>
 					<h3>load<wbr>Classifier<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">load<wbr>Classifier<wbr>Params<span class="tsd-signature-symbol">(</span>weights<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#loadclassifierparams">loadClassifierParams</a></p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:56</li>
 								</ul>
@@ -740,36 +670,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="postprocess" class="tsd-anchor"></a>
-					<h3>post<wbr>Process</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">post<wbr>Process<span class="tsd-signature-symbol">(</span>output<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor2D</span>, inputSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, originalDimensions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDimensions</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor2D</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from FaceLandmark68NetBase.postProcess</p>
-								<ul>
-									<li>Defined in face-api.js/src/faceLandmarkNet/FaceLandmark68NetBase.ts:13</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>output: <span class="tsd-signature-type">tf.Tensor2D</span></h5>
-								</li>
-								<li>
-									<h5>inputSize: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>originalDimensions: <span class="tsd-signature-type">IDimensions</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">tf.Tensor2D</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="reassignparamfrompath" class="tsd-anchor"></a>
 					<h3>reassign<wbr>Param<wbr>From<wbr>Path</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -796,16 +696,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="runnet" class="tsd-anchor"></a>
 					<h3>run<wbr>Net</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">run<wbr>Net<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NetInput</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">tf.Tensor4D</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor2D</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="faceprocessor.html">FaceProcessor</a>.<a href="faceprocessor.html#runnet">runNet</a></p>
 								<ul>
 									<li>Defined in face-api.js/src/faceProcessor/FaceProcessor.ts:35</li>
 								</ul>
@@ -870,113 +769,101 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class">
-						<a href="facelandmark68tinynet.html" class="tsd-kind-icon">Face<wbr>Landmark68<wbr>Tiny<wbr>Net</a>
+					<li class="current tsd-kind-class tsd-has-type-parameter">
+						<a href="faceprocessor.html" class="tsd-kind-icon">Face<wbr>Processor</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="facelandmark68tinynet.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="faceprocessor.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+								<a href="faceprocessor.html#_facefeatureextractor" class="tsd-kind-icon">_face<wbr>Feature<wbr>Extractor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#_facefeatureextractor" class="tsd-kind-icon">_face<wbr>Feature<wbr>Extractor</a>
+								<a href="faceprocessor.html#_name" class="tsd-kind-icon">_name</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#_name" class="tsd-kind-icon">_name</a>
+								<a href="faceprocessor.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#_params" class="tsd-kind-icon">_params</a>
+								<a href="faceprocessor.html#_params" class="tsd-kind-icon">_params</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a>
+								<a href="faceprocessor.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a>
+								<a href="faceprocessor.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#params" class="tsd-kind-icon">params</a>
+								<a href="faceprocessor.html#params" class="tsd-kind-icon">params</a>
 							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#facefeatureextractor" class="tsd-kind-icon">face<wbr>Feature<wbr>Extractor</a>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="faceprocessor.html#facefeatureextractor" class="tsd-kind-icon">face<wbr>Feature<wbr>Extractor</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#detectlandmarks" class="tsd-kind-icon">detect<wbr>Landmarks</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="faceprocessor.html#dispose" class="tsd-kind-icon">dispose</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#dispose" class="tsd-kind-icon">dispose</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#extractclassifierparams" class="tsd-kind-icon">extract<wbr>Classifier<wbr>Params</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#forward" class="tsd-kind-icon">forward</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#freeze" class="tsd-kind-icon">freeze</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="faceprocessor.html#extractclassifierparams" class="tsd-kind-icon">extract<wbr>Classifier<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="facelandmark68tinynet.html#getclassifierchannelsin" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>In</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facelandmark68tinynet.html#getclassifierchannelsout" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>Out</a>
+								<a href="faceprocessor.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="facelandmark68tinynet.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a>
+								<a href="faceprocessor.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a>
+								<a href="faceprocessor.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a>
+								<a href="faceprocessor.html#freeze" class="tsd-kind-icon">freeze</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="faceprocessor.html#getclassifierchannelsin" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>In</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="faceprocessor.html#getclassifierchannelsout" class="tsd-kind-icon">get<wbr>Classifier<wbr>Channels<wbr>Out</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+								<a href="faceprocessor.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a>
+								<a href="faceprocessor.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a>
+								<a href="faceprocessor.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#load" class="tsd-kind-icon">load</a>
+								<a href="faceprocessor.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#loadclassifierparams" class="tsd-kind-icon">load<wbr>Classifier<wbr>Params</a>
+								<a href="faceprocessor.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a>
+								<a href="faceprocessor.html#load" class="tsd-kind-icon">load</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="faceprocessor.html#loadclassifierparams" class="tsd-kind-icon">load<wbr>Classifier<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a>
+								<a href="faceprocessor.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a>
+								<a href="faceprocessor.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#postprocess" class="tsd-kind-icon">post<wbr>Process</a>
+								<a href="faceprocessor.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a>
+								<a href="faceprocessor.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="faceprocessor.html#runnet" class="tsd-kind-icon">run<wbr>Net</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#runnet" class="tsd-kind-icon">run<wbr>Net</a>
+								<a href="faceprocessor.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facelandmark68tinynet.html#variable" class="tsd-kind-icon">variable</a>
+								<a href="faceprocessor.html#variable" class="tsd-kind-icon">variable</a>
 							</li>
 						</ul>
 					</li>

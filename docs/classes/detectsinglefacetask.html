@@ -97,6 +97,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="detectsinglefacetask.html#run" class="tsd-kind-icon">run</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="detectsinglefacetask.html#then" class="tsd-kind-icon">then</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="detectsinglefacetask.html#withfaceexpressions" class="tsd-kind-icon">with<wbr>Face<wbr>Expressions</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="detectsinglefacetask.html#withfacelandmarks" class="tsd-kind-icon">with<wbr>Face<wbr>Landmarks</a></li>
 							</ul>
 						</section>
@@ -116,7 +117,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="detectfacestaskbase.html">DetectFacesTaskBase</a>.<a href="detectfacestaskbase.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:13</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:14</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -142,7 +143,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="detectfacestaskbase.html">DetectFacesTaskBase</a>.<a href="detectfacestaskbase.html#input">input</a></p>
 						<ul>
-							<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:15</li>
+							<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:16</li>
 						</ul>
 					</aside>
 				</section>
@@ -153,7 +154,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="detectfacestaskbase.html">DetectFacesTaskBase</a>.<a href="detectfacestaskbase.html#options">options</a></p>
 						<ul>
-							<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:16</li>
+							<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:17</li>
 						</ul>
 					</aside>
 				</section>
@@ -171,7 +172,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="composabletask.html">ComposableTask</a>.<a href="composabletask.html#run">run</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:60</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:78</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -226,16 +227,33 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="withfacelandmarks" class="tsd-anchor"></a>
-					<h3>with<wbr>Face<wbr>Landmarks</h3>
+					<a name="withfaceexpressions" class="tsd-anchor"></a>
+					<h3>with<wbr>Face<wbr>Expressions</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">with<wbr>Face<wbr>Landmarks<span class="tsd-signature-symbol">(</span>useTinyLandmarkNet<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="detectsinglefacelandmarkstask.html" class="tsd-signature-type">DetectSingleFaceLandmarksTask</a></li>
+						<li class="tsd-signature tsd-kind-icon">with<wbr>Face<wbr>Expressions<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="predictsinglefaceexpressiontask.html" class="tsd-signature-type">PredictSingleFaceExpressionTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacedetection" class="tsd-signature-type">WithFaceDetection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:71</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:104</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="predictsinglefaceexpressiontask.html" class="tsd-signature-type">PredictSingleFaceExpressionTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacedetection" class="tsd-signature-type">WithFaceDetection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="withfacelandmarks" class="tsd-anchor"></a>
+					<h3>with<wbr>Face<wbr>Landmarks</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">with<wbr>Face<wbr>Landmarks<span class="tsd-signature-symbol">(</span>useTinyLandmarkNet<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="detectsinglefacelandmarkstask.html" class="tsd-signature-type">DetectSingleFaceLandmarksTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacedetection" class="tsd-signature-type">WithFaceDetection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in face-api.js/src/globalApi/DetectFacesTasks.ts:96</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -244,7 +262,7 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> useTinyLandmarkNet: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;false</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="detectsinglefacelandmarkstask.html" class="tsd-signature-type">DetectSingleFaceLandmarksTask</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="detectsinglefacelandmarkstask.html" class="tsd-signature-type">DetectSingleFaceLandmarksTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacedetection" class="tsd-signature-type">WithFaceDetection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -279,6 +297,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="detectsinglefacetask.html#then" class="tsd-kind-icon">then</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="detectsinglefacetask.html#withfaceexpressions" class="tsd-kind-icon">with<wbr>Face<wbr>Expressions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="detectsinglefacetask.html#withfacelandmarks" class="tsd-kind-icon">with<wbr>Face<wbr>Landmarks</a>

@@ -55,18 +55,26 @@
 					<a href="detectallfacelandmarkstask.html">DetectAllFaceLandmarksTask</a>
 				</li>
 			</ul>
-			<h1>Class DetectAllFaceLandmarksTask</h1>
+			<h1>Class DetectAllFaceLandmarksTask&lt;TSource&gt;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-type-parameters">
+				<h3>Type parameters</h3>
+				<ul class="tsd-type-parameters">
+					<li>
+						<h4>TSource<span class="tsd-signature-symbol">: </span><a href="../globals.html#withfacedetection" class="tsd-signature-type">WithFaceDetection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span></h4>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="detectfacelandmarkstaskbase.html" class="tsd-signature-type">DetectFaceLandmarksTaskBase</a><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">, </span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>
+						<a href="detectfacelandmarkstaskbase.html" class="tsd-signature-type">DetectFaceLandmarksTaskBase</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">DetectAllFaceLandmarksTask</span>
@@ -88,8 +96,8 @@
 						<section class="tsd-index-section tsd-is-inherited tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="detectallfacelandmarkstask.html#detectfacestask" class="tsd-kind-icon">detect<wbr>Faces<wbr>Task</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="detectallfacelandmarkstask.html#input" class="tsd-kind-icon">input</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="detectallfacelandmarkstask.html#parenttask" class="tsd-kind-icon">parent<wbr>Task</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="detectallfacelandmarkstask.html#usetinylandmarknet" class="tsd-kind-icon">use<wbr>Tiny<wbr>Landmark<wbr>Net</a></li>
 							</ul>
 						</section>
@@ -116,20 +124,20 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Detect<wbr>All<wbr>Face<wbr>Landmarks<wbr>Task<span class="tsd-signature-symbol">(</span>detectFacesTask<span class="tsd-signature-symbol">: </span><a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>, input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a>, useTinyLandmarkNet<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="detectallfacelandmarkstask.html" class="tsd-signature-type">DetectAllFaceLandmarksTask</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Detect<wbr>All<wbr>Face<wbr>Landmarks<wbr>Task<span class="tsd-signature-symbol">(</span>parentTask<span class="tsd-signature-symbol">: </span><a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>, input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a>, useTinyLandmarkNet<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="detectallfacelandmarkstask.html" class="tsd-signature-type">DetectAllFaceLandmarksTask</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:14</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:15</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>detectFacesTask: <a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>parentTask: <a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
 									<h5>input: <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></h5>
@@ -146,22 +154,22 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-inherited tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-					<a name="detectfacestask" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> detect<wbr>Faces<wbr>Task</h3>
-					<div class="tsd-signature tsd-kind-icon">detect<wbr>Faces<wbr>Task<span class="tsd-signature-symbol">:</span> <a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#detectfacestask">detectFacesTask</a></p>
-						<ul>
-							<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:16</li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="input" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> input</h3>
 					<div class="tsd-signature tsd-kind-icon">input<span class="tsd-signature-symbol">:</span> <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#input">input</a></p>
+						<ul>
+							<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:18</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="parenttask" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> parent<wbr>Task</h3>
+					<div class="tsd-signature tsd-kind-icon">parent<wbr>Task<span class="tsd-signature-symbol">:</span> <a href="composabletask.html" class="tsd-signature-type">ComposableTask</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#parenttask">parentTask</a></p>
 						<ul>
 							<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:17</li>
 						</ul>
@@ -174,7 +182,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#usetinylandmarknet">useTinyLandmarkNet</a></p>
 						<ul>
-							<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:18</li>
+							<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:19</li>
 						</ul>
 					</aside>
 				</section>
@@ -192,7 +200,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="detectfacelandmarkstaskbase.html">DetectFaceLandmarksTaskBase</a>.<a href="detectfacelandmarkstaskbase.html#landmarknet">landmarkNet</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:23</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:24</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="facelandmark68net.html" class="tsd-signature-type">FaceLandmark68Net</a>
@@ -209,17 +217,17 @@
 					<a name="run" class="tsd-anchor"></a>
 					<h3>run</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">run<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">run<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="composabletask.html">ComposableTask</a>.<a href="composabletask.html#run">run</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:32</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:35</li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -227,7 +235,7 @@
 					<a name="then" class="tsd-anchor"></a>
 					<h3>then</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">then<span class="tsd-signature-symbol">(</span>onfulfilled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">then<span class="tsd-signature-symbol">(</span>onfulfilled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -244,19 +252,19 @@
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-siganture">
 											<ul class="tsd-signatures tsd-kind-type-literal tsd-is-not-exported">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 											</ul>
 											<ul class="tsd-descriptions">
 												<li class="tsd-description">
 													<h4 class="tsd-parameters-title">Parameters</h4>
 													<ul class="tsd-parameters">
 														<li>
-															<h5>value: <a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span></h5>
+															<h5>value: <a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
 														</li>
 													</ul>
-													<h4 class="tsd-returns-title">Returns <a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span>
+													<h4 class="tsd-returns-title">Returns <a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span>
 														<span class="tsd-signature-symbol"> | </span>
-														<span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>
+														<span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span>
 													</h4>
 												</li>
 											</ul>
@@ -264,7 +272,7 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetectionwithlandmarks.html" class="tsd-signature-type">FaceDetectionWithLandmarks</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -272,16 +280,16 @@
 					<a name="withfacedescriptors" class="tsd-anchor"></a>
 					<h3>with<wbr>Face<wbr>Descriptors</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">with<wbr>Face<wbr>Descriptors<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="computeallfacedescriptorstask.html" class="tsd-signature-type">ComputeAllFaceDescriptorsTask</a></li>
+						<li class="tsd-signature tsd-kind-icon">with<wbr>Face<wbr>Descriptors<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="computeallfacedescriptorstask.html" class="tsd-signature-type">ComputeAllFaceDescriptorsTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:51</li>
+									<li>Defined in face-api.js/src/globalApi/DetectFaceLandmarksTasks.ts:55</li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="computeallfacedescriptorstask.html" class="tsd-signature-type">ComputeAllFaceDescriptorsTask</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="computeallfacedescriptorstask.html" class="tsd-signature-type">ComputeAllFaceDescriptorsTask</a><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#withfacelandmarks" class="tsd-signature-type">WithFaceLandmarks</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TSource</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -299,17 +307,17 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class">
+					<li class="current tsd-kind-class tsd-has-type-parameter">
 						<a href="detectallfacelandmarkstask.html" class="tsd-kind-icon">Detect<wbr>All<wbr>Face<wbr>Landmarks<wbr>Task</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
 								<a href="detectallfacelandmarkstask.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="detectallfacelandmarkstask.html#detectfacestask" class="tsd-kind-icon">detect<wbr>Faces<wbr>Task</a>
+								<a href="detectallfacelandmarkstask.html#input" class="tsd-kind-icon">input</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="detectallfacelandmarkstask.html#input" class="tsd-kind-icon">input</a>
+								<a href="detectallfacelandmarkstask.html#parenttask" class="tsd-kind-icon">parent<wbr>Task</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 								<a href="detectallfacelandmarkstask.html#usetinylandmarknet" class="tsd-kind-icon">use<wbr>Tiny<wbr>Landmark<wbr>Net</a>

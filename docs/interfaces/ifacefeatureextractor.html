@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>FaceDetectionNet | face-api.js</title>
+	<title>IFaceFeatureExtractor | face-api.js</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,27 +52,42 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="facedetectionnet.html">FaceDetectionNet</a>
+					<a href="ifacefeatureextractor.html">IFaceFeatureExtractor</a>
 				</li>
 			</ul>
-			<h1>Class FaceDetectionNet</h1>
+			<h1>Interface IFaceFeatureExtractor&lt;TNetParams&gt;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-type-parameters">
+				<h3>Type parameters</h3>
+				<ul class="tsd-type-parameters">
+					<li>
+						<h4>TNetParams<span class="tsd-signature-symbol">: </span><a href="../globals.html#tinyfacefeatureextractorparams" class="tsd-signature-type">TinyFaceFeatureExtractorParams</a><span class="tsd-signature-symbol"> | </span><a href="../globals.html#facefeatureextractorparams" class="tsd-signature-type">FaceFeatureExtractorParams</a></h4>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="ssdmobilenetv1.html" class="tsd-signature-type">SsdMobilenetv1</a>
+						<span class="tsd-signature-type">NeuralNetwork</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TNetParams</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">FaceDetectionNet</span>
+								<span class="target">IFaceFeatureExtractor</span>
 							</li>
 						</ul>
 					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implemented by</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../classes/facefeatureextractor.html" class="tsd-signature-type">FaceFeatureExtractor</a></li>
+					<li><a href="../classes/tinyfacefeatureextractor.html" class="tsd-signature-type">TinyFaceFeatureExtractor</a></li>
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -82,43 +97,42 @@
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="facedetectionnet.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#_name" class="tsd-kind-icon">_name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#_params" class="tsd-kind-icon">_params</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#params" class="tsd-kind-icon">params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#_name" class="tsd-kind-icon">_name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#_params" class="tsd-kind-icon">_params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#params" class="tsd-kind-icon">params</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#dispose" class="tsd-kind-icon">dispose</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#forward" class="tsd-kind-icon">forward</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#freeze" class="tsd-kind-icon">freeze</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected"><a href="facedetectionnet.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#load" class="tsd-kind-icon">load</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#locatefaces" class="tsd-kind-icon">locate<wbr>Faces</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="facedetectionnet.html#variable" class="tsd-kind-icon">variable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#dispose" class="tsd-kind-icon">dispose</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="ifacefeatureextractor.html#forward" class="tsd-kind-icon">forward</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="ifacefeatureextractor.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#freeze" class="tsd-kind-icon">freeze</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected"><a href="ifacefeatureextractor.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#load" class="tsd-kind-icon">load</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="ifacefeatureextractor.html#variable" class="tsd-kind-icon">variable</a></li>
 							</ul>
 						</section>
 					</div>
@@ -126,29 +140,34 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-interface tsd-is-inherited">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Face<wbr>Detection<wbr>Net<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="facedetectionnet.html" class="tsd-signature-type">FaceDetectionNet</a></li>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">new IFace<wbr>Feature<wbr>Extractor<span class="tsd-signature-symbol">(</span>_name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#constructor">constructor</a></p>
-								<p>Overrides NeuralNetwork.__constructor</p>
+								<p>Inherited from NeuralNetwork.__constructor</p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:15</li>
+									<li>Defined in tfjs-image-recognition-base/build/commonjs/NeuralNetwork.d.ts:6</li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="facedetectionnet.html" class="tsd-signature-type">FaceDetectionNet</a></h4>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>_name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="ifacefeatureextractor.html" class="tsd-signature-type">IFaceFeatureExtractor</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="_name" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _name</h3>
 					<div class="tsd-signature tsd-kind-icon">_name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -159,7 +178,7 @@
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="_parammappings" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _param<wbr>Mappings</h3>
 					<div class="tsd-signature tsd-kind-icon">_param<wbr>Mappings<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ParamMapping</span><span class="tsd-signature-symbol">[]</span></div>
@@ -170,10 +189,10 @@
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="_params" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _params</h3>
-					<div class="tsd-signature tsd-kind-icon">_params<span class="tsd-signature-symbol">:</span> <a href="../globals.html#netparams" class="tsd-signature-type">NetParams</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<div class="tsd-signature tsd-kind-icon">_params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TNetParams</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from NeuralNetwork._params</p>
 						<ul>
@@ -181,7 +200,7 @@
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="isloaded" class="tsd-anchor"></a>
 					<h3>is<wbr>Loaded</h3>
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Loaded<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -192,7 +211,7 @@
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="parammappings" class="tsd-anchor"></a>
 					<h3>param<wbr>Mappings</h3>
 					<div class="tsd-signature tsd-kind-icon">param<wbr>Mappings<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ParamMapping</span><span class="tsd-signature-symbol">[]</span></div>
@@ -203,10 +222,10 @@
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="params" class="tsd-anchor"></a>
 					<h3>params</h3>
-					<div class="tsd-signature tsd-kind-icon">params<span class="tsd-signature-symbol">:</span> <a href="../globals.html#netparams" class="tsd-signature-type">NetParams</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<div class="tsd-signature tsd-kind-icon">params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TNetParams</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from NeuralNetwork.params</p>
 						<ul>
@@ -215,12 +234,12 @@
 					</aside>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="dispose" class="tsd-anchor"></a>
 					<h3>dispose</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">dispose<span class="tsd-signature-symbol">(</span>throwOnRedispose<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -241,19 +260,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="extractparams" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> extract<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> extract<wbr>Params</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Params<span class="tsd-signature-symbol">(</span>weights<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#extractparams">extractParams</a></p>
-								<p>Overrides NeuralNetwork.extractParams</p>
+								<p>Inherited from NeuralNetwork.extractParams</p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:128</li>
+									<li>Defined in tfjs-image-recognition-base/build/commonjs/NeuralNetwork.d.ts:40</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -268,19 +286,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="extractparamsfromweigthmap" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map<span class="tsd-signature-symbol">(</span>weightMap<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.NamedTensorMap</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#extractparamsfromweigthmap">extractParamsFromWeigthMap</a></p>
-								<p>Overrides NeuralNetwork.extractParamsFromWeigthMap</p>
+								<p>Inherited from NeuralNetwork.extractParamsFromWeigthMap</p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:124</li>
+									<li>Defined in tfjs-image-recognition-base/build/commonjs/NeuralNetwork.d.ts:36</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -295,10 +312,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="extractweights" class="tsd-anchor"></a>
 					<h3>extract<wbr>Weights</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">extract<wbr>Weights<span class="tsd-signature-symbol">(</span>weights<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -319,18 +336,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="forward" class="tsd-anchor"></a>
 					<h3>forward</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">forward<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">forward<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">tf.Tensor4D</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#forward">forward</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:44</li>
+									<li>Defined in face-api.js/src/faceFeatureExtractor/types.ts:45</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -339,22 +355,21 @@
 									<h5>input: <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">tf.Tensor4D</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="forwardinput" class="tsd-anchor"></a>
 					<h3>forward<wbr>Input</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">forward<wbr>Input<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NetInput</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">forward<wbr>Input<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NetInput</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor4D</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#forwardinput">forwardInput</a></p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:21</li>
+									<li>Defined in face-api.js/src/faceFeatureExtractor/types.ts:44</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -363,16 +378,14 @@
 									<h5>input: <span class="tsd-signature-type">NetInput</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
-							<ul class="tsd-parameters">
-							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">tf.Tensor4D</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="freeze" class="tsd-anchor"></a>
 					<h3>freeze</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">freeze<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -387,29 +400,28 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 					<a name="getdefaultmodelname" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Default<wbr>Model<wbr>Name</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagAbstract">Abstract</span> get<wbr>Default<wbr>Model<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#getdefaultmodelname">getDefaultModelName</a></p>
-								<p>Overrides NeuralNetwork.getDefaultModelName</p>
+								<p>Inherited from NeuralNetwork.getDefaultModelName</p>
 								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:120</li>
+									<li>Defined in tfjs-image-recognition-base/build/commonjs/NeuralNetwork.d.ts:35</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="getfrozenparams" class="tsd-anchor"></a>
 					<h3>get<wbr>Frozen<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Frozen<wbr>Params<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -424,10 +436,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="getparamfrompath" class="tsd-anchor"></a>
 					<h3>get<wbr>Param<wbr>From<wbr>Path</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path<span class="tsd-signature-symbol">(</span>paramPath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -448,10 +460,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="getparamlist" class="tsd-anchor"></a>
 					<h3>get<wbr>Param<wbr>List</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Param<wbr>List<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -466,10 +478,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="gettrainableparams" class="tsd-anchor"></a>
 					<h3>get<wbr>Trainable<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Trainable<wbr>Params<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -484,10 +496,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="load" class="tsd-anchor"></a>
 					<h3>load</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">load<span class="tsd-signature-symbol">(</span>weightsOrUrl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -508,10 +520,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="loadfromdisk" class="tsd-anchor"></a>
 					<h3>load<wbr>From<wbr>Disk</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>Disk<span class="tsd-signature-symbol">(</span>filePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -532,10 +544,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="loadfromuri" class="tsd-anchor"></a>
 					<h3>load<wbr>From<wbr>Uri</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>Uri<span class="tsd-signature-symbol">(</span>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -556,10 +568,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="loadfromweightmap" class="tsd-anchor"></a>
 					<h3>load<wbr>From<wbr>Weight<wbr>Map</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map<span class="tsd-signature-symbol">(</span>weightMap<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.NamedTensorMap</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -580,37 +592,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="locatefaces" class="tsd-anchor"></a>
-					<h3>locate<wbr>Faces</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">locate<wbr>Faces<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/issdmobilenetv1options.html" class="tsd-signature-type">ISsdMobilenetv1Options</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Inherited from <a href="ssdmobilenetv1.html">SsdMobilenetv1</a>.<a href="ssdmobilenetv1.html#locatefaces">locateFaces</a></p>
-								<ul>
-									<li>Defined in face-api.js/src/ssdMobilenetv1/SsdMobilenetv1.ts:48</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <a href="../globals.html#tnetinput" class="tsd-signature-type">TNetInput</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <a href="../interfaces/issdmobilenetv1options.html" class="tsd-signature-type">ISsdMobilenetv1Options</a><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="facedetection.html" class="tsd-signature-type">FaceDetection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="reassignparamfrompath" class="tsd-anchor"></a>
 					<h3>reassign<wbr>Param<wbr>From<wbr>Path</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path<span class="tsd-signature-symbol">(</span>paramPath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, tensor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tf.Tensor</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -634,10 +619,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="serializeparams" class="tsd-anchor"></a>
 					<h3>serialize<wbr>Params</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">serialize<wbr>Params<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -652,10 +637,10 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 					<a name="variable" class="tsd-anchor"></a>
 					<h3>variable</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">variable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
@@ -684,89 +669,86 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class">
-						<a href="facedetectionnet.html" class="tsd-kind-icon">Face<wbr>Detection<wbr>Net</a>
+					<li class="current tsd-kind-interface tsd-has-type-parameter">
+						<a href="ifacefeatureextractor.html" class="tsd-kind-icon">IFace<wbr>Feature<wbr>Extractor</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-								<a href="facedetectionnet.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#_name" class="tsd-kind-icon">_name</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#_name" class="tsd-kind-icon">_name</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#_parammappings" class="tsd-kind-icon">_param<wbr>Mappings</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#_params" class="tsd-kind-icon">_params</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#_params" class="tsd-kind-icon">_params</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#isloaded" class="tsd-kind-icon">is<wbr>Loaded</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#parammappings" class="tsd-kind-icon">param<wbr>Mappings</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#params" class="tsd-kind-icon">params</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#params" class="tsd-kind-icon">params</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#dispose" class="tsd-kind-icon">dispose</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#dispose" class="tsd-kind-icon">dispose</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#extractparams" class="tsd-kind-icon">extract<wbr>Params</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#extractparamsfromweigthmap" class="tsd-kind-icon">extract<wbr>Params<wbr>From<wbr>Weigth<wbr>Map</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#extractweights" class="tsd-kind-icon">extract<wbr>Weights</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#forward" class="tsd-kind-icon">forward</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="ifacefeatureextractor.html#forward" class="tsd-kind-icon">forward</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="ifacefeatureextractor.html#forwardinput" class="tsd-kind-icon">forward<wbr>Input</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#freeze" class="tsd-kind-icon">freeze</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#freeze" class="tsd-kind-icon">freeze</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-protected">
-								<a href="facedetectionnet.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-protected">
+								<a href="ifacefeatureextractor.html#getdefaultmodelname" class="tsd-kind-icon">get<wbr>Default<wbr>Model<wbr>Name</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#getfrozenparams" class="tsd-kind-icon">get<wbr>Frozen<wbr>Params</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#getparamfrompath" class="tsd-kind-icon">get<wbr>Param<wbr>From<wbr>Path</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#getparamlist" class="tsd-kind-icon">get<wbr>Param<wbr>List</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#gettrainableparams" class="tsd-kind-icon">get<wbr>Trainable<wbr>Params</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#load" class="tsd-kind-icon">load</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#load" class="tsd-kind-icon">load</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#loadfromdisk" class="tsd-kind-icon">load<wbr>From<wbr>Disk</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#loadfromuri" class="tsd-kind-icon">load<wbr>From<wbr>Uri</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#loadfromweightmap" class="tsd-kind-icon">load<wbr>From<wbr>Weight<wbr>Map</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#locatefaces" class="tsd-kind-icon">locate<wbr>Faces</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#reassignparamfrompath" class="tsd-kind-icon">reassign<wbr>Param<wbr>From<wbr>Path</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#serializeparams" class="tsd-kind-icon">serialize<wbr>Params</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="facedetectionnet.html#variable" class="tsd-kind-icon">variable</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ifacefeatureextractor.html#variable" class="tsd-kind-icon">variable</a>
 							</li>
 						</ul>
 					</li>
