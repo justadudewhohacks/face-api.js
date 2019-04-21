@@ -6,6 +6,7 @@ export {
 
 export * from 'tfjs-image-recognition-base';
 
+export * from './ageGenderNet/index';
 export * from './classes/index';
 export * from './dom/index'
 export * from './faceExpressionNet/index';
