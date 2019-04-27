@@ -34,9 +34,9 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
         ? this.faceFeatureExtractor.forwardInput(input)
         : input
 
-      const bottleneckFeatures2d = bottleneckFeatures.as2D(bottleneckFeatures.shape[0], -1)
-      const age = fullyConnectedLayer(bottleneckFeatures2d, params.fc.age).as1D()
-      const gender = fullyConnectedLayer(bottleneckFeatures2d, params.fc.gender)
+      const pooled = tf.avgPool(bottleneckFeatures, [7, 7], [2, 2], 'valid').as2D(bottleneckFeatures.shape[0], -1)
+      const age = fullyConnectedLayer(pooled, params.fc.age).as1D()
+      const gender = fullyConnectedLayer(pooled, params.fc.gender)
       return { age, gender }
     })
   }
@@ -53,8 +53,8 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
   public async predictAgeAndGender(input: TNetInput): Promise<{ age: number, gender: string, genderProbability: number }> {
     const netInput = await toNetInput(input)
     const out = await this.forwardInput(netInput)
-    const age = await out.age.data()[0] as number
-    const probMale = await out.gender.data()[0] as number
+    const age = (await out.age.data())[0]
+    const probMale = (await out.gender.data())[0]
 
     const isMale = probMale > 0.5
     const gender = isMale ? 'male' : 'female'
@@ -93,7 +93,7 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
 
   protected extractParams(weights: Float32Array) {
 
-    const classifierWeightSize = (512 * 1) + (512 * 2)
+    const classifierWeightSize = (512 * 1 + 1) + (512 * 2 + 2)
 
     const featureExtractorWeights = weights.slice(0, weights.length - classifierWeightSize)
     const classifierWeights = weights.slice(weights.length - classifierWeightSize)

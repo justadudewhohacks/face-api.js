@@ -37,6 +37,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Face Expression Recognition'
     },
     {
+      uri: 'age_and_gender_recognition',
+      name: 'Age and Gender Recognition'
+    },
+    {
       uri: 'face_recognition',
       name: 'Face Recognition'
     },
