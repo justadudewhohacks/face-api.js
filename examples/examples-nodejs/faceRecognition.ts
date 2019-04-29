@@ -26,20 +26,21 @@ async function run() {
 
   const labels = faceMatcher.labeledDescriptors
     .map(ld => ld.label)
-  const refBoxesWithText = resultsRef
+  const refDrawBoxes = resultsRef
     .map(res => res.detection.box)
-    .map((box, i) => new faceapi.BoxWithText(box, labels[i]))
-  const outRef = faceapi.createCanvasFromMedia(referenceImage) as any
-  faceapi.drawDetection(outRef, refBoxesWithText)
-  saveFile('referenceImage.jpg', outRef.toBuffer('image/jpeg'))
+    .map((box, i) => new faceapi.draw.DrawBox(box, { label: labels[i] }))
+  const outRef = faceapi.createCanvasFromMedia(referenceImage)
+  refDrawBoxes.forEach(drawBox => drawBox.draw(outRef))
 
-  const queryBoxesWithText = resultsQuery.map(res => {
+  saveFile('referenceImage.jpg', (outRef as any).toBuffer('image/jpeg'))
+
+  const queryDrawBoxes = resultsQuery.map(res => {
     const bestMatch = faceMatcher.findBestMatch(res.descriptor)
-    return new faceapi.BoxWithText(res.detection.box, bestMatch.toString())
+    return new faceapi.draw.DrawBox(res.detection.box, { label: bestMatch.toString() })
   })
-  const outQuery = faceapi.createCanvasFromMedia(queryImage) as any
-  faceapi.drawDetection(outQuery, queryBoxesWithText)
-  saveFile('queryImage.jpg', outQuery.toBuffer('image/jpeg'))
+  const outQuery = faceapi.createCanvasFromMedia(queryImage)
+  queryDrawBoxes.forEach(drawBox => drawBox.draw(outQuery))
+  saveFile('queryImage.jpg', (outQuery as any).toBuffer('image/jpeg'))
   console.log('done, saved results to out/queryImage.jpg')
 }
 

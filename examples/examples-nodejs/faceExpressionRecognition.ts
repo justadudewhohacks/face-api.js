@@ -12,8 +12,8 @@ async function run() {
     .withFaceExpressions()
 
   const out = faceapi.createCanvasFromMedia(img) as any
-  faceapi.drawDetection(out, results.map(res => res.detection), { withScore: false })
-  faceapi.drawFaceExpressions(out, results.map(({ detection, expressions }) => ({ position: detection.box, expressions })))
+  faceapi.draw.drawDetections(out, results.map(res => res.detection))
+  faceapi.draw.drawFaceExpressions(out, results)
 
   saveFile('faceExpressionRecognition.jpg', out.toBuffer('image/jpeg'))
   console.log('done, saved results to out/faceExpressionRecognition.jpg')

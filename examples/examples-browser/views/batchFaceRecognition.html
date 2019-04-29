@@ -68,13 +68,10 @@
       $('#faceContainer').append(canvas)
 
       const x = 20, y = canvas.height - 20
-      faceapi.drawText(
-        canvas.getContext('2d'),
-        x,
-        y,
-        faceMatcher.findBestMatch(descriptor).toString(),
-        Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
-      )
+      const ctx = faceapi.getContext2dOrThrow(canvas)
+      ctx.font = '16px Georgia'
+      ctx.fillStyle = 'red'
+      ctx.fillText(faceMatcher.findBestMatch(descriptor).toString(), x, y)
     }
 
     async function runComputeFaceDescriptors(useBatchInput) {
