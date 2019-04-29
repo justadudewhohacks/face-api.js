@@ -1,14 +1,18 @@
-import { FaceExpressionPrediction } from '../faceExpressionNet/types';
+import { FaceExpressions } from '../faceExpressionNet/FaceExpressions';
 
 export type WithFaceExpressions<TSource> = TSource & {
-  expressions: FaceExpressionPrediction[]
+  expressions: FaceExpressions
+}
+
+export function isWithFaceExpressions(obj: any): obj is WithFaceExpressions<{}> {
+  return obj['expressions'] instanceof FaceExpressions
 }
 
 export function extendWithFaceExpressions<
   TSource
 > (
   sourceObj: TSource,
-  expressions: FaceExpressionPrediction[]
+  expressions: FaceExpressions
 ): WithFaceExpressions<TSource> {
 
   const extension = { expressions }

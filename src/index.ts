@@ -4,7 +4,13 @@ export {
   tf
 }
 
+import * as drawExtended from './draw';
+import { draw as drawBase } from 'tfjs-image-recognition-base';
+
 export * from 'tfjs-image-recognition-base';
+
+const draw = {...drawBase, ...drawExtended }
+export { draw }
 
 export * from './classes/index';
 export * from './dom/index'
