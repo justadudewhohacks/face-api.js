@@ -171,14 +171,14 @@
 
       if (result) {
         const canvas = $('#overlay').get(0)
-        faceapi.matchDimensions(canvas, videoEl, true)
+        const dims = faceapi.matchDimensions(canvas, videoEl, true)
 
-        const resizedResult = faceapi.resizeResults(result, videoEl)
+        const resizedResult = faceapi.resizeResults(result, dims)
         const minConfidence = 0.05
         if (withBoxes) {
-          faceapi.draw.drawDetections(canvas, resizedResults)
+          faceapi.draw.drawDetections(canvas, resizedResult)
         }
-        faceapi.draw.drawFaceExpressions(canvas, resizedResults, minConfidence)
+        faceapi.draw.drawFaceExpressions(canvas, resizedResult, minConfidence)
       }
 
       setTimeout(() => onPlay())

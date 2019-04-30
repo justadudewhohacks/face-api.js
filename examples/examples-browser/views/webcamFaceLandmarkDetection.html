@@ -170,7 +170,14 @@
       updateTimeStats(Date.now() - ts)
 
       if (result) {
-        drawLandmarks(videoEl, $('#overlay').get(0), [result], withBoxes)
+        const canvas = $('#overlay').get(0)
+        const dims = faceapi.matchDimensions(canvas, videoEl, true)
+        const resizedResult = faceapi.resizeResults(result, dims)
+
+        if (withBoxes) {
+          faceapi.draw.drawDetections(canvas, resizedResult)
+        }
+        faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
       }
 
       setTimeout(() => onPlay())
