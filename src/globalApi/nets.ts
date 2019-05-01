@@ -4,7 +4,7 @@ import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { FaceExpressionNet } from '../faceExpressionNet/FaceExpressionNet';
-import { FaceExpressionPrediction } from '../faceExpressionNet/types';
+import { FaceExpressions } from '../faceExpressionNet/FaceExpressions';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
@@ -114,7 +114,7 @@ export const computeFaceDescriptor = (input: TNetInput): Promise<Float32Array | 
  * also be an array of input images, which will be batch processed.
  * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
  */
-export const recognizeFaceExpressions = (input: TNetInput): Promise<FaceExpressionPrediction[] | FaceExpressionPrediction[][]> =>
+export const recognizeFaceExpressions = (input: TNetInput): Promise<FaceExpressions | FaceExpressions[]> =>
   nets.faceExpressionNet.predictExpressions(input)
 
 export const loadSsdMobilenetv1Model = (url: string) => nets.ssdMobilenetv1.load(url)

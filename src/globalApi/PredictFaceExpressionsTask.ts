@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
 import { extractFaces, extractFaceTensors } from '../dom';
-import { FaceExpressionPrediction } from '../faceExpressionNet/types';
+import { FaceExpressions } from '../faceExpressionNet/FaceExpressions';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { extendWithFaceExpressions, WithFaceExpressions } from '../factories/WithFaceExpressions';
 import { ComposableTask } from './ComposableTask';
@@ -33,7 +33,7 @@ export class PredictAllFaceExpressionsTask<
 
     const faceExpressionsByFace = await Promise.all(faces.map(
       face => nets.faceExpressionNet.predictExpressions(face)
-    )) as FaceExpressionPrediction[][]
+    )) as FaceExpressions[]
 
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
@@ -63,7 +63,7 @@ export class PredictSingleFaceExpressionTask<
       ? await extractFaceTensors(this.input, [detection])
       : await extractFaces(this.input, [detection])
 
-    const faceExpressions = await nets.faceExpressionNet.predictExpressions(faces[0]) as FaceExpressionPrediction[]
+    const faceExpressions = await nets.faceExpressionNet.predictExpressions(faces[0]) as FaceExpressions
 
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 

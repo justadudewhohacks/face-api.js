@@ -65,7 +65,7 @@
     function drawLandmarkCanvas(img, landmarks) {
       const canvas = faceapi.createCanvasFromMedia(img)
       $('#faceContainer').append(canvas)
-      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: 2 , drawLines: true })
+      new faceapi.draw.DrawFaceLandmarks(landmarks).draw(canvas)
     }
 
     async function runLandmarkDetection(useBatchInput) {

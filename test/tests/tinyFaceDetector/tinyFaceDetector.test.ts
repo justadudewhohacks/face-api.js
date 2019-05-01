@@ -6,21 +6,17 @@ import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
 import { loadImage } from '../../env';
-import { FaceExpressionPrediction } from '../../../src/faceExpressionNet/types';
 import { WithFaceExpressions } from '../../../src/factories/WithFaceExpressions';
 
 function expectFaceExpressions(results: WithFaceExpressions<{}>[]) {
   results.forEach((result, i) => {
-    const happy = result.expressions.find(res => res.expression === 'happy') as FaceExpressionPrediction
-    const neutral = result.expressions.find(res => res.expression === 'neutral') as FaceExpressionPrediction
+    const { happy, neutral } = result.expressions
 
     const happyProb = i === 4 ? 0 : 0.95
     const neutralProb = i === 4 ? 0.4 : 0
 
-    expect(happy).not.toBeUndefined()
-    expect(neutral).not.toBeUndefined()
-    expect(happy.probability).toBeGreaterThanOrEqual(happyProb)
-    expect(neutral.probability).toBeGreaterThanOrEqual(neutralProb)
+    expect(happy).toBeGreaterThanOrEqual(happyProb)
+    expect(neutral).toBeGreaterThanOrEqual(neutralProb)
   })
 }
 
@@ -184,8 +180,7 @@ describeWithBackend('tinyFaceDetector', () => {
           deltas.maxScoreDelta,
           deltas.maxBoxDelta
         )
-        result && expect((result.expressions.find(res => res.expression === 'happy') as FaceExpressionPrediction).probability)
-          .toBeGreaterThanOrEqual(0.95)
+        result && expect(result.expressions.happy).toBeGreaterThanOrEqual(0.95)
       })
 
       it('detectSingleFace.withFaceExpressions().withFaceLandmarks()', async () => {
@@ -205,8 +200,7 @@ describeWithBackend('tinyFaceDetector', () => {
           [expectedScores[2]],
           deltas
         )
-        result && expect((result.expressions.find(res => res.expression === 'happy') as FaceExpressionPrediction).probability)
-          .toBeGreaterThanOrEqual(0.95)
+        result && expect(result.expressions.happy).toBeGreaterThanOrEqual(0.95)
       })
 
       it('detectSingleFace.withFaceLandmarks().withFaceDescriptor()', async () => {
@@ -246,8 +240,7 @@ describeWithBackend('tinyFaceDetector', () => {
           [expectedScores[2]],
           deltas
         )
-        result && expect((result.expressions.find(res => res.expression === 'happy') as FaceExpressionPrediction).probability)
-          .toBeGreaterThanOrEqual(0.95)
+        result && expect(result.expressions.happy).toBeGreaterThanOrEqual(0.95)
       })
 
     })

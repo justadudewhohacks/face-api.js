@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -159,7 +158,9 @@
       updateTimeStats(Date.now() - ts)
 
       if (result) {
-        drawDetections(videoEl, $('#overlay').get(0), [result])
+        const canvas = $('#overlay').get(0)
+        const dims = faceapi.matchDimensions(canvas, videoEl, true)
+        faceapi.draw.drawDetections(canvas, faceapi.resizeResults(result, dims))
       }
 
       setTimeout(() => onPlay())

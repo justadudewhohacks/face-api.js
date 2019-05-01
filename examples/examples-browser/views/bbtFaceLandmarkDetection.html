@@ -43,12 +43,12 @@
       const canvas = faceapi.createCanvasFromMedia(currentImg)
       $('#faceContainer').empty()
       $('#faceContainer').append(canvas)
-      faceapi.drawLandmarks(canvas, landmarks, { lineWidth: drawLines ? 2 : 4, drawLines })
+      new faceapi.draw.DrawFaceLandmarks(landmarks, { drawLines }).draw(canvas)
     }
 
     async function onSelectionChanged(uri) {
       currentImg = await faceapi.fetchImage(uri)
-      landmarks = await faceapi.detectLandmarks(currentImg)
+      landmarks = await faceapi.detectFaceLandmarks(currentImg)
       redraw()
     }
 
