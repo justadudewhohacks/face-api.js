@@ -10,7 +10,10 @@ import { extendWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFac
 import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
 import { nets } from './nets';
-import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
+import {
+  PredictAllFaceExpressionsWithFaceAlignmentTask,
+  PredictSingleFaceExpressionsWithFaceAlignmentTask,
+} from './PredictFaceExpressionsTask';
 
 export class DetectFaceLandmarksTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
@@ -52,6 +55,10 @@ export class DetectAllFaceLandmarksTask<
     )
   }
 
+  withFaceExpressions(): PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
   withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
     return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
@@ -78,6 +85,10 @@ export class DetectSingleFaceLandmarksTask<
     faces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
     return extendWithFaceLandmarks<TSource>(parentResult, landmarks)
+  }
+
+  withFaceExpressions(): PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 
   withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {

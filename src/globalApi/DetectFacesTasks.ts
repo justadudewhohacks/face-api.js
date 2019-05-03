@@ -8,7 +8,7 @@ import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOpt
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
-import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
+import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionsTask } from './PredictFaceExpressionsTask';
 import { FaceDetectionOptions } from './types';
 
 export class DetectFacesTaskBase<TReturn> extends ComposableTask<TReturn> {
@@ -101,8 +101,8 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     )
   }
 
-  withFaceExpressions(): PredictSingleFaceExpressionTask<WithFaceDetection<{}>> {
-    return new PredictSingleFaceExpressionTask<WithFaceDetection<{}>>(
+  withFaceExpressions(): PredictSingleFaceExpressionsTask<WithFaceDetection<{}>> {
+    return new PredictSingleFaceExpressionsTask<WithFaceDetection<{}>>(
       this.runAndExtendWithFaceDetection(),
       this.input
     )

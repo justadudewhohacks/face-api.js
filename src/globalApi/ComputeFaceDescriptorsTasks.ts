@@ -25,17 +25,17 @@ export class ComputeAllFaceDescriptorsTask<
 
     const parentResults = await this.parentTask
 
-    const alignedRects = parentResults.map(({ alignedRect }) => alignedRect)
-    const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, alignedRects)
-      : await extractFaces(this.input, alignedRects)
+    const dlibAlignedRects = parentResults.map(({ landmarks }) => landmarks.align(null, { useDlibAlignment: true }))
+    const dlibAlignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
+      ? await extractFaceTensors(this.input, dlibAlignedRects)
+      : await extractFaces(this.input, dlibAlignedRects)
 
     const results = await Promise.all(parentResults.map(async (parentResult, i) => {
-      const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[i]) as Float32Array
+      const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(dlibAlignedFaces[i]) as Float32Array
       return extendWithFaceDescriptor<TSource>(parentResult, descriptor)
     }))
 
-    alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
+    dlibAlignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
 
     return results
   }
@@ -52,10 +52,10 @@ export class ComputeSingleFaceDescriptorTask<
       return
     }
 
-    const { alignedRect } = parentResult
+    const dlibAlignedRect = parentResult.landmarks.align(null, { useDlibAlignment: true })
     const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, [alignedRect])
-      : await extractFaces(this.input, [alignedRect])
+      ? await extractFaceTensors(this.input, [dlibAlignedRect])
+      : await extractFaces(this.input, [dlibAlignedRect])
     const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[0]) as Float32Array
 
     alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
