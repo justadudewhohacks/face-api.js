@@ -148,7 +148,10 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const results = await faceapi.detectAllFaces(inputImgEl, options).withFaceExpressions()
+      const results = await faceapi.detectAllFaces(inputImgEl, options)
+        // compute face landmarks to align faces for better accuracy
+        .withFaceLandmarks()
+        .withFaceExpressions()
 
       const canvas = $('#overlay').get(0)
       faceapi.matchDimensions(canvas, inputImgEl)
@@ -161,7 +164,9 @@
 
     async function run() {
       // load face detection and face expression recognition models
+      // and load face landmark model for face alignment
       await changeFaceDetector(SSD_MOBILENETV1)
+      await faceapi.loadFaceLandmarkModel('/')
       await faceapi.loadFaceExpressionModel('/')
       // start processing image
       updateResults()

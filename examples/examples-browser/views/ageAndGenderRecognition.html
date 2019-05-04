@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <script src="js/imageSelectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -139,8 +138,6 @@
 
   <script>
 
-    window.net = new faceapi.AgeGenderNet()
-
     async function updateResults() {
       if (!isFaceDetectionModelLoaded()) {
         return
@@ -149,24 +146,37 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const result = await faceapi.detectSingleFace(inputImgEl, options)
+      const results = await faceapi.detectAllFaces(inputImgEl, options)
+        // compute face landmarks to align faces for better accuracy
+        .withFaceLandmarks()
+        .withAgeAndGender()
 
-      if (!result) return
+      const canvas = $('#overlay').get(0)
+      faceapi.matchDimensions(canvas, inputImgEl)
 
-      const face = (await faceapi.extractFaces(inputImgEl, [result]))[0]
-      const { age, gender, genderProbability } = await window.net.predictAgeAndGender(face)
+      const resizedResults = faceapi.resizeResults(results, inputImgEl)
+      faceapi.draw.drawDetections(canvas, resizedResults)
 
-      console.log('age', age)
-      console.log('gender', gender, genderProbability)
+      resizedResults.forEach(result => {
+        const { age, gender, genderProbability } = result
+        new faceapi.draw.DrawTextField(
+          [
+            `${faceapi.round(age, 0)} years`,
+            `${gender} (${faceapi.round(genderProbability)})`
+          ],
+          result.detection.box.bottomLeft
+        ).draw(canvas)
+      })
     }
 
     async function run() {
       // load face detection and face expression recognition models
       await changeFaceDetector(SSD_MOBILENETV1)
+      await faceapi.loadFaceLandmarkModel('/')
 
+      // TODO
       const weights = await faceapi.fetchNetWeights('tmp/age_gender.weights')
-      console.log(weights.length)
-      await window.net.load(weights)
+      await faceapi.nets.ageGenderNet.load(weights)
 
       // start processing image
       updateResults()
