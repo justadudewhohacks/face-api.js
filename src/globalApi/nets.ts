@@ -1,5 +1,7 @@
 import { TfjsImageRecognitionBase, TNetInput } from 'tfjs-image-recognition-base';
 
+import { AgeGenderNet } from '../ageGenderNet/AgeGenderNet';
+import { AgeAndGenderPrediction } from '../ageGenderNet/types';
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
@@ -26,7 +28,8 @@ export const nets = {
   faceLandmark68Net: new FaceLandmark68Net(),
   faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
   faceRecognitionNet: new FaceRecognitionNet(),
-  faceExpressionNet: new FaceExpressionNet()
+  faceExpressionNet: new FaceExpressionNet(),
+  ageGenderNet: new AgeGenderNet()
 }
 
 /**
@@ -107,15 +110,24 @@ export const computeFaceDescriptor = (input: TNetInput): Promise<Float32Array | 
 
 
 /**
- * Recognizes the facial expressions of a face and returns the likelyhood of
- * each facial expression.
+ * Recognizes the facial expressions from a face image.
  *
  * @param inputs The face image extracted from the bounding box of a face. Can
  * also be an array of input images, which will be batch processed.
- * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ * @returns Facial expressions with corresponding probabilities or array thereof in case of batch input.
  */
 export const recognizeFaceExpressions = (input: TNetInput): Promise<FaceExpressions | FaceExpressions[]> =>
   nets.faceExpressionNet.predictExpressions(input)
+
+/**
+ * Predicts age and gender from a face image.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns Predictions with age, gender and gender probability or array thereof in case of batch input.
+ */
+export const predictAgeAndGender = (input: TNetInput): Promise<AgeAndGenderPrediction | AgeAndGenderPrediction[]> =>
+  nets.ageGenderNet.predictAgeAndGender(input)
 
 export const loadSsdMobilenetv1Model = (url: string) => nets.ssdMobilenetv1.load(url)
 export const loadTinyFaceDetectorModel = (url: string) => nets.tinyFaceDetector.load(url)

@@ -6,7 +6,7 @@ import { seperateWeightMaps } from '../faceProcessor/util';
 import { TinyXception } from '../xception/TinyXception';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { NetOutput, NetParams } from './types';
+import { AgeAndGenderPrediction, Gender, NetOutput, NetParams } from './types';
 
 export class AgeGenderNet extends NeuralNetwork<NetParams> {
 
@@ -50,17 +50,32 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
     return this.forwardInput(await toNetInput(input))
   }
 
-  public async predictAgeAndGender(input: TNetInput): Promise<{ age: number, gender: string, genderProbability: number }> {
+  public async predictAgeAndGender(input: TNetInput): Promise<AgeAndGenderPrediction | AgeAndGenderPrediction[]> {
     const netInput = await toNetInput(input)
     const out = await this.forwardInput(netInput)
-    const age = (await out.age.data())[0]
-    const probMale = (await out.gender.data())[0]
 
-    const isMale = probMale > 0.5
-    const gender = isMale ? 'male' : 'female'
-    const genderProbability = isMale ? probMale : (1 - probMale)
+    const ages = tf.unstack(out.age)
+    const genders = tf.unstack(out.gender)
+    const ageAndGenderTensors = ages.map((ageTensor, i) => ({
+      ageTensor,
+      genderTensor: genders[i]
+    }))
 
-    return { age, gender, genderProbability }
+    const predictionsByBatch = await Promise.all(
+      ageAndGenderTensors.map(async ({ ageTensor, genderTensor }) => {
+        const age = (await ageTensor.data())[0]
+        const probMale = (await out.gender.data())[0]
+        const isMale = probMale > 0.5
+        const gender = isMale ? Gender.MALE : Gender.FEMALE
+        const genderProbability = isMale ? probMale : (1 - probMale)
+
+        return { age, gender, genderProbability }
+      })
+    )
+
+    return netInput.isBatchInput
+      ? predictionsByBatch
+      : predictionsByBatch[0]
   }
 
   protected getDefaultModelName(): string {

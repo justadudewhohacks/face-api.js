@@ -11,6 +11,10 @@ import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
 import { nets } from './nets';
 import {
+  PredictAllAgeAndGenderWithFaceAlignmentTask,
+  PredictSingleAgeAndGenderWithFaceAlignmentTask,
+} from './PredictAgeAndGenderTask';
+import {
   PredictAllFaceExpressionsWithFaceAlignmentTask,
   PredictSingleFaceExpressionsWithFaceAlignmentTask,
 } from './PredictFaceExpressionsTask';
@@ -59,6 +63,10 @@ export class DetectAllFaceLandmarksTask<
     return new PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 
+  withAgeAndGender(): PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
   withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
     return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
@@ -89,6 +97,10 @@ export class DetectSingleFaceLandmarksTask<
 
   withFaceExpressions(): PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
     return new PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
+  withAgeAndGender(): PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 
   withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {

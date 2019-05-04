@@ -1,12 +1,19 @@
-import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
-import { extractFaces, extractFaceTensors } from '../dom';
 import { extendWithFaceDescriptor, WithFaceDescriptor } from '../factories/WithFaceDescriptor';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
+import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } from './extractFacesAndComputeResults';
 import { nets } from './nets';
+import {
+  PredictAllAgeAndGenderWithFaceAlignmentTask,
+  PredictSingleAgeAndGenderWithFaceAlignmentTask,
+} from './PredictAgeAndGenderTask';
+import {
+  PredictAllFaceExpressionsWithFaceAlignmentTask,
+  PredictSingleFaceExpressionsWithFaceAlignmentTask,
+} from './PredictFaceExpressionsTask';
 
 export class ComputeFaceDescriptorsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
@@ -25,19 +32,25 @@ export class ComputeAllFaceDescriptorsTask<
 
     const parentResults = await this.parentTask
 
-    const dlibAlignedRects = parentResults.map(({ landmarks }) => landmarks.align(null, { useDlibAlignment: true }))
-    const dlibAlignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, dlibAlignedRects)
-      : await extractFaces(this.input, dlibAlignedRects)
+    const descriptors = await extractAllFacesAndComputeResults<TSource, Float32Array[]>(
+      parentResults,
+      this.input,
+      faces => Promise.all(faces.map(face =>
+        nets.faceRecognitionNet.computeFaceDescriptor(face) as Promise<Float32Array>
+      )),
+      null,
+      parentResult => parentResult.landmarks.align(null, { useDlibAlignment: true })
+    )
 
-    const results = await Promise.all(parentResults.map(async (parentResult, i) => {
-      const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(dlibAlignedFaces[i]) as Float32Array
-      return extendWithFaceDescriptor<TSource>(parentResult, descriptor)
-    }))
+    return descriptors.map((descriptor, i) => extendWithFaceDescriptor<TSource>(parentResults[i], descriptor))
+  }
 
-    dlibAlignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
+  withFaceExpressions(): PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
 
-    return results
+  withAgeAndGender(): PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 }
 
@@ -51,15 +64,22 @@ export class ComputeSingleFaceDescriptorTask<
     if (!parentResult) {
       return
     }
-
-    const dlibAlignedRect = parentResult.landmarks.align(null, { useDlibAlignment: true })
-    const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, [dlibAlignedRect])
-      : await extractFaces(this.input, [dlibAlignedRect])
-    const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[0]) as Float32Array
-
-    alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
+    const descriptor = await extractSingleFaceAndComputeResult<TSource, Float32Array>(
+      parentResult,
+      this.input,
+      face => nets.faceRecognitionNet.computeFaceDescriptor(face) as Promise<Float32Array>,
+      null,
+      parentResult => parentResult.landmarks.align(null, { useDlibAlignment: true })
+    )
 
     return extendWithFaceDescriptor(parentResult, descriptor)
+  }
+
+  withFaceExpressions(): PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  }
+
+  withAgeAndGender(): PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
   }
 }
