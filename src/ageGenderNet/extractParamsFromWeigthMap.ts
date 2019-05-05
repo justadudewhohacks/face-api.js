@@ -19,8 +19,8 @@ export function extractParamsFromWeigthMap(
 
   const params = {
     fc: {
-      age: extractFcParams('fc_age'),
-      gender: extractFcParams('fc_gender')
+      age: extractFcParams('fc/age'),
+      gender: extractFcParams('fc/gender')
     }
   }
 

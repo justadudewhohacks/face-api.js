@@ -81,7 +81,7 @@ export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
   }
 
   protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap)
+    return extractParamsFromWeigthMap(weightMap, this._numMainBlocks)
   }
 
   protected extractParams(weights: Float32Array) {

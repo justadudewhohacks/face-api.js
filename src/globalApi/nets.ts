@@ -137,6 +137,7 @@ export const loadFaceLandmarkModel = (url: string) => nets.faceLandmark68Net.loa
 export const loadFaceLandmarkTinyModel = (url: string) => nets.faceLandmark68TinyNet.load(url)
 export const loadFaceRecognitionModel = (url: string) => nets.faceRecognitionNet.load(url)
 export const loadFaceExpressionModel = (url: string) => nets.faceExpressionNet.load(url)
+export const loadAgeGenderModel = (url: string) => nets.ageGenderNet.load(url)
 
 // backward compatibility
 export const loadFaceDetectionModel = loadSsdMobilenetv1Model

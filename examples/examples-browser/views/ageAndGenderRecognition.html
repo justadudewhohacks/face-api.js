@@ -170,13 +170,11 @@
     }
 
     async function run() {
-      // load face detection and face expression recognition models
+      // load face detection and age and gender recognition models
+      // and load face landmark model for face alignment
       await changeFaceDetector(SSD_MOBILENETV1)
       await faceapi.loadFaceLandmarkModel('/')
-
-      // TODO
-      const weights = await faceapi.fetchNetWeights('tmp/age_gender.weights')
-      await faceapi.nets.ageGenderNet.load(weights)
+      await faceapi.nets.ageGenderNet.load('/')
 
       // start processing image
       updateResults()
