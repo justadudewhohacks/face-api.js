@@ -73,12 +73,12 @@ export class PredictAllFaceExpressionsWithFaceAlignmentTask<
   TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
 > extends PredictAllFaceExpressionsTask<TSource> {
 
-  withAgeAndGender(): PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 
-  withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
-    return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceDescriptors() {
+    return new ComputeAllFaceDescriptorsTask(this, this.input)
   }
 }
 
@@ -86,11 +86,11 @@ export class PredictSingleFaceExpressionsWithFaceAlignmentTask<
   TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
 > extends PredictSingleFaceExpressionsTask<TSource> {
 
-  withAgeAndGender(): PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 
-  withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {
-    return new ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceDescriptor() {
+    return new ComputeSingleFaceDescriptorTask(this, this.input)
   }
 }

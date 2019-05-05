@@ -59,16 +59,16 @@ export class DetectAllFaceLandmarksTask<
     )
   }
 
-  withFaceExpressions(): PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictAllFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceExpressions() {
+    return new PredictAllFaceExpressionsWithFaceAlignmentTask(this, this.input)
   }
 
-  withAgeAndGender(): PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictAllAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 
-  withFaceDescriptors(): ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>> {
-    return new ComputeAllFaceDescriptorsTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceDescriptors() {
+    return new ComputeAllFaceDescriptorsTask(this, this.input)
   }
 }
 
@@ -95,15 +95,15 @@ export class DetectSingleFaceLandmarksTask<
     return extendWithFaceLandmarks<TSource>(parentResult, landmarks)
   }
 
-  withFaceExpressions(): PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictSingleFaceExpressionsWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceExpressions() {
+    return new PredictSingleFaceExpressionsWithFaceAlignmentTask(this, this.input)
   }
 
-  withAgeAndGender(): PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>> {
-    return new PredictSingleAgeAndGenderWithFaceAlignmentTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 
-  withFaceDescriptor(): ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>> {
-    return new ComputeSingleFaceDescriptorTask<WithFaceLandmarks<TSource>>(this, this.input)
+  withFaceDescriptor() {
+    return new ComputeSingleFaceDescriptorTask(this, this.input)
   }
 }

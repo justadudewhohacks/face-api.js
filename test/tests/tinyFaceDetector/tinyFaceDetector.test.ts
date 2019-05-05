@@ -78,15 +78,15 @@ describeWithBackend('tinyFaceDetector', () => {
         expectFaceExpressions(results)
       })
 
-      it('detectAllFaces.withFaceExpressions().withFaceLandmarks()', async () => {
+      it('detectAllFaces.withFaceLandmarks().withFaceExpressions()', async () => {
         const options = new TinyFaceDetectorOptions({
           inputSize: 416
         })
 
         const results = await faceapi
           .detectAllFaces(imgEl, options)
-          .withFaceExpressions()
           .withFaceLandmarks()
+          .withFaceExpressions()
 
         expect(results.length).toEqual(6)
         expectFaceExpressions(results)
@@ -114,8 +114,8 @@ describeWithBackend('tinyFaceDetector', () => {
 
         const results = await faceapi
           .detectAllFaces(imgEl, options)
-          .withFaceExpressions()
           .withFaceLandmarks()
+          .withFaceExpressions()
           .withFaceDescriptors()
 
         expect(results.length).toEqual(6)
@@ -183,15 +183,15 @@ describeWithBackend('tinyFaceDetector', () => {
         result && expect(result.expressions.happy).toBeGreaterThanOrEqual(0.95)
       })
 
-      it('detectSingleFace.withFaceExpressions().withFaceLandmarks()', async () => {
+      it('detectSingleFace.withFaceLandmarks().withFaceExpressions()', async () => {
         const options = new TinyFaceDetectorOptions({
           inputSize: 416
         })
 
         const result = await faceapi
           .detectSingleFace(imgEl, options)
-          .withFaceExpressions()
           .withFaceLandmarks()
+          .withFaceExpressions()
 
         expect(!!result).toBeTruthy()
         expectFaceDetectionsWithLandmarks(
@@ -222,15 +222,15 @@ describeWithBackend('tinyFaceDetector', () => {
         )
       })
 
-      it('detectSingleFace.withFaceExpressions().withFaceLandmarks().withFaceDescriptor()', async () => {
+      it('detectSingleFace.withFaceLandmarks().withFaceExpressions().withFaceDescriptor()', async () => {
         const options = new TinyFaceDetectorOptions({
           inputSize: 416
         })
 
         const result = await faceapi
           .detectSingleFace(imgEl, options)
-          .withFaceExpressions()
           .withFaceLandmarks()
+          .withFaceExpressions()
           .withFaceDescriptor()
 
         expect(!!result).toBeTruthy()

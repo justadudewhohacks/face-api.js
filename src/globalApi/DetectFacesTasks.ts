@@ -57,16 +57,16 @@ export class DetectAllFacesTask extends DetectFacesTaskBase<FaceDetection[]> {
     })
   }
 
-  withFaceLandmarks(useTinyLandmarkNet: boolean = false): DetectAllFaceLandmarksTask<WithFaceDetection<{}>> {
-    return new DetectAllFaceLandmarksTask<WithFaceDetection<{}>>(
+  withFaceLandmarks(useTinyLandmarkNet: boolean = false) {
+    return new DetectAllFaceLandmarksTask(
       this.runAndExtendWithFaceDetections(),
       this.input,
       useTinyLandmarkNet
     )
   }
 
-  withFaceExpressions(): PredictAllFaceExpressionsTask<WithFaceDetection<{}>> {
-    return new PredictAllFaceExpressionsTask<WithFaceDetection<{}>>(
+  withFaceExpressions() {
+    return new PredictAllFaceExpressionsTask (
       this.runAndExtendWithFaceDetections(),
       this.input
     )
@@ -93,16 +93,16 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     })
   }
 
-  withFaceLandmarks(useTinyLandmarkNet: boolean = false): DetectSingleFaceLandmarksTask<WithFaceDetection<{}>> {
-    return new DetectSingleFaceLandmarksTask<WithFaceDetection<{}>>(
+  withFaceLandmarks(useTinyLandmarkNet: boolean = false) {
+    return new DetectSingleFaceLandmarksTask(
       this.runAndExtendWithFaceDetection(),
       this.input,
       useTinyLandmarkNet
     )
   }
 
-  withFaceExpressions(): PredictSingleFaceExpressionsTask<WithFaceDetection<{}>> {
-    return new PredictSingleFaceExpressionsTask<WithFaceDetection<{}>>(
+  withFaceExpressions() {
+    return new PredictSingleFaceExpressionsTask(
       this.runAndExtendWithFaceDetection(),
       this.input
     )
