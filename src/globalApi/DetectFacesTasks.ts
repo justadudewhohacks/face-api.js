@@ -8,6 +8,7 @@ import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOpt
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
+import { PredictAllAgeAndGenderTask, PredictSingleAgeAndGenderTask } from './PredictAgeAndGenderTask';
 import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionsTask } from './PredictFaceExpressionsTask';
 import { FaceDetectionOptions } from './types';
 
@@ -71,6 +72,13 @@ export class DetectAllFacesTask extends DetectFacesTaskBase<FaceDetection[]> {
       this.input
     )
   }
+
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderTask(
+      this.runAndExtendWithFaceDetections(),
+      this.input
+    )
+  }
 }
 
 export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | undefined> {
@@ -108,4 +116,10 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     )
   }
 
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderTask(
+      this.runAndExtendWithFaceDetection(),
+      this.input
+    )
+  }
 }
