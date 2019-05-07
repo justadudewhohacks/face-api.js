@@ -5,10 +5,12 @@ import { canvas, faceDetectionNet, faceDetectionOptions, saveFile } from './comm
 async function run() {
 
   await faceDetectionNet.loadFromDisk('../../weights')
+  await faceapi.nets.faceLandmark68Net.loadFromDisk('../../weights')
   await faceapi.nets.faceExpressionNet.loadFromDisk('../../weights')
 
   const img = await canvas.loadImage('../images/surprised.jpg')
   const results = await faceapi.detectAllFaces(img, faceDetectionOptions)
+  .withFaceLandmarks()
     .withFaceExpressions()
 
   const out = faceapi.createCanvasFromMedia(img) as any
