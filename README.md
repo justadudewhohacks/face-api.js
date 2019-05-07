@@ -803,4 +803,28 @@ The face expression recognition model is lightweight, fast and provides reasonab
 
 ## Age and Gender Recognition Model
 
-TBD...
+The age and gender recognition model is a multitask network, which employs a feature extraction layer, an age regression layer and a gender classifier. The model has a size of roughly 420kb and the feature extractor employs a tinier but very similar architecture to Xception.
+
+This model has been trained and tested on the following databases with an 80/20 train/test split each: UTK, FGNET, Chalearn, Wiki, IMDB*, CACD*, MegaAge, MegaAge-Asian. The `*` indicates, that these databases have been algorithmically cleaned up, since the initial databases are very noisy.
+
+### Total Test Results
+
+Total MAE (Mean Age Error): **4.54**
+
+Total Gender Accuracy: **95%**
+
+### Test results for each database
+
+The `-` indicates, that there are no gender labels available for these databases.
+
+Database        | UTK    | FGNET | Chalearn | Wiki | IMDB* | CACD* | MegaAge | MegaAge-Asian |
+----------------|-------:|------:|---------:|-----:|------:|------:|--------:|--------------:|
+MAE             | 5.25   | 4.23  | 6.24     | 6.54 | 3.63  | 3.20  | 6.23    | 4.21          |
+Gender Accuracy | 0.93   | -     | 0.94     | 0.95 | -     | 0.97  | -       | -             |
+
+### Test results for different age category groups
+
+Age Range       | 0 - 3  | 4 - 8 | 9 - 18 | 19 - 28 | 29 - 40 | 41 - 60 | 60 - 80 | 80+     |
+----------------|-------:|------:|-------:|--------:|--------:|--------:|--------:|--------:|
+MAE             | 1.52   | 3.06  | 4.82   | 4.99    | 5.43    | 4.94    | 6.17    | 9.91    |
+Gender Accuracy | 0.69   | 0.80  | 0.88   | 0.96    | 0.97    | 0.97    | 0.96    | 0.9     |
