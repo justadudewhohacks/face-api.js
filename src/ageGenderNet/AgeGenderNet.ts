@@ -42,8 +42,10 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
   }
 
   public forwardInput(input: NetInput | tf.Tensor4D): NetOutput {
-    const { age, gender } = this.runNet(input)
-    return tf.tidy(() => ({ age, gender: tf.softmax(gender) }))
+    return tf.tidy(() => {
+      const { age, gender } = this.runNet(input)
+      return { age, gender: tf.softmax(gender) }
+    })
   }
 
   public async forward(input: TNetInput): Promise<NetOutput> {
@@ -64,14 +66,18 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
     const predictionsByBatch = await Promise.all(
       ageAndGenderTensors.map(async ({ ageTensor, genderTensor }) => {
         const age = (await ageTensor.data())[0]
-        const probMale = (await out.gender.data())[0]
+        const probMale = (await genderTensor.data())[0]
         const isMale = probMale > 0.5
         const gender = isMale ? Gender.MALE : Gender.FEMALE
         const genderProbability = isMale ? probMale : (1 - probMale)
 
+        ageTensor.dispose()
+        genderTensor.dispose()
         return { age, gender, genderProbability }
       })
     )
+    out.age.dispose()
+    out.gender.dispose()
 
     return netInput.isBatchInput
       ? predictionsByBatch

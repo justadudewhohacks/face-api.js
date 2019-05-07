@@ -1,11 +1,25 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
+import { AgeAndGenderPrediction } from '../../../src/ageGenderNet/types';
 import { loadImage } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
-import { FaceExpressions } from '../../../src/faceExpressionNet/FaceExpressions';
 
-describeWithBackend('faceExpressionNet', () => {
+function expectResultsAngry(result: AgeAndGenderPrediction) {
+  expect(result.age).toBeGreaterThanOrEqual(38)
+  expect(result.age).toBeLessThanOrEqual(42)
+  expect(result.gender).toEqual('male')
+  expect(result.genderProbability).toBeGreaterThanOrEqual(0.9)
+}
+
+function expectResultsSurprised(result: AgeAndGenderPrediction) {
+  expect(result.age).toBeGreaterThanOrEqual(24)
+  expect(result.age).toBeLessThanOrEqual(28)
+  expect(result.gender).toEqual('female')
+  expect(result.genderProbability).toBeGreaterThanOrEqual(0.8)
+}
+
+describeWithBackend('ageGenderNet', () => {
 
   let imgElAngry: HTMLImageElement
   let imgElSurprised: HTMLImageElement
@@ -15,79 +29,74 @@ describeWithBackend('faceExpressionNet', () => {
     imgElSurprised = await loadImage('test/images/surprised_cropped.jpg')
   })
 
-  describeWithNets('quantized weights', { withFaceExpressionNet: { quantized: true } }, ({ faceExpressionNet }) => {
+  describeWithNets('quantized weights', { withAgeGenderNet: { quantized: true } }, ({ ageGenderNet }) => {
 
-    it('recognizes facial expressions', async () => {
-      const result = await faceExpressionNet.predictExpressions(imgElAngry) as FaceExpressions
-      expect(result instanceof FaceExpressions).toBe(true)
-      expect(result.angry).toBeGreaterThan(0.95)
+    it('recognizes age and gender', async () => {
+      const result = await ageGenderNet.predictAgeAndGender(imgElAngry) as AgeAndGenderPrediction
+      expectResultsAngry(result)
     })
 
   })
 
-  describeWithNets('batch inputs', { withFaceExpressionNet: { quantized: true } }, ({ faceExpressionNet }) => {
+  describeWithNets('batch inputs', { withAgeGenderNet: { quantized: true } }, ({ ageGenderNet }) => {
 
-    it('recognizes facial expressions for batch of image elements', async () => {
+    it('recognizes age and gender for batch of image elements', async () => {
       const inputs = [imgElAngry, imgElSurprised]
 
-      const results = await faceExpressionNet.predictExpressions(inputs) as FaceExpressions[]
+      const results = await ageGenderNet.predictAgeAndGender(inputs) as AgeAndGenderPrediction[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(2)
 
       const [resultAngry, resultSurprised] = results
-      expect(resultAngry instanceof FaceExpressions).toBe(true)
-      expect(resultSurprised instanceof FaceExpressions).toBe(true)
-      expect(resultAngry.angry).toBeGreaterThan(0.95)
-      expect(resultSurprised.surprised).toBeGreaterThan(0.95)
+      expectResultsAngry(resultAngry)
+      expectResultsSurprised(resultSurprised)
     })
 
-    it('computes face expressions for batch of tf.Tensor3D', async () => {
+    it('computes age and gender for batch of tf.Tensor3D', async () => {
       const inputs = [imgElAngry, imgElSurprised].map(el => tf.browser.fromPixels(createCanvasFromMedia(el)))
 
-      const results = await faceExpressionNet.predictExpressions(inputs) as FaceExpressions[]
+      const results = await ageGenderNet.predictAgeAndGender(inputs) as AgeAndGenderPrediction[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(2)
 
       const [resultAngry, resultSurprised] = results
-      expect(resultAngry instanceof FaceExpressions).toBe(true)
-      expect(resultSurprised instanceof FaceExpressions).toBe(true)
-      expect(resultAngry.angry).toBeGreaterThan(0.95)
-      expect(resultSurprised.surprised).toBeGreaterThan(0.95)
+      expectResultsAngry(resultAngry)
+      expectResultsSurprised(resultSurprised)
     })
 
-    it('computes face expressions for batch of mixed inputs', async () => {
+    it('computes age and gender for batch of mixed inputs', async () => {
       const inputs = [imgElAngry, tf.browser.fromPixels(createCanvasFromMedia(imgElSurprised))]
 
-      const results = await faceExpressionNet.predictExpressions(inputs) as FaceExpressions[]
+      const results = await ageGenderNet.predictAgeAndGender(inputs) as AgeAndGenderPrediction[]
       expect(Array.isArray(results)).toBe(true)
       expect(results.length).toEqual(2)
 
       const [resultAngry, resultSurprised] = results
-      expect(resultAngry instanceof FaceExpressions).toBe(true)
-      expect(resultSurprised instanceof FaceExpressions).toBe(true)
-      expect(resultAngry.angry).toBeGreaterThan(0.95)
-      expect(resultSurprised.surprised).toBeGreaterThan(0.95)
+      expectResultsAngry(resultAngry)
+      expectResultsSurprised(resultSurprised)
     })
 
   })
 
-  describeWithNets('no memory leaks', { withFaceExpressionNet: { quantized: true } }, ({ faceExpressionNet }) => {
+  describeWithNets('no memory leaks', { withAgeGenderNet: { quantized: true } }, ({ ageGenderNet }) => {
 
     describe('forwardInput', () => {
 
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput([imgElAngry])
-          const outTensor = await faceExpressionNet.forwardInput(netInput)
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(netInput)
+          age.dispose()
+          gender.dispose()
         })
       })
 
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
           const netInput = new NetInput([imgElAngry, imgElAngry])
-          const outTensor = await faceExpressionNet.forwardInput(netInput)
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(netInput)
+          age.dispose()
+          gender.dispose()
         })
       })
 
@@ -95,8 +104,9 @@ describeWithBackend('faceExpressionNet', () => {
         const tensor = tf.browser.fromPixels(createCanvasFromMedia(imgElAngry))
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensor))
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(await toNetInput(tensor))
+          age.dispose()
+          gender.dispose()
         })
 
         tensor.dispose()
@@ -106,8 +116,9 @@ describeWithBackend('faceExpressionNet', () => {
         const tensors = [imgElAngry, imgElAngry, imgElAngry].map(el => tf.browser.fromPixels(createCanvasFromMedia(el)))
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensors))
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(await toNetInput(tensors))
+          age.dispose()
+          gender.dispose()
         })
 
         tensors.forEach(t => t.dispose())
@@ -117,8 +128,9 @@ describeWithBackend('faceExpressionNet', () => {
         const tensor = tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensor))
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(await toNetInput(tensor))
+          age.dispose()
+          gender.dispose()
         })
 
         tensor.dispose()
@@ -129,8 +141,9 @@ describeWithBackend('faceExpressionNet', () => {
           .map(el => tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          const outTensor = await faceExpressionNet.forwardInput(await toNetInput(tensors))
-          outTensor.dispose()
+          const { age, gender } = await ageGenderNet.forwardInput(await toNetInput(tensors))
+          age.dispose()
+          gender.dispose()
         })
 
         tensors.forEach(t => t.dispose())
@@ -142,13 +155,13 @@ describeWithBackend('faceExpressionNet', () => {
 
       it('single image element', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions(imgElAngry)
+          await ageGenderNet.predictAgeAndGender(imgElAngry)
         })
       })
 
       it('multiple image elements', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions([imgElAngry, imgElAngry, imgElAngry])
+          await ageGenderNet.predictAgeAndGender([imgElAngry, imgElAngry, imgElAngry])
         })
       })
 
@@ -156,7 +169,7 @@ describeWithBackend('faceExpressionNet', () => {
         const tensor = tf.browser.fromPixels(createCanvasFromMedia(imgElAngry))
 
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions(tensor)
+          await ageGenderNet.predictAgeAndGender(tensor)
         })
 
         tensor.dispose()
@@ -167,7 +180,7 @@ describeWithBackend('faceExpressionNet', () => {
 
 
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions(tensors)
+          await ageGenderNet.predictAgeAndGender(tensors)
         })
 
         tensors.forEach(t => t.dispose())
@@ -177,7 +190,7 @@ describeWithBackend('faceExpressionNet', () => {
         const tensor = tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(imgElAngry)).expandDims()) as tf.Tensor4D
 
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions(tensor)
+          await ageGenderNet.predictAgeAndGender(tensor)
         })
 
         tensor.dispose()
@@ -188,7 +201,7 @@ describeWithBackend('faceExpressionNet', () => {
           .map(el => tf.tidy(() => tf.browser.fromPixels(createCanvasFromMedia(el)).expandDims())) as tf.Tensor4D[]
 
         await expectAllTensorsReleased(async () => {
-          await faceExpressionNet.predictExpressions(tensors)
+          await ageGenderNet.predictAgeAndGender(tensors)
         })
 
         tensors.forEach(t => t.dispose())
