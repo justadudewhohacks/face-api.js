@@ -150,9 +150,7 @@
 
     function displayExtractedFaces(faceImages) {
       const canvas = $('#overlay').get(0)
-      const { width, height } = $('#inputImg').get(0)
-      canvas.width = width
-      canvas.height = height
+      faceapi.matchDimensions(canvas, $('#inputImg').get(0))
 
       $('#facesContainer').empty()
       faceImages.forEach(canvas => $('#facesContainer').append(canvas))

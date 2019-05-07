@@ -2,6 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import * as faceapi from '../src';
 import { FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
+import { AgeGenderNet } from '../src/ageGenderNet/AgeGenderNet';
 import { FaceDetection } from '../src/classes/FaceDetection';
 import { FaceLandmarks } from '../src/classes/FaceLandmarks';
 import { FaceExpressionNet } from '../src/faceExpressionNet/FaceExpressionNet';
@@ -71,8 +72,12 @@ export function sortLandmarks(landmarks: FaceLandmarks[]) {
   return sortByDistanceToOrigin(landmarks, l => l.positions[0])
 }
 
-export function sortByFaceDetection<T extends { detection: FaceDetection }>(descs: T[]) {
-  return sortByDistanceToOrigin(descs, d => d.detection.box)
+export function sortByFaceBox<T extends { box: IRect }>(objs: T[]) {
+  return sortByDistanceToOrigin(objs, o => o.box)
+}
+
+export function sortByFaceDetection<T extends { detection: FaceDetection }>(objs: T[]) {
+  return sortByDistanceToOrigin(objs, d => d.detection.box)
 }
 
 export type ExpectedFaceDetectionWithLandmarks = {
@@ -114,6 +119,7 @@ export type InjectNetArgs = {
   faceRecognitionNet: FaceRecognitionNet
   mtcnn: Mtcnn
   faceExpressionNet: FaceExpressionNet
+  ageGenderNet: AgeGenderNet
   tinyYolov2: TinyYolov2
 }
 
@@ -129,6 +135,7 @@ export type DescribeWithNetsOptions = {
   withFaceRecognitionNet?: WithNetOptions
   withMtcnn?: WithNetOptions
   withFaceExpressionNet?: WithNetOptions
+  withAgeGenderNet?: WithNetOptions
   withTinyYolov2?: WithTinyYolov2Options
 }
 
@@ -176,6 +183,7 @@ export function describeWithNets(
       faceRecognitionNet,
       mtcnn,
       faceExpressionNet,
+      ageGenderNet,
       tinyYolov2
     } = faceapi.nets
 
@@ -192,6 +200,7 @@ export function describeWithNets(
         withFaceRecognitionNet,
         withMtcnn,
         withFaceExpressionNet,
+        withAgeGenderNet,
         withTinyYolov2
       } = options
 
@@ -244,6 +253,13 @@ export function describeWithNets(
         )
       }
 
+      if (withAgeGenderNet) {
+        await initNet<AgeGenderNet>(
+          ageGenderNet,
+          !!withAgeGenderNet && !withAgeGenderNet.quantized && 'age_gender_model.weights'
+        )
+      }
+
       if (withTinyYolov2 || withAllFacesTinyYolov2) {
         await initNet<TinyYolov2>(
           tinyYolov2,
@@ -273,6 +289,7 @@ export function describeWithNets(
       faceRecognitionNet,
       mtcnn,
       faceExpressionNet,
+      ageGenderNet,
       tinyYolov2
     })
   })

@@ -1,12 +1,19 @@
-import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
-import { extractFaces, extractFaceTensors } from '../dom';
 import { extendWithFaceDescriptor, WithFaceDescriptor } from '../factories/WithFaceDescriptor';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
+import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } from './extractFacesAndComputeResults';
 import { nets } from './nets';
+import {
+  PredictAllAgeAndGenderWithFaceAlignmentTask,
+  PredictSingleAgeAndGenderWithFaceAlignmentTask,
+} from './PredictAgeAndGenderTask';
+import {
+  PredictAllFaceExpressionsWithFaceAlignmentTask,
+  PredictSingleFaceExpressionsWithFaceAlignmentTask,
+} from './PredictFaceExpressionsTask';
 
 export class ComputeFaceDescriptorsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
@@ -25,19 +32,25 @@ export class ComputeAllFaceDescriptorsTask<
 
     const parentResults = await this.parentTask
 
-    const alignedRects = parentResults.map(({ alignedRect }) => alignedRect)
-    const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, alignedRects)
-      : await extractFaces(this.input, alignedRects)
+    const descriptors = await extractAllFacesAndComputeResults<TSource, Float32Array[]>(
+      parentResults,
+      this.input,
+      faces => Promise.all(faces.map(face =>
+        nets.faceRecognitionNet.computeFaceDescriptor(face) as Promise<Float32Array>
+      )),
+      null,
+      parentResult => parentResult.landmarks.align(null, { useDlibAlignment: true })
+    )
 
-    const results = await Promise.all(parentResults.map(async (parentResult, i) => {
-      const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[i]) as Float32Array
-      return extendWithFaceDescriptor<TSource>(parentResult, descriptor)
-    }))
+    return descriptors.map((descriptor, i) => extendWithFaceDescriptor<TSource>(parentResults[i], descriptor))
+  }
 
-    alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
+  withFaceExpressions() {
+    return new PredictAllFaceExpressionsWithFaceAlignmentTask(this, this.input)
+  }
 
-    return results
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 }
 
@@ -51,15 +64,22 @@ export class ComputeSingleFaceDescriptorTask<
     if (!parentResult) {
       return
     }
-
-    const { alignedRect } = parentResult
-    const alignedFaces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, [alignedRect])
-      : await extractFaces(this.input, [alignedRect])
-    const descriptor = await nets.faceRecognitionNet.computeFaceDescriptor(alignedFaces[0]) as Float32Array
-
-    alignedFaces.forEach(f => f instanceof tf.Tensor && f.dispose())
+    const descriptor = await extractSingleFaceAndComputeResult<TSource, Float32Array>(
+      parentResult,
+      this.input,
+      face => nets.faceRecognitionNet.computeFaceDescriptor(face) as Promise<Float32Array>,
+      null,
+      parentResult => parentResult.landmarks.align(null, { useDlibAlignment: true })
+    )
 
     return extendWithFaceDescriptor(parentResult, descriptor)
+  }
+
+  withFaceExpressions() {
+    return new PredictSingleFaceExpressionsWithFaceAlignmentTask(this, this.input)
+  }
+
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input)
   }
 }

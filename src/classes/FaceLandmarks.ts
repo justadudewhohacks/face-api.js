@@ -1,5 +1,6 @@
-import { Dimensions, getCenterPoint, IDimensions, Point, Rect } from 'tfjs-image-recognition-base';
+import { Box, Dimensions, getCenterPoint, IBoundingBox, IDimensions, IRect, Point, Rect } from 'tfjs-image-recognition-base';
 
+import { minBbox } from '../minBbox';
 import { FaceDetection } from './FaceDetection';
 
 // face alignment constants
@@ -71,15 +72,27 @@ export class FaceLandmarks implements IFaceLandmarks {
    * @returns The bounding box of the aligned face.
    */
   public align(
-    detection?: FaceDetection | Rect
-  ): Rect {
+    detection?: FaceDetection | IRect | IBoundingBox | null,
+    options: { useDlibAlignment?: boolean, minBoxPadding?: number } = { }
+  ): Box {
     if (detection) {
       const box = detection instanceof FaceDetection
         ? detection.box.floor()
-        : detection
+        : new Box(detection)
 
-      return this.shiftBy(box.x, box.y).align()
+      return this.shiftBy(box.x, box.y).align(null, options)
     }
+
+    const { useDlibAlignment, minBoxPadding } = Object.assign({}, { useDlibAlignment: false, minBoxPadding: 0.2 }, options)
+
+    if (useDlibAlignment) {
+      return this.alignDlib()
+    }
+
+    return this.alignMinBbox(minBoxPadding)
+  }
+
+  private alignDlib(): Box {
 
     const centers = this.getRefPointsForAlignment()
 
@@ -95,6 +108,11 @@ export class FaceLandmarks implements IFaceLandmarks {
     const y = Math.floor(Math.max(0, refPoint.y - (relY * size)))
 
     return new Rect(x, y, Math.min(size, this.imageWidth + x), Math.min(size, this.imageHeight + y))
+  }
+
+  private alignMinBbox(padding: number): Box {
+    const box = minBbox(this.positions)
+    return box.pad(box.width * padding, box.height * padding)
   }
 
   protected getRefPointsForAlignment(): Point[] {

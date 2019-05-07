@@ -1,5 +1,5 @@
-import { IRect } from '../../../src';
-import { sortBoxes } from '../../utils';
+import { IRect } from '../src';
+import { sortBoxes } from './utils';
 
 export const expectedTinyFaceDetectorBoxes: IRect[] = sortBoxes([
   { x: 29, y: 264, width: 139, height: 137 },

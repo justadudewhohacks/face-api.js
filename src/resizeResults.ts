@@ -1,28 +1,31 @@
-import { IDimensions } from 'tfjs-image-recognition-base';
+import { Dimensions, IDimensions } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from './classes/FaceDetection';
 import { FaceLandmarks } from './classes/FaceLandmarks';
-import { extendWithFaceDetection } from './factories/WithFaceDetection';
-import { extendWithFaceLandmarks } from './factories/WithFaceLandmarks';
+import { extendWithFaceDetection, isWithFaceDetection } from './factories/WithFaceDetection';
+import { extendWithFaceLandmarks, isWithFaceLandmarks } from './factories/WithFaceLandmarks';
 
-export function resizeResults<T>(results: T, { width, height }: IDimensions): T {
+export function resizeResults<T>(results: T, dimensions: IDimensions): T {
+
+  const { width, height } = new Dimensions(dimensions.width, dimensions.height)
+
+  if (width <= 0 || height <= 0) {
+    throw new Error(`resizeResults - invalid dimensions: ${JSON.stringify({ width, height })}`)
+  }
 
   if (Array.isArray(results)) {
     return results.map(obj => resizeResults(obj, { width, height })) as any as T
   }
 
-  const hasLandmarks = results['unshiftedLandmarks'] && results['unshiftedLandmarks'] instanceof FaceLandmarks
-  const hasDetection = results['detection'] && results['detection'] instanceof FaceDetection
+  if (isWithFaceLandmarks(results)) {
+    const resizedDetection = results.detection.forSize(width, height)
+    const resizedLandmarks = results.unshiftedLandmarks.forSize(resizedDetection.box.width, resizedDetection.box.height)
 
-  if (hasLandmarks) {
-    const resizedDetection = results['detection'].forSize(width, height)
-    const resizedLandmarks = results['unshiftedLandmarks'].forSize(resizedDetection.box.width, resizedDetection.box.height)
-
-    return extendWithFaceLandmarks(extendWithFaceDetection(results as any, resizedDetection), resizedLandmarks)
+    return extendWithFaceLandmarks(extendWithFaceDetection(results, resizedDetection), resizedLandmarks)
   }
 
-  if (hasDetection) {
-    return extendWithFaceDetection(results as any, results['detection'].forSize(width, height))
+  if (isWithFaceDetection(results)) {
+    return extendWithFaceDetection(results, results.detection.forSize(width, height))
   }
 
   if (results instanceof FaceLandmarks || results instanceof FaceDetection) {

@@ -1,18 +1,26 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { TNetInput } from 'tfjs-image-recognition-base';
 
-import { extractFaces, extractFaceTensors } from '../dom';
-import { FaceExpressionPrediction } from '../faceExpressionNet/types';
+import { FaceExpressions } from '../faceExpressionNet/FaceExpressions';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { extendWithFaceExpressions, WithFaceExpressions } from '../factories/WithFaceExpressions';
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
-import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
+import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
+import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } from './extractFacesAndComputeResults';
 import { nets } from './nets';
+import {
+  PredictAllAgeAndGenderTask,
+  PredictAllAgeAndGenderWithFaceAlignmentTask,
+  PredictSingleAgeAndGenderTask,
+  PredictSingleAgeAndGenderWithFaceAlignmentTask,
+} from './PredictAgeAndGenderTask';
 
 export class PredictFaceExpressionsTaskBase<TReturn, TParentReturn> extends ComposableTask<TReturn> {
   constructor(
     protected parentTask: ComposableTask<TParentReturn> | Promise<TParentReturn>,
-    protected input: TNetInput
+    protected input: TNetInput,
+    protected extractedFaces?: Array<HTMLCanvasElement | tf.Tensor3D>
   ) {
     super()
   }
@@ -26,28 +34,26 @@ export class PredictAllFaceExpressionsTask<
 
     const parentResults = await this.parentTask
 
-    const detections = parentResults.map(parentResult => parentResult.detection)
-    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, detections)
-      : await extractFaces(this.input, detections)
-
-    const faceExpressionsByFace = await Promise.all(faces.map(
-      face => nets.faceExpressionNet.predictExpressions(face)
-    )) as FaceExpressionPrediction[][]
-
-    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
+    const faceExpressionsByFace = await extractAllFacesAndComputeResults<TSource, FaceExpressions[]>(
+      parentResults,
+      this.input,
+      async faces => await Promise.all(faces.map(
+        face => nets.faceExpressionNet.predictExpressions(face) as Promise<FaceExpressions>
+      )),
+      this.extractedFaces
+    )
 
     return parentResults.map(
       (parentResult, i) => extendWithFaceExpressions<TSource>(parentResult, faceExpressionsByFace[i])
     )
   }
 
-  withFaceLandmarks(): DetectAllFaceLandmarksTask<WithFaceExpressions<TSource>> {
-    return new DetectAllFaceLandmarksTask(this, this.input, false)
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderTask(this, this.input)
   }
 }
 
-export class PredictSingleFaceExpressionTask<
+export class PredictSingleFaceExpressionsTask<
   TSource extends WithFaceDetection<{}>
 >  extends PredictFaceExpressionsTaskBase<WithFaceExpressions<TSource> | undefined, TSource | undefined> {
 
@@ -58,19 +64,43 @@ export class PredictSingleFaceExpressionTask<
       return
     }
 
-    const { detection } = parentResult
-    const faces: Array<HTMLCanvasElement | tf.Tensor3D> = this.input instanceof tf.Tensor
-      ? await extractFaceTensors(this.input, [detection])
-      : await extractFaces(this.input, [detection])
-
-    const faceExpressions = await nets.faceExpressionNet.predictExpressions(faces[0]) as FaceExpressionPrediction[]
-
-    faces.forEach(f => f instanceof tf.Tensor && f.dispose())
+    const faceExpressions = await extractSingleFaceAndComputeResult<TSource, FaceExpressions>(
+      parentResult,
+      this.input,
+      face => nets.faceExpressionNet.predictExpressions(face) as Promise<FaceExpressions>,
+      this.extractedFaces
+    )
 
     return extendWithFaceExpressions(parentResult, faceExpressions)
   }
 
-  withFaceLandmarks(): DetectSingleFaceLandmarksTask<WithFaceExpressions<TSource>> {
-    return new DetectSingleFaceLandmarksTask(this, this.input, false)
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderTask(this, this.input)
+  }
+}
+
+export class PredictAllFaceExpressionsWithFaceAlignmentTask<
+  TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
+> extends PredictAllFaceExpressionsTask<TSource> {
+
+  withAgeAndGender() {
+    return new PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input)
+  }
+
+  withFaceDescriptors() {
+    return new ComputeAllFaceDescriptorsTask(this, this.input)
+  }
+}
+
+export class PredictSingleFaceExpressionsWithFaceAlignmentTask<
+  TSource extends WithFaceLandmarks<WithFaceDetection<{}>>
+> extends PredictSingleFaceExpressionsTask<TSource> {
+
+  withAgeAndGender() {
+    return new PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input)
+  }
+
+  withFaceDescriptor() {
+    return new ComputeSingleFaceDescriptorTask(this, this.input)
   }
 }

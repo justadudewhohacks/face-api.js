@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
@@ -205,11 +204,11 @@
     }
 
     async function updateReferenceImageResults() {
-      const imgEl = $('#refImg').get(0)
+      const inputImgEl = $('#refImg').get(0)
       const canvas = $('#refImgOverlay').get(0)
 
       const fullFaceDescriptions = await faceapi
-        .detectAllFaces(imgEl, getFaceDetectorOptions())
+        .detectAllFaces(inputImgEl, getFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceDescriptors()
 
@@ -221,16 +220,19 @@
       // from the detection results for the reference image
       faceMatcher = new faceapi.FaceMatcher(fullFaceDescriptions)
 
+      faceapi.matchDimensions(canvas, inputImgEl)
       // resize detection and landmarks in case displayed image is smaller than
       // original size
-      resizedResults = resizeCanvasAndResults(imgEl, canvas, fullFaceDescriptions)
+      const resizedResults = faceapi.resizeResults(fullFaceDescriptions, inputImgEl)
       // draw boxes with the corresponding label as text
       const labels = faceMatcher.labeledDescriptors
         .map(ld => ld.label)
-      const boxesWithText = resizedResults
-        .map(res => res.detection.box)
-        .map((box, i) => new faceapi.BoxWithText(box, labels[i]))
-      faceapi.drawDetection(canvas, boxesWithText)
+      resizedResults.forEach(({ detection, descriptor }) => {
+        const label = faceMatcher.findBestMatch(descriptor).toString()
+        const options = { label }
+        const drawBox = new faceapi.draw.DrawBox(detection.box, options)
+        drawBox.draw(canvas)
+      })
     }
 
     async function updateQueryImageResults() {
@@ -238,27 +240,25 @@
         return
       }
 
-      const imgEl = $('#queryImg').get(0)
+      const inputImgEl = $('#queryImg').get(0)
       const canvas = $('#queryImgOverlay').get(0)
 
       const results = await faceapi
-        .detectAllFaces(imgEl, getFaceDetectorOptions())
+        .detectAllFaces(inputImgEl, getFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceDescriptors()
 
+      faceapi.matchDimensions(canvas, inputImgEl)
       // resize detection and landmarks in case displayed image is smaller than
       // original size
-      resizedResults = resizeCanvasAndResults(imgEl, canvas, results)
-      // draw boxes with the corresponding label as text
-      const boxesWithText = resizedResults.map(({ detection, descriptor }) =>
-        new faceapi.BoxWithText(
-          detection.box,
-          // match each face descriptor to the reference descriptor
-          // with lowest euclidean distance and display the result as text
-          faceMatcher.findBestMatch(descriptor).toString()
-        )
-      )
-      faceapi.drawDetection(canvas, boxesWithText)
+      const resizedResults = faceapi.resizeResults(results, inputImgEl)
+
+      resizedResults.forEach(({ detection, descriptor }) => {
+        const label = faceMatcher.findBestMatch(descriptor).toString()
+        const options = { label }
+        const drawBox = new faceapi.draw.DrawBox(detection.box, options)
+        drawBox.draw(canvas)
+      })
     }
 
     async function updateResults() {

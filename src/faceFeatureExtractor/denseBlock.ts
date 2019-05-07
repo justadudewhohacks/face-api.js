@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
-import { depthwiseSeparableConv } from './depthwiseSeparableConv';
+import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
 import { DenseBlock3Params, DenseBlock4Params } from './types';
 
 export function denseBlock3(

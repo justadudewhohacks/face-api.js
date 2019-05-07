@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <script src="js/imageSelectionControls.js"></script>
   <script src="js/bbt.js"></script>
@@ -159,17 +158,19 @@
 
     function drawFaceRecognitionResults(results) {
       const canvas = $('#overlay').get(0)
+      const inputImgEl = $('#inputImg').get(0)
+
+      faceapi.matchDimensions(canvas, inputImgEl)
       // resize detection and landmarks in case displayed image is smaller than
       // original size
-      resizedResults = resizeCanvasAndResults($('#inputImg').get(0), canvas, results)
+      const resizedResults = faceapi.resizeResults(results, inputImgEl)
 
-      const boxesWithText = resizedResults.map(({ detection, descriptor }) =>
-        new faceapi.BoxWithText(
-          detection.box,
-          faceMatcher.findBestMatch(descriptor).toString()
-        )
-      )
-      faceapi.drawDetection(canvas, boxesWithText)
+      resizedResults.forEach(({ detection, descriptor }) => {
+        const label = faceMatcher.findBestMatch(descriptor).toString()
+        const options = { label }
+        const drawBox = new faceapi.draw.DrawBox(detection.box, options)
+        drawBox.draw(canvas)
+      })
     }
 
     async function run() {

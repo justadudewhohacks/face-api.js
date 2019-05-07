@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <script src="js/imageSelectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -162,7 +161,14 @@
 
       const results = await faceapi.detectAllFaces(inputImgEl, options).withFaceLandmarks()
 
-      drawLandmarks(inputImgEl, $('#overlay').get(0), results, withBoxes)
+      const canvas = $('#overlay').get(0)
+      faceapi.matchDimensions(canvas, inputImgEl)
+      const resizedResults = faceapi.resizeResults(results, inputImgEl)
+
+      if (withBoxes) {
+        faceapi.draw.drawDetections(canvas, resizedResults)
+      }
+      faceapi.draw.drawFaceLandmarks(canvas, resizedResults)
     }
 
     async function run() {

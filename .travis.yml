@@ -1,7 +1,8 @@
 sudo: required
 language: node_js
 node_js:
-  - "node"
+  #- "node"
+  - "11"
   - "10"
   - "8"
   # node 6 is not compatible with tfjs-node

@@ -37,6 +37,10 @@ function renderNavBar(navbarId, exampleUri) {
       name: 'Face Expression Recognition'
     },
     {
+      uri: 'age_and_gender_recognition',
+      name: 'Age and Gender Recognition'
+    },
+    {
       uri: 'face_recognition',
       name: 'Face Recognition'
     },
@@ -59,6 +63,10 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'webcam_face_expression_recognition',
       name: 'Webcam Face Expression Recognition'
+    },
+    {
+      uri: 'webcam_age_and_gender_recognition',
+      name: 'Webcam Age and Gender Recognition'
     },
     {
       uri: 'bbt_face_landmark_detection',

@@ -3,7 +3,6 @@
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
-  <script src="js/drawing.js"></script>
   <script src="js/faceDetectionControls.js"></script>
   <script src="js/imageSelectionControls.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -149,13 +148,25 @@
       const inputImgEl = $('#inputImg').get(0)
       const options = getFaceDetectorOptions()
 
-      const results = await faceapi.detectAllFaces(inputImgEl, options).withFaceExpressions()
-      drawExpressions(inputImgEl, $('#overlay').get(0), results, thresh, true)
+      const results = await faceapi.detectAllFaces(inputImgEl, options)
+        // compute face landmarks to align faces for better accuracy
+        .withFaceLandmarks()
+        .withFaceExpressions()
+
+      const canvas = $('#overlay').get(0)
+      faceapi.matchDimensions(canvas, inputImgEl)
+
+      const resizedResults = faceapi.resizeResults(results, inputImgEl)
+      const minConfidence = 0.05
+      faceapi.draw.drawDetections(canvas, resizedResults)
+      faceapi.draw.drawFaceExpressions(canvas, resizedResults, minConfidence)
     }
 
     async function run() {
       // load face detection and face expression recognition models
+      // and load face landmark model for face alignment
       await changeFaceDetector(SSD_MOBILENETV1)
+      await faceapi.loadFaceLandmarkModel('/')
       await faceapi.loadFaceExpressionModel('/')
       // start processing image
       updateResults()
