@@ -1,5 +1,6 @@
 import * as faceapi from '../../../src';
 import { WithAge } from '../../../src/factories/WithAge';
+import { WithFaceDetection } from '../../../src/factories/WithFaceDetection';
 import { WithFaceExpressions } from '../../../src/factories/WithFaceExpressions';
 import { WithGender } from '../../../src/factories/WithGender';
 import { loadImage } from '../../env';
@@ -12,11 +13,12 @@ import {
   describeWithNets,
   expectAllTensorsReleased,
   ExpectedFullFaceDescription,
+  sortByFaceDetection,
 } from '../../utils';
 import { deltas, expectedScores, faceDetectorOptions, withNetArgs } from './consts';
 
-function expectFaceExpressions(results: WithFaceExpressions<{}>[]) {
-  results.forEach((result, i) => {
+function expectFaceExpressions(results: WithFaceExpressions<WithFaceDetection<{}>>[]) {
+  sortByFaceDetection(results).forEach((result, i) => {
     const { happy, neutral } = result.expressions
 
     const happyProb = i === 4 ? 0 : 0.95
@@ -27,17 +29,18 @@ function expectFaceExpressions(results: WithFaceExpressions<{}>[]) {
   })
 }
 
-const ages = [41, 26, 37, 27, 31, 34]
-const agesUnaligned = [37, 30, 22, 26, 36, 33]
-const genders = ['male', 'female', 'female', 'male', 'male', 'female']
+const ages = [34, 27, 41, 26, 31, 37]
+const agesUnaligned = [33, 26, 37, 30, 36, 22]
+const genders = ['female', 'male', 'male', 'female', 'male', 'female']
 
-function expectAgesAndGender(results: WithAge<WithGender<{}>>[], aligned = true) {
-  results.forEach((result, i) => {
+function expectAgesAndGender(results: WithAge<WithGender<WithFaceDetection<{}>>>[], aligned = true) {
+  sortByFaceDetection(results).forEach((result, i) => {
     const { age, gender, genderProbability } = result
 
-    expect(Math.round(age)).toEqual(aligned ? ages[i] : agesUnaligned[i])
+    const expectedAge = aligned ? ages[i] : agesUnaligned[i]
+    expect(Math.abs(age - expectedAge)).toBeLessThanOrEqual(5)
     expect(gender).toEqual(genders[i])
-    expect(genderProbability).toBeGreaterThanOrEqual(i === 5 ? 0.7 : 0.9)
+    expect(genderProbability).toBeGreaterThanOrEqual(i === 0 ? 0.65 : 0.9)
   })
 }
 

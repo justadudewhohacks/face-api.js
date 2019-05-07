@@ -6,7 +6,7 @@ import { loadImage } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 function expectResultsAngry(result: AgeAndGenderPrediction) {
-  expect(result.age).toBeGreaterThanOrEqual(38)
+  expect(result.age).toBeGreaterThanOrEqual(36)
   expect(result.age).toBeLessThanOrEqual(42)
   expect(result.gender).toEqual('male')
   expect(result.genderProbability).toBeGreaterThanOrEqual(0.9)

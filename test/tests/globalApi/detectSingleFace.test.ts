@@ -27,7 +27,8 @@ function expectAgeAndGender(result: WithAge<WithGender<{}>> | undefined, aligned
   expect(!!result).toBeTruthy()
   if (result) {
     const { age, gender, genderProbability } = result
-    expect(Math.round(age)).toEqual(aligned ? 41 : 37)
+    const expectedAge = aligned ? 41 : 37
+    expect(Math.abs(age - expectedAge)).toBeLessThanOrEqual(5)
     expect(gender).toEqual('male')
     expect(genderProbability).toBeGreaterThanOrEqual(0.9)
   }

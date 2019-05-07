@@ -72,8 +72,12 @@ export function sortLandmarks(landmarks: FaceLandmarks[]) {
   return sortByDistanceToOrigin(landmarks, l => l.positions[0])
 }
 
-export function sortByFaceDetection<T extends { detection: FaceDetection }>(descs: T[]) {
-  return sortByDistanceToOrigin(descs, d => d.detection.box)
+export function sortByFaceBox<T extends { box: IRect }>(objs: T[]) {
+  return sortByDistanceToOrigin(objs, o => o.box)
+}
+
+export function sortByFaceDetection<T extends { detection: FaceDetection }>(objs: T[]) {
+  return sortByDistanceToOrigin(objs, d => d.detection.box)
 }
 
 export type ExpectedFaceDetectionWithLandmarks = {
