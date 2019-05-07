@@ -38,7 +38,7 @@ function expectAgesAndGender(results: WithAge<WithGender<WithFaceDetection<{}>>>
     const { age, gender, genderProbability } = result
 
     const expectedAge = aligned ? ages[i] : agesUnaligned[i]
-    expect(Math.abs(age - expectedAge)).toBeLessThanOrEqual(5)
+    expect(Math.abs(age - expectedAge)).toBeLessThanOrEqual(6)
     expect(gender).toEqual(genders[i])
     expect(genderProbability).toBeGreaterThanOrEqual(i === 0 ? 0.65 : 0.9)
   })
