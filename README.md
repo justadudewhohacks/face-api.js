@@ -170,6 +170,7 @@ await faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
 // accordingly for the other models:
 // await faceapi.nets.faceLandmark68Net.loadFromUri('/models')
 // await faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+// ...
 ```
 
 In a nodejs environment you can furthermore load the models directly from disk:
@@ -274,13 +275,13 @@ const detectionsWithLandmarks = await faceapi.detectAllFaces(input).withFaceLand
 
 **After face detection and facial landmark prediction the face descriptors for each face can be computed as follows:**
 
-Detect all faces in an image + computes 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
+Detect all faces in an image + compute 68 Point Face Landmarks for each detected face. Returns **Array<[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
 
 ``` javascript
 const results = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors()
 ```
 
-Detect the face with the highest confidence score in an image + computes 68 Point Face Landmarks and face descriptor for that face. Returns **[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
+Detect the face with the highest confidence score in an image + compute 68 Point Face Landmarks and face descriptor for that face. Returns **[WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
 
 ``` javascript
 const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()
@@ -290,13 +291,13 @@ const result = await faceapi.detectSingleFace(input).withFaceLandmarks().withFac
 
 **Face expression recognition can be performed for detected faces as follows:**
 
-Detect all faces in an image + recognize face expressions. Returns **Array<[WithFaceExpressions<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
+Detect all faces in an image + recognize face expressions of each face. Returns **Array<[WithFaceExpressions<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
 
 ``` javascript
 const detectionsWithExpressions = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceExpressions()
 ```
 
-Detect the face with the highest confidence score in an image + recognize the face expression for that face. Returns **[WithFaceExpressions<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
+Detect the face with the highest confidence score in an image + recognize the face expressions for that face. Returns **[WithFaceExpressions<WithFaceLandmarks<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
 
 ``` javascript
 const detectionWithExpressions = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceExpressions()
@@ -304,7 +305,7 @@ const detectionWithExpressions = await faceapi.detectSingleFace(input).withFaceL
 
 **You can also skip .withFaceLandmarks(), which will skip the face alignment step (less stable accuracy):**
 
-Detect all faces without face alignment + recognize face expressions. Returns **Array<[WithFaceExpressions<WithFaceDetection<{}>>](#getting-started-utility-classes)>**:
+Detect all faces without face alignment + recognize face expressions of each face. Returns **Array<[WithFaceExpressions<WithFaceDetection<{}>>](#getting-started-utility-classes)>**:
 
 ``` javascript
 const detectionsWithExpressions = await faceapi.detectAllFaces(input).withFaceExpressions()
@@ -320,13 +321,13 @@ const detectionWithExpressions = await faceapi.detectSingleFace(input).withFaceE
 
 **Age estimation and gender recognition from detected faces can be done as follows:**
 
-Detect all faces in an image + estimate age and recognize gender. Returns **Array<[WithAge<WithGender<WithFaceLandmarks<WithFaceDetection<{}>>>>](#getting-started-utility-classes)>**:
+Detect all faces in an image + estimate age and recognize gender of each face. Returns **Array<[WithAge<WithGender<WithFaceLandmarks<WithFaceDetection<{}>>>>](#getting-started-utility-classes)>**:
 
 ``` javascript
 const detectionsWithAgeAndGender = await faceapi.detectAllFaces(input).withFaceLandmarks().withAgeAndGender()
 ```
 
-Detect the face with the highest confidence score in an image + recognize the face expression for that face. Returns **[WithAge<WithGender<WithFaceLandmarks<WithFaceDetection<{}>>>>](#getting-started-utility-classes) | undefined**:
+Detect the face with the highest confidence score in an image  + estimate age and recognize gender for that face. Returns **[WithAge<WithGender<WithFaceLandmarks<WithFaceDetection<{}>>>>](#getting-started-utility-classes) | undefined**:
 
 ``` javascript
 const detectionWithAgeAndGender = await faceapi.detectSingleFace(input).withFaceLandmarks().withAgeAndGender()
@@ -334,13 +335,13 @@ const detectionWithAgeAndGender = await faceapi.detectSingleFace(input).withFace
 
 **You can also skip .withFaceLandmarks(), which will skip the face alignment step (less stable accuracy):**
 
-Detect all faces without face alignment + recognize face expressions. Returns **Array<[WithAge<WithGender<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
+Detect all faces without face alignment + estimate age and recognize gender of each face. Returns **Array<[WithAge<WithGender<WithFaceDetection<{}>>>](#getting-started-utility-classes)>**:
 
 ``` javascript
 const detectionsWithAgeAndGender = await faceapi.detectAllFaces(input).withAgeAndGender()
 ```
 
-Detect the face with the highest confidence score without face alignment + recognize the face expression for that face. Returns **[WithAge<WithGender<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
+Detect the face with the highest confidence score without face alignment + estimate age and recognize gender for that face. Returns **[WithAge<WithGender<WithFaceDetection<{}>>>](#getting-started-utility-classes) | undefined**:
 
 ``` javascript
 const detectionWithAgeAndGender = await faceapi.detectSingleFace(input).withAgeAndGender()
