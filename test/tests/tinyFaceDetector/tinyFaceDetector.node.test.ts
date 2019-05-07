@@ -4,7 +4,7 @@ import { TinyFaceDetectorOptions, createCanvasFromMedia } from '../../../src';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
-import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
+import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
 import { loadImage } from '../../env';
 import * as tf from '@tensorflow/tfjs-core';
 
@@ -88,7 +88,7 @@ describe('tinyFaceDetector - node', () => {
         maxLandmarksDelta: 10,
         maxDescriptorDelta: 0.2
       }
-      
+
       expect(!!result).toBeTruthy()
       expectFullFaceDescriptions(
         result ? [result] : [],

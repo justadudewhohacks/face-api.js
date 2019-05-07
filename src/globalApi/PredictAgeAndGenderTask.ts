@@ -11,7 +11,9 @@ import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from '
 import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } from './extractFacesAndComputeResults';
 import { nets } from './nets';
 import {
+  PredictAllFaceExpressionsTask,
   PredictAllFaceExpressionsWithFaceAlignmentTask,
+  PredictSingleFaceExpressionsTask,
   PredictSingleFaceExpressionsWithFaceAlignmentTask,
 } from './PredictFaceExpressionsTask';
 
@@ -47,6 +49,10 @@ export class PredictAllAgeAndGenderTask<
       return extendWithAge(extendWithGender(parentResult, gender, genderProbability), age)
     })
   }
+
+  withFaceExpressions() {
+    return new PredictAllFaceExpressionsTask(this, this.input)
+  }
 }
 
 export class PredictSingleAgeAndGenderTask<
@@ -68,6 +74,10 @@ export class PredictSingleAgeAndGenderTask<
     )
 
     return extendWithAge(extendWithGender(parentResult, gender, genderProbability), age)
+  }
+
+  withFaceExpressions() {
+    return new PredictSingleFaceExpressionsTask(this, this.input)
   }
 }
 

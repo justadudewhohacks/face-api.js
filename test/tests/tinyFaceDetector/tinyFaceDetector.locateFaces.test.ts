@@ -2,7 +2,7 @@ import * as faceapi from '../../../src';
 import { loadImage } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { describeWithBackend, describeWithNets } from '../../utils';
-import { expectedTinyFaceDetectorBoxes } from './expectedBoxes';
+import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
 
 describeWithBackend('tinyFaceDetector.locateFaces', () => {
 
