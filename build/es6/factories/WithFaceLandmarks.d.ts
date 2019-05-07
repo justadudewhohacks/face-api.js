@@ -7,4 +7,5 @@ export declare type WithFaceLandmarks<TSource extends WithFaceDetection<{}>, TFa
     unshiftedLandmarks: TFaceLandmarks;
     alignedRect: FaceDetection;
 };
+export declare function isWithFaceLandmarks(obj: any): obj is WithFaceLandmarks<WithFaceDetection<{}>, FaceLandmarks>;
 export declare function extendWithFaceLandmarks<TSource extends WithFaceDetection<{}>, TFaceLandmarks extends FaceLandmarks = FaceLandmarks68>(sourceObj: TSource, unshiftedLandmarks: TFaceLandmarks): WithFaceLandmarks<TSource, TFaceLandmarks>;

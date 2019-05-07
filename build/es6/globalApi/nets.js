@@ -1,3 +1,4 @@
+import { AgeGenderNet } from '../ageGenderNet/AgeGenderNet';
 import { FaceExpressionNet } from '../faceExpressionNet/FaceExpressionNet';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
@@ -14,7 +15,8 @@ export var nets = {
     faceLandmark68Net: new FaceLandmark68Net(),
     faceLandmark68TinyNet: new FaceLandmark68TinyNet(),
     faceRecognitionNet: new FaceRecognitionNet(),
-    faceExpressionNet: new FaceExpressionNet()
+    faceExpressionNet: new FaceExpressionNet(),
+    ageGenderNet: new AgeGenderNet()
 };
 /**
  * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
@@ -93,15 +95,24 @@ export var computeFaceDescriptor = function (input) {
     return nets.faceRecognitionNet.computeFaceDescriptor(input);
 };
 /**
- * Recognizes the facial expressions of a face and returns the likelyhood of
- * each facial expression.
+ * Recognizes the facial expressions from a face image.
  *
  * @param inputs The face image extracted from the bounding box of a face. Can
  * also be an array of input images, which will be batch processed.
- * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ * @returns Facial expressions with corresponding probabilities or array thereof in case of batch input.
  */
 export var recognizeFaceExpressions = function (input) {
     return nets.faceExpressionNet.predictExpressions(input);
+};
+/**
+ * Predicts age and gender from a face image.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns Predictions with age, gender and gender probability or array thereof in case of batch input.
+ */
+export var predictAgeAndGender = function (input) {
+    return nets.ageGenderNet.predictAgeAndGender(input);
 };
 export var loadSsdMobilenetv1Model = function (url) { return nets.ssdMobilenetv1.load(url); };
 export var loadTinyFaceDetectorModel = function (url) { return nets.tinyFaceDetector.load(url); };
@@ -111,6 +122,7 @@ export var loadFaceLandmarkModel = function (url) { return nets.faceLandmark68Ne
 export var loadFaceLandmarkTinyModel = function (url) { return nets.faceLandmark68TinyNet.load(url); };
 export var loadFaceRecognitionModel = function (url) { return nets.faceRecognitionNet.load(url); };
 export var loadFaceExpressionModel = function (url) { return nets.faceExpressionNet.load(url); };
+export var loadAgeGenderModel = function (url) { return nets.ageGenderNet.load(url); };
 // backward compatibility
 export var loadFaceDetectionModel = loadSsdMobilenetv1Model;
 export var locateFaces = ssdMobilenetv1;

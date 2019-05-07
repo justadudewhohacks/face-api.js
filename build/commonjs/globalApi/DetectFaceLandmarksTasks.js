@@ -7,6 +7,8 @@ var WithFaceLandmarks_1 = require("../factories/WithFaceLandmarks");
 var ComposableTask_1 = require("./ComposableTask");
 var ComputeFaceDescriptorsTasks_1 = require("./ComputeFaceDescriptorsTasks");
 var nets_1 = require("./nets");
+var PredictAgeAndGenderTask_1 = require("./PredictAgeAndGenderTask");
+var PredictFaceExpressionsTask_1 = require("./PredictFaceExpressionsTask");
 var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFaceLandmarksTaskBase, _super);
     function DetectFaceLandmarksTaskBase(parentTask, input, useTinyLandmarkNet) {
@@ -65,6 +67,12 @@ var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
             });
         });
     };
+    DetectAllFaceLandmarksTask.prototype.withFaceExpressions = function () {
+        return new PredictFaceExpressionsTask_1.PredictAllFaceExpressionsWithFaceAlignmentTask(this, this.input);
+    };
+    DetectAllFaceLandmarksTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input);
+    };
     DetectAllFaceLandmarksTask.prototype.withFaceDescriptors = function () {
         return new ComputeFaceDescriptorsTasks_1.ComputeAllFaceDescriptorsTask(this, this.input);
     };
@@ -107,6 +115,12 @@ var DetectSingleFaceLandmarksTask = /** @class */ (function (_super) {
                 }
             });
         });
+    };
+    DetectSingleFaceLandmarksTask.prototype.withFaceExpressions = function () {
+        return new PredictFaceExpressionsTask_1.PredictSingleFaceExpressionsWithFaceAlignmentTask(this, this.input);
+    };
+    DetectSingleFaceLandmarksTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input);
     };
     DetectSingleFaceLandmarksTask.prototype.withFaceDescriptor = function () {
         return new ComputeFaceDescriptorsTasks_1.ComputeSingleFaceDescriptorTask(this, this.input);

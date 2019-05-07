@@ -1,4 +1,4 @@
-import { Dimensions, IDimensions, Point, Rect } from 'tfjs-image-recognition-base';
+import { Box, Dimensions, IBoundingBox, IDimensions, IRect, Point } from 'tfjs-image-recognition-base';
 import { FaceDetection } from './FaceDetection';
 export interface IFaceLandmarks {
     positions: Point[];
@@ -28,6 +28,11 @@ export declare class FaceLandmarks implements IFaceLandmarks {
      * it's current shift.
      * @returns The bounding box of the aligned face.
      */
-    align(detection?: FaceDetection | Rect): Rect;
+    align(detection?: FaceDetection | IRect | IBoundingBox | null, options?: {
+        useDlibAlignment?: boolean;
+        minBoxPadding?: number;
+    }): Box;
+    private alignDlib;
+    private alignMinBbox;
     protected getRefPointsForAlignment(): Point[];
 }

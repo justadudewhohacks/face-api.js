@@ -1,18 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var tf = require("@tensorflow/tfjs-core");
-var dom_1 = require("../dom");
 var WithFaceExpressions_1 = require("../factories/WithFaceExpressions");
 var ComposableTask_1 = require("./ComposableTask");
-var DetectFaceLandmarksTasks_1 = require("./DetectFaceLandmarksTasks");
+var ComputeFaceDescriptorsTasks_1 = require("./ComputeFaceDescriptorsTasks");
+var extractFacesAndComputeResults_1 = require("./extractFacesAndComputeResults");
 var nets_1 = require("./nets");
+var PredictAgeAndGenderTask_1 = require("./PredictAgeAndGenderTask");
 var PredictFaceExpressionsTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(PredictFaceExpressionsTaskBase, _super);
-    function PredictFaceExpressionsTaskBase(parentTask, input) {
+    function PredictFaceExpressionsTaskBase(parentTask, input, extractedFaces) {
         var _this = _super.call(this) || this;
         _this.parentTask = parentTask;
         _this.input = input;
+        _this.extractedFaces = extractedFaces;
         return _this;
     }
     return PredictFaceExpressionsTaskBase;
@@ -25,80 +26,90 @@ var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
     }
     PredictAllFaceExpressionsTask.prototype.run = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var parentResults, detections, faces, _a, faceExpressionsByFace;
-            return tslib_1.__generator(this, function (_b) {
-                switch (_b.label) {
+            var parentResults, faceExpressionsByFace;
+            var _this = this;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
-                        parentResults = _b.sent();
-                        detections = parentResults.map(function (parentResult) { return parentResult.detection; });
-                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, dom_1.extractFaceTensors(this.input, detections)];
+                        parentResults = _a.sent();
+                        return [4 /*yield*/, extractFacesAndComputeResults_1.extractAllFacesAndComputeResults(parentResults, this.input, function (faces) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                                return tslib_1.__generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets_1.nets.faceExpressionNet.predictExpressions(face); }))];
+                                        case 1: return [2 /*return*/, _a.sent()];
+                                    }
+                                });
+                            }); }, this.extractedFaces)];
                     case 2:
-                        _a = _b.sent();
-                        return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, dom_1.extractFaces(this.input, detections)];
-                    case 4:
-                        _a = _b.sent();
-                        _b.label = 5;
-                    case 5:
-                        faces = _a;
-                        return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets_1.nets.faceExpressionNet.predictExpressions(face); }))];
-                    case 6:
-                        faceExpressionsByFace = _b.sent();
-                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
+                        faceExpressionsByFace = _a.sent();
                         return [2 /*return*/, parentResults.map(function (parentResult, i) { return WithFaceExpressions_1.extendWithFaceExpressions(parentResult, faceExpressionsByFace[i]); })];
                 }
             });
         });
     };
-    PredictAllFaceExpressionsTask.prototype.withFaceLandmarks = function () {
-        return new DetectFaceLandmarksTasks_1.DetectAllFaceLandmarksTask(this, this.input, false);
+    PredictAllFaceExpressionsTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictAllAgeAndGenderTask(this, this.input);
     };
     return PredictAllFaceExpressionsTask;
 }(PredictFaceExpressionsTaskBase));
 exports.PredictAllFaceExpressionsTask = PredictAllFaceExpressionsTask;
-var PredictSingleFaceExpressionTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictSingleFaceExpressionTask, _super);
-    function PredictSingleFaceExpressionTask() {
+var PredictSingleFaceExpressionsTask = /** @class */ (function (_super) {
+    tslib_1.__extends(PredictSingleFaceExpressionsTask, _super);
+    function PredictSingleFaceExpressionsTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    PredictSingleFaceExpressionTask.prototype.run = function () {
+    PredictSingleFaceExpressionsTask.prototype.run = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var parentResult, detection, faces, _a, faceExpressions;
-            return tslib_1.__generator(this, function (_b) {
-                switch (_b.label) {
+            var parentResult, faceExpressions;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
-                        parentResult = _b.sent();
+                        parentResult = _a.sent();
                         if (!parentResult) {
                             return [2 /*return*/];
                         }
-                        detection = parentResult.detection;
-                        if (!(this.input instanceof tf.Tensor)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, dom_1.extractFaceTensors(this.input, [detection])];
+                        return [4 /*yield*/, extractFacesAndComputeResults_1.extractSingleFaceAndComputeResult(parentResult, this.input, function (face) { return nets_1.nets.faceExpressionNet.predictExpressions(face); }, this.extractedFaces)];
                     case 2:
-                        _a = _b.sent();
-                        return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, dom_1.extractFaces(this.input, [detection])];
-                    case 4:
-                        _a = _b.sent();
-                        _b.label = 5;
-                    case 5:
-                        faces = _a;
-                        return [4 /*yield*/, nets_1.nets.faceExpressionNet.predictExpressions(faces[0])];
-                    case 6:
-                        faceExpressions = _b.sent();
-                        faces.forEach(function (f) { return f instanceof tf.Tensor && f.dispose(); });
+                        faceExpressions = _a.sent();
                         return [2 /*return*/, WithFaceExpressions_1.extendWithFaceExpressions(parentResult, faceExpressions)];
                 }
             });
         });
     };
-    PredictSingleFaceExpressionTask.prototype.withFaceLandmarks = function () {
-        return new DetectFaceLandmarksTasks_1.DetectSingleFaceLandmarksTask(this, this.input, false);
+    PredictSingleFaceExpressionsTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictSingleAgeAndGenderTask(this, this.input);
     };
-    return PredictSingleFaceExpressionTask;
+    return PredictSingleFaceExpressionsTask;
 }(PredictFaceExpressionsTaskBase));
-exports.PredictSingleFaceExpressionTask = PredictSingleFaceExpressionTask;
+exports.PredictSingleFaceExpressionsTask = PredictSingleFaceExpressionsTask;
+var PredictAllFaceExpressionsWithFaceAlignmentTask = /** @class */ (function (_super) {
+    tslib_1.__extends(PredictAllFaceExpressionsWithFaceAlignmentTask, _super);
+    function PredictAllFaceExpressionsWithFaceAlignmentTask() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PredictAllFaceExpressionsWithFaceAlignmentTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input);
+    };
+    PredictAllFaceExpressionsWithFaceAlignmentTask.prototype.withFaceDescriptors = function () {
+        return new ComputeFaceDescriptorsTasks_1.ComputeAllFaceDescriptorsTask(this, this.input);
+    };
+    return PredictAllFaceExpressionsWithFaceAlignmentTask;
+}(PredictAllFaceExpressionsTask));
+exports.PredictAllFaceExpressionsWithFaceAlignmentTask = PredictAllFaceExpressionsWithFaceAlignmentTask;
+var PredictSingleFaceExpressionsWithFaceAlignmentTask = /** @class */ (function (_super) {
+    tslib_1.__extends(PredictSingleFaceExpressionsWithFaceAlignmentTask, _super);
+    function PredictSingleFaceExpressionsWithFaceAlignmentTask() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PredictSingleFaceExpressionsWithFaceAlignmentTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input);
+    };
+    PredictSingleFaceExpressionsWithFaceAlignmentTask.prototype.withFaceDescriptor = function () {
+        return new ComputeFaceDescriptorsTasks_1.ComputeSingleFaceDescriptorTask(this, this.input);
+    };
+    return PredictSingleFaceExpressionsWithFaceAlignmentTask;
+}(PredictSingleFaceExpressionsTask));
+exports.PredictSingleFaceExpressionsWithFaceAlignmentTask = PredictSingleFaceExpressionsWithFaceAlignmentTask;
 //# sourceMappingURL=PredictFaceExpressionsTask.js.map

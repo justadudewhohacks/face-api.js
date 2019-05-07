@@ -1,9 +1,11 @@
 import { TfjsImageRecognitionBase, TNetInput } from 'tfjs-image-recognition-base';
+import { AgeGenderNet } from '../ageGenderNet/AgeGenderNet';
+import { AgeAndGenderPrediction } from '../ageGenderNet/types';
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { FaceExpressionNet } from '../faceExpressionNet/FaceExpressionNet';
-import { FaceExpressionPrediction } from '../faceExpressionNet/types';
+import { FaceExpressions } from '../faceExpressionNet/FaceExpressions';
 import { FaceLandmark68Net } from '../faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../faceLandmarkNet/FaceLandmark68TinyNet';
 import { FaceRecognitionNet } from '../faceRecognitionNet/FaceRecognitionNet';
@@ -24,6 +26,7 @@ export declare const nets: {
     faceLandmark68TinyNet: FaceLandmark68TinyNet;
     faceRecognitionNet: FaceRecognitionNet;
     faceExpressionNet: FaceExpressionNet;
+    ageGenderNet: AgeGenderNet;
 };
 /**
  * Attempts to detect all faces in an image using SSD Mobilenetv1 Network.
@@ -90,14 +93,21 @@ export declare const detectFaceLandmarksTiny: (input: TNetInput) => Promise<Face
  */
 export declare const computeFaceDescriptor: (input: TNetInput) => Promise<Float32Array | Float32Array[]>;
 /**
- * Recognizes the facial expressions of a face and returns the likelyhood of
- * each facial expression.
+ * Recognizes the facial expressions from a face image.
  *
  * @param inputs The face image extracted from the bounding box of a face. Can
  * also be an array of input images, which will be batch processed.
- * @returns An array of facial expressions with corresponding probabilities or array thereof in case of batch input.
+ * @returns Facial expressions with corresponding probabilities or array thereof in case of batch input.
  */
-export declare const recognizeFaceExpressions: (input: TNetInput) => Promise<FaceExpressionPrediction[] | FaceExpressionPrediction[][]>;
+export declare const recognizeFaceExpressions: (input: TNetInput) => Promise<FaceExpressions | FaceExpressions[]>;
+/**
+ * Predicts age and gender from a face image.
+ *
+ * @param inputs The face image extracted from the bounding box of a face. Can
+ * also be an array of input images, which will be batch processed.
+ * @returns Predictions with age, gender and gender probability or array thereof in case of batch input.
+ */
+export declare const predictAgeAndGender: (input: TNetInput) => Promise<AgeAndGenderPrediction | AgeAndGenderPrediction[]>;
 export declare const loadSsdMobilenetv1Model: (url: string) => Promise<void>;
 export declare const loadTinyFaceDetectorModel: (url: string) => Promise<void>;
 export declare const loadMtcnnModel: (url: string) => Promise<void>;
@@ -106,6 +116,7 @@ export declare const loadFaceLandmarkModel: (url: string) => Promise<void>;
 export declare const loadFaceLandmarkTinyModel: (url: string) => Promise<void>;
 export declare const loadFaceRecognitionModel: (url: string) => Promise<void>;
 export declare const loadFaceExpressionModel: (url: string) => Promise<void>;
+export declare const loadAgeGenderModel: (url: string) => Promise<void>;
 export declare const loadFaceDetectionModel: (url: string) => Promise<void>;
 export declare const locateFaces: (input: TNetInput, options: SsdMobilenetv1Options) => Promise<FaceDetection[]>;
 export declare const detectLandmarks: (input: TNetInput) => Promise<FaceLandmarks68 | FaceLandmarks68[]>;

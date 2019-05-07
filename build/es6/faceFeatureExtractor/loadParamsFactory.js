@@ -1,17 +1,9 @@
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
+import { loadConvParamsFactory } from '../common/loadConvParamsFactory';
 export function loadParamsFactory(weightMap, paramMappings) {
     var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
-    function extractConvParams(prefix) {
-        var filters = extractWeightEntry(prefix + "/filters", 4);
-        var bias = extractWeightEntry(prefix + "/bias", 1);
-        return { filters: filters, bias: bias };
-    }
-    function extractSeparableConvParams(prefix) {
-        var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
-        var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
-        var bias = extractWeightEntry(prefix + "/bias", 1);
-        return new TfjsImageRecognitionBase.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-    }
+    var extractConvParams = loadConvParamsFactory(extractWeightEntry);
+    var extractSeparableConvParams = TfjsImageRecognitionBase.loadSeparableConvParamsFactory(extractWeightEntry);
     function extractDenseBlock3Params(prefix, isFirstLayer) {
         if (isFirstLayer === void 0) { isFirstLayer = false; }
         var conv0 = isFirstLayer

@@ -5,6 +5,8 @@ import { extendWithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
 import { nets } from './nets';
+import { PredictAllAgeAndGenderWithFaceAlignmentTask, PredictSingleAgeAndGenderWithFaceAlignmentTask, } from './PredictAgeAndGenderTask';
+import { PredictAllFaceExpressionsWithFaceAlignmentTask, PredictSingleFaceExpressionsWithFaceAlignmentTask, } from './PredictFaceExpressionsTask';
 var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFaceLandmarksTaskBase, _super);
     function DetectFaceLandmarksTaskBase(parentTask, input, useTinyLandmarkNet) {
@@ -63,6 +65,12 @@ var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
             });
         });
     };
+    DetectAllFaceLandmarksTask.prototype.withFaceExpressions = function () {
+        return new PredictAllFaceExpressionsWithFaceAlignmentTask(this, this.input);
+    };
+    DetectAllFaceLandmarksTask.prototype.withAgeAndGender = function () {
+        return new PredictAllAgeAndGenderWithFaceAlignmentTask(this, this.input);
+    };
     DetectAllFaceLandmarksTask.prototype.withFaceDescriptors = function () {
         return new ComputeAllFaceDescriptorsTask(this, this.input);
     };
@@ -105,6 +113,12 @@ var DetectSingleFaceLandmarksTask = /** @class */ (function (_super) {
                 }
             });
         });
+    };
+    DetectSingleFaceLandmarksTask.prototype.withFaceExpressions = function () {
+        return new PredictSingleFaceExpressionsWithFaceAlignmentTask(this, this.input);
+    };
+    DetectSingleFaceLandmarksTask.prototype.withAgeAndGender = function () {
+        return new PredictSingleAgeAndGenderWithFaceAlignmentTask(this, this.input);
     };
     DetectSingleFaceLandmarksTask.prototype.withFaceDescriptor = function () {
         return new ComputeSingleFaceDescriptorTask(this, this.input);

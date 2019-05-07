@@ -3,27 +3,13 @@ import * as tf from '@tensorflow/tfjs-core';
 import { toNetInput } from 'tfjs-image-recognition-base';
 import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
-import { faceExpressionLabels } from './types';
+import { FaceExpressions } from './FaceExpressions';
 var FaceExpressionNet = /** @class */ (function (_super) {
     tslib_1.__extends(FaceExpressionNet, _super);
     function FaceExpressionNet(faceFeatureExtractor) {
         if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new FaceFeatureExtractor(); }
         return _super.call(this, 'FaceExpressionNet', faceFeatureExtractor) || this;
     }
-    FaceExpressionNet.getFaceExpressionLabel = function (faceExpression) {
-        var label = faceExpressionLabels[faceExpression];
-        if (typeof label !== 'number') {
-            throw new Error("getFaceExpressionLabel - no label for faceExpression: " + faceExpression);
-        }
-        return label;
-    };
-    FaceExpressionNet.decodeProbabilites = function (probabilities) {
-        if (probabilities.length !== 7) {
-            throw new Error("decodeProbabilites - expected probabilities.length to be 7, have: " + probabilities.length);
-        }
-        return Object.keys(faceExpressionLabels)
-            .map(function (expression) { return ({ expression: expression, probability: probabilities[faceExpressionLabels[expression]] }); });
-    };
     FaceExpressionNet.prototype.forwardInput = function (input) {
         var _this = this;
         return tf.tidy(function () { return tf.softmax(_this.runNet(input)); });
@@ -69,7 +55,7 @@ var FaceExpressionNet = /** @class */ (function (_super) {
                         probabilitesByBatch = _a.sent();
                         out.dispose();
                         predictionsByBatch = probabilitesByBatch
-                            .map(function (propablities) { return FaceExpressionNet.decodeProbabilites(propablities); });
+                            .map(function (probabilites) { return new FaceExpressions(probabilites); });
                         return [2 /*return*/, netInput.isBatchInput
                                 ? predictionsByBatch
                                 : predictionsByBatch[0]];

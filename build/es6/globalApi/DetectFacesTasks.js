@@ -7,7 +7,8 @@ import { TinyFaceDetectorOptions } from '../tinyFaceDetector/TinyFaceDetectorOpt
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
 import { nets } from './nets';
-import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
+import { PredictAllAgeAndGenderTask, PredictSingleAgeAndGenderTask } from './PredictAgeAndGenderTask';
+import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionsTask } from './PredictFaceExpressionsTask';
 var DetectFacesTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFacesTaskBase, _super);
     function DetectFacesTaskBase(input, options) {
@@ -73,6 +74,9 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
     DetectAllFacesTask.prototype.withFaceExpressions = function () {
         return new PredictAllFaceExpressionsTask(this.runAndExtendWithFaceDetections(), this.input);
     };
+    DetectAllFacesTask.prototype.withAgeAndGender = function () {
+        return new PredictAllAgeAndGenderTask(this.runAndExtendWithFaceDetections(), this.input);
+    };
     return DetectAllFacesTask;
 }(DetectFacesTaskBase));
 export { DetectAllFacesTask };
@@ -119,7 +123,10 @@ var DetectSingleFaceTask = /** @class */ (function (_super) {
         return new DetectSingleFaceLandmarksTask(this.runAndExtendWithFaceDetection(), this.input, useTinyLandmarkNet);
     };
     DetectSingleFaceTask.prototype.withFaceExpressions = function () {
-        return new PredictSingleFaceExpressionTask(this.runAndExtendWithFaceDetection(), this.input);
+        return new PredictSingleFaceExpressionsTask(this.runAndExtendWithFaceDetection(), this.input);
+    };
+    DetectSingleFaceTask.prototype.withAgeAndGender = function () {
+        return new PredictSingleAgeAndGenderTask(this.runAndExtendWithFaceDetection(), this.input);
     };
     return DetectSingleFaceTask;
 }(DetectFacesTaskBase));

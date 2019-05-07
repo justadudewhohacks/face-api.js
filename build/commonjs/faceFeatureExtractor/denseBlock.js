@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = require("@tensorflow/tfjs-core");
-var depthwiseSeparableConv_1 = require("./depthwiseSeparableConv");
+var depthwiseSeparableConv_1 = require("../common/depthwiseSeparableConv");
 function denseBlock3(x, denseBlockParams, isFirstLayer) {
     if (isFirstLayer === void 0) { isFirstLayer = false; }
     return tf.tidy(function () {

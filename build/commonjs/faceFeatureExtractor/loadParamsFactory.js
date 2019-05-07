@@ -1,19 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var loadConvParamsFactory_1 = require("../common/loadConvParamsFactory");
 function loadParamsFactory(weightMap, paramMappings) {
     var extractWeightEntry = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
-    function extractConvParams(prefix) {
-        var filters = extractWeightEntry(prefix + "/filters", 4);
-        var bias = extractWeightEntry(prefix + "/bias", 1);
-        return { filters: filters, bias: bias };
-    }
-    function extractSeparableConvParams(prefix) {
-        var depthwise_filter = extractWeightEntry(prefix + "/depthwise_filter", 4);
-        var pointwise_filter = extractWeightEntry(prefix + "/pointwise_filter", 4);
-        var bias = extractWeightEntry(prefix + "/bias", 1);
-        return new tfjs_image_recognition_base_1.TfjsImageRecognitionBase.SeparableConvParams(depthwise_filter, pointwise_filter, bias);
-    }
+    var extractConvParams = loadConvParamsFactory_1.loadConvParamsFactory(extractWeightEntry);
+    var extractSeparableConvParams = tfjs_image_recognition_base_1.TfjsImageRecognitionBase.loadSeparableConvParamsFactory(extractWeightEntry);
     function extractDenseBlock3Params(prefix, isFirstLayer) {
         if (isFirstLayer === void 0) { isFirstLayer = false; }
         var conv0 = isFirstLayer

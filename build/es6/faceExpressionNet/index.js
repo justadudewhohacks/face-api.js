@@ -1,3 +1,3 @@
 export * from './FaceExpressionNet';
-export * from './types';
+export * from './FaceExpressions';
 //# sourceMappingURL=index.js.map

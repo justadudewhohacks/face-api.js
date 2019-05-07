@@ -9,6 +9,7 @@ var TinyFaceDetectorOptions_1 = require("../tinyFaceDetector/TinyFaceDetectorOpt
 var ComposableTask_1 = require("./ComposableTask");
 var DetectFaceLandmarksTasks_1 = require("./DetectFaceLandmarksTasks");
 var nets_1 = require("./nets");
+var PredictAgeAndGenderTask_1 = require("./PredictAgeAndGenderTask");
 var PredictFaceExpressionsTask_1 = require("./PredictFaceExpressionsTask");
 var DetectFacesTaskBase = /** @class */ (function (_super) {
     tslib_1.__extends(DetectFacesTaskBase, _super);
@@ -75,6 +76,9 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
     DetectAllFacesTask.prototype.withFaceExpressions = function () {
         return new PredictFaceExpressionsTask_1.PredictAllFaceExpressionsTask(this.runAndExtendWithFaceDetections(), this.input);
     };
+    DetectAllFacesTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictAllAgeAndGenderTask(this.runAndExtendWithFaceDetections(), this.input);
+    };
     return DetectAllFacesTask;
 }(DetectFacesTaskBase));
 exports.DetectAllFacesTask = DetectAllFacesTask;
@@ -121,7 +125,10 @@ var DetectSingleFaceTask = /** @class */ (function (_super) {
         return new DetectFaceLandmarksTasks_1.DetectSingleFaceLandmarksTask(this.runAndExtendWithFaceDetection(), this.input, useTinyLandmarkNet);
     };
     DetectSingleFaceTask.prototype.withFaceExpressions = function () {
-        return new PredictFaceExpressionsTask_1.PredictSingleFaceExpressionTask(this.runAndExtendWithFaceDetection(), this.input);
+        return new PredictFaceExpressionsTask_1.PredictSingleFaceExpressionsTask(this.runAndExtendWithFaceDetection(), this.input);
+    };
+    DetectSingleFaceTask.prototype.withAgeAndGender = function () {
+        return new PredictAgeAndGenderTask_1.PredictSingleAgeAndGenderTask(this.runAndExtendWithFaceDetection(), this.input);
     };
     return DetectSingleFaceTask;
 }(DetectFacesTaskBase));

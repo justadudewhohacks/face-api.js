@@ -1,9 +1,9 @@
 import { TNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
-import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { ComposableTask } from './ComposableTask';
 import { DetectAllFaceLandmarksTask, DetectSingleFaceLandmarksTask } from './DetectFaceLandmarksTasks';
-import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionTask } from './PredictFaceExpressionsTask';
+import { PredictAllAgeAndGenderTask, PredictSingleAgeAndGenderTask } from './PredictAgeAndGenderTask';
+import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionsTask } from './PredictFaceExpressionsTask';
 import { FaceDetectionOptions } from './types';
 export declare class DetectFacesTaskBase<TReturn> extends ComposableTask<TReturn> {
     protected input: TNetInput;
@@ -13,12 +13,26 @@ export declare class DetectFacesTaskBase<TReturn> extends ComposableTask<TReturn
 export declare class DetectAllFacesTask extends DetectFacesTaskBase<FaceDetection[]> {
     run(): Promise<FaceDetection[]>;
     private runAndExtendWithFaceDetections;
-    withFaceLandmarks(useTinyLandmarkNet?: boolean): DetectAllFaceLandmarksTask<WithFaceDetection<{}>>;
-    withFaceExpressions(): PredictAllFaceExpressionsTask<WithFaceDetection<{}>>;
+    withFaceLandmarks(useTinyLandmarkNet?: boolean): DetectAllFaceLandmarksTask<{
+        detection: FaceDetection;
+    }>;
+    withFaceExpressions(): PredictAllFaceExpressionsTask<{
+        detection: FaceDetection;
+    }>;
+    withAgeAndGender(): PredictAllAgeAndGenderTask<{
+        detection: FaceDetection;
+    }>;
 }
 export declare class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | undefined> {
     run(): Promise<FaceDetection | undefined>;
     private runAndExtendWithFaceDetection;
-    withFaceLandmarks(useTinyLandmarkNet?: boolean): DetectSingleFaceLandmarksTask<WithFaceDetection<{}>>;
-    withFaceExpressions(): PredictSingleFaceExpressionTask<WithFaceDetection<{}>>;
+    withFaceLandmarks(useTinyLandmarkNet?: boolean): DetectSingleFaceLandmarksTask<{
+        detection: FaceDetection;
+    }>;
+    withFaceExpressions(): PredictSingleFaceExpressionsTask<{
+        detection: FaceDetection;
+    }>;
+    withAgeAndGender(): PredictSingleAgeAndGenderTask<{
+        detection: FaceDetection;
+    }>;
 }

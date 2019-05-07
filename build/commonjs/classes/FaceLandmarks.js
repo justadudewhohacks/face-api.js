@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
+var minBbox_1 = require("../minBbox");
 var FaceDetection_1 = require("./FaceDetection");
 // face alignment constants
 var relX = 0.5;
@@ -62,13 +63,21 @@ var FaceLandmarks = /** @class */ (function () {
      * it's current shift.
      * @returns The bounding box of the aligned face.
      */
-    FaceLandmarks.prototype.align = function (detection) {
+    FaceLandmarks.prototype.align = function (detection, options) {
+        if (options === void 0) { options = {}; }
         if (detection) {
             var box = detection instanceof FaceDetection_1.FaceDetection
                 ? detection.box.floor()
-                : detection;
-            return this.shiftBy(box.x, box.y).align();
+                : new tfjs_image_recognition_base_1.Box(detection);
+            return this.shiftBy(box.x, box.y).align(null, options);
         }
+        var _a = Object.assign({}, { useDlibAlignment: false, minBoxPadding: 0.2 }, options), useDlibAlignment = _a.useDlibAlignment, minBoxPadding = _a.minBoxPadding;
+        if (useDlibAlignment) {
+            return this.alignDlib();
+        }
+        return this.alignMinBbox(minBoxPadding);
+    };
+    FaceLandmarks.prototype.alignDlib = function () {
         var centers = this.getRefPointsForAlignment();
         var leftEyeCenter = centers[0], rightEyeCenter = centers[1], mouthCenter = centers[2];
         var distToMouth = function (pt) { return mouthCenter.sub(pt).magnitude(); };
@@ -79,6 +88,10 @@ var FaceLandmarks = /** @class */ (function () {
         var x = Math.floor(Math.max(0, refPoint.x - (relX * size)));
         var y = Math.floor(Math.max(0, refPoint.y - (relY * size)));
         return new tfjs_image_recognition_base_1.Rect(x, y, Math.min(size, this.imageWidth + x), Math.min(size, this.imageHeight + y));
+    };
+    FaceLandmarks.prototype.alignMinBbox = function (padding) {
+        var box = minBbox_1.minBbox(this.positions);
+        return box.pad(box.width * padding, box.height * padding);
     };
     FaceLandmarks.prototype.getRefPointsForAlignment = function () {
         throw new Error('getRefPointsForAlignment not implemented by base class');
