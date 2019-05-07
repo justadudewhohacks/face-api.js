@@ -441,46 +441,110 @@ const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors)
 
 ## Displaying Detection Results
 
-Drawing the detected faces into a canvas:
+Preparing the overlay canvas:
 
 ``` javascript
-const detections = await faceapi.detectAllFaces(input)
-
-// resize the detected boxes in case your displayed image has a different size then the original
-const detectionsForSize = faceapi.resizeResults(detections, { width: input.width, height: input.height })
-// draw them into a canvas
+const displaySize = { width: input.width, height: input.height }
+// resize the overlay canvas to the input dimensions
 const canvas = document.getElementById('overlay')
-canvas.width = input.width
-canvas.height = input.height
-faceapi.drawDetection(canvas, detectionsForSize, { withScore: true })
+faceapi.matchDimensions(canvas, displaySize)
 ```
 
-Drawing face landmarks into a canvas:
+face-api.js predefines some highlevel drawing functions, which you can utilize:
 
 ``` javascript
+/* Display detected face bounding boxes */
+const detections = await faceapi.detectAllFaces(input)
+// resize the detected boxes in case your displayed image has a different size than the original
+const resizedDetections = faceapi.resizeResults(detections, displaySize)
+// draw detections into the canvas
+faceapi.draw.drawDetections(canvas, resizedDetections)
+
+/* Display face landmarks */
 const detectionsWithLandmarks = await faceapi
   .detectAllFaces(input)
   .withFaceLandmarks()
+// resize the detected boxes and landmarks in case your displayed image has a different size than the original
+const resizedResults = faceapi.resizeResults(detectionsWithLandmarks, displaySize)
+// draw detections into the canvas
+faceapi.draw.drawDetections(canvas, resizedDetections)
+// draw the landmarks into the canvas
+faceapi.draw.drawFaceLandmarks(canvas, resizedResults)
 
-// resize the detected boxes and landmarks in case your displayed image has a different size then the original
-const detectionsWithLandmarksForSize = faceapi.resizeResults(detectionsWithLandmarks, { width: input.width, height: input.height })
-// draw them into a canvas
-const canvas = document.getElementById('overlay')
-canvas.width = input.width
-canvas.height = input.height
-faceapi.drawLandmarks(canvas, detectionsWithLandmarks, { drawLines: true })
+
+/* Display face expression results */
+const detectionsWithExpressions = await faceapi
+  .detectAllFaces(input)
+  .withFaceLandmarks()
+  .withFaceExpressions()
+// resize the detected boxes and landmarks in case your displayed image has a different size than the original
+const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
+// draw detections into the canvas
+faceapi.draw.drawDetections(canvas, resizedDetections)
+// draw a textbox displaying the face expressions with minimum probability into the canvas
+const minProbability = 0.05
+faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
 ```
 
-Finally you can also draw boxes with custom text:
+You can also draw boxes with custom text ([DrawBox](https://github.com/justadudewhohacks/tfjs-image-recognition-base/blob/master/src/draw/DrawBox.ts)):
 
 ``` javascript
-const boxesWithText = [
-  new faceapi.BoxWithText(new faceapi.Rect(x, y, width, height), text))
-  new faceapi.BoxWithText(new faceapi.Rect(0, 0, 50, 50), 'some text'))
-]
+const box = { x: 50, y: 50, width: 100, height: 100 }
+// see DrawBoxOptions below
+const drawOptions = {
+  label: 'Hello I am a box!',
+  lineWidth: 2
+}
+const drawBox = new faceapi.draw.DrawBox(box, drawOptions)
+drawBox.draw(document.getElementById('myCanvas'))
+```
 
-const canvas = document.getElementById('overlay')
-faceapi.drawDetection(canvas, boxesWithText)
+DrawBox drawing options:
+
+``` javascript
+export interface IDrawBoxOptions {
+  boxColor?: string
+  lineWidth?: number
+  drawLabelOptions?: IDrawTextFieldOptions
+  label?: string
+}
+```
+
+Finally you can draw custom text fields ([DrawTextField](https://github.com/justadudewhohacks/tfjs-image-recognition-base/blob/master/src/draw/DrawTextField.ts)):
+
+``` javascript
+const text = [
+  'This is a textline!',
+  'This is another textline!'
+]
+const anchor = { x: 200, y: 200 }
+// see DrawTextField below
+const drawOptions = {
+  anchorPosition: 'TOP_LEFT',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)'
+}
+const drawBox = new faceapi.draw.DrawTextField(text, anchor, drawOptions)
+drawBox.draw(document.getElementById('myCanvas'))
+```
+
+DrawTextField drawing options:
+
+``` javascript
+export interface IDrawTextFieldOptions {
+  anchorPosition?: AnchorPosition
+  backgroundColor?: string
+  fontColor?: string
+  fontSize?: number
+  fontStyle?: string
+  padding?: number
+}
+
+export enum AnchorPosition {
+  TOP_LEFT = 'TOP_LEFT',
+  TOP_RIGHT = 'TOP_RIGHT',
+  BOTTOM_LEFT = 'BOTTOM_LEFT',
+  BOTTOM_RIGHT = 'BOTTOM_RIGHT'
+}
 ```
 
 <a name="getting-started-face-detection-options"></a>
