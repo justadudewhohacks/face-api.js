@@ -467,7 +467,7 @@ const detectionsWithLandmarks = await faceapi
 // resize the detected boxes and landmarks in case your displayed image has a different size than the original
 const resizedResults = faceapi.resizeResults(detectionsWithLandmarks, displaySize)
 // draw detections into the canvas
-faceapi.draw.drawDetections(canvas, resizedDetections)
+faceapi.draw.drawDetections(canvas, resizedResults)
 // draw the landmarks into the canvas
 faceapi.draw.drawFaceLandmarks(canvas, resizedResults)
 
@@ -480,7 +480,7 @@ const detectionsWithExpressions = await faceapi
 // resize the detected boxes and landmarks in case your displayed image has a different size than the original
 const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
 // draw detections into the canvas
-faceapi.draw.drawDetections(canvas, resizedDetections)
+faceapi.draw.drawDetections(canvas, resizedResults)
 // draw a textbox displaying the face expressions with minimum probability into the canvas
 const minProbability = 0.05
 faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
@@ -638,8 +638,6 @@ export interface IBox {
 }
 ```
 
-<a name="interface-face-detection"></a>
-
 ### IFaceDetection
 
 ``` javascript
@@ -648,8 +646,6 @@ export interface IFaceDetection {
   box: Box
 }
 ```
-
-<a name="interface-face-landmarks"></a>
 
 ### IFaceLandmarks
 
@@ -660,52 +656,59 @@ export interface IFaceLandmarks {
 }
 ```
 
-<a name="with-face-detection"></a>
-
 ### WithFaceDetection
 
 ``` javascript
-export type WithFaceDetection<TSource> TSource & {
+export type WithFaceDetection<TSource> = TSource & {
   detection: FaceDetection
 }
 ```
 
-<a name="with-face-landmarks"></a>
-
 ### WithFaceLandmarks
 
 ``` javascript
-export type WithFaceLandmarks<TSource> TSource & {
+export type WithFaceLandmarks<TSource> = TSource & {
   unshiftedLandmarks: FaceLandmarks
   landmarks: FaceLandmarks
   alignedRect: FaceDetection
 }
 ```
 
-<a name="with-face-descriptor"></a>
-
 ### WithFaceDescriptor
 
 ``` javascript
-export type WithFaceDescriptor<TSource> TSource & {
+export type WithFaceDescriptor<TSource> = TSource & {
   descriptor: Float32Array
 }
 ```
 
-<a name="with-face-expressions"></a>
-
 ### WithFaceExpressions
 
 ``` javascript
-export type FaceExpression = 'neutral' | 'happy' | 'sad' | 'angry' | 'fearful' | 'disgusted' | 'surprised'
+export type WithFaceExpressions<TSource> = TSource & {
+  expressions: FaceExpressions
+}
+```
 
-export type FaceExpressionPrediction = {
-  expression: FaceExpression,
-  probability: number
+### WithAge
+
+``` javascript
+export type WithAge<TSource> = TSource & {
+  age: number
+}
+```
+
+### WithGender
+
+``` javascript
+export type WithGender<TSource> = TSource & {
+  gender: Gender
+  genderProbability: number
 }
 
-export type WithFaceExpressions<TSource> TSource & {
-  expressions: FaceExpressionPrediction[]
+export enum Gender {
+  FEMALE = 'female',
+  MALE = 'male'
 }
 ```
 
