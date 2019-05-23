@@ -376,7 +376,7 @@ await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceExpressions().
 
 To perform face recognition, one can use faceapi.FaceMatcher to compare reference face descriptors to query face descriptors.
 
-First, we initialize the FaceMatcher with the reference data, for example we can simply detect faces in a **referenceImage** and match the descriptors of the detected faces to faces of subsquent images:
+First, we initialize the FaceMatcher with the reference data, for example we can simply detect faces in a **referenceImage** and match the descriptors of the detected faces to faces of subsequent images:
 
 ``` javascript
 const results = await faceapi
