@@ -2,8 +2,8 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-node": "^1.0.2",
-    "canvas": "^2.0.1",
+    "@tensorflow/tfjs-node": "^1.2.3",
+    "canvas": "^2.5.0",
     "face-api.js": "../../"
   }
 }
