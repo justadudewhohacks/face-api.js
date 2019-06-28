@@ -29,14 +29,13 @@ function expectFaceExpressions(results: WithFaceExpressions<WithFaceDetection<{}
   })
 }
 
-const ages = [34, 27, 41, 26, 31, 37]
+const ages = [34, 27, 41, 26, 31, 40]
 const agesUnaligned = [33, 26, 37, 30, 36, 22]
 const genders = ['female', 'male', 'male', 'female', 'male', 'female']
 
 function expectAgesAndGender(results: WithAge<WithGender<WithFaceDetection<{}>>>[], aligned = true) {
   sortByFaceDetection(results).forEach((result, i) => {
     const { age, gender, genderProbability } = result
-
     const expectedAge = aligned ? ages[i] : agesUnaligned[i]
     expect(Math.abs(age - expectedAge)).toBeLessThanOrEqual(6)
     expect(gender).toEqual(genders[i])
