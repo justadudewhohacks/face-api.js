@@ -5,4 +5,6 @@ tslib_1.__exportStar(require("./WithFaceDescriptor"), exports);
 tslib_1.__exportStar(require("./WithFaceDetection"), exports);
 tslib_1.__exportStar(require("./WithFaceExpressions"), exports);
 tslib_1.__exportStar(require("./WithFaceLandmarks"), exports);
+tslib_1.__exportStar(require("./WithAge"), exports);
+tslib_1.__exportStar(require("./WithGender"), exports);
 //# sourceMappingURL=index.js.map
