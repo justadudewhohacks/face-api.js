@@ -4073,6 +4073,23 @@
         return Object.assign({}, sourceObj, extension);
     }
 
+    function isWithAge(obj) {
+        return typeof obj['age'] === 'number';
+    }
+    function extendWithAge(sourceObj, age) {
+        var extension = { age: age };
+        return Object.assign({}, sourceObj, extension);
+    }
+
+    function isWithGender(obj) {
+        return (obj['gender'] === exports.Gender.MALE || obj['gender'] === exports.Gender.FEMALE)
+            && isValidProbablitiy(obj['genderProbability']);
+    }
+    function extendWithGender(sourceObj, gender, genderProbability) {
+        var extension = { gender: gender, genderProbability: genderProbability };
+        return Object.assign({}, sourceObj, extension);
+    }
+
     var MtcnnOptions = /** @class */ (function () {
         function MtcnnOptions(_a) {
             var _b = _a === void 0 ? {} : _a, minFaceSize = _b.minFaceSize, scaleFactor = _b.scaleFactor, maxNumScales = _b.maxNumScales, scoreThresholds = _b.scoreThresholds, scaleSteps = _b.scaleSteps;
@@ -5693,16 +5710,6 @@
     var locateFaces = ssdMobilenetv1;
     var detectLandmarks = detectFaceLandmarks;
 
-    function extendWithAge(sourceObj, age) {
-        var extension = { age: age };
-        return Object.assign({}, sourceObj, extension);
-    }
-
-    function extendWithGender(sourceObj, gender, genderProbability) {
-        var extension = { gender: gender, genderProbability: genderProbability };
-        return Object.assign({}, sourceObj, extension);
-    }
-
     var PredictFaceExpressionsTaskBase = /** @class */ (function (_super) {
         __extends(PredictFaceExpressionsTaskBase, _super);
         function PredictFaceExpressionsTaskBase(parentTask, input, extractedFaces) {
@@ -6440,10 +6447,12 @@
     exports.draw = draw;
     exports.env = env;
     exports.euclideanDistance = euclideanDistance;
+    exports.extendWithAge = extendWithAge;
     exports.extendWithFaceDescriptor = extendWithFaceDescriptor;
     exports.extendWithFaceDetection = extendWithFaceDetection;
     exports.extendWithFaceExpressions = extendWithFaceExpressions;
     exports.extendWithFaceLandmarks = extendWithFaceLandmarks;
+    exports.extendWithGender = extendWithGender;
     exports.extractFaceTensors = extractFaceTensors;
     exports.extractFaces = extractFaces;
     exports.fetchImage = fetchImage;
@@ -6469,9 +6478,11 @@
     exports.isTensor4D = isTensor4D;
     exports.isValidNumber = isValidNumber;
     exports.isValidProbablitiy = isValidProbablitiy;
+    exports.isWithAge = isWithAge;
     exports.isWithFaceDetection = isWithFaceDetection;
     exports.isWithFaceExpressions = isWithFaceExpressions;
     exports.isWithFaceLandmarks = isWithFaceLandmarks;
+    exports.isWithGender = isWithGender;
     exports.loadAgeGenderModel = loadAgeGenderModel;
     exports.loadFaceDetectionModel = loadFaceDetectionModel;
     exports.loadFaceExpressionModel = loadFaceExpressionModel;
