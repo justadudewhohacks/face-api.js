@@ -17,4 +17,5 @@ export class LabeledFaceDescriptors {
 
   public get label(): string { return this._label }
   public get descriptors(): Float32Array[] { return this._descriptors }
+
 }

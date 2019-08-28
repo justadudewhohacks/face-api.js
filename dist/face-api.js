@@ -6340,10 +6340,6 @@
                 ? bestMatch
                 : new FaceMatch('unknown', bestMatch.distance);
         };
-        FaceMatcher.toJSON = function (matcher, pretty) {
-            if (pretty === void 0) { pretty = false; }
-            return JSON.stringify(matcher, null, pretty ? 2 : undefined);
-        };
         FaceMatcher.fromJSON = function (jsonString) {
             var poco = JSON.parse(jsonString);
             var labeledDescriptors = poco._labeledDescriptors

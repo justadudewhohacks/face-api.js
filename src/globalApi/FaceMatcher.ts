@@ -67,10 +67,6 @@ export class FaceMatcher {
       : new FaceMatch('unknown', bestMatch.distance)
   }
 
-  public static toJSON(matcher: FaceMatcher, pretty = false): string {
-    return JSON.stringify(matcher, null, pretty ? 2 : undefined);
-  }
-
   public static fromJSON(jsonString: string): FaceMatcher {
     const poco: any = JSON.parse(jsonString);
     const labeledDescriptors = poco._labeledDescriptors
