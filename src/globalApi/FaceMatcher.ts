@@ -76,7 +76,7 @@ export class FaceMatcher {
     const labeledDescriptors = poco._labeledDescriptors
       .map(({ _label, _descriptors }: { _label: string, _descriptors: any }) => {
         return new LabeledFaceDescriptors(_label, _descriptors.map((d: any) => {
-          return new Float32Array(Object.values(d));
+          return new Float32Array(Object.keys(d).map(key => d[key]));
         }));
       });
     return new FaceMatcher(labeledDescriptors, poco._distanceThreshold);

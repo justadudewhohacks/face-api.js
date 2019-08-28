@@ -6350,7 +6350,7 @@
                 .map(function (_a) {
                 var _label = _a._label, _descriptors = _a._descriptors;
                 return new LabeledFaceDescriptors(_label, _descriptors.map(function (d) {
-                    return new Float32Array(Object.values(d));
+                    return new Float32Array(Object.keys(d).map(function (key) { return d[key]; }));
                 }));
             });
             return new FaceMatcher(labeledDescriptors, poco._distanceThreshold);
