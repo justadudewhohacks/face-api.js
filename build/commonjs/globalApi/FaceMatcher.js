@@ -57,6 +57,21 @@ var FaceMatcher = /** @class */ (function () {
             ? bestMatch
             : new FaceMatch_1.FaceMatch('unknown', bestMatch.distance);
     };
+    FaceMatcher.toJSON = function (matcher, pretty) {
+        if (pretty === void 0) { pretty = false; }
+        return JSON.stringify(matcher, null, pretty ? 2 : undefined);
+    };
+    FaceMatcher.fromJSON = function (jsonString) {
+        var poco = JSON.parse(jsonString);
+        var labeledDescriptors = poco._labeledDescriptors
+            .map(function (_a) {
+            var _label = _a._label, _descriptors = _a._descriptors;
+            return new LabeledFaceDescriptors_1.LabeledFaceDescriptors(_label, _descriptors.map(function (d) {
+                return new Float32Array(Object.values(d));
+            }));
+        });
+        return new FaceMatcher(labeledDescriptors, poco._distanceThreshold);
+    };
     return FaceMatcher;
 }());
 exports.FaceMatcher = FaceMatcher;
