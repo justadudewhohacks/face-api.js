@@ -68,14 +68,13 @@ export class FaceMatcher {
   }
 
   public static fromJSON(jsonString: string): FaceMatcher {
-    const poco: any = JSON.parse(jsonString);
-    const labeledDescriptors = poco._labeledDescriptors
-      .map(({ _label, _descriptors }: { _label: string, _descriptors: any }) => {
-        return new LabeledFaceDescriptors(_label, _descriptors.map((d: any) => {
-          return new Float32Array(Object.keys(d).map(key => d[key]));
-        }));
-      });
-    return new FaceMatcher(labeledDescriptors, poco._distanceThreshold);
+    return FaceMatcher.fromPOJO(JSON.parse(jsonString));
+  }
+
+  public static fromPOJO(pojo: any): FaceMatcher {
+    const labeledDescriptors = pojo._labeledDescriptors
+      .map((ld: any) => LabeledFaceDescriptors.fromPOJO(ld));
+    return new FaceMatcher(labeledDescriptors, pojo._distanceThreshold);
   }
 
 }

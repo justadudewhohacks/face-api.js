@@ -56,15 +56,12 @@ var FaceMatcher = /** @class */ (function () {
             : new FaceMatch('unknown', bestMatch.distance);
     };
     FaceMatcher.fromJSON = function (jsonString) {
-        var poco = JSON.parse(jsonString);
-        var labeledDescriptors = poco._labeledDescriptors
-            .map(function (_a) {
-            var _label = _a._label, _descriptors = _a._descriptors;
-            return new LabeledFaceDescriptors(_label, _descriptors.map(function (d) {
-                return new Float32Array(Object.keys(d).map(function (key) { return d[key]; }));
-            }));
-        });
-        return new FaceMatcher(labeledDescriptors, poco._distanceThreshold);
+        return FaceMatcher.fromPOJO(JSON.parse(jsonString));
+    };
+    FaceMatcher.fromPOJO = function (pojo) {
+        var labeledDescriptors = pojo._labeledDescriptors
+            .map(function (ld) { return LabeledFaceDescriptors.fromPOJO(ld); });
+        return new FaceMatcher(labeledDescriptors, pojo._distanceThreshold);
     };
     return FaceMatcher;
 }());

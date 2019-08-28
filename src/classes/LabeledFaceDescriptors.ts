@@ -18,4 +18,15 @@ export class LabeledFaceDescriptors {
   public get label(): string { return this._label }
   public get descriptors(): Float32Array[] { return this._descriptors }
 
+  public static fromJSON(jsonString: string): LabeledFaceDescriptors {
+    return LabeledFaceDescriptors.fromPOJO(JSON.parse(jsonString));
+  }
+
+  public static fromPOJO(pojo: any): LabeledFaceDescriptors {
+    const descriptors = pojo._descriptors.map((d: any) => {
+      return new Float32Array(Object.keys(d).map(key => d[key]));
+    });
+    return new LabeledFaceDescriptors(pojo._label, descriptors);
+  }
+
 }

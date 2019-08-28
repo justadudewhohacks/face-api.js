@@ -11,4 +11,5 @@ export declare class FaceMatcher {
     matchDescriptor(queryDescriptor: Float32Array): FaceMatch;
     findBestMatch(queryDescriptor: Float32Array): FaceMatch;
     static fromJSON(jsonString: string): FaceMatcher;
+    static fromPOJO(pojo: any): FaceMatcher;
 }
