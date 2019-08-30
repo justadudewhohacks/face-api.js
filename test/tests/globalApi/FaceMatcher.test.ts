@@ -18,12 +18,14 @@ describe('globalApi', () => {
       new LabeledFaceDescriptors(l2, [f3, f4])
     ];
 
-    it('toJSON()', () => {
-      expect(FaceMatcher.toJSON(new FaceMatcher(lds, dt))).toBe(json);
+    it('JSON.stringify()', () => {
+      expect(JSON.stringify(new FaceMatcher(lds, dt))).toBe(json);
+      expect(JSON.stringify({ m: new FaceMatcher(lds, dt) })).toBe(`{"m":${json}}`);
+      expect(JSON.stringify([ new FaceMatcher(lds, dt) ])).toBe(`[${json}]`);
     });
 
     it('fromJSON()', () => {
-      const fm = FaceMatcher.fromJSON(json);
+      const fm = FaceMatcher.fromJSON(JSON.parse(json));
 
       expect(fm.distanceThreshold).toBe(dt);
       expect(fm.labeledDescriptors.length).toBe(2);
@@ -37,23 +39,8 @@ describe('globalApi', () => {
       expect(fm.labeledDescriptors[1].descriptors[1]).toEqual(f4);
     });
 
-    it('fromPOJO()', () => {
-      const fm = FaceMatcher.fromPOJO(JSON.parse(json));
-
-      expect(fm.distanceThreshold).toBe(dt);
-      expect(fm.labeledDescriptors.length).toBe(2);
-      expect(fm.labeledDescriptors[0].label).toBe(l1);
-      expect(fm.labeledDescriptors[0].descriptors.length).toBe(2);
-      expect(fm.labeledDescriptors[0].descriptors[0]).toEqual(f1);
-      expect(fm.labeledDescriptors[0].descriptors[1]).toEqual(f2);
-      expect(fm.labeledDescriptors[1].label).toBe(l2);
-      expect(fm.labeledDescriptors[1].descriptors.length).toBe(2);
-      expect(fm.labeledDescriptors[1].descriptors[0]).toEqual(f3);
-      expect(fm.labeledDescriptors[1].descriptors[1]).toEqual(f4);
-    });
-
-    it('JSON.stringify() => fromJSON()', () => {
-      const fm = FaceMatcher.fromJSON(FaceMatcher.toJSON(new FaceMatcher(lds, dt)));
+    it('toJSON() => fromJSON()', () => {
+      const fm = FaceMatcher.fromJSON(new FaceMatcher(lds, dt).toJSON());
 
       expect(fm.distanceThreshold).toBe(dt);
       expect(fm.labeledDescriptors.length).toBe(2);

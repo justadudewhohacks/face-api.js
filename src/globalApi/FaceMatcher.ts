@@ -67,18 +67,17 @@ export class FaceMatcher {
       : new FaceMatch('unknown', bestMatch.distance)
   }
 
-  public static toJSON(matcher: FaceMatcher): string {
-    return `{"distanceThreshold":${matcher.distanceThreshold},"labeledDescriptors":[${matcher.labeledDescriptors.map((ld) => LabeledFaceDescriptors.toJSON(ld))}]}`;
+  public toJSON(): any {
+    return {
+      distanceThreshold: this.distanceThreshold,
+      labeledDescriptors: this.labeledDescriptors.map((ld) => ld.toJSON())
+    };
   }
 
-  public static fromJSON(jsonString: string): FaceMatcher {
-    return FaceMatcher.fromPOJO(JSON.parse(jsonString));
-  }
-
-  public static fromPOJO(pojo: any): FaceMatcher {
-    const labeledDescriptors = pojo.labeledDescriptors
-      .map((ld: any) => LabeledFaceDescriptors.fromPOJO(ld));
-    return new FaceMatcher(labeledDescriptors, pojo.distanceThreshold);
+  public static fromJSON(json: any): FaceMatcher {
+    const labeledDescriptors = json.labeledDescriptors
+      .map((ld: any) => LabeledFaceDescriptors.fromJSON(ld));
+    return new FaceMatcher(labeledDescriptors, json.distanceThreshold);
   }
 
 }
