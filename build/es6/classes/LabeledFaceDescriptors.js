@@ -19,15 +19,6 @@ var LabeledFaceDescriptors = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    LabeledFaceDescriptors.fromJSON = function (jsonString) {
-        return LabeledFaceDescriptors.fromPOJO(JSON.parse(jsonString));
-    };
-    LabeledFaceDescriptors.fromPOJO = function (pojo) {
-        var descriptors = pojo._descriptors.map(function (d) {
-            return new Float32Array(Object.keys(d).map(function (key) { return d[key]; }));
-        });
-        return new LabeledFaceDescriptors(pojo._label, descriptors);
-    };
     return LabeledFaceDescriptors;
 }());
 export { LabeledFaceDescriptors };

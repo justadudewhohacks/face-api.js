@@ -55,14 +55,6 @@ var FaceMatcher = /** @class */ (function () {
             ? bestMatch
             : new FaceMatch('unknown', bestMatch.distance);
     };
-    FaceMatcher.fromJSON = function (jsonString) {
-        return FaceMatcher.fromPOJO(JSON.parse(jsonString));
-    };
-    FaceMatcher.fromPOJO = function (pojo) {
-        var labeledDescriptors = pojo._labeledDescriptors
-            .map(function (ld) { return LabeledFaceDescriptors.fromPOJO(ld); });
-        return new FaceMatcher(labeledDescriptors, pojo._distanceThreshold);
-    };
     return FaceMatcher;
 }());
 export { FaceMatcher };

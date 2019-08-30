@@ -5,7 +5,7 @@ describe('globalApi', () => {
 
   describe('FaceMatcher', () => {
 
-    const json = '{"_distanceThreshold":123.321,"_labeledDescriptors":[{"_label":"foo","_descriptors":[{"0":1,"1":2,"2":3},{"0":4,"1":5,"2":6}]},{"_label":"bar","_descriptors":[{"0":7,"1":8,"2":9},{"0":3,"1":2,"2":1}]}]}';
+    const json = '{"distanceThreshold":123.321,"labeledDescriptors":[{"label":"foo","descriptors":[[1,2,3],[4,5,6]]},{"label":"bar","descriptors":[[7,8,9],[3,2,1]]}]}';
     const dt = 123.321;
     const l1 = 'foo';
     const l2 = 'bar';
@@ -17,6 +17,10 @@ describe('globalApi', () => {
       new LabeledFaceDescriptors(l1, [f1, f2]),
       new LabeledFaceDescriptors(l2, [f3, f4])
     ];
+
+    it('toJSON()', () => {
+      expect(FaceMatcher.toJSON(new FaceMatcher(lds, dt))).toBe(json);
+    });
 
     it('fromJSON()', () => {
       const fm = FaceMatcher.fromJSON(json);
@@ -49,7 +53,7 @@ describe('globalApi', () => {
     });
 
     it('JSON.stringify() => fromJSON()', () => {
-      const fm = FaceMatcher.fromJSON(JSON.stringify(new FaceMatcher(lds, dt)));
+      const fm = FaceMatcher.fromJSON(FaceMatcher.toJSON(new FaceMatcher(lds, dt)));
 
       expect(fm.distanceThreshold).toBe(dt);
       expect(fm.labeledDescriptors.length).toBe(2);
