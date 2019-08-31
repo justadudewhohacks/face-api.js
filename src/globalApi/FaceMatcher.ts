@@ -67,4 +67,17 @@ export class FaceMatcher {
       : new FaceMatch('unknown', bestMatch.distance)
   }
 
+  public toJSON(): any {
+    return {
+      distanceThreshold: this.distanceThreshold,
+      labeledDescriptors: this.labeledDescriptors.map((ld) => ld.toJSON())
+    };
+  }
+
+  public static fromJSON(json: any): FaceMatcher {
+    const labeledDescriptors = json.labeledDescriptors
+      .map((ld: any) => LabeledFaceDescriptors.fromJSON(ld));
+    return new FaceMatcher(labeledDescriptors, json.distanceThreshold);
+  }
+
 }
