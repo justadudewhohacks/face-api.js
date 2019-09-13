@@ -10,7 +10,7 @@ import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
 import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
 import { SsdMobilenetv1 } from '../src/ssdMobilenetv1/SsdMobilenetv1';
 import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
-import { initNet, loadJson } from './env';
+import { getTestEnv } from './env';
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
   expect(Math.abs(val1 - val2)).toBeLessThanOrEqual(maxDelta)
@@ -93,8 +93,8 @@ export async function assembleExpectedFullFaceDescriptions(
   detections: IRect[],
   landmarksFile: string = 'facesFaceLandmarkPositions.json'
 ): Promise<ExpectedFullFaceDescription[]> {
-  const landmarks = await loadJson<any[]>(`test/data/${landmarksFile}`)
-  const descriptors = await loadJson<any[]>('test/data/facesFaceDescriptors.json')
+  const landmarks = await getTestEnv().loadJson<any[]>(`test/data/${landmarksFile}`)
+  const descriptors = await getTestEnv().loadJson<any[]>('test/data/facesFaceDescriptors.json')
 
   return detections.map((detection, i) => ({
     detection,
@@ -211,63 +211,63 @@ export function describeWithNets(
       } = options
 
       if (withSsdMobilenetv1 || withAllFacesSsdMobilenetv1) {
-        await initNet<SsdMobilenetv1>(
+        await getTestEnv().initNet<SsdMobilenetv1>(
           ssdMobilenetv1,
           !!withSsdMobilenetv1 && !withSsdMobilenetv1.quantized && 'ssd_mobilenetv1_model.weights'
         )
       }
 
       if (withTinyFaceDetector || withAllFacesTinyFaceDetector) {
-        await initNet<TinyFaceDetector>(
+        await getTestEnv().initNet<TinyFaceDetector>(
           tinyFaceDetector,
           !!withTinyFaceDetector && !withTinyFaceDetector.quantized && 'tiny_face_detector_model.weights'
         )
       }
 
       if (withFaceLandmark68Net || withAllFacesSsdMobilenetv1  || withAllFacesTinyFaceDetector|| withAllFacesMtcnn || withAllFacesTinyYolov2) {
-        await initNet<FaceLandmark68Net>(
+        await getTestEnv().initNet<FaceLandmark68Net>(
           faceLandmark68Net,
           !!withFaceLandmark68Net && !withFaceLandmark68Net.quantized && 'face_landmark_68_model.weights'
         )
       }
 
       if (withFaceLandmark68TinyNet) {
-        await initNet<FaceLandmark68TinyNet>(
+        await getTestEnv().initNet<FaceLandmark68TinyNet>(
           faceLandmark68TinyNet,
           !!withFaceLandmark68TinyNet && !withFaceLandmark68TinyNet.quantized && 'face_landmark_68_tiny_model.weights'
         )
       }
 
       if (withFaceRecognitionNet || withAllFacesSsdMobilenetv1  || withAllFacesTinyFaceDetector|| withAllFacesMtcnn || withAllFacesTinyYolov2) {
-        await initNet<FaceRecognitionNet>(
+        await getTestEnv().initNet<FaceRecognitionNet>(
           faceRecognitionNet,
           !!withFaceRecognitionNet && !withFaceRecognitionNet.quantized && 'face_recognition_model.weights'
         )
       }
 
       if (withMtcnn || withAllFacesMtcnn) {
-        await initNet<Mtcnn>(
+        await getTestEnv().initNet<Mtcnn>(
           mtcnn,
           !!withMtcnn && !withMtcnn.quantized && 'mtcnn_model.weights'
         )
       }
 
       if (withFaceExpressionNet) {
-        await initNet<FaceExpressionNet>(
+        await getTestEnv().initNet<FaceExpressionNet>(
           faceExpressionNet,
           !!withFaceExpressionNet && !withFaceExpressionNet.quantized && 'face_expression_model.weights'
         )
       }
 
       if (withAgeGenderNet) {
-        await initNet<AgeGenderNet>(
+        await getTestEnv().initNet<AgeGenderNet>(
           ageGenderNet,
           !!withAgeGenderNet && !withAgeGenderNet.quantized && 'age_gender_model.weights'
         )
       }
 
       if (withTinyYolov2 || withAllFacesTinyYolov2) {
-        await initNet<TinyYolov2>(
+        await getTestEnv().initNet<TinyYolov2>(
           tinyYolov2,
           !!withTinyYolov2 && !withTinyYolov2.quantized && 'tiny_yolov2_model.weights',
           true

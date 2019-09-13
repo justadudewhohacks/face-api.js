@@ -1,5 +1,5 @@
 import * as faceapi from '../../../src';
-import { loadImage } from '../../env';
+import { getTestEnv } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { describeWithBackend, describeWithNets } from '../../utils';
 import { expectedSsdBoxes } from './expectedBoxes';
@@ -9,7 +9,7 @@ describeWithBackend('ssdMobilenetv1.locateFaces, uncompressed', () => {
   let imgEl: HTMLImageElement
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/faces.jpg')
+    imgEl = await getTestEnv().loadImage('test/images/faces.jpg')
   })
 
   describeWithNets('uncompressed weights', { withSsdMobilenetv1: { quantized: false } }, ({ ssdMobilenetv1 }) => {

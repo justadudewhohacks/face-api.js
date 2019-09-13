@@ -38,6 +38,7 @@ exclude = exclude.concat(
 
 // exclude nodejs tests
 exclude = exclude.concat(['**/*.node.test.ts'])
+exclude = exclude.concat(['test/env.node.ts'])
 
 
 module.exports = function(config) {

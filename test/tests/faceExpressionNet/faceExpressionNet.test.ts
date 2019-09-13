@@ -1,9 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
-import { loadImage } from '../../env';
-import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 import { FaceExpressions } from '../../../src/faceExpressionNet/FaceExpressions';
+import { getTestEnv } from '../../env';
+import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describeWithBackend('faceExpressionNet', () => {
 
@@ -11,8 +11,8 @@ describeWithBackend('faceExpressionNet', () => {
   let imgElSurprised: HTMLImageElement
 
   beforeAll(async () => {
-    imgElAngry = await loadImage('test/images/angry_cropped.jpg')
-    imgElSurprised = await loadImage('test/images/surprised_cropped.jpg')
+    imgElAngry = await getTestEnv().loadImage('test/images/angry_cropped.jpg')
+    imgElSurprised = await getTestEnv().loadImage('test/images/surprised_cropped.jpg')
   })
 
   describeWithNets('quantized weights', { withFaceExpressionNet: { quantized: true } }, ({ faceExpressionNet }) => {

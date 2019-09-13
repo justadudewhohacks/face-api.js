@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
-import { loadImage, loadJson } from '../../env';
+import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
 describeWithBackend('faceRecognitionNet', () => {
@@ -15,12 +15,12 @@ describeWithBackend('faceRecognitionNet', () => {
   let faceDescriptorRect: number[]
 
   beforeAll(async () => {
-    imgEl1 = createCanvasFromMedia(await loadImage('test/images/face1.png'))
-    imgEl2 = createCanvasFromMedia(await loadImage('test/images/face2.png'))
-    imgElRect = createCanvasFromMedia(await loadImage('test/images/face_rectangular.png'))
-    faceDescriptor1 = await loadJson<number[]>('test/data/faceDescriptor1.json')
-    faceDescriptor2 = await loadJson<number[]>('test/data/faceDescriptor2.json')
-    faceDescriptorRect = await loadJson<number[]>('test/data/faceDescriptorRect.json')
+    imgEl1 = createCanvasFromMedia(await getTestEnv().loadImage('test/images/face1.png'))
+    imgEl2 = createCanvasFromMedia(await getTestEnv().loadImage('test/images/face2.png'))
+    imgElRect = createCanvasFromMedia(await getTestEnv().loadImage('test/images/face_rectangular.png'))
+    faceDescriptor1 = await getTestEnv().loadJson<number[]>('test/data/faceDescriptor1.json')
+    faceDescriptor2 = await getTestEnv().loadJson<number[]>('test/data/faceDescriptor2.json')
+    faceDescriptorRect = await getTestEnv().loadJson<number[]>('test/data/faceDescriptorRect.json')
   })
 
   describeWithNets('quantized weights', { withFaceRecognitionNet: { quantized: true } }, ({ faceRecognitionNet }) => {

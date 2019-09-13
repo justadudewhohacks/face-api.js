@@ -1,5 +1,5 @@
 import { IPoint } from '../../../src';
-import { loadImage, loadJson } from '../../env';
+import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets } from '../../utils';
 import { expectMtcnnResults } from './expectMtcnnResults';
 
@@ -9,8 +9,8 @@ describeWithBackend('mtcnn.forward', () => {
   let expectedMtcnnLandmarks: IPoint[][]
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/faces.jpg')
-    expectedMtcnnLandmarks = await loadJson<IPoint[][]>('test/data/mtcnnFaceLandmarkPositions.json')
+    imgEl = await getTestEnv().loadImage('test/images/faces.jpg')
+    expectedMtcnnLandmarks = await getTestEnv().loadJson<IPoint[][]>('test/data/mtcnnFaceLandmarkPositions.json')
   })
 
   describeWithNets('uncompressed weights', { withMtcnn: { quantized: false } }, ({ mtcnn }) => {
