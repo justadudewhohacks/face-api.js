@@ -1,4 +1,3 @@
-
 let spec_files = ['**/*.test.ts'].concat(
   process.env.EXCLUDE_UNCOMPRESSED
     ? ['!**/*.uncompressed.test.ts']

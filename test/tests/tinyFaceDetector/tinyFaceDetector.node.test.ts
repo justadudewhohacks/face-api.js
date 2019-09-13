@@ -5,8 +5,8 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
-import { loadImage } from '../../env';
 import * as tf from '@tensorflow/tfjs-core';
+import { getTestEnv } from '../../env';
 
 describe('tinyFaceDetector - node', () => {
 
@@ -15,7 +15,7 @@ describe('tinyFaceDetector - node', () => {
   const expectedScores = [0.7, 0.82, 0.93, 0.86, 0.79, 0.84]
 
   beforeAll(async () => {
-    imgTensor = tf.browser.fromPixels(createCanvasFromMedia(await loadImage('test/images/faces.jpg')))
+    imgTensor = tf.browser.fromPixels(createCanvasFromMedia(await getTestEnv().loadImage('test/images/faces.jpg')))
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 

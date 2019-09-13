@@ -2,7 +2,7 @@ import * as faceapi from '../../../src';
 import { WithAge } from '../../../src/factories/WithAge';
 import { WithFaceExpressions } from '../../../src/factories/WithFaceExpressions';
 import { WithGender } from '../../../src/factories/WithGender';
-import { loadImage } from '../../env';
+import { getTestEnv } from '../../env';
 import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
@@ -40,7 +40,7 @@ describeWithBackend('globalApi', () => {
   let expectedFullFaceDescriptions: ExpectedFullFaceDescription[]
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/faces.jpg')
+    imgEl = await getTestEnv().loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 

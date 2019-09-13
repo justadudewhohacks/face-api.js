@@ -5,7 +5,7 @@ import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
-import { loadImage } from '../../env';
+import { getTestEnv } from '../../env';
 
 describeWithBackend('tinyFaceDetector', () => {
 
@@ -20,7 +20,7 @@ describeWithBackend('tinyFaceDetector', () => {
   }
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/faces.jpg')
+    imgEl = await getTestEnv().loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedTinyFaceDetectorBoxes)
   })
 

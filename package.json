@@ -13,7 +13,7 @@
     "build": "rm -rf ./build && rm -rf ./dist && npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
     "test": "karma start",
     "test-browser": "karma start --single-run",
-    "test-node": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine-node.js",
+    "test-node": "ts-node -r ./test/env.node.ts node_modules/jasmine/bin/jasmine --config=jasmine-node.js",
     "test-all": "npm run test-browser-exclude-uncompressed && npm run test-node-exclude-uncompressed",
     "test-all-include-uncompressed": "npm run test-browser && npm run test-node",
     "test-facelandmarknets": "set UUT=faceLandmarkNet&& karma start",
@@ -26,7 +26,7 @@
     "test-cpu": "set BACKEND_CPU=true&& karma start",
     "test-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& karma start",
     "test-browser-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& karma start --single-run",
-    "test-node-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& ts-node node_modules/jasmine/bin/jasmine --config=jasmine-node.js",
+    "test-node-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& npm run test-node",
     "docs": "typedoc --options ./typedoc.config.js ./src"
   },
   "keywords": [
@@ -39,27 +39,27 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "1.2.2",
-    "tfjs-image-recognition-base": "^0.6.1",
+    "@tensorflow/tfjs-core": "1.2.9",
+    "tfjs-image-recognition-base": "^0.6.2",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@tensorflow/tfjs-node": "^1.2.3",
-    "@types/jasmine": "^3.3.13",
-    "@types/node": "^12.0.10",
+    "@tensorflow/tfjs-node": "^1.2.9",
+    "@types/jasmine": "^3.4.0",
+    "@types/node": "^12.7.5",
     "canvas": "2.5.0",
     "jasmine": "^3.4.0",
     "jasmine-core": "^3.4.0",
-    "karma": "^4.1.0",
+    "karma": "^4.3.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^2.0.1",
-    "karma-typescript": "^4.1.0",
-    "rollup": "^1.16.2",
-    "rollup-plugin-commonjs": "^10.0.1",
-    "rollup-plugin-node-resolve": "^5.1.0",
-    "rollup-plugin-typescript2": "^0.21.2",
-    "rollup-plugin-uglify": "^6.0.2",
+    "karma-typescript": "^4.1.1",
+    "rollup": "^1.21.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.24.2",
+    "rollup-plugin-uglify": "^6.0.3",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.6.3"
   }
 }

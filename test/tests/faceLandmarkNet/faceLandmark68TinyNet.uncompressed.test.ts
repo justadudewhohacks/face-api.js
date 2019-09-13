@@ -1,7 +1,7 @@
 import { Point } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { loadImage, loadJson } from '../../env';
-import { describeWithNets, expectPointClose, describeWithBackend } from '../../utils';
+import { getTestEnv } from '../../env';
+import { describeWithBackend, describeWithNets, expectPointClose } from '../../utils';
 
 describeWithBackend('faceLandmark68TinyNet, uncompressed', () => {
 
@@ -11,10 +11,10 @@ describeWithBackend('faceLandmark68TinyNet, uncompressed', () => {
   let faceLandmarkPositionsRect: Point[]
 
   beforeAll(async () => {
-    imgEl1 = await loadImage('test/images/face1.png')
-    imgElRect = await loadImage('test/images/face_rectangular.png')
-    faceLandmarkPositions1 = await loadJson<Point[]>('test/data/faceLandmarkPositions1Tiny.json')
-    faceLandmarkPositionsRect = await loadJson<Point[]>('test/data/faceLandmarkPositionsRectTiny.json')
+    imgEl1 = await getTestEnv().loadImage('test/images/face1.png')
+    imgElRect = await getTestEnv().loadImage('test/images/face_rectangular.png')
+    faceLandmarkPositions1 = await getTestEnv().loadJson<Point[]>('test/data/faceLandmarkPositions1Tiny.json')
+    faceLandmarkPositionsRect = await getTestEnv().loadJson<Point[]>('test/data/faceLandmarkPositionsRectTiny.json')
   })
 
   describeWithNets('uncompressed weights', { withFaceLandmark68TinyNet: { quantized: false } }, ({ faceLandmark68TinyNet }) => {

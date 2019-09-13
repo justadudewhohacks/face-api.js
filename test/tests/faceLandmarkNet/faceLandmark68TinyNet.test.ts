@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { createCanvasFromMedia, IDimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
 import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { loadImage, loadJson } from '../../env';
+import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
@@ -23,12 +23,12 @@ describeWithBackend('faceLandmark68TinyNet', () => {
   let faceLandmarkPositionsRect: Point[]
 
   beforeAll(async () => {
-    imgEl1 = await loadImage('test/images/face1.png')
-    imgEl2 = await loadImage('test/images/face2.png')
-    imgElRect = await loadImage('test/images/face_rectangular.png')
-    faceLandmarkPositions1 = await loadJson<Point[]>('test/data/faceLandmarkPositions1Tiny.json')
-    faceLandmarkPositions2 = await loadJson<Point[]>('test/data/faceLandmarkPositions2Tiny.json')
-    faceLandmarkPositionsRect = await loadJson<Point[]>('test/data/faceLandmarkPositionsRectTiny.json')
+    imgEl1 = await getTestEnv().loadImage('test/images/face1.png')
+    imgEl2 = await getTestEnv().loadImage('test/images/face2.png')
+    imgElRect = await getTestEnv().loadImage('test/images/face_rectangular.png')
+    faceLandmarkPositions1 = await getTestEnv().loadJson<Point[]>('test/data/faceLandmarkPositions1Tiny.json')
+    faceLandmarkPositions2 = await getTestEnv().loadJson<Point[]>('test/data/faceLandmarkPositions2Tiny.json')
+    faceLandmarkPositionsRect = await getTestEnv().loadJson<Point[]>('test/data/faceLandmarkPositionsRectTiny.json')
   })
 
   describeWithNets('quantized weights', { withFaceLandmark68TinyNet: { quantized: true } }, ({ faceLandmark68TinyNet }) => {

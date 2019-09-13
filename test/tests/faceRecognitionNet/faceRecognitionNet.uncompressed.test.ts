@@ -1,6 +1,6 @@
 import { createCanvasFromMedia } from '../../../src';
 import { euclideanDistance } from '../../../src/euclideanDistance';
-import { loadImage, loadJson } from '../../env';
+import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets } from '../../utils';
 
 describeWithBackend('faceRecognitionNet, uncompressed', () => {
@@ -11,10 +11,10 @@ describeWithBackend('faceRecognitionNet, uncompressed', () => {
   let faceDescriptorRect: number[]
 
   beforeAll(async () => {
-    imgEl1 = createCanvasFromMedia(await loadImage('test/images/face1.png'))
-    imgElRect = createCanvasFromMedia(await loadImage('test/images/face_rectangular.png'))
-    faceDescriptor1 = await loadJson<number[]>('test/data/faceDescriptor1.json')
-    faceDescriptorRect = await loadJson<number[]>('test/data/faceDescriptorRect.json')
+    imgEl1 = createCanvasFromMedia(await getTestEnv().loadImage('test/images/face1.png'))
+    imgElRect = createCanvasFromMedia(await getTestEnv().loadImage('test/images/face_rectangular.png'))
+    faceDescriptor1 = await getTestEnv().loadJson<number[]>('test/data/faceDescriptor1.json')
+    faceDescriptorRect = await getTestEnv().loadJson<number[]>('test/data/faceDescriptorRect.json')
   })
 
   describeWithNets('uncompressed weights', { withFaceRecognitionNet: { quantized: false } }, ({ faceRecognitionNet }) => {

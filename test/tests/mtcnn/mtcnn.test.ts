@@ -1,6 +1,6 @@
 import * as faceapi from '../../../src';
 import { MtcnnOptions } from '../../../src/mtcnn/MtcnnOptions';
-import { loadImage } from '../../env';
+import { getTestEnv } from '../../env';
 import { expectFaceDetections } from '../../expectFaceDetections';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
 import { expectFullFaceDescriptions } from '../../expectFullFaceDescriptions';
@@ -20,7 +20,7 @@ describeWithBackend('mtcnn', () => {
   const expectedScores = [1.0, 1.0, 1.0, 1.0, 0.99, 0.99]
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/faces.jpg')
+    imgEl = await getTestEnv().loadImage('test/images/faces.jpg')
     expectedFullFaceDescriptions = await assembleExpectedFullFaceDescriptions(expectedMtcnnBoxes)
   })
 

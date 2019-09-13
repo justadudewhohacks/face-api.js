@@ -1,12 +1,12 @@
 import { createCanvasFromMedia, env, extractFaces, Rect } from '../../../src';
-import { loadImage } from '../../env';
+import { getTestEnv } from '../../env';
 
 describe('extractFaces', () => {
 
   let imgEl: HTMLImageElement, canvasEl: HTMLCanvasElement, Canvas: typeof HTMLCanvasElement
 
   beforeAll(async () => {
-    imgEl = await loadImage('test/images/face1.png')
+    imgEl = await getTestEnv().loadImage('test/images/face1.png')
     canvasEl = createCanvasFromMedia(imgEl)
     Canvas = env.getEnv().Canvas
   })
