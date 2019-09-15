@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __assign } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(extractWeights, paramMappings) {
@@ -23,7 +23,7 @@ function extractorsFactory(extractWeights, paramMappings) {
         var sharedParams = extractSharedParams([3, 10, 16, 32], 'pnet');
         var conv4_1 = extractConvParams(32, 2, 1, 'pnet/conv4_1');
         var conv4_2 = extractConvParams(32, 4, 1, 'pnet/conv4_2');
-        return tslib_1.__assign({}, sharedParams, { conv4_1: conv4_1, conv4_2: conv4_2 });
+        return __assign(__assign({}, sharedParams), { conv4_1: conv4_1, conv4_2: conv4_2 });
     }
     function extractRNetParams() {
         var sharedParams = extractSharedParams([3, 28, 48, 64], 'rnet', true);
@@ -31,7 +31,7 @@ function extractorsFactory(extractWeights, paramMappings) {
         var prelu4_alpha = extractPReluParams(128, 'rnet/prelu4_alpha');
         var fc2_1 = extractFCParams(128, 2, 'rnet/fc2_1');
         var fc2_2 = extractFCParams(128, 4, 'rnet/fc2_2');
-        return tslib_1.__assign({}, sharedParams, { fc1: fc1, prelu4_alpha: prelu4_alpha, fc2_1: fc2_1, fc2_2: fc2_2 });
+        return __assign(__assign({}, sharedParams), { fc1: fc1, prelu4_alpha: prelu4_alpha, fc2_1: fc2_1, fc2_2: fc2_2 });
     }
     function extractONetParams() {
         var sharedParams = extractSharedParams([3, 32, 64, 64], 'onet');
@@ -42,7 +42,7 @@ function extractorsFactory(extractWeights, paramMappings) {
         var fc2_1 = extractFCParams(256, 2, 'onet/fc2_1');
         var fc2_2 = extractFCParams(256, 4, 'onet/fc2_2');
         var fc2_3 = extractFCParams(256, 10, 'onet/fc2_3');
-        return tslib_1.__assign({}, sharedParams, { conv4: conv4, prelu4_alpha: prelu4_alpha, fc1: fc1, prelu5_alpha: prelu5_alpha, fc2_1: fc2_1, fc2_2: fc2_2, fc2_3: fc2_3 });
+        return __assign(__assign({}, sharedParams), { conv4: conv4, prelu4_alpha: prelu4_alpha, fc1: fc1, prelu5_alpha: prelu5_alpha, fc2_1: fc2_1, fc2_2: fc2_2, fc2_3: fc2_3 });
     }
     return {
         extractPNetParams: extractPNetParams,

@@ -1,9 +1,9 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes';
 import { BOX_ANCHORS, IOU_THRESHOLD, MEAN_RGB } from './const';
 var TinyFaceDetector = /** @class */ (function (_super) {
-    tslib_1.__extends(TinyFaceDetector, _super);
+    __extends(TinyFaceDetector, _super);
     function TinyFaceDetector() {
         var _this = this;
         var config = {
@@ -26,9 +26,9 @@ var TinyFaceDetector = /** @class */ (function (_super) {
         configurable: true
     });
     TinyFaceDetector.prototype.locateFaces = function (input, forwardParams) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var objectDetections;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.detect(input, forwardParams)];
                     case 1:

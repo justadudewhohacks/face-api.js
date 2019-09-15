@@ -10,4 +10,6 @@ export declare class FaceMatcher {
     computeMeanDistance(queryDescriptor: Float32Array, descriptors: Float32Array[]): number;
     matchDescriptor(queryDescriptor: Float32Array): FaceMatch;
     findBestMatch(queryDescriptor: Float32Array): FaceMatch;
+    toJSON(): any;
+    static fromJSON(json: any): FaceMatcher;
 }

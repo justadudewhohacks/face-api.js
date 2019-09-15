@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, range, toNetInput, } from 'tfjs-image-recognition-base';
 import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
@@ -24,7 +24,7 @@ function mainBlock(x, params) {
     return out;
 }
 var TinyXception = /** @class */ (function (_super) {
-    tslib_1.__extends(TinyXception, _super);
+    __extends(TinyXception, _super);
     function TinyXception(numMainBlocks) {
         var _this = _super.call(this, 'TinyXception') || this;
         _this._numMainBlocks = numMainBlocks;
@@ -52,9 +52,9 @@ var TinyXception = /** @class */ (function (_super) {
         });
     };
     TinyXception.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;

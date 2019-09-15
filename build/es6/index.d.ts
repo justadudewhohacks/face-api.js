@@ -6,9 +6,9 @@ export * from 'tfjs-image-recognition-base';
 export * from './ageGenderNet/index';
 declare const draw: {
     drawContour(ctx: CanvasRenderingContext2D, points: import("tfjs-image-recognition-base").Point[], isClosed?: boolean): void;
-    drawDetections(canvasArg: string | HTMLCanvasElement, detections: import("tfjs-image-recognition-base").IRect | import("tfjs-image-recognition-base").IBoundingBox | import("./classes").FaceDetection | {
+    drawDetections(canvasArg: string | HTMLCanvasElement, detections: import("./classes").FaceDetection | import("tfjs-image-recognition-base").IRect | {
         detection: import("./classes").FaceDetection;
-    } | drawExtended.TDrawDetectionsInput[]): void;
+    } | import("tfjs-image-recognition-base").IBoundingBox | drawExtended.TDrawDetectionsInput[]): void;
     drawFaceExpressions(canvasArg: string | HTMLCanvasElement, faceExpressions: import("./faceExpressionNet").FaceExpressions | {
         expressions: import("./faceExpressionNet").FaceExpressions;
     } | drawExtended.DrawFaceExpressionsInput[], minConfidence?: number, textFieldAnchor?: import("tfjs-image-recognition-base").IPoint | undefined): void;

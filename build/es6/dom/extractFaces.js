@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __generator } from "tslib";
 import { createCanvas, env, getContext2dOrThrow, imageTensorToCanvas, toNetInput, } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
 /**
@@ -9,9 +9,9 @@ import { FaceDetection } from '../classes/FaceDetection';
  * @returns The Canvases of the corresponding image region for each detected face.
  */
 export function extractFaces(input, detections) {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var Canvas, canvas, netInput, tensorOrCanvas, _a, ctx, boxes;
-        return tslib_1.__generator(this, function (_b) {
+        return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     Canvas = env.getEnv().Canvas;

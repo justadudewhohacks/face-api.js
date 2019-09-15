@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __extends } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, NeuralNetwork } from 'tfjs-image-recognition-base';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
@@ -6,7 +6,7 @@ import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { seperateWeightMaps } from './util';
 var FaceProcessor = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceProcessor, _super);
+    __extends(FaceProcessor, _super);
     function FaceProcessor(_name, faceFeatureExtractor) {
         var _this = _super.call(this, _name) || this;
         _this._faceFeatureExtractor = faceFeatureExtractor;

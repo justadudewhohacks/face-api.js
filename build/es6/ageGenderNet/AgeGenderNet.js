@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, NeuralNetwork, toNetInput } from 'tfjs-image-recognition-base';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
@@ -8,7 +8,7 @@ import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { Gender } from './types';
 var AgeGenderNet = /** @class */ (function (_super) {
-    tslib_1.__extends(AgeGenderNet, _super);
+    __extends(AgeGenderNet, _super);
     function AgeGenderNet(faceFeatureExtractor) {
         if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new TinyXception(2); }
         var _this = _super.call(this, 'AgeGenderNet') || this;
@@ -46,9 +46,9 @@ var AgeGenderNet = /** @class */ (function (_super) {
         });
     };
     AgeGenderNet.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -59,10 +59,10 @@ var AgeGenderNet = /** @class */ (function (_super) {
         });
     };
     AgeGenderNet.prototype.predictAgeAndGender = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var netInput, out, ages, genders, ageAndGenderTensors, predictionsByBatch;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];
                     case 1:
@@ -78,9 +78,9 @@ var AgeGenderNet = /** @class */ (function (_super) {
                         }); });
                         return [4 /*yield*/, Promise.all(ageAndGenderTensors.map(function (_a) {
                                 var ageTensor = _a.ageTensor, genderTensor = _a.genderTensor;
-                                return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                                return __awaiter(_this, void 0, void 0, function () {
                                     var age, probMale, isMale, gender, genderProbability;
-                                    return tslib_1.__generator(this, function (_b) {
+                                    return __generator(this, function (_b) {
                                         switch (_b.label) {
                                             case 0: return [4 /*yield*/, ageTensor.data()];
                                             case 1:

@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { extendWithFaceExpressions } from '../factories/WithFaceExpressions';
 import { ComposableTask } from './ComposableTask';
 import { ComputeAllFaceDescriptorsTask, ComputeSingleFaceDescriptorTask } from './ComputeFaceDescriptorsTasks';
@@ -6,7 +6,7 @@ import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } f
 import { nets } from './nets';
 import { PredictAllAgeAndGenderTask, PredictAllAgeAndGenderWithFaceAlignmentTask, PredictSingleAgeAndGenderTask, PredictSingleAgeAndGenderWithFaceAlignmentTask, } from './PredictAgeAndGenderTask';
 var PredictFaceExpressionsTaskBase = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictFaceExpressionsTaskBase, _super);
+    __extends(PredictFaceExpressionsTaskBase, _super);
     function PredictFaceExpressionsTaskBase(parentTask, input, extractedFaces) {
         var _this = _super.call(this) || this;
         _this.parentTask = parentTask;
@@ -18,21 +18,21 @@ var PredictFaceExpressionsTaskBase = /** @class */ (function (_super) {
 }(ComposableTask));
 export { PredictFaceExpressionsTaskBase };
 var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictAllFaceExpressionsTask, _super);
+    __extends(PredictAllFaceExpressionsTask, _super);
     function PredictAllFaceExpressionsTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     PredictAllFaceExpressionsTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResults, faceExpressionsByFace;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
                         parentResults = _a.sent();
-                        return [4 /*yield*/, extractAllFacesAndComputeResults(parentResults, this.input, function (faces) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
-                                return tslib_1.__generator(this, function (_a) {
+                        return [4 /*yield*/, extractAllFacesAndComputeResults(parentResults, this.input, function (faces) { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0: return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets.faceExpressionNet.predictExpressions(face); }))];
                                         case 1: return [2 /*return*/, _a.sent()];
@@ -53,14 +53,14 @@ var PredictAllFaceExpressionsTask = /** @class */ (function (_super) {
 }(PredictFaceExpressionsTaskBase));
 export { PredictAllFaceExpressionsTask };
 var PredictSingleFaceExpressionsTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictSingleFaceExpressionsTask, _super);
+    __extends(PredictSingleFaceExpressionsTask, _super);
     function PredictSingleFaceExpressionsTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     PredictSingleFaceExpressionsTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResult, faceExpressions;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
@@ -83,7 +83,7 @@ var PredictSingleFaceExpressionsTask = /** @class */ (function (_super) {
 }(PredictFaceExpressionsTaskBase));
 export { PredictSingleFaceExpressionsTask };
 var PredictAllFaceExpressionsWithFaceAlignmentTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictAllFaceExpressionsWithFaceAlignmentTask, _super);
+    __extends(PredictAllFaceExpressionsWithFaceAlignmentTask, _super);
     function PredictAllFaceExpressionsWithFaceAlignmentTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -97,7 +97,7 @@ var PredictAllFaceExpressionsWithFaceAlignmentTask = /** @class */ (function (_s
 }(PredictAllFaceExpressionsTask));
 export { PredictAllFaceExpressionsWithFaceAlignmentTask };
 var PredictSingleFaceExpressionsWithFaceAlignmentTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictSingleFaceExpressionsWithFaceAlignmentTask, _super);
+    __extends(PredictSingleFaceExpressionsWithFaceAlignmentTask, _super);
     function PredictSingleFaceExpressionsWithFaceAlignmentTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }

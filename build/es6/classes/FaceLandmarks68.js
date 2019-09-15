@@ -1,8 +1,8 @@
-import * as tslib_1 from "tslib";
+import { __extends } from "tslib";
 import { getCenterPoint } from 'tfjs-image-recognition-base';
 import { FaceLandmarks } from '../classes/FaceLandmarks';
 var FaceLandmarks68 = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceLandmarks68, _super);
+    __extends(FaceLandmarks68, _super);
     function FaceLandmarks68() {
         return _super !== null && _super.apply(this, arguments) || this;
     }

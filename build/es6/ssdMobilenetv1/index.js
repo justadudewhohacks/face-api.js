@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __extends } from "tslib";
 import { SsdMobilenetv1 } from './SsdMobilenetv1';
 export * from './SsdMobilenetv1';
 export * from './SsdMobilenetv1Options';
@@ -12,7 +12,7 @@ export function createFaceDetectionNet(weights) {
 }
 // alias for backward compatibily
 var FaceDetectionNet = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceDetectionNet, _super);
+    __extends(FaceDetectionNet, _super);
     function FaceDetectionNet() {
         return _super !== null && _super.apply(this, arguments) || this;
     }

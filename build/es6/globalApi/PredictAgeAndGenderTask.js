@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { extendWithAge } from '../factories/WithAge';
 import { extendWithGender } from '../factories/WithGender';
 import { ComposableTask } from './ComposableTask';
@@ -7,7 +7,7 @@ import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } f
 import { nets } from './nets';
 import { PredictAllFaceExpressionsTask, PredictAllFaceExpressionsWithFaceAlignmentTask, PredictSingleFaceExpressionsTask, PredictSingleFaceExpressionsWithFaceAlignmentTask, } from './PredictFaceExpressionsTask';
 var PredictAgeAndGenderTaskBase = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictAgeAndGenderTaskBase, _super);
+    __extends(PredictAgeAndGenderTaskBase, _super);
     function PredictAgeAndGenderTaskBase(parentTask, input, extractedFaces) {
         var _this = _super.call(this) || this;
         _this.parentTask = parentTask;
@@ -19,21 +19,21 @@ var PredictAgeAndGenderTaskBase = /** @class */ (function (_super) {
 }(ComposableTask));
 export { PredictAgeAndGenderTaskBase };
 var PredictAllAgeAndGenderTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictAllAgeAndGenderTask, _super);
+    __extends(PredictAllAgeAndGenderTask, _super);
     function PredictAllAgeAndGenderTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     PredictAllAgeAndGenderTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResults, ageAndGenderByFace;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
                         parentResults = _a.sent();
-                        return [4 /*yield*/, extractAllFacesAndComputeResults(parentResults, this.input, function (faces) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
-                                return tslib_1.__generator(this, function (_a) {
+                        return [4 /*yield*/, extractAllFacesAndComputeResults(parentResults, this.input, function (faces) { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0: return [4 /*yield*/, Promise.all(faces.map(function (face) { return nets.ageGenderNet.predictAgeAndGender(face); }))];
                                         case 1: return [2 /*return*/, _a.sent()];
@@ -57,14 +57,14 @@ var PredictAllAgeAndGenderTask = /** @class */ (function (_super) {
 }(PredictAgeAndGenderTaskBase));
 export { PredictAllAgeAndGenderTask };
 var PredictSingleAgeAndGenderTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictSingleAgeAndGenderTask, _super);
+    __extends(PredictSingleAgeAndGenderTask, _super);
     function PredictSingleAgeAndGenderTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     PredictSingleAgeAndGenderTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResult, _a, age, gender, genderProbability;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
@@ -87,7 +87,7 @@ var PredictSingleAgeAndGenderTask = /** @class */ (function (_super) {
 }(PredictAgeAndGenderTaskBase));
 export { PredictSingleAgeAndGenderTask };
 var PredictAllAgeAndGenderWithFaceAlignmentTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictAllAgeAndGenderWithFaceAlignmentTask, _super);
+    __extends(PredictAllAgeAndGenderWithFaceAlignmentTask, _super);
     function PredictAllAgeAndGenderWithFaceAlignmentTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -101,7 +101,7 @@ var PredictAllAgeAndGenderWithFaceAlignmentTask = /** @class */ (function (_supe
 }(PredictAllAgeAndGenderTask));
 export { PredictAllAgeAndGenderWithFaceAlignmentTask };
 var PredictSingleAgeAndGenderWithFaceAlignmentTask = /** @class */ (function (_super) {
-    tslib_1.__extends(PredictSingleAgeAndGenderWithFaceAlignmentTask, _super);
+    __extends(PredictSingleAgeAndGenderWithFaceAlignmentTask, _super);
     function PredictSingleAgeAndGenderWithFaceAlignmentTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }

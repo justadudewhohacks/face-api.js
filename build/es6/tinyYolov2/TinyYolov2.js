@@ -1,9 +1,9 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes';
 import { BOX_ANCHORS, BOX_ANCHORS_SEPARABLE, DEFAULT_MODEL_NAME, DEFAULT_MODEL_NAME_SEPARABLE_CONV, IOU_THRESHOLD, MEAN_RGB_SEPARABLE, } from './const';
 var TinyYolov2 = /** @class */ (function (_super) {
-    tslib_1.__extends(TinyYolov2, _super);
+    __extends(TinyYolov2, _super);
     function TinyYolov2(withSeparableConvs) {
         if (withSeparableConvs === void 0) { withSeparableConvs = true; }
         var _this = this;
@@ -38,9 +38,9 @@ var TinyYolov2 = /** @class */ (function (_super) {
         configurable: true
     });
     TinyYolov2.prototype.locateFaces = function (input, forwardParams) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var objectDetections;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.detect(input, forwardParams)];
                     case 1:

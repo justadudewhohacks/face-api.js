@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, toNetInput } from 'tfjs-image-recognition-base';
 import { convDown } from './convLayer';
@@ -6,7 +6,7 @@ import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { residual, residualDown } from './residualLayer';
 var FaceRecognitionNet = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceRecognitionNet, _super);
+    __extends(FaceRecognitionNet, _super);
     function FaceRecognitionNet() {
         return _super.call(this, 'FaceRecognitionNet') || this;
     }
@@ -41,9 +41,9 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
         });
     };
     FaceRecognitionNet.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -54,10 +54,10 @@ var FaceRecognitionNet = /** @class */ (function (_super) {
         });
     };
     FaceRecognitionNet.prototype.computeFaceDescriptor = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var netInput, faceDescriptorTensors, faceDescriptorsForBatch;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];
                     case 1:

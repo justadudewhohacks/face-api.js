@@ -1,13 +1,13 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { nonMaxSuppression } from 'tfjs-image-recognition-base';
 import { extractImagePatches } from './extractImagePatches';
 import { MtcnnBox } from './MtcnnBox';
 import { RNet } from './RNet';
 export function stage2(img, inputBoxes, scoreThreshold, params, stats) {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var ts, rnetInputs, rnetOuts, scoresTensor, scores, _a, _b, indices, filteredBoxes, filteredScores, finalBoxes, finalScores, indicesNms, regions_1;
-        return tslib_1.__generator(this, function (_c) {
+        return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     ts = Date.now();

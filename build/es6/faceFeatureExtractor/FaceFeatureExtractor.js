@@ -1,11 +1,11 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, toNetInput } from 'tfjs-image-recognition-base';
 import { denseBlock4 } from './denseBlock';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 var FaceFeatureExtractor = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceFeatureExtractor, _super);
+    __extends(FaceFeatureExtractor, _super);
     function FaceFeatureExtractor() {
         return _super.call(this, 'FaceFeatureExtractor') || this;
     }
@@ -27,9 +27,9 @@ var FaceFeatureExtractor = /** @class */ (function (_super) {
         });
     };
     FaceFeatureExtractor.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;

@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, Rect, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
@@ -10,7 +10,7 @@ import { outputLayer } from './outputLayer';
 import { predictionLayer } from './predictionLayer';
 import { SsdMobilenetv1Options } from './SsdMobilenetv1Options';
 var SsdMobilenetv1 = /** @class */ (function (_super) {
-    tslib_1.__extends(SsdMobilenetv1, _super);
+    __extends(SsdMobilenetv1, _super);
     function SsdMobilenetv1() {
         return _super.call(this, 'SsdMobilenetv1') || this;
     }
@@ -28,9 +28,9 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
         });
     };
     SsdMobilenetv1.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -42,9 +42,9 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
     };
     SsdMobilenetv1.prototype.locateFaces = function (input, options) {
         if (options === void 0) { options = {}; }
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a, maxResults, minConfidence, netInput, _b, _boxes, _scores, boxes, scores, i, scoresData, _c, _d, iouThreshold, indices, reshapedDims, inputSize, padX, padY, boxesData, results;
-            return tslib_1.__generator(this, function (_e) {
+            return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
                         _a = new SsdMobilenetv1Options(options), maxResults = _a.maxResults, minConfidence = _a.minConfidence;

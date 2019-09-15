@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __assign } from "tslib";
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 function extractorsFactory(weightMap, paramMappings) {
     var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
@@ -28,7 +28,7 @@ function extractorsFactory(weightMap, paramMappings) {
         var sharedParams = extractSharedParams('pnet');
         var conv4_1 = extractConvParams('pnet/conv4_1');
         var conv4_2 = extractConvParams('pnet/conv4_2');
-        return tslib_1.__assign({}, sharedParams, { conv4_1: conv4_1, conv4_2: conv4_2 });
+        return __assign(__assign({}, sharedParams), { conv4_1: conv4_1, conv4_2: conv4_2 });
     }
     function extractRNetParams() {
         var sharedParams = extractSharedParams('rnet');
@@ -36,7 +36,7 @@ function extractorsFactory(weightMap, paramMappings) {
         var prelu4_alpha = extractPReluParams('rnet/prelu4_alpha');
         var fc2_1 = extractFCParams('rnet/fc2_1');
         var fc2_2 = extractFCParams('rnet/fc2_2');
-        return tslib_1.__assign({}, sharedParams, { fc1: fc1, prelu4_alpha: prelu4_alpha, fc2_1: fc2_1, fc2_2: fc2_2 });
+        return __assign(__assign({}, sharedParams), { fc1: fc1, prelu4_alpha: prelu4_alpha, fc2_1: fc2_1, fc2_2: fc2_2 });
     }
     function extractONetParams() {
         var sharedParams = extractSharedParams('onet');
@@ -47,7 +47,7 @@ function extractorsFactory(weightMap, paramMappings) {
         var fc2_1 = extractFCParams('onet/fc2_1');
         var fc2_2 = extractFCParams('onet/fc2_2');
         var fc2_3 = extractFCParams('onet/fc2_3');
-        return tslib_1.__assign({}, sharedParams, { conv4: conv4, prelu4_alpha: prelu4_alpha, fc1: fc1, prelu5_alpha: prelu5_alpha, fc2_1: fc2_1, fc2_2: fc2_2, fc2_3: fc2_3 });
+        return __assign(__assign({}, sharedParams), { conv4: conv4, prelu4_alpha: prelu4_alpha, fc1: fc1, prelu5_alpha: prelu5_alpha, fc2_1: fc2_1, fc2_2: fc2_2, fc2_3: fc2_3 });
     }
     return {
         extractPNetParams: extractPNetParams,

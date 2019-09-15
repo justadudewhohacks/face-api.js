@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { isTensor4D, isTensor3D } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
@@ -13,8 +13,8 @@ import { FaceDetection } from '../classes/FaceDetection';
  * @returns Tensors of the corresponding image region for each detected face.
  */
 export function extractFaceTensors(imageTensor, detections) {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
-        return tslib_1.__generator(this, function (_a) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
             if (!isTensor3D(imageTensor) && !isTensor4D(imageTensor)) {
                 throw new Error('extractFaceTensors - expected image tensor to be 3D or 4D');
             }

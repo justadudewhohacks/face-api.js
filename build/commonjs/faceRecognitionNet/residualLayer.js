@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = require("tslib");
 var tf = require("@tensorflow/tfjs-core");
 var convLayer_1 = require("./convLayer");
 function residual(x, params) {
@@ -18,11 +19,11 @@ function residualDown(x, params) {
     var isPad = pooled.shape[3] !== out.shape[3];
     var isAdjustShape = pooled.shape[1] !== out.shape[1] || pooled.shape[2] !== out.shape[2];
     if (isAdjustShape) {
-        var padShapeX = out.shape.slice();
+        var padShapeX = tslib_1.__spreadArrays(out.shape);
         padShapeX[1] = 1;
         var zerosW = tf.zeros(padShapeX);
         out = tf.concat([out, zerosW], 1);
-        var padShapeY = out.shape.slice();
+        var padShapeY = tslib_1.__spreadArrays(out.shape);
         padShapeY[2] = 1;
         var zerosH = tf.zeros(padShapeY);
         out = tf.concat([out, zerosH], 2);

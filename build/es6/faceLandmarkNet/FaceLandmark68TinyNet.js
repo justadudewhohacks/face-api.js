@@ -1,8 +1,8 @@
-import * as tslib_1 from "tslib";
+import { __extends } from "tslib";
 import { TinyFaceFeatureExtractor } from '../faceFeatureExtractor/TinyFaceFeatureExtractor';
 import { FaceLandmark68NetBase } from './FaceLandmark68NetBase';
 var FaceLandmark68TinyNet = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceLandmark68TinyNet, _super);
+    __extends(FaceLandmark68TinyNet, _super);
     function FaceLandmark68TinyNet(faceFeatureExtractor) {
         if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new TinyFaceFeatureExtractor(); }
         return _super.call(this, 'FaceLandmark68TinyNet', faceFeatureExtractor) || this;

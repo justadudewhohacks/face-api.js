@@ -55,6 +55,17 @@ var FaceMatcher = /** @class */ (function () {
             ? bestMatch
             : new FaceMatch('unknown', bestMatch.distance);
     };
+    FaceMatcher.prototype.toJSON = function () {
+        return {
+            distanceThreshold: this.distanceThreshold,
+            labeledDescriptors: this.labeledDescriptors.map(function (ld) { return ld.toJSON(); })
+        };
+    };
+    FaceMatcher.fromJSON = function (json) {
+        var labeledDescriptors = json.labeledDescriptors
+            .map(function (ld) { return LabeledFaceDescriptors.fromJSON(ld); });
+        return new FaceMatcher(labeledDescriptors, json.distanceThreshold);
+    };
     return FaceMatcher;
 }());
 export { FaceMatcher };

@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { extractFaces, extractFaceTensors } from '../dom';
 import { isWithFaceLandmarks } from '../factories/WithFaceLandmarks';
@@ -7,9 +7,9 @@ export function extractAllFacesAndComputeResults(parentResults, input, computeRe
         var alignedRect = _a.alignedRect;
         return alignedRect;
     }; }
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var faceBoxes, faces, _a, _b, results;
-        return tslib_1.__generator(this, function (_c) {
+        return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     faceBoxes = parentResults.map(function (parentResult) {
@@ -43,10 +43,10 @@ export function extractAllFacesAndComputeResults(parentResults, input, computeRe
     });
 }
 export function extractSingleFaceAndComputeResult(parentResult, input, computeResult, extractedFaces, getRectForAlignment) {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var _this = this;
-        return tslib_1.__generator(this, function (_a) {
-            return [2 /*return*/, extractAllFacesAndComputeResults([parentResult], input, function (faces) { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_a) {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, extractAllFacesAndComputeResults([parentResult], input, function (faces) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
                     return [2 /*return*/, computeResult(faces[0])];
                 }); }); }, extractedFaces, getRectForAlignment)];
         });

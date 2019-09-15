@@ -1,7 +1,7 @@
-import * as tslib_1 from "tslib";
+import { __extends } from "tslib";
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 var TinyFaceDetectorOptions = /** @class */ (function (_super) {
-    tslib_1.__extends(TinyFaceDetectorOptions, _super);
+    __extends(TinyFaceDetectorOptions, _super);
     function TinyFaceDetectorOptions() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this._name = 'TinyFaceDetectorOptions';

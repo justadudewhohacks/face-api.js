@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { extendWithFaceDescriptor } from '../factories/WithFaceDescriptor';
 import { ComposableTask } from './ComposableTask';
 import { extractAllFacesAndComputeResults, extractSingleFaceAndComputeResult } from './extractFacesAndComputeResults';
@@ -6,7 +6,7 @@ import { nets } from './nets';
 import { PredictAllAgeAndGenderWithFaceAlignmentTask, PredictSingleAgeAndGenderWithFaceAlignmentTask, } from './PredictAgeAndGenderTask';
 import { PredictAllFaceExpressionsWithFaceAlignmentTask, PredictSingleFaceExpressionsWithFaceAlignmentTask, } from './PredictFaceExpressionsTask';
 var ComputeFaceDescriptorsTaskBase = /** @class */ (function (_super) {
-    tslib_1.__extends(ComputeFaceDescriptorsTaskBase, _super);
+    __extends(ComputeFaceDescriptorsTaskBase, _super);
     function ComputeFaceDescriptorsTaskBase(parentTask, input) {
         var _this = _super.call(this) || this;
         _this.parentTask = parentTask;
@@ -17,14 +17,14 @@ var ComputeFaceDescriptorsTaskBase = /** @class */ (function (_super) {
 }(ComposableTask));
 export { ComputeFaceDescriptorsTaskBase };
 var ComputeAllFaceDescriptorsTask = /** @class */ (function (_super) {
-    tslib_1.__extends(ComputeAllFaceDescriptorsTask, _super);
+    __extends(ComputeAllFaceDescriptorsTask, _super);
     function ComputeAllFaceDescriptorsTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ComputeAllFaceDescriptorsTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResults, descriptors;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
@@ -49,14 +49,14 @@ var ComputeAllFaceDescriptorsTask = /** @class */ (function (_super) {
 }(ComputeFaceDescriptorsTaskBase));
 export { ComputeAllFaceDescriptorsTask };
 var ComputeSingleFaceDescriptorTask = /** @class */ (function (_super) {
-    tslib_1.__extends(ComputeSingleFaceDescriptorTask, _super);
+    __extends(ComputeSingleFaceDescriptorTask, _super);
     function ComputeSingleFaceDescriptorTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ComputeSingleFaceDescriptorTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResult, descriptor;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:

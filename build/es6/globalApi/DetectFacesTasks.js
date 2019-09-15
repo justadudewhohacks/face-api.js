@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { extendWithFaceDetection } from '../factories/WithFaceDetection';
 import { MtcnnOptions } from '../mtcnn/MtcnnOptions';
@@ -10,7 +10,7 @@ import { nets } from './nets';
 import { PredictAllAgeAndGenderTask, PredictSingleAgeAndGenderTask } from './PredictAgeAndGenderTask';
 import { PredictAllFaceExpressionsTask, PredictSingleFaceExpressionsTask } from './PredictFaceExpressionsTask';
 var DetectFacesTaskBase = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectFacesTaskBase, _super);
+    __extends(DetectFacesTaskBase, _super);
     function DetectFacesTaskBase(input, options) {
         if (options === void 0) { options = new SsdMobilenetv1Options(); }
         var _this = _super.call(this) || this;
@@ -22,14 +22,14 @@ var DetectFacesTaskBase = /** @class */ (function (_super) {
 }(ComposableTask));
 export { DetectFacesTaskBase };
 var DetectAllFacesTask = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectAllFacesTask, _super);
+    __extends(DetectAllFacesTask, _super);
     function DetectAllFacesTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DetectAllFacesTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a, input, options, faceDetectionFunction;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this, input = _a.input, options = _a.options;
@@ -55,9 +55,9 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
     };
     DetectAllFacesTask.prototype.runAndExtendWithFaceDetections = function () {
         var _this = this;
-        return new Promise(function (res) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+        return new Promise(function (res) { return __awaiter(_this, void 0, void 0, function () {
             var detections;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.run()];
                     case 1:
@@ -81,14 +81,14 @@ var DetectAllFacesTask = /** @class */ (function (_super) {
 }(DetectFacesTaskBase));
 export { DetectAllFacesTask };
 var DetectSingleFaceTask = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectSingleFaceTask, _super);
+    __extends(DetectSingleFaceTask, _super);
     function DetectSingleFaceTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DetectSingleFaceTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var faceDetections, faceDetectionWithHighestScore;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, new DetectAllFacesTask(this.input, this.options)];
                     case 1:
@@ -106,9 +106,9 @@ var DetectSingleFaceTask = /** @class */ (function (_super) {
     };
     DetectSingleFaceTask.prototype.runAndExtendWithFaceDetection = function () {
         var _this = this;
-        return new Promise(function (res) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+        return new Promise(function (res) { return __awaiter(_this, void 0, void 0, function () {
             var detection;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.run()];
                     case 1:

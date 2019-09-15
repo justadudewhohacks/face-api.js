@@ -7,7 +7,7 @@ var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var drawExtended = require("./draw");
 tslib_1.__exportStar(require("tfjs-image-recognition-base"), exports);
 tslib_1.__exportStar(require("./ageGenderNet/index"), exports);
-var draw = tslib_1.__assign({}, tfjs_image_recognition_base_1.draw, drawExtended);
+var draw = tslib_1.__assign(tslib_1.__assign({}, tfjs_image_recognition_base_1.draw), drawExtended);
 exports.draw = draw;
 tslib_1.__exportStar(require("./classes/index"), exports);
 tslib_1.__exportStar(require("./dom/index"), exports);

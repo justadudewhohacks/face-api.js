@@ -1,11 +1,11 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { toNetInput } from 'tfjs-image-recognition-base';
 import { FaceFeatureExtractor } from '../faceFeatureExtractor/FaceFeatureExtractor';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
 import { FaceExpressions } from './FaceExpressions';
 var FaceExpressionNet = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceExpressionNet, _super);
+    __extends(FaceExpressionNet, _super);
     function FaceExpressionNet(faceFeatureExtractor) {
         if (faceFeatureExtractor === void 0) { faceFeatureExtractor = new FaceFeatureExtractor(); }
         return _super.call(this, 'FaceExpressionNet', faceFeatureExtractor) || this;
@@ -15,9 +15,9 @@ var FaceExpressionNet = /** @class */ (function (_super) {
         return tf.tidy(function () { return tf.softmax(_this.runNet(input)); });
     };
     FaceExpressionNet.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -28,10 +28,10 @@ var FaceExpressionNet = /** @class */ (function (_super) {
         });
     };
     FaceExpressionNet.prototype.predictExpressions = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var netInput, out, probabilitesByBatch, predictionsByBatch;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];
                     case 1:
@@ -39,9 +39,9 @@ var FaceExpressionNet = /** @class */ (function (_super) {
                         return [4 /*yield*/, this.forwardInput(netInput)];
                     case 2:
                         out = _a.sent();
-                        return [4 /*yield*/, Promise.all(tf.unstack(out).map(function (t) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                        return [4 /*yield*/, Promise.all(tf.unstack(out).map(function (t) { return __awaiter(_this, void 0, void 0, function () {
                                 var data;
-                                return tslib_1.__generator(this, function (_a) {
+                                return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0: return [4 /*yield*/, t.data()];
                                         case 1:

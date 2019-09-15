@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, Point, Rect, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceDetection } from '../classes/FaceDetection';
@@ -15,15 +15,15 @@ import { stage1 } from './stage1';
 import { stage2 } from './stage2';
 import { stage3 } from './stage3';
 var Mtcnn = /** @class */ (function (_super) {
-    tslib_1.__extends(Mtcnn, _super);
+    __extends(Mtcnn, _super);
     function Mtcnn() {
         return _super.call(this, 'Mtcnn') || this;
     }
     Mtcnn.prototype.forwardInput = function (input, forwardParams) {
         if (forwardParams === void 0) { forwardParams = {}; }
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var params, inputCanvas, stats, tsTotal, imgTensor, onReturn, _a, height, width, _b, minFaceSize, scaleFactor, maxNumScales, scoreThresholds, scaleSteps, scales, ts, out1, out2, out3, results;
-            return tslib_1.__generator(this, function (_c) {
+            return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         params = this.params;
@@ -91,9 +91,9 @@ var Mtcnn = /** @class */ (function (_super) {
     };
     Mtcnn.prototype.forward = function (input, forwardParams) {
         if (forwardParams === void 0) { forwardParams = {}; }
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -107,9 +107,9 @@ var Mtcnn = /** @class */ (function (_super) {
     };
     Mtcnn.prototype.forwardWithStats = function (input, forwardParams) {
         if (forwardParams === void 0) { forwardParams = {}; }
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;

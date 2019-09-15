@@ -21,6 +21,18 @@ var LabeledFaceDescriptors = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    LabeledFaceDescriptors.prototype.toJSON = function () {
+        return {
+            label: this.label,
+            descriptors: this.descriptors.map(function (d) { return Array.from(d); })
+        };
+    };
+    LabeledFaceDescriptors.fromJSON = function (json) {
+        var descriptors = json.descriptors.map(function (d) {
+            return new Float32Array(d);
+        });
+        return new LabeledFaceDescriptors(json.label, descriptors);
+    };
     return LabeledFaceDescriptors;
 }());
 exports.LabeledFaceDescriptors = LabeledFaceDescriptors;

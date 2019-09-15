@@ -1,4 +1,4 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { extractFaces, extractFaceTensors } from '../dom';
 import { extendWithFaceLandmarks } from '../factories/WithFaceLandmarks';
@@ -8,7 +8,7 @@ import { nets } from './nets';
 import { PredictAllAgeAndGenderWithFaceAlignmentTask, PredictSingleAgeAndGenderWithFaceAlignmentTask, } from './PredictAgeAndGenderTask';
 import { PredictAllFaceExpressionsWithFaceAlignmentTask, PredictSingleFaceExpressionsWithFaceAlignmentTask, } from './PredictFaceExpressionsTask';
 var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectFaceLandmarksTaskBase, _super);
+    __extends(DetectFaceLandmarksTaskBase, _super);
     function DetectFaceLandmarksTaskBase(parentTask, input, useTinyLandmarkNet) {
         var _this = _super.call(this) || this;
         _this.parentTask = parentTask;
@@ -29,15 +29,15 @@ var DetectFaceLandmarksTaskBase = /** @class */ (function (_super) {
 }(ComposableTask));
 export { DetectFaceLandmarksTaskBase };
 var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectAllFaceLandmarksTask, _super);
+    __extends(DetectAllFaceLandmarksTask, _super);
     function DetectAllFaceLandmarksTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DetectAllFaceLandmarksTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResults, detections, faces, _a, faceLandmarksByFace;
             var _this = this;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:
@@ -78,14 +78,14 @@ var DetectAllFaceLandmarksTask = /** @class */ (function (_super) {
 }(DetectFaceLandmarksTaskBase));
 export { DetectAllFaceLandmarksTask };
 var DetectSingleFaceLandmarksTask = /** @class */ (function (_super) {
-    tslib_1.__extends(DetectSingleFaceLandmarksTask, _super);
+    __extends(DetectSingleFaceLandmarksTask, _super);
     function DetectSingleFaceLandmarksTask() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DetectSingleFaceLandmarksTask.prototype.run = function () {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var parentResult, detection, faces, _a, landmarks;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.parentTask];
                     case 1:

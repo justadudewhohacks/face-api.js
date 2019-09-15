@@ -1,19 +1,19 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { createCanvas, createCanvasFromMedia, env, getContext2dOrThrow, } from 'tfjs-image-recognition-base';
 import { normalize } from './normalize';
 export function extractImagePatches(img, boxes, _a) {
     var width = _a.width, height = _a.height;
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var imgCtx, bitmaps, imagePatchesDatas;
         var _this = this;
-        return tslib_1.__generator(this, function (_b) {
+        return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     imgCtx = getContext2dOrThrow(img);
-                    return [4 /*yield*/, Promise.all(boxes.map(function (box) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                    return [4 /*yield*/, Promise.all(boxes.map(function (box) { return __awaiter(_this, void 0, void 0, function () {
                             var _a, y, ey, x, ex, fromX, fromY, imgData;
-                            return tslib_1.__generator(this, function (_b) {
+                            return __generator(this, function (_b) {
                                 _a = box.padAtBorders(img.height, img.width), y = _a.y, ey = _a.ey, x = _a.x, ex = _a.ex;
                                 fromX = x - 1;
                                 fromY = y - 1;

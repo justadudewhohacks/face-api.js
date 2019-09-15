@@ -1,10 +1,10 @@
-import * as tslib_1 from "tslib";
+import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { isEven, Point, toNetInput } from 'tfjs-image-recognition-base';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
 import { FaceProcessor } from '../faceProcessor/FaceProcessor';
 var FaceLandmark68NetBase = /** @class */ (function (_super) {
-    tslib_1.__extends(FaceLandmark68NetBase, _super);
+    __extends(FaceLandmark68NetBase, _super);
     function FaceLandmark68NetBase() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -53,9 +53,9 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
         });
     };
     FaceLandmark68NetBase.prototype.forward = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var _a;
-            return tslib_1.__generator(this, function (_b) {
+            return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.forwardInput;
@@ -66,18 +66,18 @@ var FaceLandmark68NetBase = /** @class */ (function (_super) {
         });
     };
     FaceLandmark68NetBase.prototype.detectLandmarks = function (input) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var netInput, landmarkTensors, landmarksForBatch;
             var _this = this;
-            return tslib_1.__generator(this, function (_a) {
+            return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, toNetInput(input)];
                     case 1:
                         netInput = _a.sent();
                         landmarkTensors = tf.tidy(function () { return tf.unstack(_this.forwardInput(netInput)); });
-                        return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                        return [4 /*yield*/, Promise.all(landmarkTensors.map(function (landmarkTensor, batchIdx) { return __awaiter(_this, void 0, void 0, function () {
                                 var landmarksArray, _a, _b, xCoords, yCoords;
-                                return tslib_1.__generator(this, function (_c) {
+                                return __generator(this, function (_c) {
                                     switch (_c.label) {
                                         case 0:
                                             _b = (_a = Array).from;
