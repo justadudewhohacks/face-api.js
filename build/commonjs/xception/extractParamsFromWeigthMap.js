@@ -25,7 +25,7 @@ function loadParamsFactory(weightMap, paramMappings) {
         extractMainBlockParams: extractMainBlockParams
     };
 }
-function extractParamsFromWeigthMap(weightMap, numMainBlocks) {
+function extractParamsFromWeightMap(weightMap, numMainBlocks) {
     var paramMappings = [];
     var _a = loadParamsFactory(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractSeparableConvParams = _a.extractSeparableConvParams, extractReductionBlockParams = _a.extractReductionBlockParams, extractMainBlockParams = _a.extractMainBlockParams;
     var entry_flow_conv_in = extractConvParams('entry_flow/conv_in');
@@ -49,5 +49,5 @@ function extractParamsFromWeigthMap(weightMap, numMainBlocks) {
     tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: { entry_flow: entry_flow, middle_flow: middle_flow, exit_flow: exit_flow }, paramMappings: paramMappings };
 }
-exports.extractParamsFromWeigthMap = extractParamsFromWeigthMap;
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+exports.extractParamsFromWeightMap = extractParamsFromWeightMap;
+//# sourceMappingURL=extractParamsFromWeightMap.js.map

@@ -12,7 +12,7 @@ import {
 import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
 import { bgrToRgbTensor } from '../mtcnn/bgrToRgbTensor';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
 
 function conv(x: tf.Tensor4D, params: TfjsImageRecognitionBase.ConvParams, stride: [number, number]): tf.Tensor4D {
@@ -80,8 +80,8 @@ export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
     return 'tiny_xception_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap, this._numMainBlocks)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeightMap(weightMap, this._numMainBlocks)
   }
 
   protected extractParams(weights: Float32Array) {

@@ -17,7 +17,7 @@ export declare class AgeGenderNet extends NeuralNetwork<NetParams> {
         params: NetParams;
         paramMappings: import("tfjs-image-recognition-base/build/commonjs/common").ParamMapping[];
     };
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: import("tfjs-image-recognition-base/build/commonjs/common").ParamMapping[];
     };

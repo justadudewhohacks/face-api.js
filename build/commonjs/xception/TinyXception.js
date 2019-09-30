@@ -5,7 +5,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var depthwiseSeparableConv_1 = require("../common/depthwiseSeparableConv");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 function conv(x, params, stride) {
     return tf.add(tf.conv2d(x, params.filters, stride, 'same'), params.bias);
 }
@@ -69,8 +69,8 @@ var TinyXception = /** @class */ (function (_super) {
     TinyXception.prototype.getDefaultModelName = function () {
         return 'tiny_xception_model';
     };
-    TinyXception.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap, this._numMainBlocks);
+    TinyXception.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(weightMap, this._numMainBlocks);
     };
     TinyXception.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights, this._numMainBlocks);

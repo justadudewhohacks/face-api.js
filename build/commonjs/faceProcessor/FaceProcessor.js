@@ -5,7 +5,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var fullyConnectedLayer_1 = require("../common/fullyConnectedLayer");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 var util_1 = require("./util");
 var FaceProcessor = /** @class */ (function (_super) {
     tslib_1.__extends(FaceProcessor, _super);
@@ -47,10 +47,10 @@ var FaceProcessor = /** @class */ (function (_super) {
     FaceProcessor.prototype.extractClassifierParams = function (weights) {
         return extractParams_1.extractParams(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut());
     };
-    FaceProcessor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+    FaceProcessor.prototype.extractParamsFromWeightMap = function (weightMap) {
         var _a = util_1.seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
         this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(classifierMap);
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(classifierMap);
     };
     FaceProcessor.prototype.extractParams = function (weights) {
         var cIn = this.getClassifierChannelsIn();

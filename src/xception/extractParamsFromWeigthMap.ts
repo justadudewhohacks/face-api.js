@@ -37,7 +37,7 @@ function loadParamsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBa
   }
 }
 
-export function extractParamsFromWeigthMap(
+export function extractParamsFromWeightMap(
   weightMap: tf.NamedTensorMap,
   numMainBlocks: number
 ): { params: TinyXceptionParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {

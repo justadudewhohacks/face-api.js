@@ -3,7 +3,7 @@ import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
 import { NetParams } from './types';
 
-export function extractParamsFromWeigthMap(
+export function extractParamsFromWeightMap(
   weightMap: tf.NamedTensorMap
 ): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 

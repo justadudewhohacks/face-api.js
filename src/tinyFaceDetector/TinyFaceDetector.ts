@@ -33,7 +33,7 @@ export class TinyFaceDetector extends TfjsImageRecognitionBase.TinyYolov2 {
     return 'tiny_face_detector_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TfjsImageRecognitionBase.TinyYolov2NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
-    return super.extractParamsFromWeigthMap(weightMap)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): { params: TfjsImageRecognitionBase.TinyYolov2NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+    return super.extractParamsFromWeightMap(weightMap)
   }
 }

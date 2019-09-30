@@ -14,7 +14,7 @@ export declare class Mtcnn extends NeuralNetwork<NetParams> {
         stats: any;
     }>;
     protected getDefaultModelName(): string;
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: import("tfjs-image-recognition-base/build/commonjs/common").ParamMapping[];
     };

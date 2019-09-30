@@ -5,7 +5,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var denseBlock_1 = require("./denseBlock");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 var FaceFeatureExtractor = /** @class */ (function (_super) {
     tslib_1.__extends(FaceFeatureExtractor, _super);
     function FaceFeatureExtractor() {
@@ -44,8 +44,8 @@ var FaceFeatureExtractor = /** @class */ (function (_super) {
     FaceFeatureExtractor.prototype.getDefaultModelName = function () {
         return 'face_feature_extractor_model';
     };
-    FaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
+    FaceFeatureExtractor.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(weightMap);
     };
     FaceFeatureExtractor.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

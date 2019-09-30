@@ -17,12 +17,12 @@ class FakeFaceLandmark68NetBase extends FaceLandmark68NetBase<any> {
     throw new Error('FakeFaceLandmark68NetBase - extractParams not implemented')
   }
 
-  protected extractParamsFromWeigthMap(_: any): any {
-    throw new Error('FakeFaceLandmark68NetBase - extractParamsFromWeigthMap not implemented')
+  protected extractParamsFromWeightMap(_: any): any {
+    throw new Error('FakeFaceLandmark68NetBase - extractParamsFromWeightMap not implemented')
   }
 
   public runNet(): any {
-    throw new Error('FakeFaceLandmark68NetBase - extractParamsFromWeigthMap not implemented')
+    throw new Error('FakeFaceLandmark68NetBase - extractParamsFromWeightMap not implemented')
   }
 }
 

@@ -7,7 +7,7 @@ var fullyConnectedLayer_1 = require("../common/fullyConnectedLayer");
 var util_1 = require("../faceProcessor/util");
 var TinyXception_1 = require("../xception/TinyXception");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 var types_1 = require("./types");
 var AgeGenderNet = /** @class */ (function (_super) {
     tslib_1.__extends(AgeGenderNet, _super);
@@ -127,10 +127,10 @@ var AgeGenderNet = /** @class */ (function (_super) {
     AgeGenderNet.prototype.extractClassifierParams = function (weights) {
         return extractParams_1.extractParams(weights);
     };
-    AgeGenderNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+    AgeGenderNet.prototype.extractParamsFromWeightMap = function (weightMap) {
         var _a = util_1.seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
         this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(classifierMap);
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(classifierMap);
     };
     AgeGenderNet.prototype.extractParams = function (weights) {
         var classifierWeightSize = (512 * 1 + 1) + (512 * 2 + 2);

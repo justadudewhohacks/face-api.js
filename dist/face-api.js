@@ -1816,7 +1816,7 @@
             });
         };
         NeuralNetwork.prototype.loadFromWeightMap = function (weightMap) {
-            var _a = this.extractParamsFromWeigthMap(weightMap), paramMappings = _a.paramMappings, params = _a.params;
+            var _a = this.extractParamsFromWeightMap(weightMap), paramMappings = _a.paramMappings, params = _a.params;
             this._paramMappings = paramMappings;
             this._params = params;
         };
@@ -2058,7 +2058,7 @@
             extractSeparableConvParams: extractSeparableConvParams
         };
     }
-    function extractParamsFromWeigthMap(weightMap, config) {
+    function extractParamsFromWeightMap(weightMap, config) {
         var paramMappings = [];
         var _a = extractorsFactory$1(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractConvWithBatchNormParams = _a.extractConvWithBatchNormParams, extractSeparableConvParams = _a.extractSeparableConvParams;
         var params;
@@ -2263,8 +2263,8 @@
         TinyYolov2.prototype.getDefaultModelName = function () {
             return '';
         };
-        TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap(weightMap, this.config);
+        TinyYolov2.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap(weightMap, this.config);
         };
         TinyYolov2.prototype.extractParams = function (weights) {
             var filterSizes = this.config.filterSizes || TinyYolov2.DEFAULT_FILTER_SIZES;
@@ -2569,7 +2569,7 @@
         };
     }
 
-    function extractParamsFromWeigthMap$1(weightMap) {
+    function extractParamsFromWeightMap$1(weightMap) {
         var paramMappings = [];
         var extractDenseBlock4Params = loadParamsFactory(weightMap, paramMappings).extractDenseBlock4Params;
         var params = {
@@ -2620,8 +2620,8 @@
         FaceFeatureExtractor.prototype.getDefaultModelName = function () {
             return 'face_feature_extractor_model';
         };
-        FaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$1(weightMap);
+        FaceFeatureExtractor.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap$1(weightMap);
         };
         FaceFeatureExtractor.prototype.extractParams = function (weights) {
             return extractParams$1(weights);
@@ -2649,7 +2649,7 @@
         };
     }
 
-    function extractParamsFromWeigthMap$2(weightMap) {
+    function extractParamsFromWeightMap$2(weightMap) {
         var paramMappings = [];
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractFcParams(prefix) {
@@ -2714,10 +2714,10 @@
         FaceProcessor.prototype.extractClassifierParams = function (weights) {
             return extractParams$2(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut());
         };
-        FaceProcessor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        FaceProcessor.prototype.extractParamsFromWeightMap = function (weightMap) {
             var _a = seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
             this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
-            return extractParamsFromWeigthMap$2(classifierMap);
+            return extractParamsFromWeightMap$2(classifierMap);
         };
         FaceProcessor.prototype.extractParams = function (weights) {
             var cIn = this.getClassifierChannelsIn();
@@ -3158,7 +3158,7 @@
             extractMainBlockParams: extractMainBlockParams
         };
     }
-    function extractParamsFromWeigthMap$3(weightMap, numMainBlocks) {
+    function extractParamsFromWeightMap$3(weightMap, numMainBlocks) {
         var paramMappings = [];
         var _a = loadParamsFactory$1(weightMap, paramMappings), extractConvParams = _a.extractConvParams, extractSeparableConvParams = _a.extractSeparableConvParams, extractReductionBlockParams = _a.extractReductionBlockParams, extractMainBlockParams = _a.extractMainBlockParams;
         var entry_flow_conv_in = extractConvParams('entry_flow/conv_in');
@@ -3246,8 +3246,8 @@
         TinyXception.prototype.getDefaultModelName = function () {
             return 'tiny_xception_model';
         };
-        TinyXception.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$3(weightMap, this._numMainBlocks);
+        TinyXception.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap$3(weightMap, this._numMainBlocks);
         };
         TinyXception.prototype.extractParams = function (weights) {
             return extractParams$3(weights, this._numMainBlocks);
@@ -3270,7 +3270,7 @@
         };
     }
 
-    function extractParamsFromWeigthMap$4(weightMap) {
+    function extractParamsFromWeightMap$4(weightMap) {
         var paramMappings = [];
         var extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings);
         function extractFcParams(prefix) {
@@ -3411,10 +3411,10 @@
         AgeGenderNet.prototype.extractClassifierParams = function (weights) {
             return extractParams$4(weights);
         };
-        AgeGenderNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
+        AgeGenderNet.prototype.extractParamsFromWeightMap = function (weightMap) {
             var _a = seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
             this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
-            return extractParamsFromWeigthMap$4(classifierMap);
+            return extractParamsFromWeightMap$4(classifierMap);
         };
         AgeGenderNet.prototype.extractParams = function (weights) {
             var classifierWeightSize = (512 * 1 + 1) + (512 * 2 + 2);
@@ -3707,7 +3707,7 @@
         return FaceLandmark68Net;
     }(FaceLandmark68NetBase));
 
-    function extractParamsFromWeigthMapTiny(weightMap) {
+    function extractParamsFromWeightMapTiny(weightMap) {
         var paramMappings = [];
         var extractDenseBlock3Params = loadParamsFactory(weightMap, paramMappings).extractDenseBlock3Params;
         var params = {
@@ -3772,8 +3772,8 @@
         TinyFaceFeatureExtractor.prototype.getDefaultModelName = function () {
             return 'face_feature_extractor_tiny_model';
         };
-        TinyFaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMapTiny(weightMap);
+        TinyFaceFeatureExtractor.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMapTiny(weightMap);
         };
         TinyFaceFeatureExtractor.prototype.extractParams = function (weights) {
             return extractParamsTiny(weights);
@@ -3935,7 +3935,7 @@
             extractResidualLayerParams: extractResidualLayerParams
         };
     }
-    function extractParamsFromWeigthMap$5(weightMap) {
+    function extractParamsFromWeightMap$5(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$5(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
         var conv32_down = extractConvLayerParams('conv32_down');
@@ -4082,8 +4082,8 @@
         FaceRecognitionNet.prototype.getDefaultModelName = function () {
             return 'face_recognition_model';
         };
-        FaceRecognitionNet.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$5(weightMap);
+        FaceRecognitionNet.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap$5(weightMap);
         };
         FaceRecognitionNet.prototype.extractParams = function (weights) {
             return extractParams$5(weights);
@@ -4411,7 +4411,7 @@
             extractPredictionLayerParams: extractPredictionLayerParams
         };
     }
-    function extractParamsFromWeigthMap$6(weightMap) {
+    function extractParamsFromWeightMap$6(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$7(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
         var extra_dim = weightMap['Output/extra_dim'];
@@ -4749,8 +4749,8 @@
         SsdMobilenetv1.prototype.getDefaultModelName = function () {
             return 'ssd_mobilenetv1_model';
         };
-        SsdMobilenetv1.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$6(weightMap);
+        SsdMobilenetv1.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap$6(weightMap);
         };
         SsdMobilenetv1.prototype.extractParams = function (weights) {
             return extractParams$6(weights);
@@ -4986,7 +4986,7 @@
             extractONetParams: extractONetParams
         };
     }
-    function extractParamsFromWeigthMap$7(weightMap) {
+    function extractParamsFromWeightMap$7(weightMap) {
         var paramMappings = [];
         var _a = extractorsFactory$9(weightMap, paramMappings), extractPNetParams = _a.extractPNetParams, extractRNetParams = _a.extractRNetParams, extractONetParams = _a.extractONetParams;
         var pnet = extractPNetParams();
@@ -5471,8 +5471,8 @@
         Mtcnn.prototype.getDefaultModelName = function () {
             return 'mtcnn_model';
         };
-        Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return extractParamsFromWeigthMap$7(weightMap);
+        Mtcnn.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return extractParamsFromWeightMap$7(weightMap);
         };
         Mtcnn.prototype.extractParams = function (weights) {
             return extractParams$7(weights);
@@ -5529,8 +5529,8 @@
         TinyFaceDetector.prototype.getDefaultModelName = function () {
             return 'tiny_face_detector_model';
         };
-        TinyFaceDetector.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
+        TinyFaceDetector.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return _super.prototype.extractParamsFromWeightMap.call(this, weightMap);
         };
         return TinyFaceDetector;
     }(TinyYolov2));
@@ -5605,8 +5605,8 @@
         TinyYolov2.prototype.getDefaultModelName = function () {
             return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME;
         };
-        TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
-            return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
+        TinyYolov2.prototype.extractParamsFromWeightMap = function (weightMap) {
+            return _super.prototype.extractParamsFromWeightMap.call(this, weightMap);
         };
         return TinyYolov2;
     }(TinyYolov2));

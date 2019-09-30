@@ -25,7 +25,7 @@ function extractorsFactory(weightMap, paramMappings) {
         extractResidualLayerParams: extractResidualLayerParams
     };
 }
-function extractParamsFromWeigthMap(weightMap) {
+function extractParamsFromWeightMap(weightMap) {
     var paramMappings = [];
     var _a = extractorsFactory(weightMap, paramMappings), extractConvLayerParams = _a.extractConvLayerParams, extractResidualLayerParams = _a.extractResidualLayerParams;
     var conv32_down = extractConvLayerParams('conv32_down');
@@ -69,5 +69,5 @@ function extractParamsFromWeigthMap(weightMap) {
     tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
-exports.extractParamsFromWeigthMap = extractParamsFromWeigthMap;
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+exports.extractParamsFromWeightMap = extractParamsFromWeightMap;
+//# sourceMappingURL=extractParamsFromWeightMap.js.map

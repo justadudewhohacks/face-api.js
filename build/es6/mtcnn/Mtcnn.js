@@ -7,7 +7,7 @@ import { extendWithFaceDetection, extendWithFaceLandmarks } from '../factories';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { getSizesForScale } from './getSizesForScale';
 import { MtcnnOptions } from './MtcnnOptions';
 import { pyramidDown } from './pyramidDown';
@@ -123,8 +123,8 @@ var Mtcnn = /** @class */ (function (_super) {
     Mtcnn.prototype.getDefaultModelName = function () {
         return 'mtcnn_model';
     };
-    Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap(weightMap);
+    Mtcnn.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap(weightMap);
     };
     Mtcnn.prototype.extractParams = function (weights) {
         return extractParams(weights);

@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, range, toNetInput, } from 'tfjs-image-recognition-base';
 import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 function conv(x, params, stride) {
     return tf.add(tf.conv2d(x, params.filters, stride, 'same'), params.bias);
 }
@@ -67,8 +67,8 @@ var TinyXception = /** @class */ (function (_super) {
     TinyXception.prototype.getDefaultModelName = function () {
         return 'tiny_xception_model';
     };
-    TinyXception.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap(weightMap, this._numMainBlocks);
+    TinyXception.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap(weightMap, this._numMainBlocks);
     };
     TinyXception.prototype.extractParams = function (weights) {
         return extractParams(weights, this._numMainBlocks);

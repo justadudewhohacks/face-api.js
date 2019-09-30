@@ -7,7 +7,7 @@ import { extendWithFaceDetection, extendWithFaceLandmarks } from '../factories';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { getSizesForScale } from './getSizesForScale';
 import { IMtcnnOptions, MtcnnOptions } from './MtcnnOptions';
 import { pyramidDown } from './pyramidDown';
@@ -153,8 +153,8 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     return 'mtcnn_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeightMap(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {
