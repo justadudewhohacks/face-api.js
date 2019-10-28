@@ -59,6 +59,11 @@
 	}
 
 	async function onPlay() {
+		const displaySize = {width: 925, height: 520}
+		// resize the overlay canvas to the input dimensions
+		const canvas = document.getElementById('overlay')
+		faceapi.matchDimensions(canvas, displaySize)
+
 		const videoEl = $('#inputVideo').get(0)
 
 		if (videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
@@ -66,34 +71,59 @@
 
 		const options = getFaceDetectorOptions()
 
-		const ts = Date.now()
+		const detectionsWithExpressions = await faceapi
+			.detectAllFaces(videoEl, options)
+			.withFaceLandmarks()
+			.withFaceExpressions()
 
-		const result = await faceapi.detectSingleFace(videoEl, options).withFaceExpressions()
+		// 添加年龄
+		const results = await faceapi.detectAllFaces(videoEl, options)
+			.withFaceLandmarks()
+			.withAgeAndGender()
 
-		if (result) {
-			const canvas = $('#overlay').get(0)
-			const dims = faceapi.matchDimensions(canvas, videoEl, true)
 
-			const resizedResult = faceapi.resizeResults(result, dims)
-			const minConfidence = 0.05
-			if (withBoxes) {
-				faceapi.draw.drawDetections(canvas, resizedResult)
-			}
-			faceapi.draw.drawFaceExpressions(canvas, resizedResult, minConfidence)
+		// resize the detected boxes and landmarks in case your displayed image has a different size than the original
+		const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
+		// draw detections into the canvas
+		const drawDetectionOptions = {
+			lineWidth: 2,
+			textColor: 'red',
+			boxColor: 'red',
+			withScore: true
 		}
+		faceapi.draw.drawDetections(canvas, resizedResults,drawDetectionOptions)
+		// draw a textbox displaying the face expressions with minimum probability into the canvas
+		const minProbability = 0.05
+		faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
 
-		setTimeout(() => onPlay())
+		results.forEach(result => {
+			const {age, gender, genderProbability} = result
+			new faceapi.draw.DrawTextField(
+				[
+					`${faceapi.round(age, 0)} years`,
+					`${gender} (${faceapi.round(genderProbability)})`
+				],
+				result.detection.box.topLeft
+			).draw(canvas)
+		})
+
+		setTimeout(() => onPlay(),70)
 	}
 
 	async function run() {
 		// load face detection and face expression recognition models
 		await changeFaceDetector(TINY_FACE_DETECTOR)
+		faceapi.tf.getBackend()
+		//await faceapi.nets.ssdMobilenetv1.load('/')
+		await faceapi.loadFaceLandmarkModel('/')
 		await faceapi.loadFaceExpressionModel('/')
-		changeInputSize(224)
+		await faceapi.nets.ageGenderNet.load('/')
+
+		changeInputSize(416)
 
 		// try to access users webcam and stream the images
 		// to the video element
-		const stream = await navigator.mediaDevices.getUserMedia({video: {width: 925, height: 520 }})
+		const stream = await navigator.mediaDevices.getUserMedia({video: {width: 925, height: 520}})
 		const videoEl = $('#inputVideo').get(0)
 		videoEl.srcObject = stream
 	}
