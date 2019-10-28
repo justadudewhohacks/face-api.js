@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, '../../weights')))
 app.use(express.static(path.join(__dirname, '../../dist')))
 
 app.get('/', (req, res) => res.redirect('/face_detection'))
-app.get('/face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetection.html')))
+app.get('/face_detection',(req, res) => res.sendFile(path.join(viewsDir, 'webcamFaceExpressionRecognition.html')))
 app.get('/face_landmark_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceLandmarkDetection.html')))
 app.get('/face_expression_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'faceExpressionRecognition.html')))
 app.get('/age_and_gender_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'ageAndGenderRecognition.html')))
