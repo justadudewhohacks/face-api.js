@@ -73,7 +73,7 @@
 		// resize the overlay canvas to the input dimensions
 		const canvas = document.getElementById('overlay')
 		faceapi.matchDimensions(canvas, displaySize)
-        if(result.length){
+        if(result){
 			const detectionsWithExpressions = await faceapi
 				.detectAllFaces(videoEl)
 				.withFaceLandmarks()
@@ -115,11 +115,11 @@
 	async function run() {
 		// load face detection and face expression recognition models
 		await changeFaceDetector(TINY_FACE_DETECTOR)
-		await faceapi.nets.ssdMobilenetv1.load('/')
 		await faceapi.loadFaceLandmarkModel('/')
 		await faceapi.loadFaceExpressionModel('/')
 		await faceapi.nets.ageGenderNet.load('/')
 		changeInputSize(224)
+
 		// try to access users webcam and stream the images
 		// to the video element
 		const stream = await navigator.mediaDevices.getUserMedia({video: {width: 925, height: 520 }})

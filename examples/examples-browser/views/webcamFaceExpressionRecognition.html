@@ -51,11 +51,27 @@
 </body>
 
 <script>
-	let forwardTimes = []
 	let withBoxes = true
+	let predictedAges = []
+	let ctx = null
+	// 加载背景图
+	let img = document.createElement('img'); //创建img元素
+	img.src = '../image/info.png';
+
+	let avatar = document.createElement('img'); //创建img元素
+	avatar.src = '../image/avatar.png';
+
+	let title = document.createElement('img'); //创建img元素
+	title.src = '../image/title.png';
 
 	function onChangeHideBoundingBoxes(e) {
 		withBoxes = !$(e.target).prop('checked')
+	}
+
+	function interpolateAgePredictions(age) {
+		predictedAges = [age].concat(predictedAges).slice(0, 30)
+		const avgPredictedAge = predictedAges.reduce((total, a) => total + a) / predictedAges.length
+		return avgPredictedAge
 	}
 
 	async function onPlay() {
@@ -81,40 +97,76 @@
 			.withFaceLandmarks()
 			.withAgeAndGender()
 
-
 		// resize the detected boxes and landmarks in case your displayed image has a different size than the original
 		const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
-		// draw detections into the canvas
-		const drawDetectionOptions = {
-			lineWidth: 2,
-			textColor: 'red',
-			boxColor: 'red',
-			withScore: true
-		}
-		faceapi.draw.drawDetections(canvas, resizedResults,drawDetectionOptions)
-		// draw a textbox displaying the face expressions with minimum probability into the canvas
+
 		const minProbability = 0.05
-		faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
+		//faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
 
-		results.forEach(result => {
-			const {age, gender, genderProbability} = result
-			new faceapi.draw.DrawTextField(
-				[
-					`${faceapi.round(age, 0)} years`,
-					`${gender} (${faceapi.round(genderProbability)})`
-				],
-				result.detection.box.topLeft
-			).draw(canvas)
-		})
+		// results.forEach(result => {
+		// 	// 设置drawLabelOptions
+		// 	// const {age, gender, alignedRect} = result
+		// 	// const {x, y, width, height} = alignedRect.box
+		// 	// const textLabel = {
+		// 	// 	text: [
+		// 	// 		`${faceapi.round(age, 0)} years`,
+		// 	// 		`${gender}`
+		// 	// 	],
+		// 	// 	anchorPosition: 'TOP_LEFT',
+		// 	// 	backgroundColor: 'rgba(0, 0, 0, 0.5)'
+		// 	// }
+		// 	// const interpolatedAge = interpolateAgePredictions(age)
+		// 	// const text = new faceapi.draw.DrawTextField(
+		// 	// 	[
+		// 	// 		`${faceapi.round(interpolatedAge, 0)} years`,
+		// 	// 		`${gender}`
+		// 	// 	],
+		// 	// 	result.detection.box.bottomLeft
+		// 	// )
+		// 	// const boxOptions = {
+		// 	// 	label: `${gender}`,
+		// 	// 	lineWidth: 2,
+		// 	// 	boxColor: '#469df4',
+		// 	// 	drawLabelOptions: text
+		// 	// }
+		// 	// const box = {x, y, width, height}
+		// 	// new faceapi.draw.DrawBox(box, boxOptions).draw(canvas)
+		// })
+		// 绘制矩形框
+		if (ctx) {
+			results.forEach(result => {
+                console.log('result',result)
+				// 绘制信息边框
+				const {age, gender, alignedRect} = result
+				const {x, y, width, height} = alignedRect.box
+				ctx.drawImage(img, x, y, width, height)
 
-		setTimeout(() => onPlay(),70)
+				// 绘制头像边框
+				const avatarX =  x - 23 + width/2
+				const avatarY = y - 40
+				ctx.drawImage(avatar, avatarX, avatarY, 46, 32)
+
+                //绘制标题
+				const titleX =  x - 71 + width/2
+				const titleY = y-10
+				ctx.drawImage(title, titleX, titleY, 142, 26)
+
+                //绘制字
+				ctx.font = '16px sans-serif'; //设置font
+				ctx.textAlign = "center";
+				ctx.fillStyle = "#ffffff";
+				const titleTextX =  x - 2 + width/2
+				const titleTextY = y + 8
+				ctx.fillText("英俊潇洒", titleTextX,titleTextY)
+			})
+		}
+		setTimeout(() => onPlay(),100)
 	}
 
 	async function run() {
 		// load face detection and face expression recognition models
 		await changeFaceDetector(TINY_FACE_DETECTOR)
 		faceapi.tf.getBackend()
-		//await faceapi.nets.ssdMobilenetv1.load('/')
 		await faceapi.loadFaceLandmarkModel('/')
 		await faceapi.loadFaceExpressionModel('/')
 		await faceapi.nets.ageGenderNet.load('/')
@@ -126,6 +178,10 @@
 		const stream = await navigator.mediaDevices.getUserMedia({video: {width: 925, height: 520}})
 		const videoEl = $('#inputVideo').get(0)
 		videoEl.srcObject = stream
+
+		const canvas = document.getElementById('overlay')
+		ctx = canvas.getContext("2d")
+		ctx.globalCompositeOperation="source-over";
 	}
 
 	function updateResults() {
@@ -136,5 +192,4 @@
 		run()
 	})
 </script>
-</body>
 </html>
