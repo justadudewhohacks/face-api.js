@@ -157,6 +157,7 @@
 			tempCtx.font = '16px sans-serif'; //设置font
 			tempCtx.fillStyle = "#fff";
 			tempCtx.save()
+            console.log('ageCache.length !== results.length',ageCache.length !== results.length)
 			if (ageCache.length !== results.length) {
 				results.forEach((result, index) => {
 					const {age, gender, alignedRect} = result
@@ -218,8 +219,12 @@
 					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
 					ctx.drawImage(tempCanvas, 0, 0); // 将缓存 canvas 复制到旧的 canvas
 					tempCtx.clearRect(0, 0, 925, 520);
-
 				})
+				console.log('results.length',results.length)
+				// 离开无人的场景
+				if(results.length ===0){
+					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
+				}
 			}else {
 				results.forEach((result, index) => {
 					const {age, gender, alignedRect} = result
@@ -292,8 +297,8 @@
 					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
 					ctx.drawImage(tempCanvas, 0, 0); // 将缓存 canvas 复制到旧的 canvas
 					tempCtx.clearRect(0, 0, 925, 520);
-
 				})
+				console.log('results.length',results.length)
             }
 		}
 		ageCache = results
