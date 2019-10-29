@@ -64,6 +64,10 @@
 	let title = document.createElement('img'); //创建img元素
 	title.src = '../image/title.png';
 
+	// 设置信息
+	const maleDescribe = ['文质彬彬', '温文尔雅', '风度翩翩', '仪表堂堂']
+	const femaleDescribe = ['明目皓齿', '冰雪聪明', '才貌双全', '亭亭玉立']
+
 	function onChangeHideBoundingBoxes(e) {
 		withBoxes = !$(e.target).prop('checked')
 	}
@@ -72,6 +76,42 @@
 		predictedAges = [age].concat(predictedAges).slice(0, 30)
 		const avgPredictedAge = predictedAges.reduce((total, a) => total + a) / predictedAges.length
 		return avgPredictedAge
+	}
+
+	// 输出表情
+	function getExpression(data) {
+		if(!data) return
+		const minConfidence = 0.05
+		let keysArray = []
+		const {keys} = Object
+		for (let key of keys(data)) {
+			if (data[key] >= minConfidence) {
+				switch (key) {
+                    case 'neutral':
+						keysArray.push('平和')
+                        break
+                    case 'happy':
+						keysArray.push('高兴')
+						break
+                    case 'sad':
+						keysArray.push('悲伤')
+						break
+                    case 'angry':
+						keysArray.push('生气')
+						break
+                    case 'fearful':
+						keysArray.push('可怕')
+						break
+                    case 'disgusted':
+						keysArray.push('厌恶')
+						break
+                    case 'surprised':
+						keysArray.push('吃惊')
+						break
+				}
+            }
+		}
+		return keysArray
 	}
 
 	async function onPlay() {
@@ -99,68 +139,63 @@
 
 		// resize the detected boxes and landmarks in case your displayed image has a different size than the original
 		const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
-
-		const minProbability = 0.05
-		//faceapi.draw.drawFaceExpressions(canvas, resizedResults, minProbability)
-
-		// results.forEach(result => {
-		// 	// 设置drawLabelOptions
-		// 	// const {age, gender, alignedRect} = result
-		// 	// const {x, y, width, height} = alignedRect.box
-		// 	// const textLabel = {
-		// 	// 	text: [
-		// 	// 		`${faceapi.round(age, 0)} years`,
-		// 	// 		`${gender}`
-		// 	// 	],
-		// 	// 	anchorPosition: 'TOP_LEFT',
-		// 	// 	backgroundColor: 'rgba(0, 0, 0, 0.5)'
-		// 	// }
-		// 	// const interpolatedAge = interpolateAgePredictions(age)
-		// 	// const text = new faceapi.draw.DrawTextField(
-		// 	// 	[
-		// 	// 		`${faceapi.round(interpolatedAge, 0)} years`,
-		// 	// 		`${gender}`
-		// 	// 	],
-		// 	// 	result.detection.box.bottomLeft
-		// 	// )
-		// 	// const boxOptions = {
-		// 	// 	label: `${gender}`,
-		// 	// 	lineWidth: 2,
-		// 	// 	boxColor: '#469df4',
-		// 	// 	drawLabelOptions: text
-		// 	// }
-		// 	// const box = {x, y, width, height}
-		// 	// new faceapi.draw.DrawBox(box, boxOptions).draw(canvas)
-		// })
 		// 绘制矩形框
 		if (ctx) {
-			results.forEach(result => {
-                console.log('result',result)
+			results.forEach((result, index) => {
+				console.log('result', result)
 				// 绘制信息边框
 				const {age, gender, alignedRect} = result
 				const {x, y, width, height} = alignedRect.box
 				ctx.drawImage(img, x, y, width, height)
 
 				// 绘制头像边框
-				const avatarX =  x - 23 + width/2
+				const avatarX = x - 23 + width / 2
 				const avatarY = y - 40
 				ctx.drawImage(avatar, avatarX, avatarY, 46, 32)
 
-                //绘制标题
-				const titleX =  x - 71 + width/2
-				const titleY = y-10
+				//绘制标题
+				const titleX = x - 71 + width / 2
+				const titleY = y - 10
 				ctx.drawImage(title, titleX, titleY, 142, 26)
 
-                //绘制字
+				//绘制字
 				ctx.font = '16px sans-serif'; //设置font
-				ctx.textAlign = "center";
-				ctx.fillStyle = "#ffffff";
-				const titleTextX =  x - 2 + width/2
+				ctx.fillStyle = "#fff";
+				const titleTextX = x - 31 + width / 2
 				const titleTextY = y + 8
-				ctx.fillText("英俊潇洒", titleTextX,titleTextY)
+
+				const describeIndex = index % 4
+
+				let describeText = maleDescribe[describeIndex]
+				let genderText = '男士'
+
+				if (gender !== 'male') {
+					describeText = femaleDescribe[describeIndex]
+					genderText = '女士'
+				}
+				ctx.fillText(describeText, titleTextX, titleTextY)
+
+				// 其他描述
+				const resizedResult = resizedResults[index]
+
+                let textField = [`${genderText}`]
+
+                if(resizedResult && resizedResult.expressions){
+                	const textExpression = getExpression(resizedResult.expressions)
+                    if(textExpression.length){
+						textField.push(textExpression.join(','))
+                    }
+                }
+				const expression = getExpression(resizedResults[index])
+                console.log('expression',expression)
+				new faceapi.draw.DrawTextField(
+					textField,
+					result.detection.box.topLeft
+				).draw(canvas)
+
 			})
 		}
-		setTimeout(() => onPlay(),100)
+		setTimeout(() => onPlay(), 100)
 	}
 
 	async function run() {
@@ -181,7 +216,7 @@
 
 		const canvas = document.getElementById('overlay')
 		ctx = canvas.getContext("2d")
-		ctx.globalCompositeOperation="source-over";
+		ctx.globalCompositeOperation = "source-over";
 	}
 
 	function updateResults() {
