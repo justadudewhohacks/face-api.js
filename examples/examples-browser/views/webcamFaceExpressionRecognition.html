@@ -141,6 +141,7 @@
 		const resizedResults = faceapi.resizeResults(detectionsWithExpressions, displaySize)
 		// 绘制矩形框
 		if (ctx) {
+
 			results.forEach((result, index) => {
 				console.log('result', result)
 				// 绘制信息边框
@@ -195,7 +196,7 @@
 
 			})
 		}
-		setTimeout(() => onPlay(), 100)
+		setTimeout(() => onPlay(), 200)
 	}
 
 	async function run() {
