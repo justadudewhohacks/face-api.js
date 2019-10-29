@@ -8,9 +8,11 @@
   position: relative;
   left: 25%;
   top: 40%;
-  width: 925px;
-  height: 520px;
+  width: 956px;
+  height: 550px;
   box-shadow: 1px 1px 40px #333333;
+  border: #000 solid 15px;
+    border-radius: 8px;
 }
 .page-container {
     left         : 0;
