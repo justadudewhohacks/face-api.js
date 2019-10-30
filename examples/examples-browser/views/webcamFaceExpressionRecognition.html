@@ -54,6 +54,7 @@
 <script>
 	let withBoxes = true
 	let predictedAges = []
+    let canvas = null
 	let ctx = null
 	let tempCtx = null
 	let tempCanvas = null
@@ -157,8 +158,9 @@
 			tempCtx.font = '16px sans-serif'; //设置font
 			tempCtx.fillStyle = "#fff";
 			tempCtx.save()
-            console.log('ageCache.length !== results.length',ageCache.length !== results.length)
 			if (ageCache.length !== results.length) {
+				ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
+				tempCtx.clearRect(0, 0, 925, 520);
 				results.forEach((result, index) => {
 					const {age, gender, alignedRect} = result
 					const {x, y, width, height} = alignedRect.box
@@ -216,11 +218,8 @@
 						textField,
 						result.detection.box.topLeft
 					).draw(tempCanvas)
-					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
-					ctx.drawImage(tempCanvas, 0, 0); // 将缓存 canvas 复制到旧的 canvas
-					tempCtx.clearRect(0, 0, 925, 520);
 				})
-				console.log('results.length',results.length)
+				ctx.drawImage(tempCanvas, 0, 0); // 将缓存 canvas 复制到旧的 canvas
 				// 离开无人的场景
 				if(results.length ===0){
 					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
@@ -233,8 +232,10 @@
                     const cacheAge = ageCache[index]
                     const cacheGender = cacheAge.gender
                     const cacheBox = cacheAge.alignedRect.box
-					const cacheX= cacheBox.x
-                    const cacheY = cacheBox.y
+					const cacheX= cacheBox.x - 15
+                    const cacheY = cacheBox.y - 45
+					const cacheW= cacheBox.width +20
+					const cacheH = cacheBox.height + 50
 
                     const positionChange = Math.abs(x-cacheX) >=4 || Math.abs(y-cacheY) >=4
 
@@ -242,27 +243,30 @@
                          return
                     }
 
+                    // 清理前端展示区域 直接绘图
+					ctx.clearRect(cacheX, cacheY, cacheW, cacheH); // 清空旧 canvas
+
 					// 绘制信息边框
-					tempCtx.drawImage(img, x, y, width, height)
+					ctx.drawImage(img, x, y, width, height)
 					const halfWidth = Math.floor(width / 2)
 					// 绘制头像边框
 					const avatarX = x - 23 + halfWidth
 					const avatarY = y - 40
-					tempCtx.drawImage(avatar, avatarX, avatarY, 46, 32)
+					ctx.drawImage(avatar, avatarX, avatarY, 46, 32)
 
 					// 性别图片
 					const genderX = x - 7 + halfWidth
 					const genderY = y - 25
 					if(gender ==='male'){
-						tempCtx.drawImage(male, genderX, genderY, 14, 14)
+						ctx.drawImage(male, genderX, genderY, 14, 14)
 					}else {
-						tempCtx.drawImage(female, genderX, genderY, 14, 14)
+						ctx.drawImage(female, genderX, genderY, 14, 14)
 					}
 
 					//绘制标题
 					const titleX = x - 71 + halfWidth
 					const titleY = y - 10
-					tempCtx.drawImage(title, titleX, titleY, 142, 26)
+					ctx.drawImage(title, titleX, titleY, 142, 26)
 
 					//绘制字
 					const titleTextX = x - 31 + halfWidth
@@ -277,7 +281,7 @@
 						describeText = femaleDescribe[describeIndex]
 						genderText = '女士'
 					}
-					tempCtx.fillText(describeText, titleTextX, titleTextY)
+					ctx.fillText(describeText, titleTextX, titleTextY)
 
 					// 其他描述
 					const resizedResult = resizedResults[index]
@@ -290,15 +294,8 @@
 							textField.push(textExpression.join(','))
 						}
 					}
-					new faceapi.draw.DrawTextField(
-						textField,
-						result.detection.box.topLeft
-					).draw(tempCanvas)
-					ctx.clearRect(0, 0, 925, 520); // 清空旧 canvas
-					ctx.drawImage(tempCanvas, 0, 0); // 将缓存 canvas 复制到旧的 canvas
-					tempCtx.clearRect(0, 0, 925, 520);
+					new faceapi.draw.DrawTextField(textField, result.detection.box.topLeft).draw(canvas)
 				})
-				console.log('results.length',results.length)
             }
 		}
 		ageCache = results
@@ -322,7 +319,7 @@
 		const videoEl = $('#inputVideo').get(0)
 		videoEl.srcObject = stream
 
-		const canvas = document.getElementById('overlay')
+        canvas = document.getElementById('overlay')
 		ctx = canvas.getContext("2d")
 		ctx.globalCompositeOperation = "source-over";
 
