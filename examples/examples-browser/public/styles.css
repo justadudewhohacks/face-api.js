@@ -16,7 +16,14 @@
     border-radius : 8px;
     background    : #000;
 }
-
+#match-loader{
+    position: absolute;
+    left: 45%;
+    top: 34%;
+    background: #469df4;
+    color: #fff;
+    font-size: 18px;
+}
 #bsm-info {
     position      : absolute;
     left          : 64%;

@@ -17,6 +17,10 @@
     <div class="progress" id="loader">
         <div class="indeterminate"></div>
     </div>
+    <div id="match-loader">
+        正在加载处理照片数据，时间挺长的吆。。。。
+    </div>
+
     <div id="bsm-video">
         <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline></video>
         <canvas id="overlay" height="520" width="925"/>
@@ -323,6 +327,7 @@
 		await faceapi.loadFaceRecognitionModel('/')
 		changeInputSize(416)
 		labeledFaceDescriptors = await createBsmFaceMatcher()
+        $('#match-loader').hide("fast")
 		bsmFaceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, maxDescriptorDistance)
 
 		// try to access users webcam and stream the images
