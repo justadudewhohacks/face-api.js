@@ -1,18 +1,65 @@
 #bsm-container {
-    background : url("./image/bg.png") left top no-repeat;
-  background-size: cover;
-  height: 100vh;
-  width: 100vw;
+    background      : url("./image/bg.png") left top no-repeat;
+    background-size : cover;
+    height          : 100vh;
+    width           : 100vw;
 }
-#bsm-video{
-  position: relative;
-  left: 25%;
-  top: 40%;
-  width: 956px;
-  height: 550px;
-  box-shadow: 1px 1px 40px #333333;
-  border: #000 solid 15px;
-    border-radius: 8px;
+
+#bsm-video {
+    position      : relative;
+    left          : 15%;
+    top           : 40%;
+    width         : 956px;
+    height        : 550px;
+    box-shadow    : 1px 1px 40px #333;
+    border        : #000 solid 15px;
+    border-radius : 8px;
+    background    : #000;
+}
+
+#bsm-info {
+    position      : absolute;
+    left          : 64%;
+    top           : 40%;
+    width         : 288px;
+    height        : 550px;
+    box-shadow    : 1px 1px 40px #333;
+    border        : #000 solid 15px;
+    border-radius : 8px;
+    background    : #000;
+}
+
+#bsm-info-list {
+    border : #2e3660 solid 1px;
+    height : 500px;
+    border-radius : 8px;
+    padding: 10px;
+    padding-top: 0;
+}
+.bsm-info-list-li{
+    border-bottom : #2e3660 solid 1px;
+    color: white;
+    font-size: 14px;
+    padding-bottom: 10px;
+}
+.bsm-info-list-li h3 {
+  font-size: 14px;
+    margin: 10px 0;
+}
+.bsm-info-list-li h3 span{
+    float: right;
+    color: #858585;
+}
+.bsm-info-list-li p{
+    margin: 0;
+    margin-bottom: 5px;
+}
+.bsm-info-list-li p span{
+    display: inline-block;
+    background: #469df4;
+    padding: 0 15px;
+    border-radius: 10px;
+
 }
 .page-container {
     left         : 0;
