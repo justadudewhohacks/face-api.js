@@ -25,7 +25,7 @@
 * **[face-api.js for Nodejs](#face-api.js-for-nodejs)**
 * **[Usage](#getting-started)**
   * **[Loading the Models](#getting-started-loading-models)**
-  * **[High Level API](#getting-started-high-level-api)**
+  * **[High Level API](#high-level-api)**
   * **[Displaying Detection Results](#getting-started-displaying-detection-results)**
   * **[Face Detection Options](#getting-started-face-detection-options)**
   * **[Utility Classes](#getting-started-utility-classes)**
