@@ -41,8 +41,8 @@ var TinyFaceDetector = /** @class */ (function (_super) {
     TinyFaceDetector.prototype.getDefaultModelName = function () {
         return 'tiny_face_detector_model';
     };
-    TinyFaceDetector.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
+    TinyFaceDetector.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return _super.prototype.extractParamsFromWeightMap.call(this, weightMap);
     };
     return TinyFaceDetector;
 }(TfjsImageRecognitionBase.TinyYolov2));

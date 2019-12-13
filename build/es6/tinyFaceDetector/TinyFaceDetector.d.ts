@@ -6,7 +6,7 @@ export declare class TinyFaceDetector extends TfjsImageRecognitionBase.TinyYolov
     readonly anchors: Point[];
     locateFaces(input: TNetInput, forwardParams: TfjsImageRecognitionBase.ITinyYolov2Options): Promise<FaceDetection[]>;
     protected getDefaultModelName(): string;
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): {
         params: TfjsImageRecognitionBase.TinyYolov2NetParams;
         paramMappings: TfjsImageRecognitionBase.ParamMapping[];
     };

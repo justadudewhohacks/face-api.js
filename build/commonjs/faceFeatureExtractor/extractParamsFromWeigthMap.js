@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var loadParamsFactory_1 = require("./loadParamsFactory");
-function extractParamsFromWeigthMap(weightMap) {
+function extractParamsFromWeightMap(weightMap) {
     var paramMappings = [];
     var extractDenseBlock4Params = loadParamsFactory_1.loadParamsFactory(weightMap, paramMappings).extractDenseBlock4Params;
     var params = {
@@ -14,5 +14,5 @@ function extractParamsFromWeigthMap(weightMap) {
     tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
-exports.extractParamsFromWeigthMap = extractParamsFromWeigthMap;
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+exports.extractParamsFromWeightMap = extractParamsFromWeightMap;
+//# sourceMappingURL=extractParamsFromWeightMap.js.map

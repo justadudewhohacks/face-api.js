@@ -2,7 +2,7 @@ import { __awaiter, __extends, __generator } from "tslib";
 import * as tf from '@tensorflow/tfjs-core';
 import { NeuralNetwork, normalize, toNetInput } from 'tfjs-image-recognition-base';
 import { denseBlock3 } from './denseBlock';
-import { extractParamsFromWeigthMapTiny } from './extractParamsFromWeigthMapTiny';
+import { extractParamsFromWeightMapTiny } from './extractParamsFromWeightMapTiny';
 import { extractParamsTiny } from './extractParamsTiny';
 var TinyFaceFeatureExtractor = /** @class */ (function (_super) {
     __extends(TinyFaceFeatureExtractor, _super);
@@ -41,8 +41,8 @@ var TinyFaceFeatureExtractor = /** @class */ (function (_super) {
     TinyFaceFeatureExtractor.prototype.getDefaultModelName = function () {
         return 'face_feature_extractor_tiny_model';
     };
-    TinyFaceFeatureExtractor.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMapTiny(weightMap);
+    TinyFaceFeatureExtractor.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMapTiny(weightMap);
     };
     TinyFaceFeatureExtractor.prototype.extractParams = function (weights) {
         return extractParamsTiny(weights);

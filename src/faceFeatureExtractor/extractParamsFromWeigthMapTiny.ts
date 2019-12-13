@@ -4,7 +4,7 @@ import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { loadParamsFactory } from './loadParamsFactory';
 import { TinyFaceFeatureExtractorParams } from './types';
 
-export function extractParamsFromWeigthMapTiny(
+export function extractParamsFromWeightMapTiny(
   weightMap: tf.NamedTensorMap
 ): { params: TinyFaceFeatureExtractorParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
 

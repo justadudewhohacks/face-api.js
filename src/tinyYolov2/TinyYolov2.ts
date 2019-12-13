@@ -50,7 +50,7 @@ export class TinyYolov2 extends TfjsImageRecognitionBase.TinyYolov2 {
     return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TfjsImageRecognitionBase.TinyYolov2NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
-    return super.extractParamsFromWeigthMap(weightMap)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): { params: TfjsImageRecognitionBase.TinyYolov2NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+    return super.extractParamsFromWeightMap(weightMap)
   }
 }

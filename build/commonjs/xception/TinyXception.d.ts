@@ -7,7 +7,7 @@ export declare class TinyXception extends NeuralNetwork<TinyXceptionParams> {
     forwardInput(input: NetInput): tf.Tensor4D;
     forward(input: TNetInput): Promise<tf.Tensor4D>;
     protected getDefaultModelName(): string;
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): {
         params: TinyXceptionParams;
         paramMappings: TfjsImageRecognitionBase.ParamMapping[];
     };

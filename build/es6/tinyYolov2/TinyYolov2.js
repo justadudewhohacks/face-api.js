@@ -53,8 +53,8 @@ var TinyYolov2 = /** @class */ (function (_super) {
     TinyYolov2.prototype.getDefaultModelName = function () {
         return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME;
     };
-    TinyYolov2.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return _super.prototype.extractParamsFromWeigthMap.call(this, weightMap);
+    TinyYolov2.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return _super.prototype.extractParamsFromWeightMap.call(this, weightMap);
     };
     return TinyYolov2;
 }(TfjsImageRecognitionBase.TinyYolov2));

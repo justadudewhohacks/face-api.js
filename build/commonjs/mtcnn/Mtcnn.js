@@ -9,7 +9,7 @@ var factories_1 = require("../factories");
 var bgrToRgbTensor_1 = require("./bgrToRgbTensor");
 var config_1 = require("./config");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 var getSizesForScale_1 = require("./getSizesForScale");
 var MtcnnOptions_1 = require("./MtcnnOptions");
 var pyramidDown_1 = require("./pyramidDown");
@@ -125,8 +125,8 @@ var Mtcnn = /** @class */ (function (_super) {
     Mtcnn.prototype.getDefaultModelName = function () {
         return 'mtcnn_model';
     };
-    Mtcnn.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
+    Mtcnn.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(weightMap);
     };
     Mtcnn.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

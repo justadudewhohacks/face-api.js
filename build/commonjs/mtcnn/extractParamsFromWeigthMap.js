@@ -57,7 +57,7 @@ function extractorsFactory(weightMap, paramMappings) {
         extractONetParams: extractONetParams
     };
 }
-function extractParamsFromWeigthMap(weightMap) {
+function extractParamsFromWeightMap(weightMap) {
     var paramMappings = [];
     var _a = extractorsFactory(weightMap, paramMappings), extractPNetParams = _a.extractPNetParams, extractRNetParams = _a.extractRNetParams, extractONetParams = _a.extractONetParams;
     var pnet = extractPNetParams();
@@ -66,5 +66,5 @@ function extractParamsFromWeigthMap(weightMap) {
     tfjs_image_recognition_base_1.TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: { pnet: pnet, rnet: rnet, onet: onet }, paramMappings: paramMappings };
 }
-exports.extractParamsFromWeigthMap = extractParamsFromWeigthMap;
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+exports.extractParamsFromWeightMap = extractParamsFromWeightMap;
+//# sourceMappingURL=extractParamsFromWeightMap.js.map

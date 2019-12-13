@@ -15,7 +15,7 @@ export declare class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
     }>;
     locateFaces(input: TNetInput, options?: ISsdMobilenetv1Options): Promise<FaceDetection[]>;
     protected getDefaultModelName(): string;
-    protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): {
         params: NetParams;
         paramMappings: import("tfjs-image-recognition-base/build/commonjs/common").ParamMapping[];
     };

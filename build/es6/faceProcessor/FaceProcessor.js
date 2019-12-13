@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { NetInput, NeuralNetwork } from 'tfjs-image-recognition-base';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { seperateWeightMaps } from './util';
 var FaceProcessor = /** @class */ (function (_super) {
     __extends(FaceProcessor, _super);
@@ -45,10 +45,10 @@ var FaceProcessor = /** @class */ (function (_super) {
     FaceProcessor.prototype.extractClassifierParams = function (weights) {
         return extractParams(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut());
     };
-    FaceProcessor.prototype.extractParamsFromWeigthMap = function (weightMap) {
+    FaceProcessor.prototype.extractParamsFromWeightMap = function (weightMap) {
         var _a = seperateWeightMaps(weightMap), featureExtractorMap = _a.featureExtractorMap, classifierMap = _a.classifierMap;
         this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap);
-        return extractParamsFromWeigthMap(classifierMap);
+        return extractParamsFromWeightMap(classifierMap);
     };
     FaceProcessor.prototype.extractParams = function (weights) {
         var cIn = this.getClassifierChannelsIn();

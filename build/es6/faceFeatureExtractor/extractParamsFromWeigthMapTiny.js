@@ -1,6 +1,6 @@
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 import { loadParamsFactory } from './loadParamsFactory';
-export function extractParamsFromWeigthMapTiny(weightMap) {
+export function extractParamsFromWeightMapTiny(weightMap) {
     var paramMappings = [];
     var extractDenseBlock3Params = loadParamsFactory(weightMap, paramMappings).extractDenseBlock3Params;
     var params = {
@@ -11,4 +11,4 @@ export function extractParamsFromWeigthMapTiny(weightMap) {
     TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
-//# sourceMappingURL=extractParamsFromWeigthMapTiny.js.map
+//# sourceMappingURL=extractParamsFromWeightMapTiny.js.map

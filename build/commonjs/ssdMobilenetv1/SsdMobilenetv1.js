@@ -5,7 +5,7 @@ var tf = require("@tensorflow/tfjs-core");
 var tfjs_image_recognition_base_1 = require("tfjs-image-recognition-base");
 var FaceDetection_1 = require("../classes/FaceDetection");
 var extractParams_1 = require("./extractParams");
-var extractParamsFromWeigthMap_1 = require("./extractParamsFromWeigthMap");
+var extractParamsFromWeightMap_1 = require("./extractParamsFromWeightMap");
 var mobileNetV1_1 = require("./mobileNetV1");
 var nonMaxSuppression_1 = require("./nonMaxSuppression");
 var outputLayer_1 = require("./outputLayer");
@@ -96,8 +96,8 @@ var SsdMobilenetv1 = /** @class */ (function (_super) {
     SsdMobilenetv1.prototype.getDefaultModelName = function () {
         return 'ssd_mobilenetv1_model';
     };
-    SsdMobilenetv1.prototype.extractParamsFromWeigthMap = function (weightMap) {
-        return extractParamsFromWeigthMap_1.extractParamsFromWeigthMap(weightMap);
+    SsdMobilenetv1.prototype.extractParamsFromWeightMap = function (weightMap) {
+        return extractParamsFromWeightMap_1.extractParamsFromWeightMap(weightMap);
     };
     SsdMobilenetv1.prototype.extractParams = function (weights) {
         return extractParams_1.extractParams(weights);

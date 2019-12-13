@@ -78,7 +78,7 @@ function extractorsFactory(weightMap, paramMappings) {
         extractPredictionLayerParams: extractPredictionLayerParams
     };
 }
-export function extractParamsFromWeigthMap(weightMap) {
+export function extractParamsFromWeightMap(weightMap) {
     var paramMappings = [];
     var _a = extractorsFactory(weightMap, paramMappings), extractMobilenetV1Params = _a.extractMobilenetV1Params, extractPredictionLayerParams = _a.extractPredictionLayerParams;
     var extra_dim = weightMap['Output/extra_dim'];
@@ -96,4 +96,4 @@ export function extractParamsFromWeigthMap(weightMap) {
     TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+//# sourceMappingURL=extractParamsFromWeightMap.js.map

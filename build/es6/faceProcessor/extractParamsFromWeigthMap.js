@@ -1,5 +1,5 @@
 import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
-export function extractParamsFromWeigthMap(weightMap) {
+export function extractParamsFromWeightMap(weightMap) {
     var paramMappings = [];
     var extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings);
     function extractFcParams(prefix) {
@@ -13,4 +13,4 @@ export function extractParamsFromWeigthMap(weightMap) {
     TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings);
     return { params: params, paramMappings: paramMappings };
 }
-//# sourceMappingURL=extractParamsFromWeigthMap.js.map
+//# sourceMappingURL=extractParamsFromWeightMap.js.map
