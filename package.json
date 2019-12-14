@@ -33,26 +33,26 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "1.2.9",
+    "@tensorflow/tfjs-core": "1.4.0",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@tensorflow/tfjs-node": "^1.2.9",
-    "@types/jasmine": "^3.4.0",
-    "@types/node": "^12.7.5",
-    "canvas": "2.5.0",
-    "jasmine": "^3.4.0",
-    "jasmine-core": "^3.4.0",
-    "karma": "^4.3.0",
-    "karma-chrome-launcher": "^2.2.0",
+    "@tensorflow/tfjs-node": "1.4.0",
+    "@types/jasmine": "^3.5.0",
+    "@types/node": "^12.12.17",
+    "canvas": "2.6.0",
+    "jasmine": "^3.5.0",
+    "jasmine-core": "^3.5.0",
+    "karma": "^4.4.1",
+    "karma-chrome-launcher": "^3.1.0",
     "karma-jasmine": "^2.0.1",
     "karma-typescript": "^4.1.1",
-    "rollup": "^1.21.2",
+    "rollup": "^1.27.13",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.24.2",
-    "rollup-plugin-uglify": "^6.0.3",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.6.3"
+    "rollup-plugin-typescript2": "^0.25.3",
+    "rollup-plugin-uglify": "^6.0.4",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
   }
 }
