@@ -2,6 +2,7 @@ const dataFiles = [
   'test/images/*.jpg',
   'test/images/*.png',
   'test/data/*.json',
+  'test/data/*.weights',
   'test/media/*.mp4',
   'weights/**/*',
   'weights_uncompressed/**/*',

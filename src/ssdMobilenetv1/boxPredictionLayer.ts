@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
+import { convLayer } from '../common';
 import { BoxPredictionParams } from './types';
 
 
@@ -13,11 +13,11 @@ export function boxPredictionLayer(
     const batchSize = x.shape[0]
 
     const boxPredictionEncoding = tf.reshape(
-      TfjsImageRecognitionBase.convLayer(x, params.box_encoding_predictor),
+      convLayer(x, params.box_encoding_predictor),
       [batchSize, -1, 1, 4]
     )
     const classPrediction = tf.reshape(
-      TfjsImageRecognitionBase.convLayer(x, params.class_predictor),
+      convLayer(x, params.class_predictor),
       [batchSize, -1, 3]
     )
 

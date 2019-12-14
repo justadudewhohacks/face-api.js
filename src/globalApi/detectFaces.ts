@@ -1,5 +1,4 @@
-import { TNetInput } from 'tfjs-image-recognition-base';
-
+import { TNetInput } from '../dom';
 import { SsdMobilenetv1Options } from '../ssdMobilenetv1/SsdMobilenetv1Options';
 import { DetectAllFacesTask, DetectSingleFaceTask } from './DetectFacesTasks';
 import { FaceDetectionOptions } from './types';

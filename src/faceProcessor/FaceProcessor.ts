@@ -1,12 +1,13 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork } from 'tfjs-image-recognition-base';
 
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
+import { NetInput } from '../dom';
 import {
   FaceFeatureExtractorParams,
   IFaceFeatureExtractor,
   TinyFaceFeatureExtractorParams,
 } from '../faceFeatureExtractor/types';
+import { NeuralNetwork } from '../NeuralNetwork';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { NetParams } from './types';

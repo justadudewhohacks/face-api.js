@@ -1,5 +1,4 @@
-import { createCanvasFromMedia } from '../../../src';
-import { euclideanDistance } from '../../../src/euclideanDistance';
+import { createCanvasFromMedia, euclideanDistance } from '../../../src';
 import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets } from '../../utils';
 

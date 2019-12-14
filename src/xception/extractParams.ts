@@ -1,11 +1,12 @@
-import { range, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
-
+import { extractConvParamsFactory, extractSeparableConvParamsFactory, extractWeightsFactory } from '../common';
+import { ExtractWeightsFunction, ParamMapping } from '../common/types';
+import { range } from '../utils';
 import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
 
-function extractorsFactory(extractWeights: TfjsImageRecognitionBase.ExtractWeightsFunction, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
+function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
 
-  const extractConvParams = TfjsImageRecognitionBase.extractConvParamsFactory(extractWeights, paramMappings)
-  const extractSeparableConvParams = TfjsImageRecognitionBase.extractSeparableConvParamsFactory(extractWeights, paramMappings)
+  const extractConvParams = extractConvParamsFactory(extractWeights, paramMappings)
+  const extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings)
 
   function extractReductionBlockParams(channelsIn: number, channelsOut: number, mappedPrefix: string): ReductionBlockParams {
 
@@ -34,14 +35,14 @@ function extractorsFactory(extractWeights: TfjsImageRecognitionBase.ExtractWeigh
 
 }
 
-export function extractParams(weights: Float32Array, numMainBlocks: number): { params: TinyXceptionParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+export function extractParams(weights: Float32Array, numMainBlocks: number): { params: TinyXceptionParams, paramMappings: ParamMapping[] } {
 
-  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractWeights,
     getRemainingWeights
-  } = TfjsImageRecognitionBase.extractWeightsFactory(weights)
+  } = extractWeightsFactory(weights)
 
   const {
     extractConvParams,

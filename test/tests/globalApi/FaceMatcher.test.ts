@@ -1,4 +1,4 @@
-import { FaceMatcher } from '../../../src/globalApi/FaceMatcher';
+import { FaceMatcher } from '../../../src';
 import { LabeledFaceDescriptors } from '../../../src';
 
 describe('globalApi', () => {

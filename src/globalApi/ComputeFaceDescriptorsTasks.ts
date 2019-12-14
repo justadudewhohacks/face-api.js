@@ -1,5 +1,4 @@
-import { TNetInput } from 'tfjs-image-recognition-base';
-
+import { TNetInput } from '../dom';
 import { extendWithFaceDescriptor, WithFaceDescriptor } from '../factories/WithFaceDescriptor';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';

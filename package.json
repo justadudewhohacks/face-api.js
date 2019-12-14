@@ -40,7 +40,6 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "1.2.9",
-    "tfjs-image-recognition-base": "^0.6.2",
     "tslib": "^1.10.0"
   },
   "devDependencies": {

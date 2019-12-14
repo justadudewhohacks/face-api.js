@@ -1,4 +1,4 @@
-import { NeuralNetwork } from 'tfjs-image-recognition-base';
+import { NeuralNetwork } from '../src';
 
 export type TestEnv = {
   loadImage: (uri: string) => Promise<HTMLImageElement>

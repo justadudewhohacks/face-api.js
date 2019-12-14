@@ -1,8 +1,9 @@
-import { draw, IPoint, Point, round } from 'tfjs-image-recognition-base';
-
+import { IPoint, Point } from '../classes';
 import { FaceExpressions } from '../faceExpressionNet';
 import { isWithFaceDetection } from '../factories/WithFaceDetection';
 import { isWithFaceExpressions, WithFaceExpressions } from '../factories/WithFaceExpressions';
+import { round } from '../utils';
+import { DrawTextField } from './DrawTextField';
 
 export type DrawFaceExpressionsInput = FaceExpressions | WithFaceExpressions<{}>
 
@@ -29,7 +30,7 @@ export function drawFaceExpressions(
       ? e.detection.box.bottomLeft
       : (textFieldAnchor || new Point(0, 0))
 
-    const drawTextField = new draw.DrawTextField(
+    const drawTextField = new DrawTextField(
       resultsToDisplay.map(expr => `${expr.expression} (${round(expr.probability)})`),
       anchor
     )

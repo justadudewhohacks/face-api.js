@@ -1,21 +1,15 @@
 import * as tf from '@tensorflow/tfjs-core';
-import {
-  NetInput,
-  NeuralNetwork,
-  normalize,
-  range,
-  TfjsImageRecognitionBase,
-  TNetInput,
-  toNetInput,
-} from 'tfjs-image-recognition-base';
 
-import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
-import { bgrToRgbTensor } from '../mtcnn/bgrToRgbTensor';
+import { ConvParams, depthwiseSeparableConv } from '../common';
+import { NetInput, TNetInput, toNetInput } from '../dom';
+import { NeuralNetwork } from '../NeuralNetwork';
+import { normalize } from '../ops';
+import { range } from '../utils';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
 
-function conv(x: tf.Tensor4D, params: TfjsImageRecognitionBase.ConvParams, stride: [number, number]): tf.Tensor4D {
+function conv(x: tf.Tensor4D, params: ConvParams, stride: [number, number]): tf.Tensor4D {
   return tf.add(tf.conv2d(x, params.filters, stride, 'same'), params.bias)
 }
 

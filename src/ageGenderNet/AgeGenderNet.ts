@@ -1,5 +1,4 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { seperateWeightMaps } from '../faceProcessor/util';
@@ -7,6 +6,8 @@ import { TinyXception } from '../xception/TinyXception';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { AgeAndGenderPrediction, Gender, NetOutput, NetParams } from './types';
+import { NeuralNetwork } from '../NeuralNetwork';
+import { NetInput, TNetInput, toNetInput } from '../dom';
 
 export class AgeGenderNet extends NeuralNetwork<NetParams> {
 

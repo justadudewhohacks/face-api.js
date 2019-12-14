@@ -1,7 +1,11 @@
-import { Box, Dimensions, getCenterPoint, IBoundingBox, IDimensions, IRect, Point, Rect } from 'tfjs-image-recognition-base';
-
-import { minBbox } from '../minBbox';
+import { minBbox } from '../ops';
+import { getCenterPoint } from '../utils';
+import { IBoundingBox } from './BoundingBox';
+import { Box } from './Box';
+import { Dimensions, IDimensions } from './Dimensions';
 import { FaceDetection } from './FaceDetection';
+import { Point } from './Point';
+import { IRect, Rect } from './Rect';
 
 // face alignment constants
 const relX = 0.5

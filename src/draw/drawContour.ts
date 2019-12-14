@@ -1,4 +1,4 @@
-import { Point } from 'tfjs-image-recognition-base';
+import { Point } from '../classes';
 
 export function drawContour(
   ctx: CanvasRenderingContext2D,

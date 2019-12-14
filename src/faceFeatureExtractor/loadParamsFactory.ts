@@ -1,14 +1,13 @@
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
-
+import { extractWeightEntryFactory, loadSeparableConvParamsFactory, ParamMapping } from '../common';
 import { loadConvParamsFactory } from '../common/loadConvParamsFactory';
 import { DenseBlock3Params, DenseBlock4Params } from './types';
 
-export function loadParamsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
+export function loadParamsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
-  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   const extractConvParams = loadConvParamsFactory(extractWeightEntry)
-  const extractSeparableConvParams = TfjsImageRecognitionBase.loadSeparableConvParamsFactory(extractWeightEntry)
+  const extractSeparableConvParams = loadSeparableConvParamsFactory(extractWeightEntry)
 
   function extractDenseBlock3Params(prefix: string, isFirstLayer: boolean = false): DenseBlock3Params {
     const conv0 = isFirstLayer

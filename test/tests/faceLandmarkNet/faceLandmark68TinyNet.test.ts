@@ -1,13 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { createCanvasFromMedia, IDimensions, isTensor3D, NetInput, Point, TMediaElement, toNetInput } from '../../../src';
-import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
+import { createCanvasFromMedia, IDimensions, utils, NetInput, Point, TMediaElement, toNetInput, FaceLandmarks68 } from '../../../src';
 import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased, expectPointClose } from '../../utils';
 
 function getInputDims (input: tf.Tensor | TMediaElement): IDimensions {
   if (input instanceof tf.Tensor) {
-    const [height, width] = input.shape.slice(isTensor3D(input) ? 0 : 1)
+    const [height, width] = input.shape.slice(utils.isTensor3D(input) ? 0 : 1)
     return { width, height }
   }
   return input

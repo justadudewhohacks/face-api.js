@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { Box, nonMaxSuppression } from 'tfjs-image-recognition-base';
 
+import { Box } from '../classes';
+import { nonMaxSuppression } from '../ops';
 import { extractImagePatches } from './extractImagePatches';
 import { MtcnnBox } from './MtcnnBox';
 import { RNet } from './RNet';

@@ -1,8 +1,4 @@
-import * as faceapi from '../../../src';
-import { WithAge } from '../../../src/factories/WithAge';
-import { WithFaceDetection } from '../../../src/factories/WithFaceDetection';
-import { WithFaceExpressions } from '../../../src/factories/WithFaceExpressions';
-import { WithGender } from '../../../src/factories/WithGender';
+import { WithAge, detectAllFaces, WithFaceExpressions, WithFaceDetection, WithGender } from '../../../src';
 import { getTestEnv } from '../../env';
 import { expectedTinyFaceDetectorBoxes } from '../../expectedTinyFaceDetectorBoxes';
 import { expectFaceDetectionsWithLandmarks } from '../../expectFaceDetectionsWithLandmarks';
@@ -58,8 +54,7 @@ describeWithBackend('globalApi', () => {
     describe('without face alignment', () => {
 
       it('detectAllFaces.withFaceExpressions()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceExpressions()
 
         expect(results.length).toEqual(6)
@@ -67,8 +62,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withAgeAndGender()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withAgeAndGender()
 
         expect(results.length).toEqual(6)
@@ -76,8 +70,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceExpressions().withAgeAndGender()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceExpressions()
           .withAgeAndGender()
 
@@ -87,8 +80,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withAgeAndGender().withFaceExpressions()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withAgeAndGender()
           .withFaceExpressions()
 
@@ -102,8 +94,7 @@ describeWithBackend('globalApi', () => {
     describe('with face alignment', () => {
 
       it('detectAllFaces.withFaceLandmarks().withFaceExpressions()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withFaceExpressions()
 
@@ -113,8 +104,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withAgeAndGender()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withAgeAndGender()
 
@@ -124,8 +114,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withFaceDescriptors()
 
@@ -134,8 +123,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withFaceExpressions().withAgeAndGender()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withFaceExpressions()
           .withAgeAndGender()
@@ -147,8 +135,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withAgeAndGender().withFaceExpressions()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withAgeAndGender()
           .withFaceExpressions()
@@ -160,8 +147,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withFaceExpressions().withFaceDescriptors()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withFaceExpressions()
           .withFaceDescriptors()
@@ -172,8 +158,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withAgeAndGender().withFaceDescriptors()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withAgeAndGender()
           .withFaceDescriptors()
@@ -184,8 +169,7 @@ describeWithBackend('globalApi', () => {
       })
 
       it('detectAllFaces.withFaceLandmarks().withFaceExpressions().withAgeAndGender().withFaceDescriptors()', async () => {
-        const results = await faceapi
-          .detectAllFaces(imgEl, faceDetectorOptions)
+        const results = await detectAllFaces(imgEl, faceDetectorOptions)
           .withFaceLandmarks()
           .withFaceExpressions()
           .withAgeAndGender()
@@ -203,8 +187,7 @@ describeWithBackend('globalApi', () => {
 
       it('detectAllFaces.withFaceLandmarks().withFaceDescriptors()', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceapi
-            .detectAllFaces(imgEl, faceDetectorOptions)
+          await detectAllFaces(imgEl, faceDetectorOptions)
             .withFaceLandmarks()
             .withFaceDescriptors()
         })
@@ -212,8 +195,7 @@ describeWithBackend('globalApi', () => {
 
       it('detectAllFaces.withFaceLandmarks().withFaceExpressions().withAgeAndGender().withFaceDescriptors()', async () => {
         await expectAllTensorsReleased(async () => {
-          await faceapi
-            .detectAllFaces(imgEl, faceDetectorOptions)
+          await detectAllFaces(imgEl, faceDetectorOptions)
             .withFaceLandmarks()
             .withFaceExpressions()
             .withAgeAndGender()

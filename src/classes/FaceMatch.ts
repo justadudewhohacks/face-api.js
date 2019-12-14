@@ -1,4 +1,4 @@
-import { round } from 'tfjs-image-recognition-base';
+import { round } from '../utils';
 
 export interface IFaceMatch {
   label: string
