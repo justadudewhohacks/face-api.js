@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
+import { convLayer } from '../common';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { prelu } from './prelu';
 import { sharedLayer } from './sharedLayers';
@@ -11,7 +11,7 @@ export function ONet(x: tf.Tensor4D, params: ONetParams): { scores: tf.Tensor1D,
 
     let out = sharedLayer(x, params)
     out = tf.maxPool(out, [2, 2], [2, 2], 'same')
-    out = TfjsImageRecognitionBase.convLayer(out, params.conv4, 'valid')
+    out = convLayer(out, params.conv4, 'valid')
     out = prelu<tf.Tensor4D>(out, params.prelu4_alpha)
 
     const vectorized = tf.reshape(out, [out.shape[0], params.fc1.weights.shape[0]]) as tf.Tensor2D

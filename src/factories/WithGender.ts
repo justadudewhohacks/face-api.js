@@ -1,6 +1,5 @@
-import { isValidProbablitiy } from 'tfjs-image-recognition-base';
-
 import { Gender } from '../ageGenderNet/types';
+import { isValidProbablitiy } from '../utils';
 
 export type WithGender<TSource> = TSource & {
   gender: Gender

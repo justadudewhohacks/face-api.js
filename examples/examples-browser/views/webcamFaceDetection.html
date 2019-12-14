@@ -139,7 +139,7 @@
       forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
       const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
       $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
     }
 
     async function onPlay() {

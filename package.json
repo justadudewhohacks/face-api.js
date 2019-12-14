@@ -11,22 +11,16 @@
     "tsc": "tsc",
     "tsc-es6": "tsc --p tsconfig.es6.json",
     "build": "rm -rf ./build && rm -rf ./dist && npm run rollup && npm run rollup-min && npm run tsc && npm run tsc-es6",
-    "test": "karma start",
+    "test": "npm run test-browser && npm run test-node",
     "test-browser": "karma start --single-run",
     "test-node": "ts-node -r ./test/env.node.ts node_modules/jasmine/bin/jasmine --config=jasmine-node.js",
-    "test-all": "npm run test-browser-exclude-uncompressed && npm run test-node-exclude-uncompressed",
-    "test-all-include-uncompressed": "npm run test-browser && npm run test-node",
     "test-facelandmarknets": "set UUT=faceLandmarkNet&& karma start",
     "test-facerecognitionnet": "set UUT=faceRecognitionNet&& karma start",
     "test-agegendernet": "set UUT=ageGenderNet&& karma start",
     "test-ssdmobilenetv1": "set UUT=ssdMobilenetv1&& karma start",
     "test-tinyfacedetector": "set UUT=tinyFaceDetector&& karma start",
     "test-globalapi": "set UUT=globalApi&& karma start",
-    "test-mtcnn": "set UUT=mtcnn&& karma start",
     "test-cpu": "set BACKEND_CPU=true&& karma start",
-    "test-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& karma start",
-    "test-browser-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& karma start --single-run",
-    "test-node-exclude-uncompressed": "set EXCLUDE_UNCOMPRESSED=true&& npm run test-node",
     "docs": "typedoc --options ./typedoc.config.js ./src"
   },
   "keywords": [
@@ -40,7 +34,6 @@
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-core": "1.2.9",
-    "tfjs-image-recognition-base": "^0.6.2",
     "tslib": "^1.10.0"
   },
   "devDependencies": {

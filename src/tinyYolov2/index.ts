@@ -1,5 +1,10 @@
 import { TinyYolov2 } from './TinyYolov2';
 
+export * from './TinyYolov2Options';
+
+export * from './config'
+export * from './types'
+
 export { TinyYolov2 }
 
 export function createTinyYolov2(weights: Float32Array, withSeparableConvs: boolean = true) {

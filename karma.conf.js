@@ -2,6 +2,7 @@ const dataFiles = [
   'test/images/*.jpg',
   'test/images/*.png',
   'test/data/*.json',
+  'test/data/*.weights',
   'test/media/*.mp4',
   'weights/**/*',
   'weights_uncompressed/**/*',
@@ -21,24 +22,17 @@ let exclude = (
         'faceLandmarkNet',
         'faceRecognitionNet',
         'ssdMobilenetv1',
-        'tinyFaceDetector',
-        'mtcnn'
+        'tinyFaceDetector'
       ]
     : []
   )
     .filter(ex => ex !== process.env.UUT)
     .map(ex => `test/tests/${ex}/*.ts`)
 
-
-exclude = exclude.concat(
-  process.env.EXCLUDE_UNCOMPRESSED
-    ? ['**/*.uncompressed.test.ts']
-    : []
-)
-
 // exclude nodejs tests
 exclude = exclude.concat(['**/*.node.test.ts'])
 exclude = exclude.concat(['test/env.node.ts'])
+exclude = exclude.concat(['test/tests-legacy/**/*.ts'])
 
 
 module.exports = function(config) {

@@ -1,7 +1,6 @@
-import { Point } from '../../../src';
-import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { getTestEnv } from '../../env';
-import { describeWithBackend, describeWithNets, expectPointClose } from '../../utils';
+import { FaceLandmarks68, Point } from '../../src';
+import { getTestEnv } from '../env';
+import { describeWithBackend, describeWithNets, expectPointClose } from '../utils';
 
 describeWithBackend('faceLandmark68Net, uncompressed', () => {
 

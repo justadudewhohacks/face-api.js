@@ -96,7 +96,7 @@
 
     function displayTimeStats(timeInMs) {
       $('#time').val(`${timeInMs} ms`)
-      $('#fps').val(`${faceapi.round(1000 / timeInMs)}`)
+      $('#fps').val(`${faceapi.utils.round(1000 / timeInMs)}`)
     }
 
     function displayImage(src) {

@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { fetchNetWeights, NeuralNetwork } from 'tfjs-image-recognition-base';
 
-import { fetchImage, fetchJson } from '../src';
+import { fetchImage, fetchJson, fetchNetWeights, NeuralNetwork } from '../src';
 import { TestEnv } from './Environment';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000

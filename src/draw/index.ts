@@ -1,4 +1,6 @@
 export * from './drawContour'
 export * from './drawDetections'
 export * from './drawFaceExpressions'
+export * from './DrawBox'
 export * from './DrawFaceLandmarks'
+export * from './DrawTextField'

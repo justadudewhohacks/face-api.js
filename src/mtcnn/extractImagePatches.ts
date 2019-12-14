@@ -1,13 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import {
-  Box,
-  createCanvas,
-  createCanvasFromMedia,
-  env,
-  getContext2dOrThrow,
-  IDimensions,
-} from 'tfjs-image-recognition-base';
 
+import { Box, IDimensions } from '../classes';
+import { createCanvas, createCanvasFromMedia, getContext2dOrThrow } from '../dom';
+import { env } from '../env';
 import { normalize } from './normalize';
 
 export async function extractImagePatches(

@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { NeuralNetwork } from 'tfjs-image-recognition-base';
 
-import { env } from '../src';
+import { env, NeuralNetwork } from '../src';
 import { TestEnv } from './Environment';
 
 require('@tensorflow/tfjs-node')

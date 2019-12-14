@@ -1,6 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork, normalize, TNetInput, toNetInput } from 'tfjs-image-recognition-base';
 
+import { NetInput, TNetInput, toNetInput } from '../dom';
+import { NeuralNetwork } from '../NeuralNetwork';
+import { normalize } from '../ops';
 import { denseBlock4 } from './denseBlock';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';

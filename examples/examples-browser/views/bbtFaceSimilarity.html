@@ -39,7 +39,7 @@
     let descriptors = { desc1: null, desc2: null }
 
     function updateResult() {
-      const distance = faceapi.round(
+      const distance = faceapi.utils.round(
         faceapi.euclideanDistance(descriptors.desc1, descriptors.desc2)
       )
       let text = distance

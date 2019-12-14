@@ -1,11 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { isTensor3D, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
+import { ConvParams, disposeUnusedWeightTensors, extractWeightEntryFactory, ParamMapping } from '../common';
+import { isTensor3D } from '../utils';
 import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
 
-function extractorsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
+function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
-  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractPointwiseConvParams(prefix: string, idx: number, mappedPrefix: string): PointwiseConvParams {
 
@@ -59,7 +60,7 @@ function extractorsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBa
     }
   }
 
-  function extractConvParams(prefix: string, mappedPrefix: string): TfjsImageRecognitionBase.ConvParams {
+  function extractConvParams(prefix: string, mappedPrefix: string): ConvParams {
     const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/weights`, 4, `${mappedPrefix}/filters`)
     const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/biases`, 1, `${mappedPrefix}/bias`)
 
@@ -107,9 +108,9 @@ function extractorsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBa
 
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+): { params: NetParams, paramMappings: ParamMapping[] } {
 
-  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractMobilenetV1Params,
@@ -131,7 +132,7 @@ export function extractParamsFromWeigthMap(
     }
   }
 
-  TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings)
+  disposeUnusedWeightTensors(weightMap, paramMappings)
 
   return { params, paramMappings }
 }
