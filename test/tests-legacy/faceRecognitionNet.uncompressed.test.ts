@@ -1,6 +1,6 @@
-import { createCanvasFromMedia, euclideanDistance } from '../../../src';
-import { getTestEnv } from '../../env';
-import { describeWithBackend, describeWithNets } from '../../utils';
+import { createCanvasFromMedia, euclideanDistance } from '../../src';
+import { getTestEnv } from '../env';
+import { describeWithBackend, describeWithNets } from '../utils';
 
 describeWithBackend('faceRecognitionNet, uncompressed', () => {
 
