@@ -152,7 +152,7 @@
       forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
       const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
       $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
     }
 
     function interpolateAgePredictions(age) {
@@ -192,8 +192,8 @@
         const interpolatedAge = interpolateAgePredictions(age)
         new faceapi.draw.DrawTextField(
           [
-            `${faceapi.round(interpolatedAge, 0)} years`,
-            `${gender} (${faceapi.round(genderProbability)})`
+            `${faceapi.utils.round(interpolatedAge, 0)} years`,
+            `${gender} (${faceapi.utils.round(genderProbability)})`
           ],
           result.detection.box.bottomLeft
         ).draw(canvas)
