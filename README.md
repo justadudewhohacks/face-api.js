@@ -135,8 +135,7 @@ import * as canvas from 'canvas';
 import * as faceapi from 'face-api.js';
 
 // patch nodejs environment, we need to provide an implementation of
-// HTMLCanvasElement and HTMLImageElement, additionally an implementation
-// of ImageData is required, in case you want to use the MTCNN
+// HTMLCanvasElement and HTMLImageElement
 const { Canvas, Image, ImageData } = canvas
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData })
 ```
@@ -160,7 +159,6 @@ console.log(faceapi.nets)
 // faceRecognitionNet
 // ssdMobilenetv1
 // tinyFaceDetector
-// mtcnn
 // tinyYolov2
 ```
 
@@ -246,7 +244,6 @@ By default **detectAllFaces** and **detectSingleFace** utilize the SSD Mobilenet
 ``` javascript
 const detections1 = await faceapi.detectAllFaces(input, new faceapi.SsdMobilenetv1Options())
 const detections2 = await faceapi.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
-const detections3 = await faceapi.detectAllFaces(input, new faceapi.MtcnnOptions())
 ```
 
 You can tune the options of each face detector as shown [here](#getting-started-face-detection-options).
@@ -592,40 +589,6 @@ export interface ITinyFaceDetectorOptions {
 const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 320 })
 ```
 
-### MtcnnOptions
-
-``` javascript
-export interface IMtcnnOptions {
-  // minimum face size to expect, the higher the faster processing will be,
-  // but smaller faces won't be detected
-  // default: 20
-  minFaceSize?: number
-
-  // the score threshold values used to filter the bounding
-  // boxes of stage 1, 2 and 3
-  // default: [0.6, 0.7, 0.7]
-  scoreThresholds?: number[]
-
-  // scale factor used to calculate the scale steps of the image
-  // pyramid used in stage 1
-  // default: 0.709
-  scaleFactor?: number
-
-  // number of scaled versions of the input image passed through the CNN
-  // of the first stage, lower numbers will result in lower inference time,
-  // but will also be less accurate
-  // default: 10
-  maxNumScales?: number
-
-  // instead of specifying scaleFactor and maxNumScales you can also
-  // set the scaleSteps manually
-  scaleSteps?: number[]
-}
-
-// example
-const options = new faceapi.MtcnnOptions({ minFaceSize: 100, scaleFactor: 0.8 })
-```
-
 <a name="getting-started-utility-classes"></a>
 
 ## Utility Classes
@@ -726,7 +689,6 @@ Instead of using the high level API, you can directly use the forward methods of
 ``` javascript
 const detections1 = await faceapi.ssdMobilenetv1(input, options)
 const detections2 = await faceapi.tinyFaceDetector(input, options)
-const detections3 = await faceapi.mtcnn(input, options)
 const landmarks1 = await faceapi.detectFaceLandmarks(faceImage)
 const landmarks2 = await faceapi.detectFaceLandmarksTiny(faceImage)
 const descriptor = await faceapi.computeFaceDescriptor(alignedFaceImage)
@@ -838,14 +800,6 @@ The Tiny Face Detector is a very performant, realtime face detector, which is mu
 The face detector has been trained on a custom dataset of ~14K images labeled with bounding boxes. Furthermore the model has been trained to predict bounding boxes, which entirely cover facial feature points, thus it in general produces better results in combination with subsequent face landmark detection than SSD Mobilenet V1.
 
 This model is basically an even tinier version of Tiny Yolo V2, replacing the regular convolutions of Yolo with depthwise separable convolutions. Yolo is fully convolutional, thus can easily adapt to different input image sizes to trade off accuracy for performance (inference time).
-
-### MTCNN
-
-**Note, this model is mostly kept in this repo for experimental reasons. In general the other face detectors should perform better, but of course you are free to play around with MTCNN.**
-
-MTCNN (Multi-task Cascaded Convolutional Neural Networks) represents an alternative face detector to SSD Mobilenet v1 and Tiny Yolo v2, which offers much more room for configuration. By tuning the input parameters, MTCNN should be able to detect a wide range of face bounding box sizes. MTCNN is a 3 stage cascaded CNN, which simultaneously returns 5 face landmark points along with the bounding boxes and scores for each face. Additionally the model size is only 2MB.
-
-MTCNN has been presented in the paper [Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf) by Zhang et al. and the model weights are provided in the official [repo](https://github.com/kpzhang93/MTCNN_face_detection_alignment) of the MTCNN implementation.
 
 <a name="models-face-landmark-detection"></a>
 
