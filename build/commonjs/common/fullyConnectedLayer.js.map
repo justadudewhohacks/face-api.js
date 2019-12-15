@@ -1,1 +1,0 @@
-{"version":3,"file":"fullyConnectedLayer.js","sourceRoot":"","sources":["../../../src/common/fullyConnectedLayer.ts"],"names":[],"mappings":";;AAAA,0CAA4C;AAG5C,SAAgB,mBAAmB,CACjC,CAAc,EACd,MAAyC;IAEzC,OAAO,EAAE,CAAC,IAAI,CAAC;QACb,OAAA,EAAE,CAAC,GAAG,CACJ,EAAE,CAAC,MAAM,CAAC,CAAC,EAAE,MAAM,CAAC,OAAO,CAAC,EAC5B,MAAM,CAAC,IAAI,CACZ;IAHD,CAGC,CACF,CAAA;AACH,CAAC;AAVD,kDAUC"}
