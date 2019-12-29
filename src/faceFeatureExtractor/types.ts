@@ -1,8 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { NetInput, TNetInput } from '..';
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { ConvParams, SeparableConvParams } from '../common';
-import { NeuralNetwork } from '../NeuralNetwork';
 
 export type ConvWithBatchNormParams = BatchNormParams & {
   filter: tf.Tensor4D
@@ -43,7 +43,7 @@ export type FaceFeatureExtractorParams = {
   dense3: DenseBlock4Params
 }
 
-export interface IFaceFeatureExtractor<TNetParams extends TinyFaceFeatureExtractorParams | FaceFeatureExtractorParams> extends NeuralNetwork<TNetParams> {
+export interface IFaceFeatureExtractor<TNetParams extends TinyFaceFeatureExtractorParams | FaceFeatureExtractorParams> extends _NeuralNetwork<TNetParams> {
   forwardInput(input: NetInput): tf.Tensor4D
   forward(input: TNetInput): Promise<tf.Tensor4D>
 }

@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { env, NeuralNetwork } from '../src';
+import { env } from '../src';
+import { _NeuralNetwork } from '../src/_NeuralNetwork';
 import { TestEnv } from './Environment';
 
 require('@tensorflow/tfjs-node')
@@ -18,7 +19,7 @@ async function loadJsonNode<T>(uri: string): Promise<T> {
   return JSON.parse(fs.readFileSync(path.resolve(__dirname, '../', uri)).toString())
 }
 
-export async function initNetNode<TNet extends NeuralNetwork<any>>(net: TNet) {
+export async function initNetNode<TNet extends _NeuralNetwork<any>>(net: TNet) {
   await net.loadFromDisk(path.resolve(__dirname, '../weights'))
 }
 

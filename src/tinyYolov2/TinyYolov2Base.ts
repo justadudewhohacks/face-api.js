@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { BoundingBox } from '../classes/BoundingBox';
 import { Dimensions } from '../classes/Dimensions';
 import { ObjectDetection } from '../classes/ObjectDetection';
@@ -8,7 +9,6 @@ import { ConvParams, SeparableConvParams } from '../common/types';
 import { toNetInput } from '../dom';
 import { NetInput } from '../dom/NetInput';
 import { TNetInput } from '../dom/types';
-import { NeuralNetwork } from '../NeuralNetwork';
 import { sigmoid } from '../ops';
 import { nonMaxSuppression } from '../ops/nonMaxSuppression';
 import { normalize } from '../ops/normalize';
@@ -21,7 +21,7 @@ import { leaky } from './leaky';
 import { ITinyYolov2Options, TinyYolov2Options } from './TinyYolov2Options';
 import { DefaultTinyYolov2NetParams, MobilenetParams, TinyYolov2NetParams } from './types';
 
-export class TinyYolov2Base extends NeuralNetwork<TinyYolov2NetParams> {
+export class TinyYolov2Base extends _NeuralNetwork<TinyYolov2NetParams> {
 
   public static DEFAULT_FILTER_SIZES = [
     3, 16, 32, 64, 128, 256, 512, 1024, 1024

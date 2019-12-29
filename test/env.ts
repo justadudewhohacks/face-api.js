@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { fetchImage, fetchJson, fetchNetWeights, NeuralNetwork } from '../src';
+import { fetchImage, fetchJson, fetchNetWeights } from '../src';
+import { _NeuralNetwork } from '../src/_NeuralNetwork';
 import { TestEnv } from './Environment';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000
@@ -17,7 +18,7 @@ async function loadJsonBrowser<T>(uri: string): Promise<T> {
   return fetchJson<T>(`base${uri.startsWith('/') ? '' : '/'}${uri}`)
 }
 
-async function initNetBrowser<TNet extends NeuralNetwork<any>>(
+async function initNetBrowser<TNet extends _NeuralNetwork<any>>(
   net: TNet,
   uncompressedFilename: string | boolean,
   isUnusedModel: boolean = false

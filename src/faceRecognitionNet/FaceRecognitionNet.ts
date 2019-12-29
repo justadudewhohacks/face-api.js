@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { NetInput, TNetInput, toNetInput } from '../dom';
-import { NeuralNetwork } from '../NeuralNetwork';
 import { normalize } from '../ops';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
@@ -10,7 +10,7 @@ import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
 
 
-export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
+export class FaceRecognitionNet extends _NeuralNetwork<NetParams> {
 
   constructor() {
     super('FaceRecognitionNet')

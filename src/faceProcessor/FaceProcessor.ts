@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
 import { NetInput } from '../dom';
 import {
@@ -7,7 +8,6 @@ import {
   IFaceFeatureExtractor,
   TinyFaceFeatureExtractorParams,
 } from '../faceFeatureExtractor/types';
-import { NeuralNetwork } from '../NeuralNetwork';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { NetParams } from './types';
@@ -16,7 +16,7 @@ import { seperateWeightMaps } from './util';
 export abstract class FaceProcessor<
   TExtractorParams extends FaceFeatureExtractorParams | TinyFaceFeatureExtractorParams
 >
-  extends NeuralNetwork<NetParams> {
+  extends _NeuralNetwork<NetParams> {
 
   protected _faceFeatureExtractor: IFaceFeatureExtractor<TExtractorParams>
 

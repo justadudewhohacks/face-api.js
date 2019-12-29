@@ -1,11 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { Point, Rect } from '../classes';
 import { FaceDetection } from '../classes/FaceDetection';
 import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
 import { NetInput, TNetInput, toNetInput } from '../dom';
 import { extendWithFaceDetection, extendWithFaceLandmarks } from '../factories';
-import { NeuralNetwork } from '../NeuralNetwork';
 import { bgrToRgbTensor } from './bgrToRgbTensor';
 import { CELL_SIZE } from './config';
 import { extractParams } from './extractParams';
@@ -18,7 +18,7 @@ import { stage2 } from './stage2';
 import { stage3 } from './stage3';
 import { MtcnnResult, NetParams } from './types';
 
-export class Mtcnn extends NeuralNetwork<NetParams> {
+export class Mtcnn extends _NeuralNetwork<NetParams> {
 
   constructor() {
     super('Mtcnn')

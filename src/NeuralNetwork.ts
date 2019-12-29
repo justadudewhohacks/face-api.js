@@ -1,82 +1,27 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { ParamMapping } from './common';
+import { extractWeightsFactory } from './common';
 import { getModelUris } from './common/getModelUris';
-import { loadWeightMap } from './dom';
+import { loadWeightMap, NetInput, TNetInput, toNetInput } from './dom';
 import { env } from './env';
+import { Layer } from './layers/Layer';
+import { reduceSum } from './utils';
 
-export abstract class NeuralNetwork<TNetParams> {
-
-  protected _params: TNetParams | undefined = undefined
-  protected _paramMappings: ParamMapping[] = []
+export abstract class NeuralNetwork {
 
   constructor(protected _name: string) {}
 
-  public get params(): TNetParams | undefined { return this._params }
-  public get paramMappings(): ParamMapping[] { return this._paramMappings }
-  public get isLoaded(): boolean { return !!this.params }
+  protected abstract _getParamLayers(): Layer[]
+  protected abstract _getDefaultModelName(): string
+  protected abstract _forward(input: NetInput): tf.Tensor4D
 
-  public getParamFromPath(paramPath: string): tf.Tensor {
-    const { obj, objProp } = this.traversePropertyPath(paramPath)
-    return obj[objProp]
-  }
-
-  public reassignParamFromPath(paramPath: string, tensor: tf.Tensor) {
-    const { obj, objProp } = this.traversePropertyPath(paramPath)
-    obj[objProp].dispose()
-    obj[objProp] = tensor
-  }
-
-  public getParamList() {
-    return this._paramMappings.map(({ paramPath }) => ({
-      path: paramPath,
-      tensor: this.getParamFromPath(paramPath)
-    }))
-  }
-
-  public getTrainableParams() {
-    return this.getParamList().filter(param => param.tensor instanceof tf.Variable)
-  }
-
-  public getFrozenParams() {
-    return this.getParamList().filter(param => !(param.tensor instanceof tf.Variable))
-  }
-
-  public variable() {
-    this.getFrozenParams().forEach(({ path, tensor }) => {
-      this.reassignParamFromPath(path, tensor.variable())
-    })
-  }
-
-  public freeze() {
-    this.getTrainableParams().forEach(({ path, tensor: variable }) => {
-      const tensor = tf.tensor(variable.dataSync())
-      variable.dispose()
-      this.reassignParamFromPath(path, tensor)
-    })
-  }
-
-  public dispose(throwOnRedispose: boolean = true) {
-    this.getParamList().forEach(param => {
-      if (throwOnRedispose && param.tensor.isDisposed) {
-        throw new Error(`param tensor has already been disposed for path ${param.path}`)
-      }
-      param.tensor.dispose()
-    })
-    this._params = undefined
-  }
-
-  public serializeParams(): Float32Array {
-    return new Float32Array(
-      this.getParamList()
-        .map(({ tensor }) => Array.from(tensor.dataSync()) as number[])
-        .reduce((flat, arr) => flat.concat(arr))
-    )
+  public dispose() {
+    this._getParamLayers().forEach(l => l.dispose())
   }
 
   public async load(weightsOrUrl: Float32Array | string | undefined): Promise<void> {
     if (weightsOrUrl instanceof Float32Array) {
-      this.extractWeights(weightsOrUrl)
+      this._load(weightsOrUrl)
       return
     }
 
@@ -88,7 +33,7 @@ export abstract class NeuralNetwork<TNetParams> {
       throw new Error(`${this._name}.loadFromUri - expected model uri`)
     }
 
-    const weightMap = await loadWeightMap(uri, this.getDefaultModelName())
+    const weightMap = await loadWeightMap(uri, this._getDefaultModelName())
     this.loadFromWeightMap(weightMap)
   }
 
@@ -99,7 +44,7 @@ export abstract class NeuralNetwork<TNetParams> {
 
     const { readFile } = env.getEnv()
 
-    const { manifestUri, modelBaseUri } = getModelUris(filePath, this.getDefaultModelName())
+    const { manifestUri, modelBaseUri } = getModelUris(filePath, this._getDefaultModelName())
 
     const fetchWeightsFromDisk = (filePaths: string[]) => Promise.all(
       filePaths.map(filePath => readFile(filePath).then(buf => buf.buffer))
@@ -113,47 +58,29 @@ export abstract class NeuralNetwork<TNetParams> {
   }
 
   public loadFromWeightMap(weightMap: tf.NamedTensorMap) {
-    const {
-      paramMappings,
-      params
-    } = this.extractParamsFromWeigthMap(weightMap)
-
-    this._paramMappings = paramMappings
-    this._params = params
+    this._getParamLayers().forEach(l => l.initializeParamsFromWeightMap(weightMap))
   }
 
-  public extractWeights(weights: Float32Array) {
-    const {
-      paramMappings,
-      params
-    } = this.extractParams(weights)
-
-    this._paramMappings = paramMappings
-    this._params = params
+  public forwardSync(input: NetInput): tf.Tensor4D {
+    return this._forward(input)
   }
 
-  private traversePropertyPath(paramPath: string) {
-    if (!this.params) {
-      throw new Error(`traversePropertyPath - model has no loaded params`)
+  public async forward(input: TNetInput): Promise<tf.Tensor4D> {
+    return this.forwardSync(await toNetInput(input))
+  }
+
+  // keep forwardInput for backwards compatibility
+  public forwardInput(input: NetInput): tf.Tensor4D {
+    return this.forwardSync(input)
+  }
+
+  private _load(params: Float32Array) {
+    const expectedNumParams = reduceSum(this._getParamLayers().map(l => l.getNumParams()))
+    if (params.length !== expectedNumParams) {
+      throw new Error(`NeuralNetwork._load failed for '${this._name}': expected ${expectedNumParams} params, but received ${params.length}`)
     }
-
-    const result = paramPath.split('/').reduce((res: { nextObj: any, obj?: any, objProp?: string }, objProp) => {
-      if (!res.nextObj.hasOwnProperty(objProp)) {
-        throw new Error(`traversePropertyPath - object does not have property ${objProp}, for path ${paramPath}`)
-      }
-
-      return { obj: res.nextObj, objProp, nextObj: res.nextObj[objProp] }
-    }, { nextObj: this.params })
-
-    const { obj, objProp } = result
-    if (!obj || !objProp || !(obj[objProp] instanceof tf.Tensor)) {
-      throw new Error(`traversePropertyPath - parameter is not a tensor, for path ${paramPath}`)
-    }
-
-    return { obj, objProp }
+    // TODO
+    const extractWeights = extractWeightsFactory(params).extractWeights
+    this._getParamLayers().forEach(l => l.initializeParams(extractWeights))
   }
-
-  protected abstract getDefaultModelName(): string
-  protected abstract extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TNetParams, paramMappings: ParamMapping[] }
-  protected abstract extractParams(weights: Float32Array): { params: TNetParams, paramMappings: ParamMapping[] }
 }

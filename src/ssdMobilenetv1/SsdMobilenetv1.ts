@@ -1,9 +1,9 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { Rect } from '../classes';
 import { FaceDetection } from '../classes/FaceDetection';
 import { NetInput, TNetInput, toNetInput } from '../dom';
-import { NeuralNetwork } from '../NeuralNetwork';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { mobileNetV1 } from './mobileNetV1';
@@ -14,7 +14,7 @@ import { ISsdMobilenetv1Options, SsdMobilenetv1Options } from './SsdMobilenetv1O
 import { NetParams } from './types';
 
 
-export class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
+export class SsdMobilenetv1 extends _NeuralNetwork<NetParams> {
 
   constructor() {
     super('SsdMobilenetv1')

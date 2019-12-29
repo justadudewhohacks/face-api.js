@@ -1,84 +1,60 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { ConvParams, depthwiseSeparableConv } from '../common';
-import { NetInput, TNetInput, toNetInput } from '../dom';
+import { NetInput } from '../dom';
+import { Convolution, DepthwiseSeparableConvolution, XceptionMainModule, XceptionReductionModule } from '../layers';
+import { Layer } from '../layers/Layer';
 import { NeuralNetwork } from '../NeuralNetwork';
 import { normalize } from '../ops';
 import { range } from '../utils';
-import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
 
-function conv(x: tf.Tensor4D, params: ConvParams, stride: [number, number]): tf.Tensor4D {
-  return tf.add(tf.conv2d(x, params.filters, stride, 'same'), params.bias)
-}
+export class TinyXception extends NeuralNetwork {
 
-function reductionBlock(x: tf.Tensor4D, params: ReductionBlockParams, isActivateInput: boolean = true): tf.Tensor4D {
-  let out = isActivateInput ? tf.relu(x) : x
-  out = depthwiseSeparableConv(out, params.separable_conv0, [1, 1])
-  out = depthwiseSeparableConv(tf.relu(out),  params.separable_conv1, [1, 1])
-  out = tf.maxPool(out, [3, 3], [2, 2], 'same')
-  out = tf.add(out, conv(x,  params.expansion_conv, [2, 2]))
-  return out
-}
-
-function mainBlock(x: tf.Tensor4D, params: MainBlockParams): tf.Tensor4D {
-  let out = depthwiseSeparableConv(tf.relu(x), params.separable_conv0, [1, 1])
-  out = depthwiseSeparableConv(tf.relu(out), params.separable_conv1, [1, 1])
-  out = depthwiseSeparableConv(tf.relu(out), params.separable_conv2, [1, 1])
-  out = tf.add(out, x)
-  return out
-}
-
-export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
-
-  private _numMainBlocks: number
+  private _entryConv: Convolution
+  private _entryReductionModule0: XceptionReductionModule
+  private _entryReductionModule1: XceptionReductionModule
+  private _mainModules: XceptionMainModule[]
+  private _exitReductionModule: XceptionReductionModule
+  private _exitDepthwiseSeparableConv: DepthwiseSeparableConvolution
 
   constructor(numMainBlocks: number) {
     super('TinyXception')
-    this._numMainBlocks = numMainBlocks
+    this._entryConv = new Convolution('entry_flow/conv_in', [2, 2], 3, 32, 3)
+    this._entryReductionModule0 = new XceptionReductionModule('entry_flow/reduction_block_0', 32, 64, false)
+    this._entryReductionModule1 = new XceptionReductionModule('entry_flow/reduction_block_1', 64, 128)
+    this._mainModules = range(numMainBlocks, 0, 1).map(idx => new XceptionMainModule(`middle_flow/main_block_${idx}`, 128))
+    this._exitReductionModule = new XceptionReductionModule('exit_flow/reduction_block', 128, 256)
+    this._exitDepthwiseSeparableConv = new DepthwiseSeparableConvolution('exit_flow/separable_conv', [1, 1], 256, 512)
   }
 
-  public forwardInput(input: NetInput): tf.Tensor4D {
+  protected _getDefaultModelName(): string {
+    return 'tiny_xception_model';
+  }
 
-    const { params } = this
-
-    if (!params) {
-      throw new Error('TinyXception - load model before inference')
-    }
-
+  protected _getParamLayers(): Layer[] {
+    return [
+      this._entryConv,
+      this._entryReductionModule0,
+      this._entryReductionModule1,
+      ...this._mainModules,
+      this._exitReductionModule,
+      this._exitDepthwiseSeparableConv
+    ]
+  }
+  protected _forward(input: NetInput): tf.Tensor4D {
     return tf.tidy(() => {
       const batchTensor = input.toBatchTensor(112, true)
       const meanRgb = [122.782, 117.001, 104.298]
       const normalized = normalize(batchTensor, meanRgb).div(tf.scalar(256)) as tf.Tensor4D
 
-      let out = tf.relu(conv(normalized, params.entry_flow.conv_in, [2, 2]))
-      out = reductionBlock(out, params.entry_flow.reduction_block_0, false)
-      out = reductionBlock(out, params.entry_flow.reduction_block_1)
-
-      range(this._numMainBlocks, 0, 1).forEach((idx) => {
-        out = mainBlock(out, params.middle_flow[`main_block_${idx}`])
+      let out = tf.relu(this._entryConv.apply(normalized))
+      out = this._entryReductionModule0.apply(out)
+      out = this._entryReductionModule1.apply(out)
+      this._mainModules.forEach(mainModule => {
+        out = mainModule.apply(out)
       })
-
-      out = reductionBlock(out, params.exit_flow.reduction_block)
-      out = tf.relu(depthwiseSeparableConv(out, params.exit_flow.separable_conv, [1, 1]))
+      out = this._exitReductionModule.apply(out)
+      out = tf.relu(this._exitDepthwiseSeparableConv.apply(out))
       return out
     })
-  }
-
-  public async forward(input: TNetInput): Promise<tf.Tensor4D> {
-    return this.forwardInput(await toNetInput(input))
-  }
-
-  protected getDefaultModelName(): string {
-    return 'tiny_xception_model'
-  }
-
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap, this._numMainBlocks)
-  }
-
-  protected extractParams(weights: Float32Array) {
-    return extractParams(weights, this._numMainBlocks)
   }
 }

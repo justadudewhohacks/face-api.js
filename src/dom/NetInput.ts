@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { Dimensions } from '../classes/Dimensions';
 import { env } from '../env';
 import { padToSquare } from '../ops/padToSquare';
-import { computeReshapedDimensions, isTensor3D, isTensor4D, range } from '../utils';
+import { isTensor3D, isTensor4D, range } from '../utils';
 import { createCanvasFromMedia } from './createCanvas';
 import { imageToSquare } from './imageToSquare';
 import { TResolvedNetInput } from './types';
@@ -106,7 +106,9 @@ export class NetInput {
 
     const width = this.getInputWidth(batchIdx)
     const height = this.getInputHeight(batchIdx)
-    return computeReshapedDimensions({ width, height }, this.inputSize)
+    const scale = this.inputSize / Math.max(height, width)
+
+    return new Dimensions(Math.round(width * scale), Math.round(height * scale))
   }
 
   /**

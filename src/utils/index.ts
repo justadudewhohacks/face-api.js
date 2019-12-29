@@ -1,9 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { Point } from '../classes';
-import { Dimensions, IDimensions } from '../classes/Dimensions';
 
-export function isTensor(tensor: any, dim: number) {
+export function isTensor<R extends tf.Rank>(tensor: any, dim: number): tensor is tf.Tensor<R> {
   return tensor instanceof tf.Tensor && tensor.shape.length === dim
 }
 
@@ -40,11 +39,6 @@ export function isDimensions(obj: any): boolean {
   return obj && obj.width && obj.height
 }
 
-export function computeReshapedDimensions({ width, height }: IDimensions, inputSize: number) {
-  const scale = inputSize / Math.max(height, width)
-  return new Dimensions(Math.round(width * scale), Math.round(height * scale))
-}
-
 export function getCenterPoint(pts: Point[]): Point {
   return pts.reduce((sum, pt) => sum.add(pt), new Point(0, 0))
     .div(new Point(pts.length, pts.length))
@@ -60,4 +54,12 @@ export function isValidNumber(num: any) {
 
 export function isValidProbablitiy(num: any) {
   return isValidNumber(num) && 0 <= num && num <= 1.0
+}
+
+export function reduceSum(numbers: number[]): number {
+  return numbers.reduce((sum, v) => sum + v, 0)
+}
+
+export function flattenArray<T>(arrs: T[][]): T[] {
+  return arrs.reduce((arr, a) => arr.concat(a))
 }

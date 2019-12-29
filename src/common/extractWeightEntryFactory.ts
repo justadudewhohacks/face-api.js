@@ -14,7 +14,7 @@ export function extractWeightEntryFactory(weightMap: any, paramMappings: ParamMa
       { originalPath, paramPath: mappedPath || originalPath }
     )
 
-    return tensor
+    return tensor as any as T
   }
 
 }

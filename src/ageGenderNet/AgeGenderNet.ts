@@ -1,15 +1,15 @@
 import * as tf from '@tensorflow/tfjs-core';
 
+import { _NeuralNetwork } from '../_NeuralNetwork';
 import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
+import { NetInput, TNetInput, toNetInput } from '../dom';
 import { seperateWeightMaps } from '../faceProcessor/util';
 import { TinyXception } from '../xception/TinyXception';
 import { extractParams } from './extractParams';
 import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
 import { AgeAndGenderPrediction, Gender, NetOutput, NetParams } from './types';
-import { NeuralNetwork } from '../NeuralNetwork';
-import { NetInput, TNetInput, toNetInput } from '../dom';
 
-export class AgeGenderNet extends NeuralNetwork<NetParams> {
+export class AgeGenderNet extends _NeuralNetwork<NetParams> {
 
   private _faceFeatureExtractor: TinyXception
 
@@ -90,7 +90,7 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
   }
 
   public dispose(throwOnRedispose: boolean = true) {
-    this.faceFeatureExtractor.dispose(throwOnRedispose)
+    this.faceFeatureExtractor.dispose()
     super.dispose(throwOnRedispose)
   }
 
@@ -108,6 +108,11 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
 
     const { featureExtractorMap, classifierMap } = seperateWeightMaps(weightMap)
 
+    Object.keys(featureExtractorMap).forEach(oldKey => {
+      const newKey = oldKey.replace('/separable_conv', '/depthwise_separable_conv_').replace('/expansion_conv', '/reduction_conv')
+      featureExtractorMap[newKey] = featureExtractorMap[oldKey]
+    })
+
     this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap)
 
     return extractParamsFromWeigthMap(classifierMap)
@@ -120,7 +125,7 @@ export class AgeGenderNet extends NeuralNetwork<NetParams> {
     const featureExtractorWeights = weights.slice(0, weights.length - classifierWeightSize)
     const classifierWeights = weights.slice(weights.length - classifierWeightSize)
 
-    this.faceFeatureExtractor.extractWeights(featureExtractorWeights)
+    this.faceFeatureExtractor.load(featureExtractorWeights)
     return this.extractClassifierParams(classifierWeights)
   }
 }

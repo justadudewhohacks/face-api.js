@@ -1,8 +1,6 @@
-import { Dimensions, IDimensions } from './classes';
-import { FaceDetection } from './classes/FaceDetection';
-import { FaceLandmarks } from './classes/FaceLandmarks';
-import { extendWithFaceDetection, isWithFaceDetection } from './factories/WithFaceDetection';
-import { extendWithFaceLandmarks, isWithFaceLandmarks } from './factories/WithFaceLandmarks';
+import { FaceDetection, FaceLandmarks } from './classes';
+import { Dimensions, IDimensions } from './classes/Dimensions';
+import { extendWithFaceDetection, extendWithFaceLandmarks, isWithFaceDetection, isWithFaceLandmarks } from './factories';
 
 export function resizeResults<T>(results: T, dimensions: IDimensions): T {
 
