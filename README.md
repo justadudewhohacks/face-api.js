@@ -16,6 +16,7 @@
 * **[Realtime Webcam Face Detection And Emotion Recognition - Video](https://youtu.be/CVClHLwv-4I)**
 * **[Easy Face Recognition Tutorial With JavaScript - Video](https://youtu.be/AZ4PdALMqx0)**
 * **[Using face-api.js with Vue.js and Electron](https://medium.com/@andreas.schallwig/do-not-laugh-a-simple-ai-powered-game-3e22ad0f8166)**
+* **[Add Masks to People - Gant Laborde on Learn with Jason](https://www.learnwithjason.dev/fun-with-machine-learning-pt-2)**
 
 ## Table of Contents
 
