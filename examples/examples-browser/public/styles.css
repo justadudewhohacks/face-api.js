@@ -74,3 +74,11 @@
 #facesContainer canvas {
   margin: 10px;
 }
+
+input[type="file"]::-webkit-file-upload-button {
+    background: #26a69a;
+    border: 1px solid gray;
+    cursor: pointer;
+    color: #fff;
+    border-radius: .2em;
+}
