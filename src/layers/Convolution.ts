@@ -15,8 +15,8 @@ export class Convolution extends Layer {
   private _channelsOut: number
   private _kernelSize: number
 
-  private get filterShape() : Shape4D { return [3, this._channelsIn, this._channelsOut, this._kernelSize] }
-  private get biasShape() : [number] { return [this._kernelSize] }
+  private get filterShape() : Shape4D { return [this._kernelSize, this._kernelSize, this._channelsIn, this._channelsOut] }
+  private get biasShape() : [number] { return [this._channelsOut] }
 
   constructor(name: string, stride: [number, number], channelsIn: number, channelsOut: number, kernelSize: number) {
     super(name)
@@ -46,7 +46,7 @@ export class Convolution extends Layer {
   }
 
   protected _apply(x: tf.Tensor4D): tf.Tensor4D {
-    return tf.add(tf.conv2d(x, this._filter, this._stride, 'same'), this._bias)
+    return tf.add<tf.Tensor4D>(tf.conv2d(x, this._filter, this._stride, 'same'), this._bias)
   }
 
 }

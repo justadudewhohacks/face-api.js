@@ -4,14 +4,14 @@ import { extractWeightsFactory } from './common';
 import { getModelUris } from './common/getModelUris';
 import { loadWeightMap, NetInput, TNetInput, toNetInput } from './dom';
 import { env } from './env';
-import { Layer } from './layers/Layer';
+import { ILayer } from './layers/Layer';
 import { reduceSum } from './utils';
 
 export abstract class NeuralNetwork {
 
   constructor(protected _name: string) {}
 
-  protected abstract _getParamLayers(): Layer[]
+  protected abstract _getParamLayers(): ILayer[]
   protected abstract _getDefaultModelName(): string
   protected abstract _forward(input: NetInput): tf.Tensor4D
 
@@ -62,7 +62,7 @@ export abstract class NeuralNetwork {
   }
 
   public forwardSync(input: NetInput): tf.Tensor4D {
-    return this._forward(input)
+    return tf.tidy(() => this._forward(input))
   }
 
   public async forward(input: TNetInput): Promise<tf.Tensor4D> {

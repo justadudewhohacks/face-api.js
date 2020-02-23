@@ -1,10 +1,12 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import * as draw from './draw';
+import * as layers from './layers';
 import * as utils from './utils';
 
 export {
   draw,
+  layers,
   utils,
   tf
 }

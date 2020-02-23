@@ -1,4 +1,6 @@
 export * from './Convolution'
 export * from './DepthwiseSeparableConvolution'
+export * from './Layer'
+export * from './TopDown'
 export * from './XceptionMainModule'
 export * from './XceptionReductionModule'

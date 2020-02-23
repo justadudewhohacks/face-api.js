@@ -40,21 +40,20 @@ export class TinyXception extends NeuralNetwork {
       this._exitDepthwiseSeparableConv
     ]
   }
-  protected _forward(input: NetInput): tf.Tensor4D {
-    return tf.tidy(() => {
-      const batchTensor = input.toBatchTensor(112, true)
-      const meanRgb = [122.782, 117.001, 104.298]
-      const normalized = normalize(batchTensor, meanRgb).div(tf.scalar(256)) as tf.Tensor4D
 
-      let out = tf.relu(this._entryConv.apply(normalized))
-      out = this._entryReductionModule0.apply(out)
-      out = this._entryReductionModule1.apply(out)
-      this._mainModules.forEach(mainModule => {
-        out = mainModule.apply(out)
-      })
-      out = this._exitReductionModule.apply(out)
-      out = tf.relu(this._exitDepthwiseSeparableConv.apply(out))
-      return out
+  protected _forward(input: NetInput): tf.Tensor4D {
+    const batchTensor = input.toBatchTensor(112, true)
+    const meanRgb = [122.782, 117.001, 104.298]
+    const normalized = normalize(batchTensor, meanRgb).div(tf.scalar(256)) as tf.Tensor4D
+
+    let out = tf.relu(this._entryConv.apply(normalized))
+    out = this._entryReductionModule0.apply(out)
+    out = this._entryReductionModule1.apply(out)
+    this._mainModules.forEach(mainModule => {
+      out = mainModule.apply(out)
     })
+    out = this._exitReductionModule.apply(out)
+    out = tf.relu(this._exitDepthwiseSeparableConv.apply(out))
+    return out
   }
 }

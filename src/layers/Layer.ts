@@ -3,11 +3,22 @@ import * as tf from '@tensorflow/tfjs-core';
 import { ExtractWeightsFunction } from '../common';
 import { reduceSum } from '../utils';
 
-export abstract class Layer {
+export interface ILayer {
+  dispose(): void
+  getNumParams(): number
+  getParamShapes(): number[][]
+  initializeParams(extractWeights: ExtractWeightsFunction): void
+  initializeParamsFromWeightMap(weightMap: tf.NamedTensorMap): void
+}
+
+export abstract class Layer<
+  TIn extends tf.TensorContainer = tf.Tensor4D,
+  TOut extends tf.TensorContainer = tf.Tensor4D
+> implements ILayer {
 
   protected abstract _initializeParams(extractWeights: ExtractWeightsFunction): void
   protected abstract _initializeParamsFromWeightMap(weightMap: tf.NamedTensorMap): void
-  protected abstract _apply(x: tf.Tensor4D): tf.Tensor4D
+  protected abstract _apply(x: TIn): TOut
   protected abstract _dispose(): void
   protected abstract _getParamShapes(): number[][]
 
@@ -43,7 +54,7 @@ export abstract class Layer {
     this._dispose()
   }
 
-  public apply(x: tf.Tensor4D): tf.Tensor4D {
+  public apply(x: TIn): TOut {
     if (!this.isLoaded) {
       throw new Error(`Layer.apply failed for '${this._name}': layer params are uninitialized`)
     }
