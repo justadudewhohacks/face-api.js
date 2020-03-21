@@ -117,7 +117,456 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../node_modules/tslib/tslib.es6.js":[function(require,module,exports) {
+})({"node_modules/tslib/tslib.es6.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.__extends = __extends;
+exports.__rest = __rest;
+exports.__decorate = __decorate;
+exports.__param = __param;
+exports.__metadata = __metadata;
+exports.__awaiter = __awaiter;
+exports.__generator = __generator;
+exports.__exportStar = __exportStar;
+exports.__values = __values;
+exports.__read = __read;
+exports.__spread = __spread;
+exports.__spreadArrays = __spreadArrays;
+exports.__await = __await;
+exports.__asyncGenerator = __asyncGenerator;
+exports.__asyncDelegator = __asyncDelegator;
+exports.__asyncValues = __asyncValues;
+exports.__makeTemplateObject = __makeTemplateObject;
+exports.__importStar = __importStar;
+exports.__importDefault = __importDefault;
+exports.__classPrivateFieldGet = __classPrivateFieldGet;
+exports.__classPrivateFieldSet = __classPrivateFieldSet;
+exports.__assign = void 0;
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+
+/* global Reflect, Promise */
+var extendStatics = function (d, b) {
+  extendStatics = Object.setPrototypeOf || {
+    __proto__: []
+  } instanceof Array && function (d, b) {
+    d.__proto__ = b;
+  } || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+  };
+
+  return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+  extendStatics(d, b);
+
+  function __() {
+    this.constructor = d;
+  }
+
+  d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+var __assign = function () {
+  exports.__assign = __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+exports.__assign = __assign;
+
+function __rest(s, e) {
+  var t = {};
+
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+  }
+  return t;
+}
+
+function __decorate(decorators, target, key, desc) {
+  var c = arguments.length,
+      r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+      d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+function __param(paramIndex, decorator) {
+  return function (target, key) {
+    decorator(target, key, paramIndex);
+  };
+}
+
+function __metadata(metadataKey, metadataValue) {
+  if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+}
+
+function __awaiter(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+}
+
+function __generator(thisArg, body) {
+  var _ = {
+    label: 0,
+    sent: function () {
+      if (t[0] & 1) throw t[1];
+      return t[1];
+    },
+    trys: [],
+    ops: []
+  },
+      f,
+      y,
+      t,
+      g;
+  return g = {
+    next: verb(0),
+    "throw": verb(1),
+    "return": verb(2)
+  }, typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+    return this;
+  }), g;
+
+  function verb(n) {
+    return function (v) {
+      return step([n, v]);
+    };
+  }
+
+  function step(op) {
+    if (f) throw new TypeError("Generator is already executing.");
+
+    while (_) try {
+      if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+      if (y = 0, t) op = [op[0] & 2, t.value];
+
+      switch (op[0]) {
+        case 0:
+        case 1:
+          t = op;
+          break;
+
+        case 4:
+          _.label++;
+          return {
+            value: op[1],
+            done: false
+          };
+
+        case 5:
+          _.label++;
+          y = op[1];
+          op = [0];
+          continue;
+
+        case 7:
+          op = _.ops.pop();
+
+          _.trys.pop();
+
+          continue;
+
+        default:
+          if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+            _ = 0;
+            continue;
+          }
+
+          if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+            _.label = op[1];
+            break;
+          }
+
+          if (op[0] === 6 && _.label < t[1]) {
+            _.label = t[1];
+            t = op;
+            break;
+          }
+
+          if (t && _.label < t[2]) {
+            _.label = t[2];
+
+            _.ops.push(op);
+
+            break;
+          }
+
+          if (t[2]) _.ops.pop();
+
+          _.trys.pop();
+
+          continue;
+      }
+
+      op = body.call(thisArg, _);
+    } catch (e) {
+      op = [6, e];
+      y = 0;
+    } finally {
+      f = t = 0;
+    }
+
+    if (op[0] & 5) throw op[1];
+    return {
+      value: op[0] ? op[1] : void 0,
+      done: true
+    };
+  }
+}
+
+function __exportStar(m, exports) {
+  for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+
+function __values(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator,
+      m = s && o[s],
+      i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function () {
+      if (o && i >= o.length) o = void 0;
+      return {
+        value: o && o[i++],
+        done: !o
+      };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+
+function __read(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+}
+
+function __spread() {
+  for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+
+  return ar;
+}
+
+function __spreadArrays() {
+  for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+
+  for (var r = Array(s), k = 0, i = 0; i < il; i++) for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) r[k] = a[j];
+
+  return r;
+}
+
+;
+
+function __await(v) {
+  return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+  if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+  var g = generator.apply(thisArg, _arguments || []),
+      i,
+      q = [];
+  return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () {
+    return this;
+  }, i;
+
+  function verb(n) {
+    if (g[n]) i[n] = function (v) {
+      return new Promise(function (a, b) {
+        q.push([n, v, a, b]) > 1 || resume(n, v);
+      });
+    };
+  }
+
+  function resume(n, v) {
+    try {
+      step(g[n](v));
+    } catch (e) {
+      settle(q[0][3], e);
+    }
+  }
+
+  function step(r) {
+    r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
+  }
+
+  function fulfill(value) {
+    resume("next", value);
+  }
+
+  function reject(value) {
+    resume("throw", value);
+  }
+
+  function settle(f, v) {
+    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  }
+}
+
+function __asyncDelegator(o) {
+  var i, p;
+  return i = {}, verb("next"), verb("throw", function (e) {
+    throw e;
+  }), verb("return"), i[Symbol.iterator] = function () {
+    return this;
+  }, i;
+
+  function verb(n, f) {
+    i[n] = o[n] ? function (v) {
+      return (p = !p) ? {
+        value: __await(o[n](v)),
+        done: n === "return"
+      } : f ? f(v) : v;
+    } : f;
+  }
+}
+
+function __asyncValues(o) {
+  if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+  var m = o[Symbol.asyncIterator],
+      i;
+  return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () {
+    return this;
+  }, i);
+
+  function verb(n) {
+    i[n] = o[n] && function (v) {
+      return new Promise(function (resolve, reject) {
+        v = o[n](v), settle(resolve, reject, v.done, v.value);
+      });
+    };
+  }
+
+  function settle(resolve, reject, d, v) {
+    Promise.resolve(v).then(function (v) {
+      resolve({
+        value: v,
+        done: d
+      });
+    }, reject);
+  }
+}
+
+function __makeTemplateObject(cooked, raw) {
+  if (Object.defineProperty) {
+    Object.defineProperty(cooked, "raw", {
+      value: raw
+    });
+  } else {
+    cooked.raw = raw;
+  }
+
+  return cooked;
+}
+
+;
+
+function __importStar(mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result.default = mod;
+  return result;
+}
+
+function __importDefault(mod) {
+  return mod && mod.__esModule ? mod : {
+    default: mod
+  };
+}
+
+function __classPrivateFieldGet(receiver, privateMap) {
+  if (!privateMap.has(receiver)) {
+    throw new TypeError("attempted to get private field on non-instance");
+  }
+
+  return privateMap.get(receiver);
+}
+
+function __classPrivateFieldSet(receiver, privateMap, value) {
+  if (!privateMap.has(receiver)) {
+    throw new TypeError("attempted to set private field on non-instance");
+  }
+
+  privateMap.set(receiver, value);
+  return value;
+}
+},{}],"../node_modules/tslib/tslib.es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25015,7 +25464,7 @@ function () {
 }();
 
 exports.Layer = Layer;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts"}],"../src/layers/Convolution.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts"}],"../src/layers/BatchNorm.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25025,6 +25474,213 @@ Object.defineProperty(exports, "__esModule", {
 var tslib_1 = require("tslib");
 
 var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var common_1 = require("./common");
+
+var Layer_1 = require("./Layer");
+
+var BatchNormOptionals =
+/** @class */
+function () {
+  function BatchNormOptionals(withOffset, withScale, varianceEpsilon) {
+    if (withOffset === void 0) {
+      withOffset = false;
+    }
+
+    if (withScale === void 0) {
+      withScale = false;
+    }
+
+    if (varianceEpsilon === void 0) {
+      varianceEpsilon = 0.001;
+    }
+
+    this.withOffset = withOffset;
+    this.withScale = withScale;
+    this.varianceEpsilon = varianceEpsilon;
+  }
+
+  return BatchNormOptionals;
+}();
+
+exports.BatchNormOptionals = BatchNormOptionals;
+
+var BatchNorm =
+/** @class */
+function (_super) {
+  tslib_1.__extends(BatchNorm, _super);
+
+  function BatchNorm(name, channels, optionals) {
+    if (optionals === void 0) {
+      optionals = new BatchNormOptionals();
+    }
+
+    var _this = _super.call(this, name) || this;
+
+    _this._channels = channels;
+    _this._withOffset = optionals.withOffset;
+    _this._withScale = optionals.withScale;
+    _this._varianceEpsilon = optionals.varianceEpsilon;
+    return _this;
+  }
+
+  BatchNorm.prototype._initializeParams = function (extractWeights) {
+    this._mean = tf.tensor1d(extractWeights(this._channels));
+    this._variance = tf.tensor1d(extractWeights(this._channels));
+    this._offset = this._withOffset ? tf.tensor1d(extractWeights(this._channels)) : tf.zeros([this._channels]);
+    this._scale = this._withScale ? tf.tensor1d(extractWeights(this._channels)) : tf.ones([this._channels]);
+  };
+
+  BatchNorm.prototype._initializeParamsFromWeightMap = function (weightMap) {
+    this._mean = common_1.extractWeightTensor1D(weightMap, this._withNamePath('mean'));
+    this._variance = common_1.extractWeightTensor1D(weightMap, this._withNamePath('variance'));
+    this._offset = this._withOffset ? common_1.extractWeightTensor1D(weightMap, this._withNamePath('offset')) : tf.zeros([this._channels]);
+    this._scale = this._withScale ? common_1.extractWeightTensor1D(weightMap, this._withNamePath('scale')) : tf.ones([this._channels]);
+  };
+
+  BatchNorm.prototype._dispose = function () {
+    this._mean.dispose();
+
+    this._variance.dispose();
+
+    this._offset.dispose();
+
+    this._scale.dispose();
+  };
+
+  BatchNorm.prototype._getParamShapes = function () {
+    var _this = this;
+
+    return [true, true, this._withOffset, this._withScale].filter(function (v) {
+      return v;
+    }).map(function () {
+      return [_this._channels];
+    });
+  };
+
+  BatchNorm.prototype._apply = function (x) {
+    return tf.batchNorm4d(x, this._mean, this._variance, this._offset, this._scale, this._varianceEpsilon);
+  };
+
+  return BatchNorm;
+}(Layer_1.Layer);
+
+exports.BatchNorm = BatchNorm;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/ComposedLayer.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var utils_1 = require("../utils");
+
+var Layer_1 = require("./Layer");
+
+var ComposedLayer =
+/** @class */
+function (_super) {
+  tslib_1.__extends(ComposedLayer, _super);
+
+  function ComposedLayer() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  ComposedLayer.prototype._initializeParams = function (extractWeights) {
+    this._getLayers().forEach(function (l) {
+      return l.initializeParams(extractWeights);
+    });
+  };
+
+  ComposedLayer.prototype._initializeParamsFromWeightMap = function (weightMap) {
+    this._getLayers().forEach(function (l) {
+      return l.initializeParamsFromWeightMap(weightMap);
+    });
+  };
+
+  ComposedLayer.prototype._dispose = function () {
+    this._getLayers().forEach(function (l) {
+      return l.dispose();
+    });
+  };
+
+  ComposedLayer.prototype._getParamShapes = function () {
+    return utils_1.flattenArray(this._getLayers().map(function (l) {
+      return l.getParamShapes();
+    }));
+  };
+
+  return ComposedLayer;
+}(Layer_1.Layer);
+
+exports.ComposedLayer = ComposedLayer;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","../utils":"../src/utils/index.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/Bias.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var common_1 = require("./common");
+
+var Layer_1 = require("./Layer");
+
+var Bias =
+/** @class */
+function (_super) {
+  tslib_1.__extends(Bias, _super);
+
+  function Bias(name, channels) {
+    var _this = _super.call(this, name) || this;
+
+    _this._channels = channels;
+    return _this;
+  }
+
+  Bias.prototype._initializeParams = function (extractWeights) {
+    this._bias = tf.tensor1d(extractWeights(this._channels));
+  };
+
+  Bias.prototype._initializeParamsFromWeightMap = function (weightMap) {
+    this._bias = common_1.extractWeightTensor1D(weightMap, this.name);
+  };
+
+  Bias.prototype._dispose = function () {
+    this._bias.dispose();
+  };
+
+  Bias.prototype._getParamShapes = function () {
+    return [[this._channels]];
+  };
+
+  Bias.prototype._apply = function (x) {
+    return tf.add(x, this._bias);
+  };
+
+  return Bias;
+}(Layer_1.Layer);
+
+exports.Bias = Bias;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/Convolution.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var BatchNorm_1 = require("./BatchNorm");
+
+var Bias_1 = require("./Bias");
 
 var common_1 = require("./common");
 
@@ -25035,13 +25691,18 @@ var Convolution =
 function (_super) {
   tslib_1.__extends(Convolution, _super);
 
-  function Convolution(name, stride, channelsIn, channelsOut, kernelSize) {
+  function Convolution(name, stride, channelsIn, channelsOut, kernelSize, batchNormOptionals) {
+    if (batchNormOptionals === void 0) {
+      batchNormOptionals = null;
+    }
+
     var _this = _super.call(this, name) || this;
 
     _this._stride = stride;
     _this._channelsIn = channelsIn;
     _this._channelsOut = channelsOut;
     _this._kernelSize = kernelSize;
+    _this._biasOrBn = batchNormOptionals instanceof BatchNorm_1.BatchNormOptionals ? new BatchNorm_1.BatchNorm('batch_norm', channelsOut, batchNormOptionals) : new Bias_1.Bias('bias', channelsOut);
     return _this;
   }
 
@@ -25052,43 +25713,40 @@ function (_super) {
     enumerable: true,
     configurable: true
   });
-  Object.defineProperty(Convolution.prototype, "biasShape", {
-    get: function get() {
-      return [this._channelsOut];
-    },
-    enumerable: true,
-    configurable: true
-  });
 
   Convolution.prototype._initializeParams = function (extractWeights) {
     this._filter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.filterShape)), this.filterShape);
-    this._bias = tf.tensor1d(extractWeights(tf.util.sizeFromShape(this.biasShape)));
+
+    this._biasOrBn.initializeParams(extractWeights);
   };
 
   Convolution.prototype._initializeParamsFromWeightMap = function (weightMap) {
     this._filter = common_1.extractWeightTensor4D(weightMap, this._withNamePath('filters'));
-    this._bias = common_1.extractWeightTensor1D(weightMap, this._withNamePath('bias'));
+
+    this._biasOrBn.initializeParamsFromWeightMap(weightMap);
   };
 
   Convolution.prototype._dispose = function () {
     this._filter.dispose();
 
-    this._bias.dispose();
+    this._biasOrBn.dispose();
   };
 
   Convolution.prototype._getParamShapes = function () {
-    return [this.filterShape, this.biasShape];
+    return tslib_1.__spreadArrays([this.filterShape], this._biasOrBn.getParamShapes());
   };
 
   Convolution.prototype._apply = function (x) {
-    return tf.add(tf.conv2d(x, this._filter, this._stride, 'same'), this._bias);
+    var out = tf.conv2d(x, this._filter, this._stride, 'same');
+    out = this._biasOrBn.apply(out);
+    return out;
   };
 
   return Convolution;
 }(Layer_1.Layer);
 
 exports.Convolution = Convolution;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/DepthwiseSeparableConvolution.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./BatchNorm":"../src/layers/BatchNorm.ts","./Bias":"../src/layers/Bias.ts","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/DepthwiseSeparableConvolution.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25099,6 +25757,10 @@ var tslib_1 = require("tslib");
 
 var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
 
+var BatchNorm_1 = require("./BatchNorm");
+
+var Bias_1 = require("./Bias");
+
 var common_1 = require("./common");
 
 var Layer_1 = require("./Layer");
@@ -25108,12 +25770,17 @@ var DepthwiseSeparableConvolution =
 function (_super) {
   tslib_1.__extends(DepthwiseSeparableConvolution, _super);
 
-  function DepthwiseSeparableConvolution(name, stride, channelsIn, channelsOut) {
+  function DepthwiseSeparableConvolution(name, stride, channelsIn, channelsOut, batchnormOptionals) {
+    if (batchnormOptionals === void 0) {
+      batchnormOptionals = null;
+    }
+
     var _this = _super.call(this, name) || this;
 
     _this._stride = stride;
     _this._channelsIn = channelsIn;
     _this._channelsOut = channelsOut;
+    _this._biasOrBn = batchnormOptionals instanceof BatchNorm_1.BatchNormOptionals ? new BatchNorm_1.BatchNorm('batch_norm', channelsOut, batchnormOptionals) : new Bias_1.Bias('bias', channelsOut);
     return _this;
   }
 
@@ -25131,24 +25798,19 @@ function (_super) {
     enumerable: true,
     configurable: true
   });
-  Object.defineProperty(DepthwiseSeparableConvolution.prototype, "biasShape", {
-    get: function get() {
-      return [this._channelsOut];
-    },
-    enumerable: true,
-    configurable: true
-  });
 
   DepthwiseSeparableConvolution.prototype._initializeParams = function (extractWeights) {
     this._depthwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.depthwiseFilterShape)), this.depthwiseFilterShape);
     this._pointwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.pointwiseFilterShape)), this.pointwiseFilterShape);
-    this._bias = tf.tensor1d(extractWeights(tf.util.sizeFromShape(this.biasShape)));
+
+    this._biasOrBn.initializeParams(extractWeights);
   };
 
   DepthwiseSeparableConvolution.prototype._initializeParamsFromWeightMap = function (weightMap) {
     this._depthwiseFilter = common_1.extractWeightTensor4D(weightMap, this._withNamePath('depthwise_filter'));
     this._pointwiseFilter = common_1.extractWeightTensor4D(weightMap, this._withNamePath('pointwise_filter'));
-    this._bias = common_1.extractWeightTensor1D(weightMap, this._withNamePath('bias'));
+
+    this._biasOrBn.initializeParamsFromWeightMap(weightMap);
   };
 
   DepthwiseSeparableConvolution.prototype._dispose = function () {
@@ -25156,16 +25818,16 @@ function (_super) {
 
     this._pointwiseFilter.dispose();
 
-    this._bias.dispose();
+    this._biasOrBn.dispose();
   };
 
   DepthwiseSeparableConvolution.prototype._getParamShapes = function () {
-    return [this.depthwiseFilterShape, this.pointwiseFilterShape, this.biasShape];
+    return tslib_1.__spreadArrays([this.depthwiseFilterShape, this.pointwiseFilterShape], this._biasOrBn.getParamShapes());
   };
 
   DepthwiseSeparableConvolution.prototype._apply = function (x) {
     var out = tf.separableConv2d(x, this._depthwiseFilter, this._pointwiseFilter, this._stride, 'same');
-    out = tf.add(out, this._bias);
+    out = this._biasOrBn.apply(out);
     return out;
   };
 
@@ -25173,7 +25835,255 @@ function (_super) {
 }(Layer_1.Layer);
 
 exports.DepthwiseSeparableConvolution = DepthwiseSeparableConvolution;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/TopDown.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./BatchNorm":"../src/layers/BatchNorm.ts","./Bias":"../src/layers/Bias.ts","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/BottleneckedConv.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var ComposedLayer_1 = require("./ComposedLayer");
+
+var Convolution_1 = require("./Convolution");
+
+var DepthwiseSeparableConvolution_1 = require("./DepthwiseSeparableConvolution");
+
+var BottleneckedConv =
+/** @class */
+function (_super) {
+  tslib_1.__extends(BottleneckedConv, _super);
+
+  function BottleneckedConv(name, channels, expansionFactor, isConvDown) {
+    if (isConvDown === void 0) {
+      isConvDown = false;
+    }
+
+    var _this = _super.call(this, name) || this;
+
+    var expandedChannels = channels * expansionFactor;
+    _this._isConvDown = isConvDown;
+    _this._expansionConv = new Convolution_1.Convolution(_this._withNamePath('expansion_conv'), [1, 1], channels, expandedChannels, 1);
+    _this._depthwiseSeparableConv = new DepthwiseSeparableConvolution_1.DepthwiseSeparableConvolution(_this._withNamePath('depthwise_separable_conv'), isConvDown ? [2, 2] : [1, 1], expandedChannels, channels);
+    return _this;
+  }
+
+  BottleneckedConv.prototype._getLayers = function () {
+    return [this._expansionConv, this._depthwiseSeparableConv];
+  };
+
+  BottleneckedConv.prototype._apply = function (x) {
+    var out = this._expansionConv.apply(tf.relu(x));
+
+    out = this._depthwiseSeparableConv.apply(tf.relu(out));
+    out = this._isConvDown ? out : tf.add(out, x);
+    return out;
+  };
+
+  return BottleneckedConv;
+}(ComposedLayer_1.ComposedLayer);
+
+exports.BottleneckedConv = BottleneckedConv;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./ComposedLayer":"../src/layers/ComposedLayer.ts","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts"}],"../src/layers/DepthwiseSeparableConvolutionWithIntermediate.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var BatchNorm_1 = require("./BatchNorm");
+
+var Bias_1 = require("./Bias");
+
+var common_1 = require("./common");
+
+var Layer_1 = require("./Layer");
+
+var DepthwiseSeparableConvolutionWithIntermediate =
+/** @class */
+function (_super) {
+  tslib_1.__extends(DepthwiseSeparableConvolutionWithIntermediate, _super);
+
+  function DepthwiseSeparableConvolutionWithIntermediate(name, stride, channelsIn, channelsOut, batchnormOptionals) {
+    if (batchnormOptionals === void 0) {
+      batchnormOptionals = null;
+    }
+
+    var _this = _super.call(this, name) || this;
+
+    _this._stride = stride;
+    _this._channelsIn = channelsIn;
+    _this._channelsOut = channelsOut;
+    _this._depthwiseConvBiasOrBn = batchnormOptionals instanceof BatchNorm_1.BatchNormOptionals ? new BatchNorm_1.BatchNorm('batch_norm_depthwise_conv', channelsIn, batchnormOptionals) : new Bias_1.Bias('bias_depthwise_conv', channelsIn);
+    _this._pointwiseConvBiasOrBn = batchnormOptionals instanceof BatchNorm_1.BatchNormOptionals ? new BatchNorm_1.BatchNorm('batch_norm_pointwise_conv', channelsOut, batchnormOptionals) : new Bias_1.Bias('bias_pointwise_conv', channelsOut);
+    return _this;
+  }
+
+  Object.defineProperty(DepthwiseSeparableConvolutionWithIntermediate.prototype, "depthwiseFilterShape", {
+    get: function get() {
+      return [3, 3, this._channelsIn, 1];
+    },
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(DepthwiseSeparableConvolutionWithIntermediate.prototype, "pointwiseFilterShape", {
+    get: function get() {
+      return [1, 1, this._channelsIn, this._channelsOut];
+    },
+    enumerable: true,
+    configurable: true
+  });
+
+  DepthwiseSeparableConvolutionWithIntermediate.prototype._initializeParams = function (extractWeights) {
+    this._depthwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.depthwiseFilterShape)), this.depthwiseFilterShape);
+
+    this._depthwiseConvBiasOrBn.initializeParams(extractWeights);
+
+    this._pointwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.pointwiseFilterShape)), this.pointwiseFilterShape);
+
+    this._pointwiseConvBiasOrBn.initializeParams(extractWeights);
+  };
+
+  DepthwiseSeparableConvolutionWithIntermediate.prototype._initializeParamsFromWeightMap = function (weightMap) {
+    this._depthwiseFilter = common_1.extractWeightTensor4D(weightMap, this._withNamePath('depthwise_filter'));
+
+    this._depthwiseConvBiasOrBn.initializeParamsFromWeightMap(weightMap);
+
+    this._pointwiseFilter = common_1.extractWeightTensor4D(weightMap, this._withNamePath('pointwise_filter'));
+
+    this._pointwiseConvBiasOrBn.initializeParamsFromWeightMap(weightMap);
+  };
+
+  DepthwiseSeparableConvolutionWithIntermediate.prototype._dispose = function () {
+    this._depthwiseFilter.dispose();
+
+    this._depthwiseConvBiasOrBn.dispose();
+
+    this._pointwiseFilter.dispose();
+
+    this._pointwiseConvBiasOrBn.dispose();
+  };
+
+  DepthwiseSeparableConvolutionWithIntermediate.prototype._getParamShapes = function () {
+    return tslib_1.__spreadArrays([this.depthwiseFilterShape], this._depthwiseConvBiasOrBn.getParamShapes(), [this.pointwiseFilterShape], this._pointwiseConvBiasOrBn.getParamShapes());
+  };
+
+  DepthwiseSeparableConvolutionWithIntermediate.prototype._apply = function (x) {
+    var out = tf.depthwiseConv2d(x, this._depthwiseFilter, this._stride, 'same');
+    out = this._depthwiseConvBiasOrBn.apply(out);
+    out = tf.relu(out);
+    out = tf.conv2d(out, this._pointwiseFilter, [1, 1], 'same');
+    out = this._pointwiseConvBiasOrBn.apply(out);
+    return out;
+  };
+
+  return DepthwiseSeparableConvolutionWithIntermediate;
+}(Layer_1.Layer);
+
+exports.DepthwiseSeparableConvolutionWithIntermediate = DepthwiseSeparableConvolutionWithIntermediate;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./BatchNorm":"../src/layers/BatchNorm.ts","./Bias":"../src/layers/Bias.ts","./common":"../src/layers/common.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/SshContextModule.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var ComposedLayer_1 = require("./ComposedLayer");
+
+var Convolution_1 = require("./Convolution");
+
+var SshContextModule =
+/** @class */
+function (_super) {
+  tslib_1.__extends(SshContextModule, _super);
+
+  function SshContextModule(name, channelsIn, channels) {
+    var _this = _super.call(this, name) || this;
+
+    _this._convShrink = new Convolution_1.Convolution(_this._withNamePath('conv_shrink'), [1, 1], channelsIn, channels, 3);
+    _this._conv1 = new Convolution_1.Convolution(_this._withNamePath('conv_1'), [1, 1], channels, channels, 3);
+    _this._convOut1 = new Convolution_1.Convolution(_this._withNamePath('conv_out_1'), [1, 1], channels, channels, 3);
+    _this._convOut2 = new Convolution_1.Convolution(_this._withNamePath('conv_out_2'), [1, 1], channels, channels, 3);
+    return _this;
+  }
+
+  SshContextModule.prototype._getLayers = function () {
+    return [this._convShrink, this._conv1, this._convOut1, this._convOut2];
+  };
+
+  SshContextModule.prototype._apply = function (x) {
+    var shrink = tf.relu(this._convShrink.apply(x));
+
+    var out1 = this._convOut1.apply(tf.relu(this._conv1.apply(shrink)));
+
+    var out2 = this._convOut2.apply(shrink);
+
+    return [out1, out2];
+  };
+
+  return SshContextModule;
+}(ComposedLayer_1.ComposedLayer);
+
+exports.SshContextModule = SshContextModule;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./ComposedLayer":"../src/layers/ComposedLayer.ts","./Convolution":"../src/layers/Convolution.ts"}],"../src/layers/SshDetectionModule.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tslib_1 = require("tslib");
+
+var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
+
+var ComposedLayer_1 = require("./ComposedLayer");
+
+var Convolution_1 = require("./Convolution");
+
+var SshContextModule_1 = require("./SshContextModule");
+
+var SshDetectionModule =
+/** @class */
+function (_super) {
+  tslib_1.__extends(SshDetectionModule, _super);
+
+  function SshDetectionModule(name, channelsIn, channels) {
+    var _this = _super.call(this, name) || this;
+
+    _this._sshCtxModule = new SshContextModule_1.SshContextModule(_this._withNamePath('ctx'), channelsIn, channels / 4);
+    _this._convShrink = new Convolution_1.Convolution(_this._withNamePath('conv_shrink'), [1, 1], channelsIn, channels / 2, 3);
+    return _this;
+  }
+
+  SshDetectionModule.prototype._getLayers = function () {
+    return [this._sshCtxModule, this._convShrink];
+  };
+
+  SshDetectionModule.prototype._apply = function (x) {
+    var _a = this._sshCtxModule.apply(x),
+        ctxOut1 = _a[0],
+        ctxOut2 = _a[1];
+
+    var shrink = tf.relu(this._convShrink.apply(x));
+    return tf.relu(tf.concat([shrink, ctxOut1, ctxOut2], 3));
+  };
+
+  return SshDetectionModule;
+}(ComposedLayer_1.ComposedLayer);
+
+exports.SshDetectionModule = SshDetectionModule;
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./ComposedLayer":"../src/layers/ComposedLayer.ts","./Convolution":"../src/layers/Convolution.ts","./SshContextModule":"../src/layers/SshContextModule.ts"}],"../src/layers/TopDown.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25186,32 +26096,36 @@ var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
 
 var utils_1 = require("../utils");
 
-var DepthwiseSeparableConvolution_1 = require("./DepthwiseSeparableConvolution");
-
-var Layer_1 = require("./Layer");
+var utils_2 = require("../utils");
 
 var Convolution_1 = require("./Convolution");
 
-var index_1 = require("../utils/index");
+var DepthwiseSeparableConvolution_1 = require("./DepthwiseSeparableConvolution");
+
+var Layer_1 = require("./Layer");
 
 var TopDown =
 /** @class */
 function (_super) {
   tslib_1.__extends(TopDown, _super);
 
-  function TopDown(name, stageOutChannels, topDownOutChannels, stageStrides) {
+  function TopDown(name, stageOutChannels, topDownOutChannels, stageStrides, batchNormOptionals) {
     if (stageStrides === void 0) {
       stageStrides = null;
+    }
+
+    if (batchNormOptionals === void 0) {
+      batchNormOptionals = null;
     }
 
     var _this = _super.call(this, name) || this;
 
     _this._stageStrides = stageStrides;
     _this._channelShrinkConvs = stageOutChannels.map(function (channels, stageIdx) {
-      return new Convolution_1.Convolution(_this._withNamePath("conv_shrink_" + stageIdx), [1, 1], channels, topDownOutChannels, 1);
+      return new Convolution_1.Convolution(_this._withNamePath("conv_shrink_" + stageIdx), [1, 1], channels, topDownOutChannels, 1, batchNormOptionals);
     });
-    _this._antiAliasingConvs = index_1.range(stageOutChannels.length, 0, 1).map(function (stageIdx) {
-      return new DepthwiseSeparableConvolution_1.DepthwiseSeparableConvolution(_this._withNamePath("conv_anti_aliasing_" + stageIdx), [1, 1], topDownOutChannels, topDownOutChannels);
+    _this._antiAliasingConvs = utils_2.range(stageOutChannels.length, 0, 1).map(function (stageIdx) {
+      return new DepthwiseSeparableConvolution_1.DepthwiseSeparableConvolution(_this._withNamePath("conv_anti_aliasing_" + stageIdx), [1, 1], topDownOutChannels, topDownOutChannels, batchNormOptionals);
     });
     return _this;
   }
@@ -25276,7 +26190,7 @@ function (_super) {
 }(Layer_1.Layer);
 
 exports.TopDown = TopDown;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./Layer":"../src/layers/Layer.ts","./Convolution":"../src/layers/Convolution.ts","../utils/index":"../src/utils/index.ts"}],"../src/layers/XceptionMainModule.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/XceptionMainModule.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25287,11 +26201,9 @@ var tslib_1 = require("tslib");
 
 var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
 
-var utils_1 = require("../utils");
+var ComposedLayer_1 = require("./ComposedLayer");
 
 var DepthwiseSeparableConvolution_1 = require("./DepthwiseSeparableConvolution");
-
-var Layer_1 = require("./Layer");
 
 var XceptionMainModule =
 /** @class */
@@ -25307,34 +26219,8 @@ function (_super) {
     return _this;
   }
 
-  XceptionMainModule.prototype._initializeParams = function (extractWeights) {
-    this._depthwiseSeparableConv0.initializeParams(extractWeights);
-
-    this._depthwiseSeparableConv1.initializeParams(extractWeights);
-
-    this._depthwiseSeparableConv2.initializeParams(extractWeights);
-  };
-
-  XceptionMainModule.prototype._initializeParamsFromWeightMap = function (weightMap) {
-    this._depthwiseSeparableConv0.initializeParamsFromWeightMap(weightMap);
-
-    this._depthwiseSeparableConv1.initializeParamsFromWeightMap(weightMap);
-
-    this._depthwiseSeparableConv2.initializeParamsFromWeightMap(weightMap);
-  };
-
-  XceptionMainModule.prototype._dispose = function () {
-    this._depthwiseSeparableConv0.dispose();
-
-    this._depthwiseSeparableConv1.dispose();
-
-    this._depthwiseSeparableConv2.dispose();
-  };
-
-  XceptionMainModule.prototype._getParamShapes = function () {
-    return utils_1.flattenArray([this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._depthwiseSeparableConv2].map(function (l) {
-      return l.getParamShapes();
-    }));
+  XceptionMainModule.prototype._getLayers = function () {
+    return [this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._depthwiseSeparableConv2];
   };
 
   XceptionMainModule.prototype._apply = function (x) {
@@ -25347,10 +26233,10 @@ function (_super) {
   };
 
   return XceptionMainModule;
-}(Layer_1.Layer);
+}(ComposedLayer_1.ComposedLayer);
 
 exports.XceptionMainModule = XceptionMainModule;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/XceptionReductionModule.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./ComposedLayer":"../src/layers/ComposedLayer.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts"}],"../src/layers/XceptionReductionModule.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25361,13 +26247,11 @@ var tslib_1 = require("tslib");
 
 var tf = tslib_1.__importStar(require("@tensorflow/tfjs-core"));
 
-var utils_1 = require("../utils");
+var ComposedLayer_1 = require("./ComposedLayer");
 
 var Convolution_1 = require("./Convolution");
 
 var DepthwiseSeparableConvolution_1 = require("./DepthwiseSeparableConvolution");
-
-var Layer_1 = require("./Layer");
 
 var XceptionReductionModule =
 /** @class */
@@ -25388,34 +26272,8 @@ function (_super) {
     return _this;
   }
 
-  XceptionReductionModule.prototype._initializeParams = function (extractWeights) {
-    this._depthwiseSeparableConv0.initializeParams(extractWeights);
-
-    this._depthwiseSeparableConv1.initializeParams(extractWeights);
-
-    this._reductionConv.initializeParams(extractWeights);
-  };
-
-  XceptionReductionModule.prototype._initializeParamsFromWeightMap = function (weightMap) {
-    this._depthwiseSeparableConv0.initializeParamsFromWeightMap(weightMap);
-
-    this._depthwiseSeparableConv1.initializeParamsFromWeightMap(weightMap);
-
-    this._reductionConv.initializeParamsFromWeightMap(weightMap);
-  };
-
-  XceptionReductionModule.prototype._dispose = function () {
-    this._depthwiseSeparableConv0.dispose();
-
-    this._depthwiseSeparableConv1.dispose();
-
-    this._reductionConv.dispose();
-  };
-
-  XceptionReductionModule.prototype._getParamShapes = function () {
-    return utils_1.flattenArray([this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._reductionConv].map(function (l) {
-      return l.getParamShapes();
-    }));
+  XceptionReductionModule.prototype._getLayers = function () {
+    return [this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._reductionConv];
   };
 
   XceptionReductionModule.prototype._apply = function (x) {
@@ -25428,10 +26286,10 @@ function (_super) {
   };
 
   return XceptionReductionModule;
-}(Layer_1.Layer);
+}(ComposedLayer_1.ComposedLayer);
 
 exports.XceptionReductionModule = XceptionReductionModule;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","../utils":"../src/utils/index.ts","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./Layer":"../src/layers/Layer.ts"}],"../src/layers/index.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./ComposedLayer":"../src/layers/ComposedLayer.ts","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts"}],"../src/layers/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25440,18 +26298,30 @@ Object.defineProperty(exports, "__esModule", {
 
 var tslib_1 = require("tslib");
 
+tslib_1.__exportStar(require("./BatchNorm"), exports);
+
+tslib_1.__exportStar(require("./BottleneckedConv"), exports);
+
+tslib_1.__exportStar(require("./ComposedLayer"), exports);
+
 tslib_1.__exportStar(require("./Convolution"), exports);
 
 tslib_1.__exportStar(require("./DepthwiseSeparableConvolution"), exports);
 
+tslib_1.__exportStar(require("./DepthwiseSeparableConvolutionWithIntermediate"), exports);
+
 tslib_1.__exportStar(require("./Layer"), exports);
+
+tslib_1.__exportStar(require("./SshContextModule"), exports);
+
+tslib_1.__exportStar(require("./SshDetectionModule"), exports);
 
 tslib_1.__exportStar(require("./TopDown"), exports);
 
 tslib_1.__exportStar(require("./XceptionMainModule"), exports);
 
 tslib_1.__exportStar(require("./XceptionReductionModule"), exports);
-},{"tslib":"../node_modules/tslib/tslib.es6.js","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./Layer":"../src/layers/Layer.ts","./TopDown":"../src/layers/TopDown.ts","./XceptionMainModule":"../src/layers/XceptionMainModule.ts","./XceptionReductionModule":"../src/layers/XceptionReductionModule.ts"}],"../src/NeuralNetwork.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","./BatchNorm":"../src/layers/BatchNorm.ts","./BottleneckedConv":"../src/layers/BottleneckedConv.ts","./ComposedLayer":"../src/layers/ComposedLayer.ts","./Convolution":"../src/layers/Convolution.ts","./DepthwiseSeparableConvolution":"../src/layers/DepthwiseSeparableConvolution.ts","./DepthwiseSeparableConvolutionWithIntermediate":"../src/layers/DepthwiseSeparableConvolutionWithIntermediate.ts","./Layer":"../src/layers/Layer.ts","./SshContextModule":"../src/layers/SshContextModule.ts","./SshDetectionModule":"../src/layers/SshDetectionModule.ts","./TopDown":"../src/layers/TopDown.ts","./XceptionMainModule":"../src/layers/XceptionMainModule.ts","./XceptionReductionModule":"../src/layers/XceptionReductionModule.ts"}],"../src/NeuralNetwork.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32198,7 +33068,7 @@ tslib_1.__exportStar(require("./euclideanDistance"), exports);
 tslib_1.__exportStar(require("./NeuralNetwork"), exports);
 
 tslib_1.__exportStar(require("./resizeResults"), exports);
-},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./draw":"../src/draw/index.ts","./layers":"../src/layers/index.ts","./utils":"../src/utils/index.ts","./ageGenderNet/index":"../src/ageGenderNet/index.ts","./classes/index":"../src/classes/index.ts","./dom/index":"../src/dom/index.ts","./env/index":"../src/env/index.ts","./faceExpressionNet/index":"../src/faceExpressionNet/index.ts","./faceLandmarkNet/index":"../src/faceLandmarkNet/index.ts","./faceRecognitionNet/index":"../src/faceRecognitionNet/index.ts","./factories/index":"../src/factories/index.ts","./globalApi/index":"../src/globalApi/index.ts","./mtcnn/index":"../src/mtcnn/index.ts","./ops/index":"../src/ops/index.ts","./ssdMobilenetv1/index":"../src/ssdMobilenetv1/index.ts","./tinyFaceDetector/index":"../src/tinyFaceDetector/index.ts","./tinyYolov2/index":"../src/tinyYolov2/index.ts","./euclideanDistance":"../src/euclideanDistance.ts","./NeuralNetwork":"../src/NeuralNetwork.ts","./resizeResults":"../src/resizeResults.ts"}],"BottomUpV5X.ts":[function(require,module,exports) {
+},{"tslib":"../node_modules/tslib/tslib.es6.js","@tensorflow/tfjs-core":"../node_modules/@tensorflow/tfjs-core/dist/tf-core.esm.js","./draw":"../src/draw/index.ts","./layers":"../src/layers/index.ts","./utils":"../src/utils/index.ts","./ageGenderNet/index":"../src/ageGenderNet/index.ts","./classes/index":"../src/classes/index.ts","./dom/index":"../src/dom/index.ts","./env/index":"../src/env/index.ts","./faceExpressionNet/index":"../src/faceExpressionNet/index.ts","./faceLandmarkNet/index":"../src/faceLandmarkNet/index.ts","./faceRecognitionNet/index":"../src/faceRecognitionNet/index.ts","./factories/index":"../src/factories/index.ts","./globalApi/index":"../src/globalApi/index.ts","./mtcnn/index":"../src/mtcnn/index.ts","./ops/index":"../src/ops/index.ts","./ssdMobilenetv1/index":"../src/ssdMobilenetv1/index.ts","./tinyFaceDetector/index":"../src/tinyFaceDetector/index.ts","./tinyYolov2/index":"../src/tinyYolov2/index.ts","./euclideanDistance":"../src/euclideanDistance.ts","./NeuralNetwork":"../src/NeuralNetwork.ts","./resizeResults":"../src/resizeResults.ts"}],"New2.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32211,67 +33081,66 @@ var faceapi = tslib_1.__importStar(require("../src"));
 
 var src_1 = require("../src");
 
-var dwdown = true;
-
-function createConvDown(name, cIn, cOut) {
-  return dwdown ? new faceapi.layers.DepthwiseSeparableConvolution(name, [2, 2], cIn, cOut) : new faceapi.layers.Convolution(name, [2, 2], cIn, cOut, 3);
-}
-
-var BottomUpV5X =
+var New2 =
 /** @class */
 function (_super) {
-  tslib_1.__extends(BottomUpV5X, _super);
+  tslib_1.__extends(New2, _super);
 
-  function BottomUpV5X(inputSize, numMainModules, channels, topDownOutChannels) {
+  function New2(inputSize, withBn, numConvs, channels, topDownOutChannels, detectorChannels) {
     if (inputSize === void 0) {
       inputSize = 640;
     }
 
-    if (numMainModules === void 0) {
-      numMainModules = [0, 0, 4, 3, 1, 0, 0];
+    if (withBn === void 0) {
+      withBn = true;
+    }
+
+    if (numConvs === void 0) {
+      numConvs = [1, 1, 3, 2, 1];
     }
 
     if (channels === void 0) {
-      channels = [32, 32, 64, 64, 64, 64, 64];
+      channels = [16, 32, 64, 128, 256];
     }
 
     if (topDownOutChannels === void 0) {
       topDownOutChannels = 64;
     }
 
+    if (detectorChannels === void 0) {
+      detectorChannels = [64, 64, 64, 64, 64];
+    }
+
     var _this = _super.call(this, 'TinyXception') || this;
 
     _this._inputSize = inputSize;
-    _this._convDown320 = new faceapi.layers.Convolution('bottom_up/conv_down_320', [2, 2], 3, channels[0], 3); //this._convDown320 = createConvDown('bottom_up/conv_down_320', 3, channels[0])
+    var bnOpts = withBn ? new faceapi.layers.BatchNormOptionals() : null;
+    _this._convDown320 = new faceapi.layers.Convolution('bottom_up/conv_down_320', [2, 2], 3, channels[0], 3, bnOpts); //this._convDown320 = createConvDown('bottom_up/conv_down_320', 3, channels[0])
 
-    _this._mainModules320 = faceapi.utils.range(numMainModules[0], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_320" + idx, 32);
+    _this._convs320 = faceapi.utils.range(numConvs[0], 0, 1).map(function (idx) {
+      return new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate("bottom_up/conv_320" + idx, [1, 1], channels[0], channels[0], bnOpts);
     });
-    _this._convDown160 = createConvDown('bottom_up/conv_down_160', channels[0], channels[1]);
-    _this._mainModules160 = faceapi.utils.range(numMainModules[1], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_160" + idx, channels[1]);
+    _this._convDown160 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_160', [2, 2], channels[0], channels[1], bnOpts);
+    _this._convs160 = faceapi.utils.range(numConvs[1], 0, 1).map(function (idx) {
+      return new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate("bottom_up/conv_160" + idx, [1, 1], channels[1], channels[1], bnOpts);
     });
-    _this._convDown80 = createConvDown('bottom_up/conv_down_80', channels[1], channels[2]);
-    _this._mainModules80 = faceapi.utils.range(numMainModules[2], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_80_" + idx, channels[2]);
+    _this._convDown80 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_80', [2, 2], channels[1], channels[2], bnOpts);
+    _this._convs80 = faceapi.utils.range(numConvs[2], 0, 1).map(function (idx) {
+      return new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate("bottom_up/conv_80_" + idx, [1, 1], channels[2], channels[2], bnOpts);
     });
-    _this._reductionModule40 = new faceapi.layers.XceptionReductionModule('bottom_up/reduction_module_40', channels[2], channels[3]);
-    _this._mainModules40 = faceapi.utils.range(numMainModules[3], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_40_" + idx, channels[3]);
+    _this._convDown40 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_40', [2, 2], channels[2], channels[3], bnOpts);
+    _this._convs40 = faceapi.utils.range(numConvs[3], 0, 1).map(function (idx) {
+      return new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate("bottom_up/conv_40_" + idx, [1, 1], channels[3], channels[3], bnOpts);
     });
-    _this._reductionModule20 = new faceapi.layers.XceptionReductionModule('bottom_up/reduction_module_20', channels[3], channels[4]);
-    _this._mainModules20 = faceapi.utils.range(numMainModules[4], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_20_" + idx, channels[4]);
+    _this._convDown20 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_20', [2, 2], channels[3], channels[4], bnOpts);
+    _this._convs20 = faceapi.utils.range(numConvs[4], 0, 1).map(function (idx) {
+      return new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate("bottom_up/conv_20_" + idx, [1, 1], channels[4], channels[4], bnOpts);
     });
-    _this._reductionModule10 = new faceapi.layers.XceptionReductionModule('bottom_up/reduction_module_10', channels[4], channels[5]);
-    _this._mainModules10 = faceapi.utils.range(numMainModules[5], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_10_" + idx, channels[5]);
-    });
-    _this._reductionModule5 = new faceapi.layers.XceptionReductionModule('bottom_up/reduction_module_5', channels[5], channels[6]);
-    _this._mainModules5 = faceapi.utils.range(numMainModules[6], 0, 1).map(function (idx) {
-      return new faceapi.layers.XceptionMainModule("bottom_up/main_module_5_" + idx, channels[6]);
-    });
-    _this._topDown = new faceapi.layers.TopDown('top_down', channels.slice(2).reverse(), topDownOutChannels);
+    var outChannels = channels.slice(2).reverse();
+    _this._topDown = topDownOutChannels ? new faceapi.layers.TopDown('top_down', outChannels, topDownOutChannels, null, bnOpts) : null;
+    _this._detectionModules = detectorChannels ? detectorChannels.map(function (channels, stage_idx) {
+      return channels ? new faceapi.layers.SshDetectionModule("det_stage_" + stage_idx, topDownOutChannels, channels) : null;
+    }) : null;
 
     _this._getParamLayers().forEach(function (l) {
       return l.initializeParams(function (num) {
@@ -32282,78 +33151,76 @@ function (_super) {
     return _this;
   }
 
-  BottomUpV5X.prototype._getDefaultModelName = function () {
+  New2.prototype._getDefaultModelName = function () {
     return 'test';
   };
 
-  BottomUpV5X.prototype._getParamLayers = function () {
-    return tslib_1.__spreadArrays([this._convDown320], this._mainModules320, [this._convDown160], this._mainModules160, [this._convDown80], this._mainModules80, [this._reductionModule40], this._mainModules40, [this._reductionModule20], this._mainModules20, [this._reductionModule10], this._mainModules10, [this._reductionModule5], this._mainModules5, [this._topDown]);
+  New2.prototype._getParamLayers = function () {
+    return tslib_1.__spreadArrays([this._convDown320], this._convs320, [this._convDown160], this._convs160, [this._convDown80], this._convs80, [this._convDown40], this._convs40, [this._convDown20], this._convs20, [this._topDown], this._detectionModules || []).filter(function (l) {
+      return !!l;
+    });
   };
 
-  BottomUpV5X.prototype._forward = function (input) {
+  New2.prototype._forward = function (input) {
+    var _this = this;
+
     var batchTensor = input.toBatchTensor(this._inputSize, true);
     var meanRgb = [122.782, 117.001, 104.298];
     var normalized = faceapi.normalize(batchTensor, meanRgb).div(src_1.tf.scalar(256));
 
     var out = this._convDown320.apply(normalized);
 
-    this._mainModules320.forEach(function (l) {
-      return out = l.apply(out);
+    this._convs320.forEach(function (l) {
+      return out = src_1.tf.relu(l.apply(out));
     });
 
-    out = src_1.tf.relu(out);
-    out = this._convDown160.apply(out);
+    out = src_1.tf.relu(this._convDown160.apply(out));
 
-    this._mainModules160.forEach(function (l) {
-      return out = l.apply(out);
+    this._convs160.forEach(function (l) {
+      return out = src_1.tf.relu(l.apply(out));
     });
 
-    out = src_1.tf.relu(out);
-    out = this._convDown80.apply(out);
+    out = src_1.tf.relu(this._convDown80.apply(out));
 
-    this._mainModules80.forEach(function (l) {
-      return out = l.apply(out);
+    this._convs80.forEach(function (l) {
+      return out = src_1.tf.relu(l.apply(out));
     });
 
     var out80 = out;
-    out = this._reductionModule40.apply(out);
+    out = src_1.tf.relu(this._convDown40.apply(out));
 
-    this._mainModules40.forEach(function (l) {
-      return out = l.apply(out);
+    this._convs40.forEach(function (l) {
+      return out = src_1.tf.relu(l.apply(out));
     });
 
     var out40 = out;
-    out = this._reductionModule20.apply(out);
+    out = src_1.tf.relu(this._convDown20.apply(out));
 
-    this._mainModules20.forEach(function (l) {
-      return out = l.apply(out);
+    this._convs20.forEach(function (l) {
+      return out = src_1.tf.relu(l.apply(out));
     });
 
     var out20 = out;
-    out = this._reductionModule10.apply(out);
+    var outputs = [out20, out40, out80];
 
-    this._mainModules10.forEach(function (l) {
-      return out = l.apply(out);
-    });
+    if (this._topDown) {
+      outputs = this._topDown.apply(outputs);
+    }
 
-    var out10 = out;
-    out = this._reductionModule5.apply(out);
+    if (this._detectionModules) {
+      outputs = outputs.map(function (out, stage_idx) {
+        return _this._detectionModules[stage_idx] ? _this._detectionModules[stage_idx].apply(out) : out;
+      });
+    }
 
-    this._mainModules5.forEach(function (l) {
-      return out = l.apply(out);
-    });
-
-    var out5 = out;
-    var outputs = [out5, out10, out20, out40, out80];
-    outputs = this._topDown.apply(outputs);
     return outputs;
   };
 
-  return BottomUpV5X;
+  return New2;
 }(faceapi.NeuralNetwork);
 
-exports.BottomUpV5X = BottomUpV5X;
-},{"tslib":"../node_modules/tslib/tslib.es6.js","../src":"../src/index.ts"}],"index.ts":[function(require,module,exports) {
+exports.New2 = New2;
+},{"tslib":"node_modules/tslib/tslib.es6.js","../src":"../src/index.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32366,17 +33233,37 @@ var faceapi = tslib_1.__importStar(require("../src"));
 
 var src_1 = require("../src");
 
-var BottomUpV5X_1 = require("./BottomUpV5X");
+var New2_1 = require("./New2");
 
-var inputSize = 640;
-var mainModules = [0, 0, 2, 2, 2, 2, 2]; //const filters = [32, 32, 64, 64, 128, 180, 256]
+var inputSize = 300; //const numConvs = [0, 0, 0, 0, 0, 0, 0]
+//const filters = [32, 32, 64, 64, 128, 180, 256]
+//const filters = [32, 32, 64, 64, 64, 128, 256]
 
-var filters = [32, 32, 64, 64, 64, 128, 256]; //const filters = [32, 32, 64, 64, 64, 64, 64]
+var expansionFactors = [2, 2, 4, 4, 4, 8, 16];
+var filters = [16, 32, 32, 64, 64, 64, 64];
+var withBn = true;
+var withComplexHeads = false; //const numConvs = [1, 1, 3, 2, 1, 1, 0]
+//const channels = [16, 32, 64, 128, 256, 256, 256]
+//const numConvs = [1, 1, 3, 2, 1, 1, 0]
+//const channels = [16, 32, 64, 128, 256, 256, 256]
 
-window['tf'] = src_1.tf;
-var bottomUp = new BottomUpV5X_1.BottomUpV5X(inputSize, mainModules, filters);
+var numConvs = [1, 1, 1, 5, 1];
+var channels = [16, 32, 64, 128, 256];
+var topDownOutChannels = 64;
+var detectorChannels = [64, 64, 64];
+window['tf'] = src_1.tf; //const bottomUp = new New1(inputSize, withBn, withComplexHeads, numConvs, channels, topDownOutChannels)
+
+var bottomUp = new New2_1.New2(inputSize, withBn, numConvs, channels, topDownOutChannels, detectorChannels); //const bottomUp = new BottomUpV1(inputSize, numConvs, filters, topDownOutChannels, detectorChannels)
+//const bottomUp = new BottomUpV5X(inputSize, mainModules, filters, topDownOutChannels, detectorChannels)
+//const bottomUp = new BottomUpV5XMnetV2(inputSize, mainModules, [16, 16, 16, 16, 16, 16, 16], expansionFactors)
+
 var input = src_1.tf.zeros([1, inputSize, inputSize, 3]);
 var isRunning = false;
+console.log('params (MB):', bottomUp._getParamLayers().map(function (l) {
+  return l.getNumParams();
+}).reduce(function (a, b) {
+  return a + b;
+}) * 4 / (1024 * 1024));
 
 function getNumIters() {
   return parseInt(document.getElementById('numItersInput').value) || 100;
@@ -32501,7 +33388,7 @@ window['run'] = function run() {
     });
   });
 };
-},{"tslib":"../node_modules/tslib/tslib.es6.js","../src":"../src/index.ts","./BottomUpV5X":"BottomUpV5X.ts"}],"../../../../AppData/Roaming/nvm/v12.10.0/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"tslib":"node_modules/tslib/tslib.es6.js","../src":"../src/index.ts","./New2":"New2.ts"}],"../../../../AppData/Roaming/nvm/v12.10.0/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -32529,7 +33416,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49575" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50250" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

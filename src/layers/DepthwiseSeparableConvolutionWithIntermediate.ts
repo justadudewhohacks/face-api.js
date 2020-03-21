@@ -7,10 +7,11 @@ import { extractWeightTensor4D } from './common';
 import { Layer } from './Layer';
 import { Shape4D } from './types';
 
-export class DepthwiseSeparableConvolution extends Layer {
+export class DepthwiseSeparableConvolutionWithIntermediate extends Layer {
   private _depthwiseFilter: tf.Tensor4D
+  private _depthwiseConvBiasOrBn: Bias | BatchNorm
   private _pointwiseFilter: tf.Tensor4D
-  private _biasOrBn: Bias | BatchNorm
+  private _pointwiseConvBiasOrBn: Bias | BatchNorm
 
   private _stride: [number, number]
   private _channelsIn: number
@@ -24,36 +25,50 @@ export class DepthwiseSeparableConvolution extends Layer {
     this._stride = stride
     this._channelsIn = channelsIn
     this._channelsOut = channelsOut
-    this._biasOrBn = batchnormOptionals instanceof BatchNormOptionals
-      ? new BatchNorm('batch_norm', channelsOut, batchnormOptionals)
-      : new Bias('bias', channelsOut)
+    this._depthwiseConvBiasOrBn = batchnormOptionals instanceof BatchNormOptionals
+      ? new BatchNorm('batch_norm_depthwise_conv', channelsIn, batchnormOptionals)
+      : new Bias('bias_depthwise_conv', channelsIn)
+    this._pointwiseConvBiasOrBn = batchnormOptionals instanceof BatchNormOptionals
+      ? new BatchNorm('batch_norm_pointwise_conv', channelsOut, batchnormOptionals)
+      : new Bias('bias_pointwise_conv', channelsOut)
   }
 
   protected _initializeParams(extractWeights: ExtractWeightsFunction): void {
     this._depthwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.depthwiseFilterShape)), this.depthwiseFilterShape)
+    this._depthwiseConvBiasOrBn.initializeParams(extractWeights)
     this._pointwiseFilter = tf.tensor4d(extractWeights(tf.util.sizeFromShape(this.pointwiseFilterShape)), this.pointwiseFilterShape)
-    this._biasOrBn.initializeParams(extractWeights)
+    this._pointwiseConvBiasOrBn.initializeParams(extractWeights)
   }
 
   protected _initializeParamsFromWeightMap(weightMap: tf.NamedTensorMap): void {
     this._depthwiseFilter = extractWeightTensor4D(weightMap, this._withNamePath('depthwise_filter'))
+    this._depthwiseConvBiasOrBn.initializeParamsFromWeightMap(weightMap)
     this._pointwiseFilter = extractWeightTensor4D(weightMap, this._withNamePath('pointwise_filter'))
-    this._biasOrBn.initializeParamsFromWeightMap(weightMap)
+    this._pointwiseConvBiasOrBn.initializeParamsFromWeightMap(weightMap)
   }
 
   protected _dispose(): void {
     this._depthwiseFilter.dispose()
+    this._depthwiseConvBiasOrBn.dispose()
     this._pointwiseFilter.dispose()
-    this._biasOrBn.dispose()
+    this._pointwiseConvBiasOrBn.dispose()
   }
 
   protected _getParamShapes(): number[][] {
-    return [this.depthwiseFilterShape, this.pointwiseFilterShape, ...this._biasOrBn.getParamShapes()]
+    return [
+      this.depthwiseFilterShape,
+      ...this._depthwiseConvBiasOrBn.getParamShapes(),
+      this.pointwiseFilterShape,
+      ...this._pointwiseConvBiasOrBn.getParamShapes()
+    ]
   }
 
   protected _apply(x: tf.Tensor4D): tf.Tensor4D {
-    let out = tf.separableConv2d(x, this._depthwiseFilter, this._pointwiseFilter, this._stride, 'same')
-    out = this._biasOrBn.apply(out)
+    let out = tf.depthwiseConv2d(x, this._depthwiseFilter, this._stride, 'same')
+    out = this._depthwiseConvBiasOrBn.apply(out)
+    out = tf.relu(out)
+    out = tf.conv2d(out, this._pointwiseFilter, [1, 1], 'same')
+    out = this._pointwiseConvBiasOrBn.apply(out)
     return out
   }
 }

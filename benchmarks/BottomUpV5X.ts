@@ -1,5 +1,4 @@
 import * as faceapi from '../src';
-import { tf } from '../src';
 
 
 const dwdown = true
@@ -26,6 +25,8 @@ export class BottomUpV5X extends faceapi.NeuralNetwork {
   private _reductionModule5: faceapi.layers.XceptionReductionModule
   private _mainModules5: faceapi.layers.XceptionMainModule[]
 
+  private _detectionModules: faceapi.layers.SshDetectionModule[]
+
   private _topDown: faceapi.layers.TopDown
   private _inputSize: number
 
@@ -33,7 +34,8 @@ export class BottomUpV5X extends faceapi.NeuralNetwork {
     inputSize: number = 640,
     numMainModules: number[] = [0, 0, 4, 3, 1, 0, 0],
     channels: number[] = [32, 32, 64, 64, 64, 64, 64],
-    topDownOutChannels: number = 64
+    topDownOutChannels: number = 64,
+    detectorChannels: number[] = [64, 64, 64, 64, 64]
   ) {
     super('TinyXception')
     this._inputSize = inputSize
@@ -60,7 +62,16 @@ export class BottomUpV5X extends faceapi.NeuralNetwork {
     this._mainModules5 = faceapi.utils.range(numMainModules[6], 0, 1)
       .map(idx => new faceapi.layers.XceptionMainModule(`bottom_up/main_module_5_${idx}`, channels[6]))
 
-    this._topDown = new faceapi.layers.TopDown('top_down', channels.slice(2).reverse(), topDownOutChannels)
+    this._topDown = topDownOutChannels
+      ? new faceapi.layers.TopDown('top_down', channels.slice(2).reverse(), topDownOutChannels)
+      : null
+
+    this._detectionModules = detectorChannels
+      ? detectorChannels.map((channels, stage_idx) => channels
+        ? new faceapi.layers.SshDetectionModule(`det_stage_${stage_idx}`, topDownOutChannels, channels)
+        : null
+      ) : null
+
     this._getParamLayers().forEach(l => l.initializeParams(num => new Float32Array(Array(num).fill(0))))
   }
 
@@ -84,8 +95,9 @@ export class BottomUpV5X extends faceapi.NeuralNetwork {
       ...this._mainModules10,
       this._reductionModule5,
       ...this._mainModules5,
-      this._topDown
-    ]
+      this._topDown,
+      ...(this._detectionModules || [])
+    ].filter(l => !!l)
   }
 
   protected _forward(input: faceapi.NetInput): tf.Tensor4D {
@@ -121,7 +133,15 @@ export class BottomUpV5X extends faceapi.NeuralNetwork {
     const out5 = out
 
     let outputs = [out5, out10, out20, out40, out80]
-    outputs = this._topDown.apply(outputs)
+    if (this._topDown) {
+      outputs = this._topDown.apply(outputs)
+    }
+    if (this._detectionModules) {
+      outputs = outputs.map((out, stage_idx) => this._detectionModules[stage_idx]
+        ? this._detectionModules[stage_idx].apply(out)
+        : out
+      )
+    }
     return outputs
   }
 }

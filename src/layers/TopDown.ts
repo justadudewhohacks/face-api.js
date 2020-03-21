@@ -2,10 +2,11 @@ import * as tf from '@tensorflow/tfjs-core';
 
 import { ExtractWeightsFunction } from '../common';
 import { flattenArray } from '../utils';
+import { range } from '../utils';
+import { BatchNormOptionals } from './BatchNorm';
+import { Convolution } from './Convolution';
 import { DepthwiseSeparableConvolution } from './DepthwiseSeparableConvolution';
 import { Layer } from './Layer';
-import { Convolution } from './Convolution';
-import { range } from '../utils/index';
 
 export class TopDown extends Layer<tf.Tensor4D[], tf.Tensor4D[]> {
 
@@ -13,13 +14,13 @@ export class TopDown extends Layer<tf.Tensor4D[], tf.Tensor4D[]> {
   private _channelShrinkConvs: Convolution[]
   private _antiAliasingConvs: DepthwiseSeparableConvolution[]
 
-  constructor(name: string, stageOutChannels: number[], topDownOutChannels: number, stageStrides = null) {
+  constructor(name: string, stageOutChannels: number[], topDownOutChannels: number, stageStrides = null, batchNormOptionals: BatchNormOptionals | null = null) {
     super(name)
     this._stageStrides = stageStrides
     this._channelShrinkConvs = stageOutChannels.map((channels, stageIdx) =>
-      new Convolution(this._withNamePath(`conv_shrink_${stageIdx}`), [1, 1], channels, topDownOutChannels, 1))
+      new Convolution(this._withNamePath(`conv_shrink_${stageIdx}`), [1, 1], channels, topDownOutChannels, 1, batchNormOptionals))
     this._antiAliasingConvs = range(stageOutChannels.length, 0, 1).map(stageIdx =>
-      new DepthwiseSeparableConvolution(this._withNamePath(`conv_anti_aliasing_${stageIdx}`), [1, 1], topDownOutChannels, topDownOutChannels)
+      new DepthwiseSeparableConvolution(this._withNamePath(`conv_anti_aliasing_${stageIdx}`), [1, 1], topDownOutChannels, topDownOutChannels, batchNormOptionals)
     )
   }
 

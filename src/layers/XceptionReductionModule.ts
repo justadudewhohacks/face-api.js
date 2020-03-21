@@ -1,12 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { ExtractWeightsFunction } from '../common';
-import { flattenArray } from '../utils';
+import { ComposedLayer } from './ComposedLayer';
 import { Convolution } from './Convolution';
 import { DepthwiseSeparableConvolution } from './DepthwiseSeparableConvolution';
-import { Layer } from './Layer';
+import { ILayer } from './Layer';
 
-export class XceptionReductionModule extends Layer {
+export class XceptionReductionModule extends ComposedLayer  {
 
   private _isActivateInput: boolean
   private _depthwiseSeparableConv0: DepthwiseSeparableConvolution
@@ -21,29 +20,8 @@ export class XceptionReductionModule extends Layer {
     this._reductionConv = new Convolution(this._withNamePath('reduction_conv'), [2, 2], channelsIn, channelsOut, 1)
   }
 
-  protected _initializeParams(extractWeights: ExtractWeightsFunction): void {
-    this._depthwiseSeparableConv0.initializeParams(extractWeights)
-    this._depthwiseSeparableConv1.initializeParams(extractWeights)
-    this._reductionConv.initializeParams(extractWeights)
-  }
-
-  protected _initializeParamsFromWeightMap(weightMap: tf.NamedTensorMap): void {
-    this._depthwiseSeparableConv0.initializeParamsFromWeightMap(weightMap)
-    this._depthwiseSeparableConv1.initializeParamsFromWeightMap(weightMap)
-    this._reductionConv.initializeParamsFromWeightMap(weightMap)
-  }
-
-  protected _dispose(): void {
-    this._depthwiseSeparableConv0.dispose()
-    this._depthwiseSeparableConv1.dispose()
-    this._reductionConv.dispose()
-  }
-
-  protected _getParamShapes(): number[][] {
-    return flattenArray(
-      [this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._reductionConv]
-        .map(l => l.getParamShapes())
-    )
+  protected _getLayers(): ILayer[] {
+    return [this._depthwiseSeparableConv0, this._depthwiseSeparableConv1, this._reductionConv]
   }
 
   protected _apply(x: tf.Tensor4D): tf.Tensor4D {
