@@ -1,7 +1,7 @@
 import * as faceapi from '../src';
 import { tf } from '../src';
 
-export class New1 extends faceapi.NeuralNetwork {
+export class New2 extends faceapi.NeuralNetwork {
 
   private _convDown320: faceapi.layers.Convolution
   private _convs320: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate[]
@@ -13,12 +13,8 @@ export class New1 extends faceapi.NeuralNetwork {
   private _convs40: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate[]
   private _convDown20: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate
   private _convs20: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate[]
-  private _convDown10: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate
-  private _convs10: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate[]
-  private _convDown5: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate
-  private _convs5: faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate[]
 
-  private _detectionConvs: Array<faceapi.layers.Convolution | faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate>
+  private _detectionModules: faceapi.layers.SshDetectionModule[]
 
   private _topDown: faceapi.layers.TopDown
   private _inputSize: number
@@ -26,10 +22,10 @@ export class New1 extends faceapi.NeuralNetwork {
   constructor(
     inputSize: number = 640,
     withBn: boolean = true,
-    withComplexHeads: boolean = true,
-    numConvs: number[] = [1, 1, 3, 2, 1, 1, 0],
-    channels: number[] = [16, 32, 64, 128, 256, 256, 256],
-    topDownOutChannels: number = 64
+    numConvs: number[] = [1, 1, 3, 2, 1],
+    channels: number[] = [16, 32, 64, 128, 256],
+    topDownOutChannels: number = 64,
+    detectorChannels: number[] = [64, 64, 64, 64, 64]
   ) {
     super('TinyXception')
     this._inputSize = inputSize
@@ -52,12 +48,6 @@ export class New1 extends faceapi.NeuralNetwork {
     this._convDown20 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_20', [2, 2], channels[3], channels[4], bnOpts)
     this._convs20 = faceapi.utils.range(numConvs[4], 0, 1)
       .map(idx => new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate(`bottom_up/conv_20_${idx}`, [1, 1], channels[4], channels[4], bnOpts))
-    this._convDown10 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_10', [2, 2], channels[4], channels[5], bnOpts)
-    this._convs10 = faceapi.utils.range(numConvs[5], 0, 1)
-      .map(idx => new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate(`bottom_up/conv_10_${idx}`, [1, 1], channels[5], channels[5], bnOpts))
-    this._convDown5 = new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate('bottom_up/conv_down_5', [2, 2], channels[5], channels[6], bnOpts)
-    this._convs5 = faceapi.utils.range(numConvs[6], 0, 1)
-      .map(idx => new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate(`bottom_up/conv_5_${idx}`, [1, 1], channels[6], channels[6], bnOpts))
 
     const outChannels = channels.slice(2).reverse()
     this._topDown = topDownOutChannels
@@ -65,13 +55,11 @@ export class New1 extends faceapi.NeuralNetwork {
       : null
 
 
-    this._detectionConvs = faceapi.utils.range(5, 0, 1)
-      .map(idx => topDownOutChannels || outChannels[idx])
-      .map((channels, idx) => withComplexHeads
-        ? new faceapi.layers.DepthwiseSeparableConvolutionWithIntermediate(`detection_conv_${idx}`, [1, 1], channels, channels)
-        : new faceapi.layers.Convolution(`detection_conv_${idx}`, [1, 1], channels, channels, 1)
-    )
-
+    this._detectionModules = detectorChannels
+      ? detectorChannels.map((channels, stage_idx) => channels
+        ? new faceapi.layers.SshDetectionModule(`det_stage_${stage_idx}`, topDownOutChannels, channels)
+        : null
+      ) : null
     this._getParamLayers().forEach(l => l.initializeParams(num => new Float32Array(Array(num).fill(0))))
   }
 
@@ -91,12 +79,8 @@ export class New1 extends faceapi.NeuralNetwork {
       ...this._convs40,
       this._convDown20,
       ...this._convs20,
-      this._convDown10,
-      ...this._convs10,
-      this._convDown5,
-      ...this._convs5,
       this._topDown,
-      ...(this._detectionConvs || [])
+      ...(this._detectionModules || [])
     ].filter(l => !!l)
   }
 
@@ -122,19 +106,16 @@ export class New1 extends faceapi.NeuralNetwork {
     this._convs20.forEach(l => out = tf.relu(l.apply(out)))
     const out20 = out
 
-    out = tf.relu(this._convDown10.apply(out))
-    this._convs10.forEach(l => out = tf.relu(l.apply(out)))
-    const out10 = out
-
-    out = tf.relu(this._convDown5.apply(out))
-    this._convs5.forEach(l => out = tf.relu(l.apply(out)))
-    const out5 = out
-
-    let outputs = [out5, out10, out20, out40, out80]
+    let outputs = [out20, out40, out80]
     if (this._topDown) {
       outputs = this._topDown.apply(outputs)
     }
-    outputs = outputs.map((out, stage_idx) => this._detectionConvs[stage_idx].apply(out))
+    if (this._detectionModules) {
+      outputs = outputs.map((out, stage_idx) => this._detectionModules[stage_idx]
+        ? this._detectionModules[stage_idx].apply(out)
+        : out
+      )
+    }
     return outputs
   }
 }

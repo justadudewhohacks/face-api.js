@@ -19,11 +19,19 @@ const withComplexHeads = false
 //const channels = [16, 32, 64, 128, 256, 256, 256]
 //const numConvs = [1, 1, 3, 2, 1, 1, 0]
 //const channels = [16, 32, 64, 128, 256, 256, 256]
+
 const numConvs = [1, 1, 1, 5, 1]
 const channels = [16, 32, 64, 128, 256]
 const topDownOutChannels = 64
 const detectorChannels = [64, 64, 64]
 
+
+/*
+const numConvs = [0, 0, 0, 0, 0]
+const channels = [8, 16, 32, 64, 64]
+const topDownOutChannels = null//64
+const detectorChannels = null//[64, 64, 64]
+*/
 window['tf'] = tf
 //const bottomUp = new New1(inputSize, withBn, withComplexHeads, numConvs, channels, topDownOutChannels)
 const bottomUp = new New2(inputSize, withBn, numConvs, channels, topDownOutChannels, detectorChannels)
