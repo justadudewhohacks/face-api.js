@@ -32,8 +32,8 @@ class FakeNeuralNetwork extends NeuralNetwork<any> {
     throw new Error('FakeNeuralNetwork - extractParams not implemented')
   }
 
-  protected extractParamsFromWeigthMap(_: any): any {
-    throw new Error('FakeNeuralNetwork - extractParamsFromWeigthMap not implemented')
+  protected extractParamsFromWeightMap(_: any): any {
+    throw new Error('FakeNeuralNetwork - extractParamsFromWeightMap not implemented')
   }
 }
 

@@ -116,7 +116,7 @@ export abstract class NeuralNetwork<TNetParams> {
     const {
       paramMappings,
       params
-    } = this.extractParamsFromWeigthMap(weightMap)
+    } = this.extractParamsFromWeightMap(weightMap)
 
     this._paramMappings = paramMappings
     this._params = params
@@ -154,6 +154,6 @@ export abstract class NeuralNetwork<TNetParams> {
   }
 
   protected abstract getDefaultModelName(): string
-  protected abstract extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TNetParams, paramMappings: ParamMapping[] }
+  protected abstract extractParamsFromWeightMap(weightMap: tf.NamedTensorMap): { params: TNetParams, paramMappings: ParamMapping[] }
   protected abstract extractParams(weights: Float32Array): { params: TNetParams, paramMappings: ParamMapping[] }
 }

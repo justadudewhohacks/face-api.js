@@ -16,7 +16,7 @@ import { TinyYolov2Config, validateConfig } from './config';
 import { convWithBatchNorm } from './convWithBatchNorm';
 import { depthwiseSeparableConv } from './depthwiseSeparableConv';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { leaky } from './leaky';
 import { ITinyYolov2Options, TinyYolov2Options } from './TinyYolov2Options';
 import { DefaultTinyYolov2NetParams, MobilenetParams, TinyYolov2NetParams } from './types';
@@ -161,8 +161,8 @@ export class TinyYolov2Base extends NeuralNetwork<TinyYolov2NetParams> {
     return ''
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap, this.config)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeightMap(weightMap, this.config)
   }
 
   protected extractParams(weights: Float32Array) {
