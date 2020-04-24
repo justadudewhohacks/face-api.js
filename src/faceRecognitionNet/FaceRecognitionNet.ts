@@ -5,7 +5,7 @@ import { NeuralNetwork } from '../NeuralNetwork';
 import { normalize } from '../ops';
 import { convDown } from './convLayer';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { residual, residualDown } from './residualLayer';
 import { NetParams } from './types';
 
@@ -84,8 +84,8 @@ export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
     return 'face_recognition_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeightMap(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {

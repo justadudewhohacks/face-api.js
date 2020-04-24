@@ -9,7 +9,7 @@ import {
 } from '../faceFeatureExtractor/types';
 import { NeuralNetwork } from '../NeuralNetwork';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { NetParams } from './types';
 import { seperateWeightMaps } from './util';
 
@@ -64,13 +64,13 @@ export abstract class FaceProcessor<
     return extractParams(weights, this.getClassifierChannelsIn(), this.getClassifierChannelsOut())
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
 
     const { featureExtractorMap, classifierMap } = seperateWeightMaps(weightMap)
 
     this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap)
 
-    return extractParamsFromWeigthMap(classifierMap)
+    return extractParamsFromWeightMap(classifierMap)
   }
 
   protected extractParams(weights: Float32Array) {

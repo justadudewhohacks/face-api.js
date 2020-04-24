@@ -5,7 +5,7 @@ import { FaceDetection } from '../classes/FaceDetection';
 import { NetInput, TNetInput, toNetInput } from '../dom';
 import { NeuralNetwork } from '../NeuralNetwork';
 import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
+import { extractParamsFromWeightMap } from './extractParamsFromWeightMap';
 import { mobileNetV1 } from './mobileNetV1';
 import { nonMaxSuppression } from './nonMaxSuppression';
 import { outputLayer } from './outputLayer';
@@ -123,8 +123,8 @@ export class SsdMobilenetv1 extends NeuralNetwork<NetParams> {
     return 'ssd_mobilenetv1_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-    return extractParamsFromWeigthMap(weightMap)
+  protected extractParamsFromWeightMap(weightMap: tf.NamedTensorMap) {
+    return extractParamsFromWeightMap(weightMap)
   }
 
   protected extractParams(weights: Float32Array) {

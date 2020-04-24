@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { disposeUnusedWeightTensors, extractWeightEntryFactory, FCParams, ParamMapping } from '../common';
 import { NetParams } from './types';
 
-export function extractParamsFromWeigthMap(
+export function extractParamsFromWeightMap(
   weightMap: tf.NamedTensorMap
 ): { params: NetParams, paramMappings: ParamMapping[] } {
 

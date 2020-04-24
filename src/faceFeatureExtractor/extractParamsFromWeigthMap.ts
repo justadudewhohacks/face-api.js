@@ -4,7 +4,7 @@ import { disposeUnusedWeightTensors, ParamMapping } from '../common';
 import { loadParamsFactory } from './loadParamsFactory';
 import { FaceFeatureExtractorParams } from './types';
 
-export function extractParamsFromWeigthMap(
+export function extractParamsFromWeightMap(
   weightMap: tf.NamedTensorMap
 ): { params: FaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
 
