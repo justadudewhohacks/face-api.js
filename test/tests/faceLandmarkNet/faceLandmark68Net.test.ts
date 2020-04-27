@@ -64,6 +64,14 @@ describeWithBackend('faceLandmark68Net', () => {
         const { x, y } = faceLandmarkPositionsRect[i]
         expectPointClose(pt, { x, y }, 6)
       })
+      expect(
+        Math.max(...result.getRightEyeBrow().map(_=>_.x)) < 
+        Math.min(...result.getLeftEyeBrow().map(_=>_.x))
+      ).toBe(true);
+      expect(
+        Math.max(...result.getRightEye().map(_=>_.x)) < 
+        Math.min(...result.getLeftEye().map(_=>_.x))
+      ).toBe(true);
     })
 
   })

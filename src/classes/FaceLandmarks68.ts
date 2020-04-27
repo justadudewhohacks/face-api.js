@@ -7,11 +7,11 @@ export class FaceLandmarks68 extends FaceLandmarks {
     return this.positions.slice(0, 17)
   }
 
-  public getLeftEyeBrow(): Point[] {
+  public getRightEyeBrow(): Point[] {
     return this.positions.slice(17, 22)
   }
 
-  public getRightEyeBrow(): Point[] {
+  public getLeftEyeBrow(): Point[] {
     return this.positions.slice(22, 27)
   }
 
@@ -19,11 +19,11 @@ export class FaceLandmarks68 extends FaceLandmarks {
     return this.positions.slice(27, 36)
   }
 
-  public getLeftEye(): Point[] {
+  public getRightEye(): Point[] {
     return this.positions.slice(36, 42)
   }
 
-  public getRightEye(): Point[] {
+  public getLeftEye(): Point[] {
     return this.positions.slice(42, 48)
   }
 
