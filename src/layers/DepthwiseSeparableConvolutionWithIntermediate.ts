@@ -20,17 +20,17 @@ export class DepthwiseSeparableConvolutionWithIntermediate extends Layer {
   private get depthwiseFilterShape() : Shape4D { return [3, 3, this._channelsIn, 1] }
   private get pointwiseFilterShape() : Shape4D { return [1, 1, this._channelsIn, this._channelsOut] }
 
-  constructor(name: string, stride: [number, number], channelsIn: number, channelsOut: number, batchnormOptionals: BatchNormOptionals | null = null) {
+  constructor(name: string, stride: [number, number], channelsIn: number, channelsOut: number, batchNormOptionals: BatchNormOptionals | null = null) {
     super(name)
     this._stride = stride
     this._channelsIn = channelsIn
     this._channelsOut = channelsOut
-    this._depthwiseConvBiasOrBn = batchnormOptionals instanceof BatchNormOptionals
-      ? new BatchNorm('batch_norm_depthwise_conv', channelsIn, batchnormOptionals)
-      : new Bias('bias_depthwise_conv', channelsIn)
-    this._pointwiseConvBiasOrBn = batchnormOptionals instanceof BatchNormOptionals
-      ? new BatchNorm('batch_norm_pointwise_conv', channelsOut, batchnormOptionals)
-      : new Bias('bias_pointwise_conv', channelsOut)
+    this._depthwiseConvBiasOrBn = batchNormOptionals instanceof BatchNormOptionals
+      ? new BatchNorm(this._withNamePath('batch_norm_depthwise_conv'), channelsIn, batchNormOptionals)
+      : new Bias(this._withNamePath('bias_depthwise_conv'), channelsIn)
+    this._pointwiseConvBiasOrBn = batchNormOptionals instanceof BatchNormOptionals
+      ? new BatchNorm(this._withNamePath('batch_norm_pointwise_conv'), channelsOut, batchNormOptionals)
+      : new Bias(this._withNamePath('bias_pointwise_conv'), channelsOut)
   }
 
   protected _initializeParams(extractWeights: ExtractWeightsFunction): void {

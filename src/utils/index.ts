@@ -44,7 +44,7 @@ export function getCenterPoint(pts: Point[]): Point {
     .div(new Point(pts.length, pts.length))
 }
 
-export function range(num: number, start: number, step: number): number[] {
+export function range(num: number, start: number = 0, step: number = 1): number[] {
   return Array(num).fill(0).map((_, i) => start + (i * step))
 }
 

@@ -1,6 +1,6 @@
 import { isDimensions, isValidNumber } from '../utils';
 import { IBoundingBox } from './BoundingBox';
-import { IDimensions } from './Dimensions';
+import { IDimensions, Dimensions } from './Dimensions';
 import { Point } from './Point';
 import { IRect } from './Rect';
 
@@ -51,6 +51,10 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
   public get y(): number { return this._y }
   public get width(): number { return this._width }
   public get height(): number { return this._height }
+  public get ctx(): number { return this._x + (this._width / 2) }
+  public get cty(): number { return this._y + (this._height / 2) }
+  public get ct(): Point { return new Point(this.ctx, this.cty) }
+  public get dims(): Dimensions { return new Dimensions(this._width, this._height) }
   public get left(): number { return this.x }
   public get top(): number { return this.y }
   public get right(): number { return this.x + this.width }

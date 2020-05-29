@@ -25,4 +25,22 @@ export class Dimensions implements IDimensions {
   public reverse(): Dimensions {
     return new Dimensions(1 / this.width, 1 / this.height)
   }
+
+  public clone() {
+    return new Dimensions(this._width, this._height)
+  }
+
+  public div(dims: Dimensions | number): Dimensions {
+    const [dw, dh] = this.interpretDims(dims)
+    return new Dimensions(this.width / dw, this.height / dh)
+  }
+
+  public mul(dims: Dimensions | number): Dimensions {
+    const [dw, dh] = this.interpretDims(dims)
+    return new Dimensions(this.width * dw, this.height * dh)
+  }
+
+  private interpretDims(dims: Dimensions | number) {
+    return dims instanceof Dimensions ? [dims.width, dims.height] : [dims, dims]
+  }
 }

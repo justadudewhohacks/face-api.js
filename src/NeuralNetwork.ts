@@ -7,13 +7,15 @@ import { env } from './env';
 import { ILayer } from './layers/Layer';
 import { reduceSum } from './utils';
 
-export abstract class NeuralNetwork {
+export abstract class NeuralNetwork<
+  TOut extends tf.TensorContainer = tf.Tensor4D
+> {
 
   constructor(protected _name: string) {}
 
   protected abstract _getParamLayers(): ILayer[]
   protected abstract _getDefaultModelName(): string
-  protected abstract _forward(input: NetInput): tf.Tensor4D
+  protected abstract _forward(input: NetInput): TOut
 
   public dispose() {
     this._getParamLayers().forEach(l => l.dispose())
@@ -61,16 +63,16 @@ export abstract class NeuralNetwork {
     this._getParamLayers().forEach(l => l.initializeParamsFromWeightMap(weightMap))
   }
 
-  public forwardSync(input: NetInput): tf.Tensor4D {
+  public forwardSync(input: NetInput): TOut {
     return tf.tidy(() => this._forward(input))
   }
 
-  public async forward(input: TNetInput): Promise<tf.Tensor4D> {
+  public async forward(input: TNetInput): Promise<TOut> {
     return this.forwardSync(await toNetInput(input))
   }
 
   // keep forwardInput for backwards compatibility
-  public forwardInput(input: NetInput): tf.Tensor4D {
+  public forwardInput(input: NetInput): TOut {
     return this.forwardSync(input)
   }
 

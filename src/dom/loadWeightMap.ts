@@ -10,6 +10,6 @@ export async function loadWeightMap(
   const { manifestUri, modelBaseUri } = getModelUris(uri, defaultModelName)
 
   const manifest = await fetchJson<tf.io.WeightsManifestConfig>(manifestUri)
-
+  console.log(modelBaseUri)
   return tf.io.loadWeights(manifest, modelBaseUri)
 }

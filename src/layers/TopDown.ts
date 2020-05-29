@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 
 import { ExtractWeightsFunction } from '../common';
-import { flattenArray } from '../utils';
-import { range } from '../utils';
+import { flattenArray, range } from '../utils';
 import { BatchNormOptionals } from './BatchNorm';
 import { Convolution } from './Convolution';
 import { DepthwiseSeparableConvolution } from './DepthwiseSeparableConvolution';
@@ -12,15 +11,22 @@ export class TopDown extends Layer<tf.Tensor4D[], tf.Tensor4D[]> {
 
   private _stageStrides: number[] | null
   private _channelShrinkConvs: Convolution[]
-  private _antiAliasingConvs: DepthwiseSeparableConvolution[]
+  private _antiAliasingConvs: Layer[]
 
-  constructor(name: string, stageOutChannels: number[], topDownOutChannels: number, stageStrides = null, batchNormOptionals: BatchNormOptionals | null = null) {
+  constructor(name: string,
+    stageOutChannels: number[],
+    topDownOutChannels: number,
+    stageStrides = null,
+    isMergeConvDw: boolean = false,
+    batchNormOptionals: BatchNormOptionals | null = null
+  ) {
     super(name)
     this._stageStrides = stageStrides
-    this._channelShrinkConvs = stageOutChannels.map((channels, stageIdx) =>
-      new Convolution(this._withNamePath(`conv_shrink_${stageIdx}`), [1, 1], channels, topDownOutChannels, 1, batchNormOptionals))
-    this._antiAliasingConvs = range(stageOutChannels.length, 0, 1).map(stageIdx =>
-      new DepthwiseSeparableConvolution(this._withNamePath(`conv_anti_aliasing_${stageIdx}`), [1, 1], topDownOutChannels, topDownOutChannels, batchNormOptionals)
+    this._channelShrinkConvs = range(stageOutChannels.length, stageOutChannels.length -1, -1).map(stageIdx =>
+      new Convolution(this._withNamePath(`conv_shrink_stage_${stageIdx}`), [1, 1], stageOutChannels[stageIdx], topDownOutChannels, 1, batchNormOptionals))
+    this._antiAliasingConvs = range(stageOutChannels.length - 1, stageOutChannels.length - 2, -1).map(stageIdx => isMergeConvDw
+      ? new DepthwiseSeparableConvolution(this._withNamePath(`conv_anti_aliasing_stage_${stageIdx}`), [1, 1], topDownOutChannels, topDownOutChannels, batchNormOptionals)
+      : new Convolution(this._withNamePath(`conv_anti_aliasing_stage_${stageIdx}`), [1, 1], topDownOutChannels, topDownOutChannels, 3, batchNormOptionals)
     )
   }
 
@@ -43,7 +49,9 @@ export class TopDown extends Layer<tf.Tensor4D[], tf.Tensor4D[]> {
   }
 
   protected _apply(x: tf.Tensor4D[]): tf.Tensor4D[] {
-    const shrinkedOutputs = this._channelShrinkConvs.map((conv, idx) => conv.apply(x[idx]))
+    const inputs = x.slice().reverse()
+    const shrinkedOutputs = this._channelShrinkConvs
+      .map((conv, idx) => tf.relu(conv.apply(inputs[idx])))
     const outputs = [shrinkedOutputs[0]]
     let up = shrinkedOutputs[0]
     for (let idx = 1; idx < shrinkedOutputs.length; idx++) {
@@ -52,10 +60,9 @@ export class TopDown extends Layer<tf.Tensor4D[], tf.Tensor4D[]> {
       if (this._stageStrides === null || this._stageStrides[idx - 1] !== this._stageStrides[idx]) {
         up = up.resizeNearestNeighbor(targetShape)
       }
-      up = tf.add(up, stageOutput)
-      const out = tf.relu(this._antiAliasingConvs[idx].apply(up))
-      outputs.push(out)
+      up = tf.relu(this._antiAliasingConvs[idx - 1].apply(tf.add(up, stageOutput)))
+      outputs.push(up)
     }
-    return outputs
+    return outputs.reverse()
   }
 }

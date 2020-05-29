@@ -1,5 +1,6 @@
 export * from './BoundingBox'
 export * from './Box'
+export * from './CtRect'
 export * from './Dimensions'
 export * from './FaceDetection';
 export * from './FaceLandmarks';
