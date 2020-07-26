@@ -720,7 +720,7 @@ console.log(dist) // 10
 const landmarkPositions = landmarks.positions
 
 // or get the positions of individual contours,
-// only available for 68 point face ladnamrks (FaceLandmarks68)
+// only available for 68 point face landmarks (FaceLandmarks68)
 const jawOutline = landmarks.getJawOutline()
 const nose = landmarks.getNose()
 const mouth = landmarks.getMouth()
