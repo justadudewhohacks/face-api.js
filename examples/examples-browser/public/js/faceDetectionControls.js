@@ -18,7 +18,7 @@ function getFaceDetectorOptions() {
 }
 
 function onIncreaseMinConfidence() {
-  minConfidence = Math.min(faceapi.utils.round(minConfidence + 0.1), 1.0)
+  minConfidence = Math.min(faceapi.utils.round(minConfidence + 0.1), 0.9)
   $('#minConfidence').val(minConfidence)
   updateResults()
 }
@@ -43,7 +43,7 @@ function changeInputSize(size) {
 }
 
 function onIncreaseScoreThreshold() {
-  scoreThreshold = Math.min(faceapi.utils.round(scoreThreshold + 0.1), 1.0)
+  scoreThreshold = Math.min(faceapi.utils.round(scoreThreshold + 0.1), 0.9)
   $('#scoreThreshold').val(scoreThreshold)
   updateResults()
 }
