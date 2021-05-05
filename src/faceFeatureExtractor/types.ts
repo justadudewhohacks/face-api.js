@@ -1,5 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { NetInput, NeuralNetwork, TNetInput, TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
+
+import { NetInput, TNetInput } from '..';
+import { ConvParams, SeparableConvParams } from '../common';
+import { NeuralNetwork } from '../NeuralNetwork';
 
 export type ConvWithBatchNormParams = BatchNormParams & {
   filter: tf.Tensor4D
@@ -18,13 +21,13 @@ export type SeparableConvWithBatchNormParams = {
 }
 
 export type DenseBlock3Params = {
-  conv0: TfjsImageRecognitionBase.SeparableConvParams | TfjsImageRecognitionBase.ConvParams
-  conv1: TfjsImageRecognitionBase.SeparableConvParams
-  conv2: TfjsImageRecognitionBase.SeparableConvParams
+  conv0: SeparableConvParams | ConvParams
+  conv1: SeparableConvParams
+  conv2: SeparableConvParams
 }
 
 export type DenseBlock4Params = DenseBlock3Params & {
-  conv3: TfjsImageRecognitionBase.SeparableConvParams
+  conv3: SeparableConvParams
 }
 
 export type TinyFaceFeatureExtractorParams = {

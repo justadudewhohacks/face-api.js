@@ -1,7 +1,7 @@
-import { getContext2dOrThrow, IPoint } from 'tfjs-image-recognition-base';
-
+import { IPoint } from '../classes';
 import { FaceLandmarks } from '../classes/FaceLandmarks';
 import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
+import { getContext2dOrThrow } from '../dom/getContext2dOrThrow';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { isWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 import { drawContour } from './drawContour';

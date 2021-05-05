@@ -1,7 +1,8 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { Point, TfjsImageRecognitionBase, TNetInput } from 'tfjs-image-recognition-base';
 
-import { FaceDetection } from '../classes';
+import { FaceDetection, Point } from '../classes';
+import { ParamMapping } from '../common/types';
+import { TNetInput } from '../dom/types';
 import {
   BOX_ANCHORS,
   BOX_ANCHORS_SEPARABLE,
@@ -10,8 +11,11 @@ import {
   IOU_THRESHOLD,
   MEAN_RGB_SEPARABLE,
 } from './const';
+import { TinyYolov2Base } from './TinyYolov2Base';
+import { ITinyYolov2Options } from './TinyYolov2Options';
+import { TinyYolov2NetParams } from './types';
 
-export class TinyYolov2 extends TfjsImageRecognitionBase.TinyYolov2 {
+export class TinyYolov2 extends TinyYolov2Base {
 
   constructor(withSeparableConvs: boolean = true) {
     const config = Object.assign({}, {
@@ -41,7 +45,7 @@ export class TinyYolov2 extends TfjsImageRecognitionBase.TinyYolov2 {
     return this.config.anchors
   }
 
-  public async locateFaces(input: TNetInput, forwardParams: TfjsImageRecognitionBase.ITinyYolov2Options): Promise<FaceDetection[]> {
+  public async locateFaces(input: TNetInput, forwardParams: ITinyYolov2Options): Promise<FaceDetection[]> {
     const objectDetections = await this.detect(input, forwardParams)
     return objectDetections.map(det => new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }))
   }
@@ -50,7 +54,7 @@ export class TinyYolov2 extends TfjsImageRecognitionBase.TinyYolov2 {
     return this.withSeparableConvs ? DEFAULT_MODEL_NAME_SEPARABLE_CONV : DEFAULT_MODEL_NAME
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TfjsImageRecognitionBase.TinyYolov2NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TinyYolov2NetParams, paramMappings: ParamMapping[] } {
     return super.extractParamsFromWeigthMap(weightMap)
   }
 }

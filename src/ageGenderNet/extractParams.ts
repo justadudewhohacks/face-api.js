@@ -1,17 +1,16 @@
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
-
+import { extractFCParamsFactory, extractWeightsFactory, ParamMapping } from '../common';
 import { NetParams } from './types';
 
-export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+export function extractParams(weights: Float32Array): { params: NetParams, paramMappings: ParamMapping[] } {
 
-  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractWeights,
     getRemainingWeights
-  } = TfjsImageRecognitionBase.extractWeightsFactory(weights)
+  } = extractWeightsFactory(weights)
 
-  const extractFCParams = TfjsImageRecognitionBase.extractFCParamsFactory(extractWeights, paramMappings)
+  const extractFCParams = extractFCParamsFactory(extractWeights, paramMappings)
 
   const age = extractFCParams(512, 1, 'fc/age')
   const gender = extractFCParams(512, 2, 'fc/gender')

@@ -1,15 +1,21 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase, range } from 'tfjs-image-recognition-base';
 
+import {
+  disposeUnusedWeightTensors,
+  extractWeightEntryFactory,
+  loadSeparableConvParamsFactory,
+  ParamMapping,
+} from '../common';
 import { loadConvParamsFactory } from '../common/loadConvParamsFactory';
+import { range } from '../utils';
 import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
 
-function loadParamsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBase.ParamMapping[]) {
+function loadParamsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
-  const extractWeightEntry = TfjsImageRecognitionBase.extractWeightEntryFactory(weightMap, paramMappings)
+  const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   const extractConvParams = loadConvParamsFactory(extractWeightEntry)
-  const extractSeparableConvParams = TfjsImageRecognitionBase.loadSeparableConvParamsFactory(extractWeightEntry)
+  const extractSeparableConvParams = loadSeparableConvParamsFactory(extractWeightEntry)
 
   function extractReductionBlockParams(mappedPrefix: string): ReductionBlockParams {
 
@@ -40,9 +46,9 @@ function loadParamsFactory(weightMap: any, paramMappings: TfjsImageRecognitionBa
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap,
   numMainBlocks: number
-): { params: TinyXceptionParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+): { params: TinyXceptionParams, paramMappings: ParamMapping[] } {
 
-  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractConvParams,
@@ -74,7 +80,7 @@ export function extractParamsFromWeigthMap(
     separable_conv: exit_flow_separable_conv
   }
 
-  TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings)
+  disposeUnusedWeightTensors(weightMap, paramMappings)
 
   return { params: { entry_flow, middle_flow, exit_flow }, paramMappings }
 }

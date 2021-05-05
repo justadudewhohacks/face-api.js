@@ -1,14 +1,14 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
 
+import { disposeUnusedWeightTensors, ParamMapping } from '../common';
 import { loadParamsFactory } from './loadParamsFactory';
 import { TinyFaceFeatureExtractorParams } from './types';
 
 export function extractParamsFromWeigthMapTiny(
   weightMap: tf.NamedTensorMap
-): { params: TinyFaceFeatureExtractorParams, paramMappings: TfjsImageRecognitionBase.ParamMapping[] } {
+): { params: TinyFaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
 
-  const paramMappings: TfjsImageRecognitionBase.ParamMapping[] = []
+  const paramMappings: ParamMapping[] = []
 
   const {
     extractDenseBlock3Params
@@ -20,7 +20,7 @@ export function extractParamsFromWeigthMapTiny(
     dense2: extractDenseBlock3Params('dense2')
   }
 
-  TfjsImageRecognitionBase.disposeUnusedWeightTensors(weightMap, paramMappings)
+  disposeUnusedWeightTensors(weightMap, paramMappings)
 
   return { params, paramMappings }
 }

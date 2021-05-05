@@ -1,7 +1,8 @@
-import { Box, draw, IBoundingBox, IRect, round } from 'tfjs-image-recognition-base';
-
+import { Box, IBoundingBox, IRect } from '../classes';
 import { FaceDetection } from '../classes/FaceDetection';
 import { isWithFaceDetection, WithFaceDetection } from '../factories/WithFaceDetection';
+import { round } from '../utils';
+import { DrawBox } from './DrawBox';
 
 export type TDrawDetectionsInput = IRect | IBoundingBox | FaceDetection | WithFaceDetection<{}>
 
@@ -21,6 +22,6 @@ export function drawDetections(
       : (isWithFaceDetection(det) ? det.detection.box : new Box(det))
 
     const label = score ? `${round(score)}` : undefined
-    new draw.DrawBox(box, { label }).draw(canvasArg)
+    new DrawBox(box, { label }).draw(canvasArg)
   })
 }

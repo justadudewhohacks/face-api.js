@@ -1,4 +1,7 @@
-import { Box, IDimensions, ObjectDetection, Rect } from 'tfjs-image-recognition-base';
+import { Box } from './Box';
+import { IDimensions } from './Dimensions';
+import { ObjectDetection } from './ObjectDetection';
+import { Rect } from './Rect';
 
 export interface IFaceDetecion {
   score: number

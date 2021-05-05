@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { BoundingBox, Box, nonMaxSuppression, Point } from 'tfjs-image-recognition-base';
 
+import { BoundingBox, Box, Point } from '../classes';
+import { nonMaxSuppression } from '../ops';
 import { extractImagePatches } from './extractImagePatches';
 import { MtcnnBox } from './MtcnnBox';
 import { ONet } from './ONet';

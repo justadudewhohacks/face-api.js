@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
+
+import { ConvParams } from '../common';
 
 export type PointwiseConvParams = {
   filters: tf.Tensor4D
@@ -41,8 +42,8 @@ export namespace MobileNetV1 {
 }
 
 export type BoxPredictionParams = {
-  box_encoding_predictor: TfjsImageRecognitionBase.ConvParams
-  class_predictor: TfjsImageRecognitionBase.ConvParams
+  box_encoding_predictor: ConvParams
+  class_predictor: ConvParams
 }
 
 export type PredictionLayerParams = {

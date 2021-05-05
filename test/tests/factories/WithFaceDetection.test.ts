@@ -1,6 +1,4 @@
-import { Rect } from '../../../src';
-import { FaceDetection } from '../../../src/classes/FaceDetection';
-import { extendWithFaceDetection } from '../../../src/factories/WithFaceDetection';
+import { extendWithFaceDetection, FaceDetection, Rect } from '../../../src';
 
 const detection = new FaceDetection(1.0, new Rect(0, 0, 0.5, 0.5), { width: 100, height: 100 })
 

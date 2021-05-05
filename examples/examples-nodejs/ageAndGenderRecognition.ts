@@ -19,8 +19,8 @@ async function run() {
     const { age, gender, genderProbability } = result
     new faceapi.draw.DrawTextField(
       [
-        `${faceapi.round(age, 0)} years`,
-        `${gender} (${faceapi.round(genderProbability)})`
+        `${faceapi.utils.round(age, 0)} years`,
+        `${gender} (${faceapi.utils.round(genderProbability)})`
       ],
       result.detection.box.bottomLeft
     ).draw(out)

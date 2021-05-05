@@ -1,15 +1,23 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import * as faceapi from '../src';
-import { FaceRecognitionNet, IPoint, IRect, Mtcnn, TinyYolov2 } from '../src/';
-import { AgeGenderNet } from '../src/ageGenderNet/AgeGenderNet';
-import { FaceDetection } from '../src/classes/FaceDetection';
-import { FaceLandmarks } from '../src/classes/FaceLandmarks';
-import { FaceExpressionNet } from '../src/faceExpressionNet/FaceExpressionNet';
-import { FaceLandmark68Net } from '../src/faceLandmarkNet/FaceLandmark68Net';
-import { FaceLandmark68TinyNet } from '../src/faceLandmarkNet/FaceLandmark68TinyNet';
-import { SsdMobilenetv1 } from '../src/ssdMobilenetv1/SsdMobilenetv1';
-import { TinyFaceDetector } from '../src/tinyFaceDetector/TinyFaceDetector';
+import {
+  AgeGenderNet,
+  FaceDetection,
+  FaceExpressionNet,
+  FaceLandmark68Net,
+  FaceLandmark68TinyNet,
+  FaceLandmarks,
+  FaceRecognitionNet,
+  IPoint,
+  IRect,
+  LabeledBox,
+  Mtcnn,
+  nets,
+  PredictedBox,
+  SsdMobilenetv1,
+  TinyFaceDetector,
+  TinyYolov2,
+} from '../src';
 import { getTestEnv } from './env';
 
 export function expectMaxDelta(val1: number, val2: number, maxDelta: number) {
@@ -79,6 +87,41 @@ export function sortByFaceBox<T extends { box: IRect }>(objs: T[]) {
 export function sortByFaceDetection<T extends { detection: FaceDetection }>(objs: T[]) {
   return sortByDistanceToOrigin(objs, d => d.detection.box)
 }
+
+export function fakeTensor3d(dtype: tf.DataType = 'int32') {
+  return tf.tensor3d([0], [1, 1, 1], dtype)
+}
+
+export function zeros(length: number): Float32Array {
+  return new Float32Array(length)
+}
+
+export function ones(length: number): Float32Array {
+  return new Float32Array(length).fill(1)
+}
+
+export function createLabeledBox(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  classLabel: number = 0
+): LabeledBox {
+  return new LabeledBox({ x, y, width, height }, classLabel)
+}
+
+export function createPredictedBox(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  classLabel: number = 0,
+  score: number = 1.0,
+  classScore: number = 1.0
+): PredictedBox {
+  return new PredictedBox({ x, y, width, height }, classLabel, score, classScore)
+}
+
 
 export type ExpectedFaceDetectionWithLandmarks = {
   detection: IRect
@@ -191,7 +234,7 @@ export function describeWithNets(
       faceExpressionNet,
       ageGenderNet,
       tinyYolov2
-    } = faceapi.nets
+    } = nets
 
     beforeAll(async () => {
       const {

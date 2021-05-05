@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TfjsImageRecognitionBase } from 'tfjs-image-recognition-base';
+
+import { FCParams } from '../common';
 
 export type AgeAndGenderPrediction = {
   age: number
@@ -16,7 +17,7 @@ export type NetOutput = { age: tf.Tensor1D, gender: tf.Tensor2D }
 
 export type NetParams = {
   fc: {
-    age: TfjsImageRecognitionBase.FCParams
-    gender: TfjsImageRecognitionBase.FCParams
+    age: FCParams
+    gender: FCParams
   }
 }

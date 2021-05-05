@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/tinyFaceDetector/index.ts"],"names":[],"mappings":";;;AAAA,uDAAsD;AAEtD,6DAAmC;AACnC,oEAA0C;AAE1C,SAAgB,sBAAsB,CAAC,OAAqB;IAC1D,IAAM,GAAG,GAAG,IAAI,mCAAgB,EAAE,CAAA;IAClC,GAAG,CAAC,cAAc,CAAC,OAAO,CAAC,CAAA;IAC3B,OAAO,GAAG,CAAA;AACZ,CAAC;AAJD,wDAIC"}

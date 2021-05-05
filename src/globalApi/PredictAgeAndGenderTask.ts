@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TNetInput } from 'tfjs-image-recognition-base';
 
 import { AgeAndGenderPrediction } from '../ageGenderNet/types';
+import { TNetInput } from '../dom';
 import { extendWithAge, WithAge } from '../factories/WithAge';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';

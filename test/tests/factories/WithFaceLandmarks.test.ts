@@ -1,8 +1,4 @@
-import { Point, Rect } from '../../../src';
-import { FaceDetection } from '../../../src/classes/FaceDetection';
-import { FaceLandmarks68 } from '../../../src/classes/FaceLandmarks68';
-import { extendWithFaceDetection } from '../../../src/factories/WithFaceDetection';
-import { extendWithFaceLandmarks } from '../../../src/factories/WithFaceLandmarks';
+import { extendWithFaceDetection, extendWithFaceLandmarks, FaceDetection, FaceLandmarks68, Point, Rect } from '../../../src';
 
 const detection = new FaceDetection(1.0, new Rect(0.5, 0.5, 0.5, 0.5), { width: 100, height: 100 })
 const unshiftedLandmarks = new FaceLandmarks68(Array(68).fill(0).map((_, i) => new Point(i / 100, i / 100)), { width: 100, height: 100 })

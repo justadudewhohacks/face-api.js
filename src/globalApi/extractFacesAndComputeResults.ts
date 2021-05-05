@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-import { TNetInput } from 'tfjs-image-recognition-base';
 
 import { FaceDetection } from '../classes/FaceDetection';
-import { extractFaces, extractFaceTensors } from '../dom';
+import { extractFaces, extractFaceTensors, TNetInput } from '../dom';
 import { WithFaceDetection } from '../factories/WithFaceDetection';
 import { isWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFaceLandmarks';
 

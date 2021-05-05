@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 
-import { createCanvasFromMedia, NetInput, toNetInput } from '../../../src';
-import { euclideanDistance } from '../../../src/euclideanDistance';
+import { createCanvasFromMedia, euclideanDistance, NetInput, toNetInput } from '../../../src';
 import { getTestEnv } from '../../env';
 import { describeWithBackend, describeWithNets, expectAllTensorsReleased } from '../../utils';
 
