@@ -1,55 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="face-api.js"></script>
-  <script src="js/commons.js"></script>
-  <script src="js/faceDetectionControls.js"></script>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src="face-api.js"></script>
+    <script src="js/commons.js"></script>
+    <script src="js/faceDetectionControls.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
 <body>
-  <div id="navbar"></div>
-  <div class="center-content page-container">
+<div id="navbar"></div>
+<div class="center-content page-container">
 
     <div class="progress" id="loader">
-      <div class="indeterminate"></div>
+        <div class="indeterminate"></div>
     </div>
     <div style="position: relative" class="margin">
-      <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline></video>
-      <canvas id="overlay" />
+        <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline></video>
+        <canvas id="overlay"/>
     </div>
 
     <div class="row side-by-side">
 
-      <!-- face_detector_selection_control -->
-      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
-        <select id="selectFaceDetector">
-          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
-          <option value="tiny_face_detector">Tiny Face Detector</option>
-        </select>
-        <label>Select Face Detector</label>
-      </div>
-      <!-- face_detector_selection_control -->
-
-      <!-- check boxes -->
-      <div class="row" style="width: 220px;">
-        <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)" />
-        <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
-      </div>
-      <!-- check boxes -->
-
-      <!-- fps_meter -->
-      <div id="fps_meter" class="row side-by-side">
-        <div>
-          <label for="time">Time:</label>
-          <input disabled value="-" id="time" type="text" class="bold">
-          <label for="fps">Estimated Fps:</label>
-          <input disabled value="-" id="fps" type="text" class="bold">
+        <!-- face_detector_selection_control -->
+        <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
+            <select id="selectFaceDetector">
+                <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+                <option value="tiny_face_detector">Tiny Face Detector</option>
+                <option value="mtcnn">MTCNN</option>
+            </select>
+            <label>Select Face Detector</label>
         </div>
-      </div>
-      <!-- fps_meter -->
+        <!-- face_detector_selection_control -->
+
+        <!-- check boxes -->
+        <div class="row" style="width: 220px;">
+            <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)"/>
+            <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
+        </div>
+        <!-- check boxes -->
+
+        <!-- fps_meter -->
+        <div id="fps_meter" class="row side-by-side">
+            <div>
+                <label for="time">Time:</label>
+                <input disabled value="-" id="time" type="text" class="bold">
+                <label for="fps">Estimated Fps:</label>
+                <input disabled value="-" id="fps" type="text" class="bold">
+            </div>
+        </div>
+        <!-- fps_meter -->
 
     </div>
 
@@ -62,14 +63,14 @@
           <input disabled value="0.5" id="minConfidence" type="text" class="bold">
         </div>
         <button
-          class="waves-effect waves-light btn"
-          onclick="onDecreaseMinConfidence()"
+                class="waves-effect waves-light btn"
+                onclick="onDecreaseMinConfidence()"
         >
           <i class="material-icons left">-</i>
         </button>
         <button
-          class="waves-effect waves-light btn"
-          onclick="onIncreaseMinConfidence()"
+                class="waves-effect waves-light btn"
+                onclick="onIncreaseMinConfidence()"
         >
           <i class="material-icons left">+</i>
         </button>
@@ -98,14 +99,14 @@
           <input disabled value="0.5" id="scoreThreshold" type="text" class="bold">
         </div>
         <button
-          class="waves-effect waves-light btn"
-          onclick="onDecreaseScoreThreshold()"
+                class="waves-effect waves-light btn"
+                onclick="onDecreaseScoreThreshold()"
         >
           <i class="material-icons left">-</i>
         </button>
         <button
-          class="waves-effect waves-light btn"
-          onclick="onIncreaseScoreThreshold()"
+                class="waves-effect waves-light btn"
+                onclick="onIncreaseScoreThreshold()"
         >
           <i class="material-icons left">+</i>
         </button>
@@ -113,91 +114,116 @@
     </span>
     <!-- tiny_face_detector_controls -->
 
-  </body>
+    <!-- mtcnn_controls -->
+    <span id="mtcnn_controls">
+      <div class="row side-by-side">
+        <div class="row">
+          <label for="minFaceSize">Minimum Face Size:</label>
+          <input disabled value="20" id="minFaceSize" type="text" class="bold">
+        </div>
+        <button
+                class="waves-effect waves-light btn"
+                onclick="onDecreaseMinFaceSize()"
+        >
+          <i class="material-icons left">-</i>
+        </button>
+        <button
+                class="waves-effect waves-light btn"
+                onclick="onIncreaseMinFaceSize()"
+        >
+          <i class="material-icons left">+</i>
+        </button>
+      </div>
+    </span>
+    <!-- mtcnn_controls -->
 
-  <script>
-    let forwardTimes = []
-    let predictedAges = []
-    let withBoxes = true
+</div>
+</body>
 
-    function onChangeHideBoundingBoxes(e) {
-      withBoxes = !$(e.target).prop('checked')
-    }
+<script>
+  let forwardTimes = []
+  let predictedAges = []
+  let withBoxes = true
 
-    function updateTimeStats(timeInMs) {
-      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
-      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
-      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
-    }
+  function onChangeHideBoundingBoxes(e) {
+    withBoxes = !$(e.target).prop('checked')
+  }
 
-    function interpolateAgePredictions(age) {
-      predictedAges = [age].concat(predictedAges).slice(0, 30)
-      const avgPredictedAge = predictedAges.reduce((total, a) => total + a) / predictedAges.length
-      return avgPredictedAge
-    }
+  function updateTimeStats(timeInMs) {
+    forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+    const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+    $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+    $('#fps').val(`${faceapi.round(1000 / avgTimeInMs)}`)
+  }
 
-    async function onPlay() {
-      const videoEl = $('#inputVideo').get(0)
+  function interpolateAgePredictions(age) {
+    predictedAges = [age].concat(predictedAges).slice(0, 30)
+    const avgPredictedAge = predictedAges.reduce((total, a) => total + a) / predictedAges.length
+    return avgPredictedAge
+  }
 
-      if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
-        return setTimeout(() => onPlay())
+  async function onPlay() {
+    const videoEl = $('#inputVideo').get(0)
+
+    if (videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+      return setTimeout(() => onPlay())
 
 
-      const options = getFaceDetectorOptions()
+    const options = getFaceDetectorOptions()
 
-      const ts = Date.now()
+    const ts = Date.now()
 
-      const result = await faceapi.detectSingleFace(videoEl, options)
-        .withAgeAndGender()
+    const result = await faceapi.detectSingleFace(videoEl, options)
+      .withAgeAndGender()
 
-      updateTimeStats(Date.now() - ts)
+    updateTimeStats(Date.now() - ts)
 
-      if (result) {
-        const canvas = $('#overlay').get(0)
-        const dims = faceapi.matchDimensions(canvas, videoEl, true)
+    if (result) {
+      const canvas = $('#overlay').get(0)
+      const dims = faceapi.matchDimensions(canvas, videoEl, true)
 
-        const resizedResult = faceapi.resizeResults(result, dims)
-        if (withBoxes) {
-          faceapi.draw.drawDetections(canvas, resizedResult)
-        }
-        const { age, gender, genderProbability } = resizedResult
-
-        // interpolate gender predictions over last 30 frames
-        // to make the displayed age more stable
-        const interpolatedAge = interpolateAgePredictions(age)
-        new faceapi.draw.DrawTextField(
-          [
-            `${faceapi.utils.round(interpolatedAge, 0)} years`,
-            `${gender} (${faceapi.utils.round(genderProbability)})`
-          ],
-          result.detection.box.bottomLeft
-        ).draw(canvas)
+      const resizedResult = faceapi.resizeResults(result, dims)
+      if (withBoxes) {
+        faceapi.draw.drawDetections(canvas, resizedResult)
       }
+      const {age, gender, genderProbability} = resizedResult
 
-      setTimeout(() => onPlay())
+      // interpolate gender predictions over last 30 frames
+      // to make the displayed age more stable
+      const interpolatedAge = interpolateAgePredictions(age)
+      new faceapi.draw.DrawTextField(
+        [
+          `${faceapi.round(interpolatedAge, 0)} years`,
+          `${gender} (${faceapi.round(genderProbability)})`
+        ],
+        result.detection.box.bottomLeft
+      ).draw(canvas)
     }
 
-    async function run() {
-      // load face detection and face expression recognition models
-      await changeFaceDetector(TINY_FACE_DETECTOR)
-      await faceapi.nets.ageGenderNet.load('/')
-      changeInputSize(224)
+    setTimeout(() => onPlay())
+  }
 
-      // try to access users webcam and stream the images
-      // to the video element
-      const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
-      const videoEl = $('#inputVideo').get(0)
-      videoEl.srcObject = stream
-    }
+  async function run() {
+    // load face detection and face expression recognition models
+    await changeFaceDetector(TINY_FACE_DETECTOR)
+    await faceapi.nets.ageGenderNet.load('/')
+    changeInputSize(224)
 
-    function updateResults() {}
+    // try to access users webcam and stream the images
+    // to the video element
+    const stream = await navigator.mediaDevices.getUserMedia({video: {}})
+    const videoEl = $('#inputVideo').get(0)
+    videoEl.srcObject = stream
+  }
 
-    $(document).ready(function() {
-      renderNavBar('#navbar', 'webcam_age_and_gender_recognition')
-      initFaceDetectionControls()
-      run()
-    })
-  </script>
+  function updateResults() {
+  }
+
+  $(document).ready(function () {
+    renderNavBar('#navbar', 'webcam_age_and_gender_recognition')
+    initFaceDetectionControls()
+    run()
+  })
+</script>
 </body>
 </html>
