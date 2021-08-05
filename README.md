@@ -127,7 +127,7 @@ Now we simply monkey patch the environment to use the polyfills:
 
 ``` javascript
 // import nodejs bindings to native tensorflow,
-// not required, but will speed up things drastically (python required)
+// not required, but will speed up things drastically (python 2.7 required)
 import '@tensorflow/tfjs-node';
 
 // implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
