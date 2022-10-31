@@ -1,5 +1,5 @@
 # face-api.js
-
+# Hacktoberfest
 [![Build Status](https://travis-ci.org/justadudewhohacks/face-api.js.svg?branch=master)](https://travis-ci.org/justadudewhohacks/face-api.js)
 [![Slack](https://slack.bri.im/badge.svg)](https://slack.bri.im)
 
