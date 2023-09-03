@@ -3,8 +3,8 @@
     //"allowUnreachableCode": true,
     //"noUnusedLocals": false,
     //"noUnusedParameters": false,
-
-
+    //ignore Deprecation to ignore the typrscript deprecation error at suppressImplicitAnyIndexErrors
+    "ignoreDeprecations": "5.0",
     "removeComments": false,
     "preserveConstEnums": true,
     "emitDecoratorMetadata": true,
