@@ -44,3 +44,4 @@ proto
 weights_uncompressed
 weights_unused
 docs
+.DS_Store
