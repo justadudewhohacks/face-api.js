@@ -1319,10 +1319,10 @@
       // check for isBrowser() first to prevent electron renderer process
       // to be initialized with wrong environment due to isNodejs() returning true
       if (isBrowser()) {
-          setEnv(createBrowserEnv());
+          return setEnv(createBrowserEnv());
       }
       if (isNodejs()) {
-          setEnv(createNodejsEnv());
+          return setEnv(createNodejsEnv());
       }
   }
   function monkeyPatch(env) {
