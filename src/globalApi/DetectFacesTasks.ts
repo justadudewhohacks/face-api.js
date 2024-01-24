@@ -94,8 +94,8 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     return faceDetectionWithHighestScore;
   }
 
-  private runAndExtendWithFaceDetection(): Promise<WithFaceDetection<{}>> {
-    return new Promise<WithFaceDetection<{}>>(async res => {
+  private runAndExtendWithFaceDetection(): Promise<WithFaceDetection<{}> | undefined> {
+    return new Promise<WithFaceDetection<{}> | undefined>(async res => {
       const detection = await this.run()
       return res(detection ? extendWithFaceDetection<{}>({}, detection) : undefined)
     })

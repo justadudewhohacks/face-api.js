@@ -6,7 +6,8 @@ export function createFileSystem(fs?: any): FileSystem {
 
   if (!fs) {
     try {
-      fs = require('fs')
+      // Disabled this as it throws runtime errors in Showpad
+      // fs = require('fs')
     } catch (err) {
       requireFsError = err.toString()
     }

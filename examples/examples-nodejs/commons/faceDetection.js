@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.faceDetectionOptions = exports.faceDetectionNet = void 0;
 var faceapi = require("face-api.js");
 exports.faceDetectionNet = faceapi.nets.ssdMobilenetv1;
 // export const faceDetectionNet = tinyFaceDetector

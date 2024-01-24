@@ -1,6 +1,6 @@
 {
-  "name": "face-api.js",
-  "version": "0.22.2",
+  "name": "@timebutt/face-api.js",
+  "version": "0.23.2",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
   "module": "./build/es6/index.js",
   "main": "./build/commonjs/index.js",
@@ -33,26 +33,25 @@
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-core": "1.7.0",
-    "tslib": "^1.11.1"
+    "@tensorflow/tfjs-core": "^4.16.0",
+    "tslib": "^2.5.0"
   },
   "devDependencies": {
-    "@tensorflow/tfjs-node": "1.7.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@tensorflow/tfjs-node": "^4.16.0",
     "@types/jasmine": "^3.5.9",
     "@types/node": "^13.9.2",
-    "canvas": "2.6.1",
+    "canvas": "^2.11.0",
     "jasmine": "^3.5.0",
     "jasmine-core": "^3.5.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-jasmine": "^3.1.1",
     "karma-typescript": "^5.0.1",
-    "rollup": "^2.1.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.26.0",
-    "rollup-plugin-uglify": "^6.0.4",
+    "rollup": "^2.68.0",
     "ts-node": "^8.7.0",
-    "typescript": "^3.8.3"
+    "typescript": "~4.9.5"
   }
 }
