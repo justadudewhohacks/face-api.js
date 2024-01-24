@@ -1,5 +1,5 @@
 {
-  "name": "@timebutt/face-api.js",
+  "name": "@kreodev/face-api.js",
   "version": "0.23.2",
   "description": "JavaScript API for face detection and face recognition in the browser with tensorflow.js",
   "module": "./build/es6/index.js",
