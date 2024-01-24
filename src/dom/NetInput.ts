@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs';
 
 import { Dimensions } from '../classes/Dimensions';
 import { env } from '../env';
@@ -128,7 +128,7 @@ export class NetInput {
         const input = this.getInput(batchIdx)
 
         if (input instanceof tf.Tensor) {
-          let imgTensor = isTensor4D(input) ? input : input.expandDims<tf.Rank.R4>()
+          let imgTensor = (isTensor4D(input) ? input : input.expandDims()) as tf.Tensor4D;
           imgTensor = padToSquare(imgTensor, isCenterInputs)
 
           if (imgTensor.shape[1] !== inputSize || imgTensor.shape[2] !== inputSize) {

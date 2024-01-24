@@ -20,7 +20,7 @@
     "importHelpers": true,
     "skipLibCheck": true,
     "outDir": "build/commonjs",
-    "module": "commonjs",
+    "module": "ESNext",
     "target": "es5",
     "moduleResolution": "node",
     "lib": ["es2015", "dom"],

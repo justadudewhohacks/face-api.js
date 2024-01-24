@@ -1,8 +1,6 @@
 "use strict";
 exports.__esModule = true;
-// import nodejs bindings to native tensorflow,
-// not required, but will speed up things drastically (python required)
-require("@tensorflow/tfjs-node");
+exports.canvas = void 0;
 var faceapi = require("face-api.js");
 // implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
 var canvas = require('canvas');
