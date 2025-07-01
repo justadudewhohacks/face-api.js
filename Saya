@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack - Aplikasi Kitar Semula</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .camera-box {
+            width: 250px;
+            height: 250px;
+            border: 3px dashed #FF69B4;
+            margin: 15px auto;
+            background-color: #FFF5F5;
+        }
+    </style>
+</head>
+<body class="bg-pink-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Logo & Tajuk -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-pink-600">EcoTrack</h1>
+            <p class="text-pink-800">Aplikasi Kitar Semula Murid</p>
+        </div>
+        <!-- Aplikasi -->
+        <div id="app" class="bg-white rounded-xl shadow-md p-6 max-w-md mx-auto">
+            <!-- SKRIN DAFTAR (hanya tunjuk jika belum daftar) -->
+            <div id="registerSection">
+                <h2 class="text-2xl font-bold text-pink-700 mb-4">Pendaftaran Murid</h2>
+                
+                <div class="mb-4">
+
+Bina sebuah aplikasi mudah alih bernama "EcoTrack" untuk memantau sumbangan kitar semula oleh murid sekolah. Aplikasi bertema warna PINK yang ceria dan menarik. Tambahkan juga fungsi Face ID dengan langkah daftar wajah terlebih dahulu.
+
+Spesifikasi aplikasi:
+
+Skrin Pendaftaran (sekali sahaja):
+
+Nama Murid (Input Teks)
+Kelas (Dropdown: contoh 4KA1, 4KA2, 4KA3, 4KE1, 4KE2, 4KE3, 4KP1, 4KP2, 4KM1, 4KM2, 4KM3, 5KA1, 5KA2,5KA3,5KE1,5KE2,5KE3,5KP1,5KP2,5KM1,5KM2,5KM3.)
+Kamera ambil gambar wajah murid untuk disimpan
+Simpan info dan gambar ke Firebase (Storage + Firestore/Realtime DB)
+Selepas daftar, terus boleh ke skrin utama
+Face ID (Setiap kali buka aplikasi):
+
+Kamera imbas wajah murid
+Padankan wajah dengan data simpanan
+Jika wajah padan, teruskan ke Borang Sumbangan
+Jika tidak padan, papar "Wajah tidak dikenali. Sila cuba semula."
+Borang Sumbangan:
+
+Nama Murid (Autofill dari data wajah padan)
+Kelas (Autofill)
+Jenis Bahan Kitar Semula (Dropdown: Plastik, Kertas, Tin, Lain-lain)
+Bilangan Item (Input Nombor)
+Tarikh (Auto tetapkan tarikh hari ini)
+Butang "Hantar"
+Simpan Data:
+
+Semua data sumbangan disimpan ke Google Sheets atau Firebase
+Tidak perlu log masuk akaun
+Paparan Senarai Sumbangan:
+
+Senarai semua sumbangan murid
+Tapis ikut Kelas / Jenis Bahan / Bulan
+Dashboard Statistik:
+
+Jumlah keseluruhan item terkumpul
+Grafik ringkas
+Filter ikut bulan dan kelas
+Reka Bentuk Mesra Murid:
+
+Warna tema utama: Pink dan putih
+Guna ikon comel (kitar semula, bakul, senyum)
+Tulisan besar, jelas dan mudah dibaca
+Pilihan Tambahan:
+
+Semua istilah "pelajar" ditukar kepada "murid"
+Sesuai untuk Android dan iOS
+Pastikan fungsi kamera dan simpanan wajah selamat dan sesuai untuk murid sekolah
+Teknologi dicadangkan:
+
+Firebase ML Kit atau TensorFlow Lite untuk pengecaman wajah
+Firebase Storage untuk simpan gambar wajah
+Firestore atau Realtime Database untuk profil murid
+Google Sheets API (jika guna simpanan luaran)
+buat code JavaScript
+
+Copy message
+Edit message
+BLACKBOXAI
+
+Berikut adalah contoh kod JavaScript untuk aplikasi "EcoTrack" yang memenuhi spesifikasi yang diberikan. Kod ini merangkumi pendaftaran murid, pengecaman wajah, dan pengumpulan sumbangan. Untuk tujuan demonstrasi, saya akan menggunakan Firebase sebagai backend.
+
+1. Pendaftaran Murid
+javascript
+37 lines
+Click to expand
+// Import Firebase
+import firebase from 'firebase/app';
+...
+2. Pengecaman Wajah
+javascript
+41 lines
+Click to expand
+import { initializeApp } from 'firebase/app';
+import { getStorage } from 'firebase/storage';
+...
+3. Borang Sumbangan
+javascript
+11 lines
+Click to expand
+async function submitDonation(studentId, itemType, itemCount) {
+const donationData = {
+...
+4. Paparan Senarai Sumbangan
+javascript
+7 lines
+Click to expand
+async function displayDonations() {
+const donationsSnapshot = await db.collection('donations').get();
+...
+5. Dashboard Statistik
+javascript
+10 lines
+Click to expand
+async function getStatistics() {
+const donationsSnapshot = await db.collection('donations').get();
+...
+Nota Tambahan
+Pastikan anda menggantikan YOUR_API_KEY, YOUR_AUTH_DOMAIN, dan lain-lain dengan maklumat sebenar dari projek Firebase anda.
+Anda perlu menambah pengendalian kesilapan dan pengesahan input untuk memastikan aplikasi berfungsi dengan baik.
+Untuk fungsi pengecaman wajah, anda perlu melatih model dan menyimpan deskriptor wajah murid ke dalam Firestore.
+Pastikan untuk menguji aplikasi pada peranti sebenar untuk fungsi kamera dan pengecaman wajah.
+Ini adalah kerangka asas untuk aplikasi "EcoTrack". Anda boleh mengembangkan dan menyesuaikan kod ini mengikut keperluan dan spesifikasi tambahan.
+
+
+buat 1 code je semua
+
+Copy message
+Edit message
+BLACKBOXAI
+
+Berikut adalah satu fail HTML lengkap yang mengandungi semua fungsi untuk aplikasi "EcoTrack" menggunakan HTML, CSS dan JavaScript sahaja (tanpa backend/Firebase untuk demonstrasi):
+
+html
+247 lines
+Click to expand
+<!DOCTYPE html>
+<html lang="ms">
+...
+
+mula" pelajar knee daftar nama kelas dgn wajah lepastu Klau dh daftar blh terus ke login Klau login tu just face id xyahh dftar dh
+
+Copy message
+Edit message
+BLACKBOXAI
+
+Saya faham - anda mahu sistem yang lebih mudah di mana:
+
+Murid hanya perlu daftar sekali sahaja (nama, kelas dan wajah)
+Selepas daftar, untuk login hanya perlu scan wajah (tidak perlu daftar lagi)
+System akan kenalpasti murid berdasarkan wajah
+Berikut versi mudah alih yang dipermudahkan:
+
+html
+85 lines
+Click to close
+<!DOCTYPE html>
+<html lang="ms">
